@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>감자단 본부</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body class="main-page">
+<img src="./images/logo/title3.png" alt="감자단 로고" class="logo-img">
+
+
+<!-- 🔥 여기에 동적으로 채울 members 영역 -->
+<div class="members" id="membersContainer">
+    <!-- JavaScript가 카드들 자동으로 넣어줌 -->
+</div>
+
+<!-- 개인 PIN 입력 모달 -->
+<div id="loginModal" class="modal hidden">
+    <div class="pin-modal-content">
+        <h2>PIN 입력</h2>
+        <div class="pin-input-group">
+            <input type="text" maxlength="1" class="pin-input">
+            <input type="text" maxlength="1" class="pin-input">
+            <input type="text" maxlength="1" class="pin-input">
+            <input type="text" maxlength="1" class="pin-input">
+        </div>
+        <p id="loginErrorText" class="error-text hidden"></p>
+        <button id="LoginEnterBtn" style="display: none">입장하기</button>
+    </div>
+</div>
+
+<script src="./js/main.js" type="module"></script> <!-- type="module" 반드시 붙이자 -->
+</body>
+</html>

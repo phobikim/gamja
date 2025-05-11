@@ -1,0 +1,73 @@
+/* 메인 페이지 스타일 */
+.main-page {
+    background-color: #5e340e;
+    text-align: center;
+    padding: 30px;
+}
+
+
+.main-page .logo-img {
+    width: 250px; /* 로고 크기 조정 */
+    height: auto;
+    margin-top: -50px; /* 로고를 약간 아래로 내릴 수도 있음 */
+}
+
+@keyframes shake {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(2px, -2px) rotate(1deg); }
+    50% { transform: translate(-2px, 2px) rotate(-1deg); }
+    75% { transform: translate(2px, -1px) rotate(1deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px; /* 🔥 카드 간격 더 넓게 */
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.member-card {
+    background-color: #ffe4b5;
+    border: 10px dashed #b58b57; /* 🔥 점선 + 두껍게 */
+    border-radius: 18px; /* 둥글게 */
+    padding: 0px;
+    width: 160px;
+    text-align: center;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+}
+
+.member-card:hover {
+    animation: shake 0.3s ease 1;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.25);
+}
+
+.member-card.clicked {
+    box-shadow: 0px 0px 25px 8px #ffcc70;
+    transition: box-shadow 0.3s ease;
+}
+.member-img {
+    width: 140px;
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.characterName {
+    font-size: 22px; /* 🔥 더 큼직하게 */
+    font-weight: bold; /* 🔥 두껍게 강조 */
+    color: #5c3b1e; /* 더 진한 감자껍질 색 */
+    margin-top: 5px;
+}
+
+.characterLevelText {
+    font-size: 18px; /* 🔥 레벨도 크게 */
+    font-weight: bold;
+    color: #8d5524;
+    margin-top: 6px;
+}
+

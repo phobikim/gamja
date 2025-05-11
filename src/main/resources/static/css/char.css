@@ -1,0 +1,323 @@
+.char-page {
+    background-color: #5e340e;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
+
+/* 로고 */
+header .logo-img {
+    width: 200px;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+/* 메인 레이아웃 */
+.char-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+/* 캐릭터 + XP 전체 묶는 영역 */
+.char-info {
+    display: flex;
+    align-items: center;
+    gap: 30px; /* 캐릭터랑 오른쪽 내용 사이 넉넉히 */
+}
+
+/* 캐릭터만 있는 영역 */
+.char-image-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .member-img {
+        width: 300px;
+        height: auto;
+        object-fit: contain;
+    }
+}
+
+/* 캐릭터 정보 영역 */
+.char-info-area {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 210px;
+
+    /* 기본 닉네임 색 */
+    .characterName {
+        font-size: 22px;
+        color: #fa6719;
+        font-weight: bold;
+    }
+    /* LV 글자 색 (조금 부드러운 갈색) */
+    .lv-text {
+        font-size: 22px;
+        color: #f4a261;
+        font-weight: normal;
+    }
+    /* 레벨 숫자 색 (주황) */
+    .level-number {
+        font-size: 22px;
+        color: #fa6719;
+        font-weight: bold;
+    }
+    /* 칭호 */
+    .title-text {
+        font-size: 18px;
+        color: #f9d1ad;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+    .xp-wrapper {
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    .xp-bar {
+        margin-bottom: 15px;
+        width: 80%;
+        height: 18px; /* 🔥 높이 키움 */
+        background-color: #eee;
+        border: 7px solid #f4a261; /* 🔥 테두리 추가 */
+        border-radius: 8px; /* 더 부드럽게 */
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* 내부 그림자 추가 */
+    }
+
+    .xp-fill {
+        height: 100%;
+        width: 0%;
+        background-color: #279b25;
+        transition: width 0.5s ease;
+    }
+
+}
+
+/* 인벤토리 */
+.inventory-area {
+    background-color: #f5bf44;
+    padding: 20px;
+    border: 4px solid #d4a373;
+    border-radius: 15px;
+    width: 320px;
+    text-align: center;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+
+    .inventory-items {
+        margin-top: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .inventory-slot {
+        cursor: pointer;
+        position: relative;
+        width: 60px;
+        height: 60px;
+        background-color: #d2a679; /* 감자 베이지 */
+        border: 2px dashed #a86d3c; /* 점선 테두리 */
+        border-radius: 8px; /* 살짝 더 둥글게 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: inset 0 0 5px #5c3b1e; /* 내부 그림자 */
+        transition: all 0.2s ease;
+    }
+
+    .inventory-slot:hover {
+        background-color: #c6935d;
+        transform: scale(1.1);
+    }
+
+    .inventory-icon {
+        width: 70px;
+        height: 70px;
+        object-fit: contain; /* or object-fit: cover; 원하는 느낌에 따라 */
+        pointer-events: none;
+    }
+
+    .inventory-count {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background-color: #5c3b1e;
+        color: white;
+        font-size: 16px;
+        font-family: 'neodgm', sans-serif;
+        font-weight: bold;
+        padding: 2px 6px;
+        border-radius: 12px;
+        box-shadow: 0px 2px 4px rgba(0,0,0,0.2);
+        pointer-events: none;
+    }
+    .highlight {
+        animation: popEffect 0.3s ease;
+    }
+}
+@keyframes popEffect {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.25);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* 모달 공통 */
+.action-modal {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding: 20px;
+    border-radius: 15px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* 모달 배경 색 */
+.fish { background-color: #74cbdd; }
+.wood { background-color: #7cb334; }
+.stone { background-color: #341508; }
+.cook { background-color: #d47927; }
+
+/* 모달 안 아이템 */
+.action-img {
+    width: 150px;
+    height: 150px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.action-img:active {
+    transform: scale(0.9);
+}
+
+/* 완료 버튼 */
+.finish-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #2d2736;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.finish-btn:hover {
+    background-color: #e76f51;
+}
+
+/* 아이템 +1 애니메이션 */
+.get-item-image-text {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    animation: popUp 1s ease forwards;
+}
+
+.get-item-image {
+    width: 30px;
+    height: 30px;
+}
+
+.get-item-plusone {
+    font-size: 18px;
+    font-weight: bold;
+    color: #fa6719;
+}
+
+@keyframes popUp {
+    0% { transform: translate(-50%, 0); opacity: 1; }
+    100% { transform: translate(-50%, -50px); opacity: 0; }
+}
+
+
+
+/* 상점 모달 */
+.shop-modal-content {
+    display: flex;
+    width: 600px;
+    height: 600px;
+    background-color: #fff8dc;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+
+.shop-left {
+    flex: 7;
+    background-color: #d2a679;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.shop-background-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.shop-right {
+    flex: 3;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* 🔥 정렬 키포인트 */
+}
+
+.shop-item-list {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+}
+
+.shop-item-list li {
+    background-color: #f5bf44;
+    border: 2px dashed #a86d3c;
+    padding: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* 추가: 보유 골드 표시 스타일 */
+.shop-gold {
+    font-size: 16px;
+    font-weight: bold;
+    color: #5c3b1e;
+    margin-bottom: 10px;
+}
+
+/* 완료 버튼 */
+.finish-shop-btn {
+    margin-top: -8px;
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #2d2736;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+

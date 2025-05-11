@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>my page</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body class="char-page">
+<header>
+    <img src="./images/logo/title3.png" alt="감자단 로고" class="logo-img" id="homeLogo">
+</header>
+
+<main class="char-main">
+
+    <div class="char-info">
+        <!-- 1. 캐릭터 그림 영역 -->
+        <div class="char-image-area">
+            <img id="characterImg" src="./images/character/default.png" alt="캐릭터 이미지" class="member-img">
+        </div>
+        <!-- 2. 캐릭터 정보 영역 -->
+        <div class="char-info-area">
+            <!-- 캐릭터 이름, 칭호 -->
+            <p id="characterName" class="characterName">
+                닉네임 <span class="lv-text">(LV <span class="level-number">1</span>)</span>
+            </p>
+            <!-- 경험치 바 -->
+            <div class="xp-wrapper">
+                <div class="xp-bar">
+                    <div id="xpFill" class="xp-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. 인벤토리 버튼 -->
+    <aside class="inventory-area">
+        <div class="inventory-items">
+            <div class="inventory-slot" id="slot-fish">
+                <img src="./images/items/i_fish.png" alt="Fish" class="inventory-icon">
+                <span id="inventoryFish" class="inventory-count">0</span>
+            </div>
+            <div class="inventory-slot" id="slot-wood">
+                <img src="./images/items/i_wood.png" alt="Wood" class="inventory-icon">
+                <span id="inventoryWood" class="inventory-count">0</span>
+            </div>
+            <div class="inventory-slot" id="slot-stone">
+                <img src="./images/items/i_stone.png" alt="Stone" class="inventory-icon">
+                <span id="inventoryStone" class="inventory-count">0</span>
+            </div>
+            <div class="inventory-slot" id="slot-food">
+                <img src="./images/items/i_food.png" alt="Food" class="inventory-icon">
+                <span id="inventoryFood" class="inventory-count">0</span>
+            </div>
+            <div class="inventory-slot" id="slot-money">
+                <img src="./images/items/i_money.png" alt="Money" class="inventory-icon">
+                <span id="inventoryMoney" class="inventory-count">0</span>
+            </div>
+            <div class="inventory-slot">
+                <img src="./images/items/i_empty.png" alt="Empty" class="inventory-icon">
+                <span name="inventoryEmpty" class="inventory-count">0</span>
+            </div>
+            <div class="inventory-slot">
+                <img src="./images/items/i_empty.png" alt="Empty" class="inventory-icon">
+                <span name="inventoryEmpty"  class="inventory-count">0</span>
+            </div>
+            <div class="inventory-slot">
+                <img src="./images/items/i_empty.png" alt="Empty" class="inventory-icon">
+                <span name="inventoryEmpty"  class="inventory-count">0</span>
+            </div>
+        </div>
+    </aside>
+
+</main>
+<div id="modals-container"></div>
+
+
+<script>
+    fetch('modal.html')
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById('modals-container').innerHTML = html;
+            import('./js/char.js')
+        });
+</script>
+
+</body>
+</html>

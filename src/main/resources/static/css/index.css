@@ -1,0 +1,23 @@
+@keyframes pinshake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+/* 기본 배경 */
+.intro-page {
+    background-color: #5e340e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+.intro-page h2 {
+    color: #ffe4b5; /* 크림 감자색 */
+    margin-bottom: 16px;
+    font-size: 24px;
+    text-shadow: 1px 1px 2px #5c3b1e; /* 텍스트도 감자 그림자 */
+}
