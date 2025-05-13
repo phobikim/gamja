@@ -1,0 +1,5 @@
+.gradle
+*.log
+*.iml
+*.class
+.DS_Store
