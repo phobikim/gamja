@@ -41,7 +41,7 @@ import { showMessageModal } from './modal.js';
             card.innerHTML = `
             <div class="card-inner">
                 <div class="card-front">
-                    <img src="./images/character/${item.image}" alt="${item.name}" class="dex-img ${item.owned ? '' : 'unowned'}"> 
+                    <img src="./images/character/${item.image}" alt="${item.name}" class="dex-img ${item.owned ? '' : 'unowned'}" draggable="false"> 
                 </div>
                 <div class="card-back">
                     <p class="dex-name">${item.name}</p>

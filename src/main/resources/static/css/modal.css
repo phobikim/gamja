@@ -187,6 +187,8 @@
         transition: transform 0.35s ease;
         transform-style: preserve-3d;
         position: relative;
+        user-select: none;
+        -webkit-user-drag: none;
     }
     .dex-card.flipped .card-inner {
         transform: rotateY(180deg);
@@ -231,6 +233,10 @@
         height: 100%;
         object-fit: contain;
         border-radius: 10px;
+        /* 👉 드래그 방지 */
+        user-select: none;
+        -webkit-user-drag: none;
+        pointer-events: auto; /* 클릭은 유지 */
     }
     /* 🔥 소유하지 않은 감자 이미지 스타일 */
     .card-front .dex-img.unowned {
