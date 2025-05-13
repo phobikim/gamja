@@ -1,5 +1,5 @@
-.gradle
-*.log
+.gradle/
+build/
 *.iml
-*.class
-.DS_Store
+.idea/
+*.log
