@@ -11,7 +11,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "user")
+@Table(name = "\"user\"")  // <-- 백슬래시 + 큰따옴표
+
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
