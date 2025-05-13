@@ -3,10 +3,14 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mariadb://192.168.45.202:13306/gamja
+#    url: jdbc:mariadb://192.168.45.202:13306/gamja
+#    username: phobikim
+#    password: phobikim8038!
+#    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:postgresql://dpg-d0hkei3e5dus73b4dnb0-a.oregon-postgres.render.com:5432/gamja_db
     username: phobikim
-    password: phobikim8038!
-    driver-class-name: org.mariadb.jdbc.Driver
+    password: L7hFkmOIXE0me7erAWB0qtprbzLgbtDJ
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
