@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>감자단 키우기</title>
+    <title>감자단 캐릭터 페이지</title>
     <link rel="stylesheet" href="./css/style.css">
-    <link rel="stylesheet" href="./css/char.css">
 </head>
+
 <body class="char-page">
 
 <!-- 🔵 상단 좌우 동그란 버튼 -->
 <header class="header-ui">
-    <button id="btnLeftTop" class="circle-btn" aria-label="메뉴 버튼 왼쪽"></button>
-    <button id="btnRightTop" class="circle-btn" aria-label="설정 버튼 오른쪽"></button>
+    <button id="mainBtn" class="circle-btn"></button>
+    <button id="bgmToggleBtn" class="bgm-off"></button>
 </header>
 
 <!-- 🟡 메인 UI 구조 -->
@@ -26,13 +26,15 @@
     <!-- 🟢 캐릭터 정보 영역 -->
     <section class="status-ui">
         <p id="charInfoText" class="char-text">
-            포비
-            <span class="level-text">(LV <span class="level-num">151</span>)</span>
+            <span id="charName"></span>
+            <span class="level-text">(LV <span id="charLevel" class="level-num"></span>)</span>
         </p>
+        <p class="char-title" id="userTitle"></p>
         <div class="hp-bar">
-            <div id="hpBarFill" class="hp-bar-fill" style="width: 40%;"></div>
+            <div id="hpBarFill" class="hp-bar-fill" style="width: 0%;"></div>
         </div>
     </section>
+
 
     <!-- 🟠 인벤토리 -->
     <aside id="inventoryWrapper" class="inventory-grid">
@@ -82,7 +84,16 @@
 </body>
 </html>
 
+<script src="js/modal.js"></script>
 <script src="js/sound.js"></script>
 <script src="js/util.js"></script>
 <script src="js/char.js"></script>
-<script src="js/modal.js"></script>
+
+<script type="module">
+    fetch('modal.html')
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById('modals-container').innerHTML = html;
+            import('./js/char.js')
+        });
+</script>

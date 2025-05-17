@@ -21,19 +21,22 @@ html, body {
     margin-bottom: 10px;
 }
 
-.circle-btn {
+#mainBtn {
+    background-image: url('../images/icons/btn_main.png');
     position: absolute;
-    top: 10px;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background-color: #d4a373;
-    border: 3px solid #8b5e3c;
+    top: 2vh;
+    left: 3vw; /* 모바일 기준 살짝 안쪽으로 */
+    width: 40px;
+    height: 40px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    background-color: transparent;
+    z-index: 10;
     cursor: pointer;
 }
 
-#btnLeftTop { left: 10px; }
-#btnRightTop { right: 10px; }
 
 /* 메인 레이아웃 */
 .game-main-ui {

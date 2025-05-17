@@ -1,7 +1,6 @@
 @import url('modal.css');
 @import url('main.css');
-/*@import url('char.css');*/
-/*@import url('m_char.css');*/
+@import url('char.css');
 @import url('index.css');
 @font-face {
     /*숫자 - 픽셀 */

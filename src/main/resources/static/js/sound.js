@@ -4,7 +4,10 @@ const audioMap = {
     se_no_click: new Audio("audio/se_no_click.mp3"),
     se_input: new Audio("audio/se_input.mp3"),
     bgm_main: new Audio("audio/bgm_main.mp3"),
-    bgm_gotcha: new Audio("audio/bgm_gotcha.mp3")
+    bgm_gotcha: new Audio("audio/bgm_gotcha.mp3"),
+    bgm_base: new Audio("audio/bgm_base.mp3"),
+    bgm_char: new Audio("audio/bgm_char.mp3"),
+    bgm_shop: new Audio("audio/bgm_shop.mp3"),
 };
 
 audioMap.bgm_main.loop = true;

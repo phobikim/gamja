@@ -1,6 +1,16 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    // BGM
+    const toggleBtn = document.getElementById("bgmToggleBtn");
+    // BGM Toggle
+    toggleBtn.addEventListener("click", () => {
+        toggleBGM("bgm_char");
+    });
+    const mainBtn = document.getElementById("mainBtn");
+    mainBtn.addEventListener("click", () => {
+        location.href = './index.html';
+    });
+
     const mainCharacter = document.getElementById('mainCharacter');
-    const charInfoText = document.getElementById('charInfoText');
     const hpBarFill = document.getElementById('hpBarFill');
 
     const dexModal = document.getElementById('dexModal');
@@ -16,41 +26,61 @@ document.addEventListener('DOMContentLoaded', async () => {
         money: document.getElementById('itemMoney')
     };
 
+    // 1. 캐릭터 로딩
     const userId = localStorage.getItem('userId');
     if (!userId) {
-        alert('잘못된 접근입니다.');
-        location.href = './main.html';
+        showMessageModal('잘못된 접근입니다.');
+        location.href = './index.html';
         return;
     }
 
     try {
-        const res = await apiRequest(`/api/char/${userId}`, 'GET');
-        const { data } = await res.json();
+        const res  = await apiRequest(`/api/char/${userId}`, 'GET');
 
-        // 캐릭터 정보
-        mainCharacter.src = data.characterImage
-            ? `./images/character/${data.characterImage}`
-            : './images/character/default.png';
-        mainCharacter.alt = data.usernickname || data.username;
+        // 캐릭터 정보는 data 아래에 넘겨준다.
+        if (res.code !== 'SUCCESS' || !res.data) {
+            showMessageModal('캐릭터 정보를 불러오지 못했습니다.');
+            return;
+        }
+        //캐릭터 기본 정보 설정
+        setUserInfo(res.data);
 
-        charInfoText.innerHTML = `
-      ${data.usernickname || data.username}
-      <span class="level-text">(LV <span class="level-num">${data.level}</span>)</span>
-    `;
+    } catch (err) {
+        showMessageModal('캐릭터 정보를 불러오지 못했습니다.');
+        console.error(err);
+    }
 
-        hpBarFill.style.width = `${data.xp || 0}%`;
+    function setUserInfo(data) {
+        const {
+            level,
+            nickname,
+            title,
+            username,
+            xp = 0,
+            characterImage = 'default.png',
+            inventory = {}
+        } = data;
 
-        const inventory = data.inventory || {};
+        // 대표 캐릭터 이미지 세팅
+        const imagePath = './images/character/';
+        mainCharacter.src = imagePath + characterImage;
+        mainCharacter.alt = nickname || username || '캐릭터';
+
+        // 캐릭터 이름, 레벨 세팅
+        document.getElementById('charName').textContent = nickname || username || '---';
+        document.getElementById('charLevel').textContent = level ?? '-';
+        document.getElementById('userTitle').textContent = title || '칭호 없음';
+
+
+        hpBarFill.style.width = `${xp}%`;
+
         Object.entries(inventoryElements).forEach(([key, el]) => {
             el.textContent = inventory[key] ?? 0;
         });
 
-    } catch (err) {
-        alert('캐릭터 정보를 불러오지 못했습니다.');
-        console.error(err);
     }
 
-    // 캐릭터 클릭 → 도감 열기
+    // 2. 캐릭터 클릭 → 도감 모달 실행
     mainCharacter.addEventListener('click', async () => {
         try {
             const res = await fetch('/api/dex/list');
@@ -60,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             dexModal.classList.remove('hidden');
             dexOverlay.style.display = 'none';
         } catch (err) {
-            alert('도감 정보를 불러올 수 없습니다.');
+            showMessageModal('도감 정보를 불러올 수 없습니다.');
             console.error(err);
         }
     });
@@ -159,17 +189,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             const result = await res.json();
 
             if (result.code === 'SUCCESS') {
-                alert('대표 감자가 변경되었습니다!');
+                showMessageModal('대표 감자가 변경되었습니다!');
+
                 if (result.data?.characterImage) {
                     mainCharacter.src = `./images/character/${result.data.characterImage}`;
                 }
                 dexOverlay.style.display = 'none';
                 dexModal.classList.add('hidden');
             } else {
-                alert(result.message || '적용 실패');
+                showMessageModal(result.message || '적용 실패');
             }
         } catch (err) {
-            alert('적용 중 오류 발생');
+            showMessageModal('적용 중 오류 발생');
             console.error(err);
         }
     }

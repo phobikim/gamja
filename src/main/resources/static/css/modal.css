@@ -371,17 +371,20 @@
 /* ✅ 메시지 모달 전용 스타일 */
 .message-modal-content {
     background-color: #fff8dc;
-    border-radius: 15px;
-    padding: 50px 30px;
+    border-radius: 2.5vw;
+    padding: 8vh 5vw;
     box-sizing: border-box;
     text-align: center;
-    min-width: 300px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    min-width: 60vw;
+    max-width: 90vw;
+    box-shadow: 0 0.5vh 1.5vh rgba(0, 0, 0, 0.3);
 }
 
+
 .message-text {
-    font-size: 25px;
-    margin-bottom: 20px;
+    font-size: 4.5vw;
+    margin-bottom: 3vh;
     font-weight: bold;
     color: #5e340e;
+    word-break: keep-all;
 }

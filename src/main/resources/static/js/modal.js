@@ -1,4 +1,4 @@
-export function showMessageModal(message) {
+function showMessageModal(message) {
     const modal = document.getElementById('messageModal');
     const text = document.getElementById('messageText');
     const closeBtn = document.getElementById('messageCloseBtn');
@@ -10,3 +10,4 @@ export function showMessageModal(message) {
         modal.classList.add('hidden');
     };
 }
+
