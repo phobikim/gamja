@@ -180,5 +180,4 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-
 });

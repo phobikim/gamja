@@ -1,5 +1,3 @@
-import { apiRequest, apiRequestJson } from './util.js';
-import { showMessageModal } from './modal.js';
 document.addEventListener('DOMContentLoaded', async () => {
     const mainCharacter = document.getElementById('mainCharacter');
     const charInfoText = document.getElementById('charInfoText');

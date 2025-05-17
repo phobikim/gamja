@@ -82,11 +82,7 @@
 </body>
 </html>
 
-<script type="module">
-    fetch('modal.html')
-        .then(res => res.text())
-        .then(html => {
-            document.getElementById('modals-container').innerHTML = html;
-            import('./js/char.js'); // ✅ 이제 작동됨
-        });
-</script>
+<script src="js/sound.js"></script>
+<script src="js/util.js"></script>
+<script src="js/char.js"></script>
+<script src="js/modal.js"></script>
