@@ -7,15 +7,16 @@
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body class="intro-page">
+    <button id="bgmToggleBtn" class="bgm-off"></button>
     <div class="logo-container">
-    <!--    <img id="gamjadanLogo" src="./images/logo/logo.png" alt="감자단 로고" class="logo-img">-->
-        <img id="gamjadanLogo" src="./images/character/dance.png" alt="감자단 로고" class="logo-img">
+        <img id="gamjadanLogo" src="./images/logo/dance.png" alt="감자단 로고" class="logo-img" data-se="se_click">
     </div>
 
     <!-- 관리자 PIN 입력 모달 -->
     <div id="adminModal" class="modal hidden">
         <div class="pin-modal-content">
-            <h2>PIN 입력</h2>
+            <h2>로그인</h2>
+            <input type="text" id="LoginUsernameInput" placeholder="이름 입력">
             <div class="pin-input-group">
                 <input type="text" maxlength="1" class="pin-input" inputmode="numeric" pattern="[0-9]*">
                 <input type="text" maxlength="1" class="pin-input" inputmode="numeric" pattern="[0-9]*">
@@ -24,7 +25,7 @@
             </div>
 
             <p id="adminErrorText" class="error-text hidden"></p>
-            <button id="adminEnterBtn" style="display: none">입장하기</button>
+            <button id="adminEnterBtn" >입장하기</button>
             <button id="openSignupBtn">회원가입</button>
         </div>
     </div>
@@ -34,7 +35,12 @@
         <div class="pin-modal-content">
             <h2>감자단 가입</h2>
             <input type="text" id="signupUsernameInput" placeholder="이름 입력">
-            <input type="password" id="signupPinInput" maxlength="4" placeholder="PIN (4자리)">
+            <div class="pin-input-group">
+                <input type="text" maxlength="1" class="pin-input" inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="pin-input" inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="pin-input" inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="pin-input" inputmode="numeric" pattern="[0-9]*">
+            </div>
             <p id="signupErrorText" class="error-text hidden"></p>
             <button id="signupSubmitBtn">가입하기</button>
             <button id="closeSignupBtn">취소</button>
@@ -62,6 +68,9 @@
             <button id="successModalBtn">확인</button>
         </div>
     </div>
-<script type="module" src="./js/index.js"></script>
+<!--<script type="module" src="./js/index.js"></script>-->
+    <script src="js/sound.js"></script>
+    <script src="js/util.js"></script>
+    <script src="js/index.js"></script>
 </body>
 </html>

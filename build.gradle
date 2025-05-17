@@ -5,6 +5,13 @@ plugins {
 }
 
 group = 'com.example'
+version = '1.0.0'
+
+bootJar {
+    archiveBaseName = 'gamja'
+    archiveFileName = "${archiveBaseName.get()}-${archiveVersion.get()}.jar"
+}
+
 
 java {
     toolchain {
@@ -30,7 +37,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     // MariaDB 드라이버
-    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.1.4'
     implementation 'org.postgresql:postgresql:42.7.3'
 
     // 롬복 (Getter/Setter 자동 생성)

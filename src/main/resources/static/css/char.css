@@ -1,9 +1,197 @@
-.char-page {
-    background-color: #5e340e;
+html, body {
     margin: 0;
-    padding: 20px;
-    text-align: center;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #5e340e;
+    font-family: 'neodgm', 'sans-serif';
+    overflow-x: hidden;
 }
+
+.char-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+}
+
+.header-ui {
+    position: relative;
+    width: 100%;
+    height: 60px;
+    margin-bottom: 10px;
+}
+
+.circle-btn {
+    position: absolute;
+    top: 10px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #d4a373;
+    border: 3px solid #8b5e3c;
+    cursor: pointer;
+}
+
+#btnLeftTop { left: 10px; }
+#btnRightTop { right: 10px; }
+
+/* 메인 레이아웃 */
+.game-main-ui {
+    width: 100%;
+    max-width: 550px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+/* 배경 + 캐릭터 */
+.background-area {
+    position: relative;
+    width: 90vw;
+    aspect-ratio: 1 / 1.1;
+    background-image: url('../images/backgrounds/bg_vilige.png');
+    background-size: cover;
+    background-position: center;
+    border: 4px solid #d4a373;
+    border-radius: 20px;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+.character-img {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 55vw;
+    max-width: 300px;
+    object-fit: contain;
+}
+
+/* 캐릭터 정보 UI */
+.status-ui {
+    width: 100%;
+    text-align: center;
+    color: #fff3e0;
+    padding: 0 10px;
+}
+.char-text {
+    font-size: min(5vw, 22px);
+    font-weight: bold;
+    color: #fa6719;
+}
+.level-text {
+    font-size: 18px;
+    color: #f4a261;
+    font-weight: normal;
+}
+.level-num {
+    color: #fa6719;
+    font-weight: bold;
+}
+
+/* HP 바 (XP 바처럼 활용) */
+.hp-bar {
+    width: 85%;
+    height: 16px;
+    background-color: #eee;
+    border: 3px solid #f4a261;
+    border-radius: 8px;
+    margin: 6px auto;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+}
+.hp-bar-fill {
+    height: 100%;
+    background-color: #279b25;
+    width: 0%;
+    transition: width 0.5s ease;
+}
+
+/* 인벤토리 그리드 */
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    width: 90%;
+    padding: 15px;
+    background-color: #f5bf44;
+    border: 4px solid #d4a373;
+    border-radius: 15px;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+}
+.inventoryCell {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    background-color: #d2a679;
+    border: 2px dashed #a86d3c;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 4px #5c3b1e;
+    transition: all 0.2s ease;
+}
+.inventoryCell:hover {
+    background-color: #c6935d;
+    transform: scale(1.1);
+}
+.inventoryCell img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    pointer-events: none;
+}
+.itemAmount {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background-color: #5c3b1e;
+    color: white;
+    font-size: 14px;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+/* 하단 푸터 */
+.footer-ui {
+    width: 100%;
+    height: 60px;
+    background: rgba(0,0,0,0.2);
+    border-top: 2px solid #d4a373;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+.footer-ui button {
+    background-color: #f4a261;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+}
+.footer-ui button:hover {
+    background-color: #e76f51;
+}
+
+
+
+
+
+
+
+
+
+
+
 
 /* 로고 */
 header .logo-img {
@@ -17,8 +205,18 @@ header .logo-img {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 30px;
+    gap: 10px;
+    padding: 10px 0;
+    height: 100vh;
+    box-sizing: border-box;
+    justify-content: space-evenly;
+
+    transform: scale(0.8);         /* 💡 전체 비율 줄이기 */
+    transform-origin: top center;  /* 🔥 위쪽 기준으로 축소 */
 }
+
+
+
 
 /* 캐릭터 + XP 전체 묶는 영역 */
 .char-info {
@@ -29,28 +227,63 @@ header .logo-img {
 
 /* 캐릭터만 있는 영역 */
 .char-image-area {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2; /* 배경보다 앞에 위치 */
     display: flex;
-    align-items: center;
+    align-items: end;
     justify-content: center;
-    .member-img {
-        width: 300px;
-        height: auto;
-        object-fit: contain;
-    }
+}
+
+.char-image-area .member-img {
+    width: 55vw;
+    max-width: 270px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* 캐릭터 배경 포함 영역 */
+.char-background-area {
+    position: relative;
+    width: 90vw;
+    max-width: 525px;
+    aspect-ratio: 1 / 1.1; /* 💡 세로가 더 김 */
+    /*background-image: url('../images/backgrounds/bg_school.png');*/
+    background-image: url('../images/backgrounds/bg_vilige.png');
+    /*background-image: url('../images/backgrounds/bg_school_2.png');*/
+    /*background-image: url('../images/backgrounds/bg_train.png');*/
+    /*background-image: url('../images/backgrounds/bg_summer.png');*/
+    /*background-image: url('../images/backgrounds/bg_camping.png');*/
+    /*background-image: url('../images/backgrounds/bg_camping_night.png');*/
+    /*background-image: url('../images/backgrounds/bg_bus.png');*/
+    /*background-image: url('../images/backgrounds/bg_room.png');*/
+    /*background-image: url('../images/backgrounds/bg_neon.png');*/
+    background-size: cover;
+    background-position: center;
+    border: 4px solid #d4a373;
+    border-radius: 20px;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
+    /*overflow: hidden;*/
 }
 
 /* 캐릭터 정보 영역 */
 .char-info-area {
+    margin-top: 10px;
+    width: 90vw;
+    max-width: 525px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: 210px;
 
     /* 기본 닉네임 색 */
     .characterName {
-        font-size: 22px;
+        font-size: min(4vw, 22px);
         color: #fa6719;
         font-weight: bold;
+        width: 100%;
+        text-align: center;
     }
     /* LV 글자 색 (조금 부드러운 갈색) */
     .lv-text {
@@ -77,15 +310,17 @@ header .logo-img {
     }
 
     .xp-bar {
-        margin-bottom: 15px;
-        width: 80%;
-        height: 18px; /* 🔥 높이 키움 */
+        height: min(18px, 3vw);
+        border-width: min(7px, 1vw);
+        margin: 0 auto 15px; /* 🔥 가운데 정렬 (좌우 자동) + 아래 마진 */
+        width: 90%;
         background-color: #eee;
-        border: 7px solid #f4a261; /* 🔥 테두리 추가 */
-        border-radius: 8px; /* 더 부드럽게 */
+        border: 7px solid #f4a261;
+        border-radius: 8px;
         overflow: hidden;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* 내부 그림자 추가 */
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
     }
+
 
     .xp-fill {
         height: 100%;
@@ -98,11 +333,14 @@ header .logo-img {
 
 /* 인벤토리 */
 .inventory-area {
+    margin-bottom: 10px;
     background-color: #f5bf44;
     padding: 20px;
     border: 4px solid #d4a373;
     border-radius: 15px;
-    width: 320px;
+    width: 80vw;
+    max-width: 350px;
+    flex-shrink: 1; /* ✅ 줄어들 수 있게 */
     text-align: center;
     box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
 
@@ -135,8 +373,8 @@ header .logo-img {
     }
 
     .inventory-icon {
-        width: 70px;
-        height: 70px;
+        width: min(65px, 15vw);
+        height: min(65px, 15vw);
         object-fit: contain; /* or object-fit: cover; 원하는 느낌에 따라 */
         pointer-events: none;
     }
@@ -320,4 +558,3 @@ header .logo-img {
     border-radius: 10px;
     cursor: pointer;
 }
-

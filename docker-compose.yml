@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  spring-server:
+    build:
+      context: .
+    container_name: gamja-server
+    ports:
+      - "51888:8080"
+    restart: always

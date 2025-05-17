@@ -2,86 +2,91 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>my page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>감자단 키우기</title>
     <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/char.css">
 </head>
 <body class="char-page">
-<header>
-    <img src="./images/logo/title3.png" alt="감자단 로고" class="logo-img" id="homeLogo">
+
+<!-- 🔵 상단 좌우 동그란 버튼 -->
+<header class="header-ui">
+    <button id="btnLeftTop" class="circle-btn" aria-label="메뉴 버튼 왼쪽"></button>
+    <button id="btnRightTop" class="circle-btn" aria-label="설정 버튼 오른쪽"></button>
 </header>
 
-<main class="char-main">
+<!-- 🟡 메인 UI 구조 -->
+<main class="game-main-ui">
 
-    <div class="char-info">
-        <!-- 1. 캐릭터 그림 영역 -->
-        <div class="char-image-area">
-            <img id="characterImg" src="./images/character/default.png" alt="캐릭터 이미지" class="member-img">
-        </div>
-        <!-- 2. 캐릭터 정보 영역 -->
-        <div class="char-info-area">
-            <!-- 캐릭터 이름, 칭호 -->
-            <p id="characterName" class="characterName">
-                닉네임 <span class="lv-text">(LV <span class="level-number">1</span>)</span>
-            </p>
-            <!-- 경험치 바 -->
-            <div class="xp-wrapper">
-                <div class="xp-bar">
-                    <div id="xpFill" class="xp-fill" style="width: 0%;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- 🌕 배경 + 캐릭터 -->
+    <section id="bgSceneArea" class="background-area">
+        <img id="mainCharacter" src="./images/character/default.png" alt="캐릭터" class="character-img">
+    </section>
 
-    <!-- 5. 인벤토리 버튼 -->
-    <aside class="inventory-area">
-        <div class="inventory-items">
-            <div class="inventory-slot" id="slot-fish">
-                <img src="./images/items/i_fish.png" alt="Fish" class="inventory-icon">
-                <span id="inventoryFish" class="inventory-count">0</span>
-            </div>
-            <div class="inventory-slot" id="slot-wood">
-                <img src="./images/items/i_wood.png" alt="Wood" class="inventory-icon">
-                <span id="inventoryWood" class="inventory-count">0</span>
-            </div>
-            <div class="inventory-slot" id="slot-stone">
-                <img src="./images/items/i_stone.png" alt="Stone" class="inventory-icon">
-                <span id="inventoryStone" class="inventory-count">0</span>
-            </div>
-            <div class="inventory-slot" id="slot-food">
-                <img src="./images/items/i_food.png" alt="Food" class="inventory-icon">
-                <span id="inventoryFood" class="inventory-count">0</span>
-            </div>
-            <div class="inventory-slot" id="slot-money">
-                <img src="./images/items/i_money.png" alt="Money" class="inventory-icon">
-                <span id="inventoryMoney" class="inventory-count">0</span>
-            </div>
-            <div class="inventory-slot">
-                <img src="./images/items/i_empty.png" alt="Empty" class="inventory-icon">
-                <span name="inventoryEmpty" class="inventory-count">0</span>
-            </div>
-            <div class="inventory-slot">
-                <img src="./images/items/i_empty.png" alt="Empty" class="inventory-icon">
-                <span name="inventoryEmpty"  class="inventory-count">0</span>
-            </div>
-            <div class="inventory-slot">
-                <img src="./images/items/i_empty.png" alt="Empty" class="inventory-icon">
-                <span name="inventoryEmpty"  class="inventory-count">0</span>
-            </div>
+    <!-- 🟢 캐릭터 정보 영역 -->
+    <section class="status-ui">
+        <p id="charInfoText" class="char-text">
+            포비
+            <span class="level-text">(LV <span class="level-num">151</span>)</span>
+        </p>
+        <div class="hp-bar">
+            <div id="hpBarFill" class="hp-bar-fill" style="width: 40%;"></div>
+        </div>
+    </section>
+
+    <!-- 🟠 인벤토리 -->
+    <aside id="inventoryWrapper" class="inventory-grid">
+        <div class="inventoryCell">
+            <img src="./images/items/i_fish.png" alt="물고기">
+            <span id="itemFish" class="itemAmount">0</span>
+        </div>
+        <div class="inventoryCell">
+            <img src="/images/items/i_wood.png" alt="나무">
+            <span id="itemWood" class="itemAmount">0</span>
+        </div>
+        <div class="inventoryCell">
+            <img src="./images/items/i_stone.png" alt="돌">
+            <span id="itemStone" class="itemAmount">0</span>
+        </div>
+        <div class="inventoryCell">
+            <img src="./images/items/i_food.png" alt="음식">
+            <span id="itemFood" class="itemAmount">0</span>
+        </div>
+        <div class="inventoryCell">
+            <img src="./images/items/i_money.png" alt="돈">
+            <span id="itemMoney" class="itemAmount">0</span>
+        </div>
+        <!-- 필요 시 여분 슬롯 추가 -->
+        <div class="inventoryCell">
+            <img src="./images/items/i_empty.png" alt="빈칸">
+            <span class="itemAmount">0</span>
+        </div>
+        <div class="inventoryCell">
+            <img src="./images/items/i_empty.png" alt="빈칸">
+            <span class="itemAmount">0</span>
+        </div>
+        <div class="inventoryCell">
+            <img src="./images/items/i_empty.png" alt="빈칸">
+            <span class="itemAmount">0</span>
         </div>
     </aside>
+
+    <!-- ⚫ 푸터 메뉴 영역 (추후 버튼 등) -->
+    <footer id="footerNav" class="footer-ui">
+        <!-- 예: <button>홈</button> <button>지도</button> -->
+    </footer>
 
 </main>
 <div id="modals-container"></div>
 
+</body>
+</html>
 
-<script>
+<script type="module">
     fetch('modal.html')
         .then(res => res.text())
         .then(html => {
             document.getElementById('modals-container').innerHTML = html;
-            import('./js/char.js')
+            import('./js/char.js'); // ✅ 이제 작동됨
         });
 </script>
-
-</body>
-</html>

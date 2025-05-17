@@ -1,4 +1,4 @@
-export async function apiRequest(url, method = 'GET', data = null) {
+async function apiRequest(url, method = 'GET', data = null) {
     const options = {
         method,
         headers: {
@@ -19,7 +19,7 @@ export async function apiRequest(url, method = 'GET', data = null) {
     }
 }
 
-export async function apiRequestJson(url, method = 'GET', data = null) {
+async function apiRequestJson(url, method = 'GET', data = null) {
     const options = {
         method,
         headers: {
@@ -39,5 +39,7 @@ export async function apiRequestJson(url, method = 'GET', data = null) {
         throw error;
     }
 }
+
+
 
 

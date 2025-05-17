@@ -4,6 +4,7 @@ import com.example.gamja.entity.*;
 import com.example.gamja.message.GamJaResponse;
 import com.example.gamja.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+import javax.servlet.http.HttpSession;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -26,8 +28,31 @@ public class LoginController {
 
     @Transactional
     @ResponseBody
+    @PostMapping("/login")
+    public ResponseEntity<GamJaResponse> login(
+            @RequestParam String username,
+            @RequestParam String pin,
+            HttpSession session ) {
+
+        Optional<User> userOpt = userRepository.findByUsernameAndPin(username, pin);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            session.setAttribute("userId", user.getId()); // 세션에 사용자 ID 저장
+            return ResponseEntity.ok(GamJaResponse.ok("로그인 완료"));
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(GamJaResponse.fail("이름 또는 PIN이 일치하지 않습니다."));
+        }
+    }
+
+    @Transactional
+    @ResponseBody
     @PostMapping("/signup")
-    public ResponseEntity<GamJaResponse> signup(@RequestParam String username, @RequestParam String pin) {
+    public ResponseEntity<GamJaResponse> signup(
+            @RequestParam String username,
+            @RequestParam String pin,
+            HttpSession session ) {
         if (userRepository.findByUsername(username).isPresent()) {
             return ResponseEntity.ok(GamJaResponse.fail("이미 존재하는 아이디입니다."));
         } else {
@@ -60,6 +85,8 @@ public class LoginController {
                             .build())
                     .toList();
             userDexRepository.saveAll(toSave);
+
+            session.setAttribute("userId", savedUser.getId());
 
             return ResponseEntity.ok(GamJaResponse.ok("회원가입 완료"));
         }

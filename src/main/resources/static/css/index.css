@@ -6,6 +6,36 @@
     100% { transform: translateX(0); }
 }
 
+#bgmToggleBtn {
+    position: absolute;
+    top: 2vh;
+    right: 3vw; /* 모바일 기준 살짝 안쪽으로 */
+    width: 40px;
+    height: 40px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    background-color: transparent;
+    z-index: 10;
+    cursor: pointer;
+}
+
+/* 기본 상태 (음소거 상태) */
+#bgmToggleBtn.bgm-off {
+    background-image: url('../images/icons/bgm_off.png'); /* 음소거 이미지 */
+}
+
+/* BGM 켜진 상태 */
+#bgmToggleBtn.bgm-on {
+    background-image: url('../images/icons/bgm_on.png'); /* 켜진 이미지 */
+}
+
+/* 로고 */
+.logo-img {
+    width: 300px;
+    cursor: pointer;
+}
 /* 기본 배경 */
 .intro-page {
     background-color: #5e340e;

@@ -3,26 +3,31 @@ server:
 
 spring:
   datasource:
-#    url: jdbc:mariadb://192.168.45.202:13306/gamja
-#    username: phobikim
-#    password: phobikim8038!
+#    local mariadb
+#    url: jdbc:mariadb://localhost:3306/gamja
+#    username: root
+#    password: 80383wjd!
 #    driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:postgresql://dpg-d0hkei3e5dus73b4dnb0-a.oregon-postgres.render.com:5432/gamja_db
-    username: phobikim
-    password: L7hFkmOIXE0me7erAWB0qtprbzLgbtDJ
-    driver-class-name: org.postgresql.Driver
 
-#  jpa:
-#    hibernate:
-#      ddl-auto: update
-#    show-sql: true
-#    properties:
-#      hibernate:
-#        format_sql: true
+#    docker mariadb
+    url: jdbc:mariadb://192.168.45.202:13306/gamja
+    username: phobikim
+    password: phobikim8038!
+    driver-class-name: org.mariadb.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
+        dialect: org.hibernate.dialect.MariaDBDialect
+        format_sql: true
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+#      format_sql: true
+#    show-sql: true

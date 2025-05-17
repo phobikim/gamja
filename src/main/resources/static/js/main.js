@@ -1,6 +1,3 @@
-import { apiRequest, apiRequestJson } from './util.js';
-import { showMessageModal } from './modal.js';
-
 
 document.addEventListener('DOMContentLoaded', async function () {
     const membersContainer = document.getElementById('membersContainer');

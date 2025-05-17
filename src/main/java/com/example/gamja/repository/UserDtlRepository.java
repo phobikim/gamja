@@ -7,6 +7,5 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 
 public interface UserDtlRepository extends JpaRepository<UserDtl, Long> {
-    @Query("select u.id from UserDtl u where u.user.username = :username")
-    Long findIDByUserUsername(String username);
+
 }
