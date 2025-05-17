@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const dexModal = document.getElementById('dexModal');
     const dexList = document.getElementById('dexList');
+    const template = document.getElementById('dexCardTemplate');
     const dexOverlay = document.getElementById('cardOverlay');
     const dexPagination = document.getElementById('dexPagination');
 
@@ -95,7 +96,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 도감 카드 렌더링
+    // 3. 도감 카드 렌더링
     let fullDexList = [];
     const itemsPerPage = 15;
 
@@ -108,31 +109,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderDexCards(data) {
-        dexList.innerHTML = '';
+        dexList.innerHTML = ''; // 기존 카드 제거
+        const CharImagePath = './images/character/'
         data.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'dex-card';
+            const clone = template.content.cloneNode(true);
+            const card = clone.querySelector('.dex-card');
+            const frontImg = clone.querySelector('.dex-img');
+            const name = clone.querySelector('.dex-name');
+            const rank = clone.querySelector('.dex-rank');
+            const condition = clone.querySelector('.dex-condition');
+            const btn = clone.querySelector('.apply-btn');
+
             if (!item.owned) card.classList.add('unowned');
 
-            card.innerHTML = `
-        <div class="card-inner">
-          <div class="card-front">
-            <img src="./images/character/${item.image}" alt="${item.name}" class="dex-img ${item.owned ? '' : 'unowned'}" draggable="false"> 
-          </div>
-          <div class="card-back">
-            <p class="dex-name">${item.name}</p>
-            <div class="dex-body">
-              <p class="dex-rank">등급: ${item.rank}</p>
-              <p class="dex-condition">${item.description}</p>
-            </div>
-            <button class="apply-btn ${item.owned ? '' : 'disabled'}" data-dexid="${item.id}" ${item.owned ? '' : 'disabled'}>
-              ${item.owned ? '적용하기' : '미획득'}
-            </button>
-          </div>
-        </div>
-      `;
+            frontImg.src = CharImagePath + `${item.image}`;
+            frontImg.alt = item.name;
+            if (!item.owned) frontImg.classList.add('unowned');
 
-            // 카드 클릭 → 확대 미리보기
+            name.textContent = item.name;
+            rank.textContent = `등급: ${item.rank}`;
+            condition.textContent = item.description;
+            btn.textContent = item.owned ? '적용하기' : '미획득';
+            btn.dataset.dexid = item.id;
+            btn.disabled = !item.owned;
+            btn.classList.toggle('disabled', !item.owned);
+
+            // 카드 클릭 → 확대
             card.addEventListener('click', () => {
                 dexOverlay.innerHTML = '';
                 dexOverlay.style.display = 'flex';
@@ -147,7 +149,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 dexOverlay.appendChild(preview);
             });
 
-            dexList.appendChild(card);
+            dexList.appendChild(clone);
+
         });
     }
 
@@ -166,17 +169,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 도감 미리보기 → 닫기
     dexOverlay.addEventListener('click', (e) => {
-        if (!e.target.closest('.enlarged-preview')) {
+        // 1. apply-btn 누른 경우 → 적용
+        if (e.target.classList.contains('apply-btn') && !e.target.classList.contains('disabled')) {
+            const dexId = e.target.dataset.dexid;
+            applyDexImage(dexId);
+            return;
+        }
+
+        // 2. 클릭한 위치가 overlay 자체인 경우만 닫기 (배경 눌렀을 때만)
+        if (e.target === dexOverlay) {
             dexOverlay.style.display = 'none';
             const preview = document.querySelector('.enlarged-preview');
             if (preview) preview.remove();
         }
-
-        if (e.target.classList.contains('apply-btn') && !e.target.classList.contains('disabled')) {
-            const dexId = e.target.dataset.dexid;
-            applyDexImage(dexId);
-        }
     });
+
 
     // 적용하기 버튼 처리
     async function applyDexImage(dexId) {
@@ -207,6 +214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 모달 바깥 클릭 → 닫기
     dexModal.addEventListener('click', (e) => {
+        if (e.target.classList.contains('dex-page-btn')) return;
         const inside = e.target.closest('.dex-modal-content');
         if (!inside) dexModal.classList.add('hidden');
     });

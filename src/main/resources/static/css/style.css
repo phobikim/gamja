@@ -2,6 +2,7 @@
 @import url('main.css');
 @import url('char.css');
 @import url('index.css');
+@import url('dex.css');
 @font-face {
     /*숫자 - 픽셀 */
     font-family: 'neodgm';

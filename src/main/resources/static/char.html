@@ -77,9 +77,44 @@
     <footer id="footerNav" class="footer-ui">
         <!-- 예: <button>홈</button> <button>지도</button> -->
     </footer>
-
 </main>
-<div id="modals-container"></div>
+
+<!-- 감자단 도감 모달 -->
+<div id="dexModal" class="modal hidden">
+    <div class="modal-content dex-modal-content">
+        <!-- 카드 확대 오버레이 -->
+        <div id="cardOverlay" class="card-overlay"></div>
+        <h2>COLLECTION</h2>
+        <div id="dexList" class="dex-grid"></div>
+        <div id="dexPagination" class="dex-pagination"></div>
+    </div>
+</div>
+
+<template id="dexCardTemplate">
+    <div class="dex-card">
+        <div class="card-inner">
+            <div class="card-front">
+                <img src="" alt="" class="dex-img" draggable="false">
+            </div>
+            <div class="card-back">
+                <p class="dex-name"></p>
+                <div class="dex-body">
+                    <p class="dex-rank"></p>
+                    <p class="dex-condition"></p>
+                    <button class="apply-btn" data-dexid="">적용하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- 📌 메시지 모달 -->
+<div id="messageModal" class="modal hidden">
+    <div class="modal-content message-modal-content">
+        <p id="messageText" class="message-text"></p>
+        <button id="messageCloseBtn" class="finish-btn">확인</button>
+    </div>
+</div>
 
 </body>
 </html>
@@ -89,11 +124,3 @@
 <script src="js/util.js"></script>
 <script src="js/char.js"></script>
 
-<script type="module">
-    fetch('modal.html')
-        .then(res => res.text())
-        .then(html => {
-            document.getElementById('modals-container').innerHTML = html;
-            import('./js/char.js')
-        });
-</script>

@@ -1,0 +1,208 @@
+
+/* 감자단 도감 모달 전용 스타일 */
+.dex-modal-content {
+    width: 100%;
+    max-width: 90vw;
+    background-color: #814b1a;
+    border-radius: 1rem;
+    padding: 5vw;
+    box-sizing: border-box;
+    text-align: center;
+    overflow: hidden;
+}
+
+.dex-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 4vw;
+    justify-items: center;
+    align-items: center;
+    height: auto;
+}
+
+/* 카드 크기 비율 유지 + 반응형 */
+.dex-card {
+    width: 100%;
+    max-width: 18vw;
+    aspect-ratio: 5 / 7;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: transform 0.35s ease;
+    transform-style: preserve-3d;
+}
+
+.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+/* 기본 상태: 도감 카드용 카드에서 뒷면 숨김 */
+.dex-card .card-back {
+    display: none;
+}
+
+
+/* 💡 앞/뒷면 공통 */
+.card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 10px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 💡 카드 앞면 배경 - 보유 여부 분기 */
+.card-front {
+    background-color: #f4e2bd;
+}
+/* 카드 리스트에서 소유 안한 감자는 어둡게 처리 */
+.dex-card.unowned .card-front  {
+    background-color: #3e2c1c;
+}
+/* 🔥 소유하지 않은 감자 이미지 스타일 */
+.card-front .dex-img.unowned {
+    filter: grayscale(100%) brightness(25%) !important;
+    opacity: 0.35 !important;
+}
+
+/* 카드 리스트에서 이미지 드래그 방지 */
+.card-front .dex-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 0.7rem;
+    pointer-events: auto;
+    /* 👉 드래그 방지 */
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: auto; /* 클릭은 유지 */
+}
+
+
+
+
+/* 💡 카드 뒷면 */
+
+.card-back {
+    background-color: #000;
+    transform: rotateY(180deg);
+    overflow: hidden;
+    padding: 0;
+    color: white;
+    box-sizing: border-box;
+    flex-direction: column;
+}
+
+.dex-name {
+    margin-bottom: 1px;
+    width: 100%;
+    padding: 4px 6px;
+    font-weight: bold;
+    font-size: clamp(12px, 3vw, 20px);
+    color: #3db935;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.dex-body {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+/* 텍스트 공통 */
+
+.dex-rank,
+.dex-condition {
+    font-size: clamp(0.7rem, 2vw, 1rem);
+    text-align: center;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.apply-btn {
+    margin-top: 2px;
+    font-weight: bold;
+    font-size: clamp(0.7rem, 2vw, 0.9rem); /* 더 작게 */
+    padding: 0.3rem 0.6rem; /* 최소 패딩 */
+    border: none;
+    border-radius: 0.4rem;
+    background-color: #3db935;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.apply-btn:hover {
+    background-color: #2b8a26;
+}
+
+.apply-btn.disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.dex-pagination {
+    margin-top: 3vh;
+    display: flex;
+    justify-content: center;
+    gap: 2vw;
+}
+
+.dex-page-btn {
+    padding: 1vh 2vw;
+    font-size: clamp(12px, 3vw, 16px);
+    border-radius: 0.5rem;
+}
+
+.dex-page-btn.active {
+    background-color: #a86d3c;
+    color: white;
+    font-weight: bold;
+}
+
+.card-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    background: rgba(0, 0, 0, 0.3);
+    display: none;
+    justify-content: center; /* ✅ 수평 중앙 */
+    align-items: center; /* ✅ 수직 중앙 */
+}
+
+.enlarged-preview,
+.enlarged-preview.flipped {
+    width: clamp(250px, 60vw, 420px); /* 🔥 더 크게 */
+    aspect-ratio: 5 / 7;
+    height: auto;
+    position: relative;
+    z-index: 1000;
+    cursor: pointer;
+    transform: scale(1.5); /* 💥 시각적으로 확대 */
+    transition: transform 0.3s ease;
+}
+
+
+.enlarged-preview .card-back {
+    display: block;
+}
