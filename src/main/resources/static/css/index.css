@@ -6,12 +6,29 @@
     100% { transform: translateX(0); }
 }
 
+
+#mainBtn {
+    background-image: url('../images/icons/btn_main.png');
+    position: absolute;
+    top: 2vh;
+    left: 3vw;
+    width: 45px;
+    height: 45px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    background-color: transparent;
+    z-index: 10;
+    cursor: pointer;
+}
+
 #bgmToggleBtn {
     position: absolute;
     top: 2vh;
     right: 3vw; /* 모바일 기준 살짝 안쪽으로 */
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -50,4 +67,16 @@
     margin-bottom: 16px;
     font-size: 24px;
     text-shadow: 1px 1px 2px #5c3b1e; /* 텍스트도 감자 그림자 */
+}
+
+.success-modal-content {
+    background: #ffffff;
+    padding: 30px 20px;
+    border-radius: 15px;
+    text-align: center;
+    width: 400px; /* 넓게! */
+    max-width: 90%;
+    min-height: 250px;
+    box-sizing: border-box;
+    position: relative;
 }

@@ -34,7 +34,7 @@
     <div id="signupModal" class="modal hidden">
         <div class="pin-modal-content">
             <h2>감자단 가입</h2>
-            <input type="text" id="signupUsernameInput" placeholder="이름 입력">
+            <input type="text" maxlength="10" id="signupUsernameInput" placeholder="이름 입력">
             <div class="pin-input-group">
                 <input type="text" maxlength="1" class="pin-input" inputmode="numeric" pattern="[0-9]*">
                 <input type="text" maxlength="1" class="pin-input" inputmode="numeric" pattern="[0-9]*">
@@ -49,7 +49,7 @@
 
     <!-- 성공 모달 -->
     <div id="successModal" class="modal hidden">
-        <div class="modal-content">
+        <div class="success-modal-content">
             <h2 id="successModalTitle">🎉 성공!</h2>
             <p id="successModalMessage"></p>
             <button id="successModalBtn">확인</button>

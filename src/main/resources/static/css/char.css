@@ -21,25 +21,12 @@ html, body {
     margin-bottom: 10px;
 }
 
-#mainBtn {
-    background-image: url('../images/icons/btn_main.png');
-    position: absolute;
-    top: 2vh;
-    left: 3vw; /* 모바일 기준 살짝 안쪽으로 */
-    width: 40px;
-    height: 40px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    border: none;
-    background-color: transparent;
-    z-index: 10;
-    cursor: pointer;
-}
+
 
 
 /* 메인 레이아웃 */
 .game-main-ui {
+    flex: 1;
     width: 100%;
     max-width: 550px;
     display: flex;
@@ -79,19 +66,23 @@ html, body {
     color: #fff3e0;
     padding: 0 10px;
 }
+
 .char-text {
     font-size: min(5vw, 22px);
     font-weight: bold;
     color: #fa6719;
+
 }
+
 .level-text {
-    font-size: 18px;
     color: #f4a261;
-    font-weight: normal;
 }
-.level-num {
-    color: #fa6719;
-    font-weight: bold;
+.char-title {
+    margin-right: 6px;
+    color: #21a94c;
+}
+.char-name {
+    margin-right: 4px;
 }
 
 /* HP 바 (XP 바처럼 활용) */
@@ -116,22 +107,24 @@ html, body {
 .inventory-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
+    gap: 2vw;
     width: 90%;
-    padding: 15px;
+    padding: 4vw;
     background-color: #f5bf44;
-    border: 4px solid #d4a373;
-    border-radius: 15px;
-    box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+    border: 0.5vw solid #d4a373;
+    border-radius: 2vw;
+    box-shadow: 0 0.8vw 1.6vw rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
 }
+
 .inventoryCell {
     position: relative;
+    display: flex;
     width: 60px;
     height: 60px;
     background-color: #d2a679;
     border: 2px dashed #a86d3c;
     border-radius: 8px;
-    display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: inset 0 0 4px #5c3b1e;
@@ -142,57 +135,62 @@ html, body {
     transform: scale(1.1);
 }
 .inventoryCell img {
-    width: 40px;
-    height: 40px;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     pointer-events: none;
+    display: block;
 }
+
+.itemLabel {
+    position: absolute;
+    bottom: -16px; /* ✅ 슬롯 아래로 살짝 벗어나게 */
+    left: 0;
+    width: 100%; /* ✅ 슬롯 전체 너비 채움 */
+    text-align: center; /* ✅ 텍스트 중앙 정렬 */
+    font-size: 12px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #5c3b1e;
+    padding: 2px 0;
+    border-radius: 0 0 4px 4px; /* 하단만 둥글게 */
+    pointer-events: none;
+}
+
 .itemAmount {
     position: absolute;
-    top: -6px;
-    right: -6px;
+    top: -0.6vw;
+    right: -0.6vw;
     background-color: #5c3b1e;
     color: white;
-    font-size: 14px;
-    padding: 2px 6px;
-    border-radius: 12px;
+    font-size: 0.9rem;
+    padding: 0.2em 0.5em;
+    border-radius: 1.2vw;
     font-weight: bold;
     pointer-events: none;
 }
 
 /* 하단 푸터 */
 .footer-ui {
-    width: 100%;
+    width: 90%;
     height: 60px;
-    background: rgba(0,0,0,0.2);
-    border-top: 2px solid #d4a373;
     display: flex;
-    align-items: center;
-    justify-content: space-around;
-    margin-top: 10px;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
 }
-.footer-ui button {
-    background-color: #f4a261;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: bold;
-    color: #fff;
+
+.footer-icon {
+    width: 60px;
+    height: 60px;
     cursor: pointer;
+    object-fit: contain;
+    display: block;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
 }
-.footer-ui button:hover {
-    background-color: #e76f51;
-}
-
-
-
-
-
-
-
-
-
 
 
 

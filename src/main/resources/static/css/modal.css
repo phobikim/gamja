@@ -11,7 +11,7 @@
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 /* 모달 콘텐츠 */
@@ -27,11 +27,7 @@
     position: relative;
 }
 
-.modal-content h2 {
-    margin-bottom: 15px;
-    font-size: 22px;
-    color: #d4a373;
-}
+
 
 .modal-content input {
     width: 90%;

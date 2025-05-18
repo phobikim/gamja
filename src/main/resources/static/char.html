@@ -2,22 +2,25 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no ">
     <title>감자단 캐릭터 페이지</title>
     <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/dex.css">
+    <link rel="stylesheet" href="./css/inventory.css">
+    <link rel="stylesheet" href="./css/rank.css">
 </head>
 
 <body class="char-page">
 
 <!-- 🔵 상단 좌우 동그란 버튼 -->
 <header class="header-ui">
-    <button id="mainBtn" class="circle-btn"></button>
-    <button id="bgmToggleBtn" class="bgm-off"></button>
 </header>
 
 <!-- 🟡 메인 UI 구조 -->
 <main class="game-main-ui">
 
+    <button id="mainBtn" class="circle-btn"></button>
+    <button id="bgmToggleBtn" class="bgm-off"></button>
     <!-- 🌕 배경 + 캐릭터 -->
     <section id="bgSceneArea" class="background-area">
         <img id="mainCharacter" src="./images/character/default.png" alt="캐릭터" class="character-img">
@@ -26,65 +29,77 @@
     <!-- 🟢 캐릭터 정보 영역 -->
     <section class="status-ui">
         <p id="charInfoText" class="char-text">
+            <span class="char-title" id="userTitle"></span>
             <span id="charName"></span>
             <span class="level-text">(LV <span id="charLevel" class="level-num"></span>)</span>
         </p>
-        <p class="char-title" id="userTitle"></p>
+
         <div class="hp-bar">
             <div id="hpBarFill" class="hp-bar-fill" style="width: 0%;"></div>
         </div>
     </section>
 
 
+
     <!-- 🟠 인벤토리 -->
     <aside id="inventoryWrapper" class="inventory-grid">
-        <div class="inventoryCell">
+        <div class="inventoryCell" id="slot-fish" data-type="fish" data-icon="i_fish.png" data-img="fish.png" data-alt="물고기">
             <img src="./images/items/i_fish.png" alt="물고기">
             <span id="itemFish" class="itemAmount">0</span>
         </div>
-        <div class="inventoryCell">
-            <img src="/images/items/i_wood.png" alt="나무">
+        <div class="inventoryCell" id="slot-wood" data-type="wood" data-icon="i_wood.png" data-img="wood.png" data-alt="나무">
+            <img src="./images/items/i_wood.png" alt="나무">
             <span id="itemWood" class="itemAmount">0</span>
         </div>
-        <div class="inventoryCell">
+        <div class="inventoryCell" id="slot-stone" data-type="stone" data-icon="i_stone.png" data-img="stone.png" data-alt="돌">
             <img src="./images/items/i_stone.png" alt="돌">
             <span id="itemStone" class="itemAmount">0</span>
         </div>
-        <div class="inventoryCell">
+        <div class="inventoryCell" id="slot-cook" data-type="cook" data-icon="i_food.png" data-img="cook.png" data-alt="요리">
             <img src="./images/items/i_food.png" alt="음식">
             <span id="itemFood" class="itemAmount">0</span>
         </div>
-        <div class="inventoryCell">
+        <div class="inventoryCell" id="slot-money">
             <img src="./images/items/i_money.png" alt="돈">
             <span id="itemMoney" class="itemAmount">0</span>
         </div>
-        <!-- 필요 시 여분 슬롯 추가 -->
-        <div class="inventoryCell">
-            <img src="./images/items/i_empty.png" alt="빈칸">
-            <span class="itemAmount">0</span>
+        <!-- 기능 슬롯 -->
+        <div class="inventoryCell" >
+            <img src="./images/icons/icon_quest2.png" alt="퀘스트">
+            <span class="itemLabel">퀘스트</span>
         </div>
-        <div class="inventoryCell">
-            <img src="./images/items/i_empty.png" alt="빈칸">
-            <span class="itemAmount">0</span>
+        <div class="inventoryCell" onclick="handleRankClick()">
+            <img src="./images/icons/icon_rank.png" alt="랭킹">
+            <span class="itemLabel">랭킹</span>
         </div>
-        <div class="inventoryCell">
-            <img src="./images/items/i_empty.png" alt="빈칸">
-            <span class="itemAmount">0</span>
+        <div class="inventoryCell" >
+            <img src="./images/icons/icon_gotcha.png" alt="뽑기">
+            <span class="itemLabel">뽑기</span>
         </div>
     </aside>
 
     <!-- ⚫ 푸터 메뉴 영역 (추후 버튼 등) -->
     <footer id="footerNav" class="footer-ui">
-        <!-- 예: <button>홈</button> <button>지도</button> -->
     </footer>
 </main>
 
+<!-- 공용 액션 모달 -->
+<div id="actionModal" class="modal hidden">
+    <div id="actionModalContent" class="action-modal-content">
+        <img id="actionImage" src="" alt="" class="action-img">
+        <div class="action-bottom">
+            <button id="actionFinishBtn" class="finish-btn">완료</button>
+        </div>
+    </div>
+</div>
+
+
 <!-- 감자단 도감 모달 -->
 <div id="dexModal" class="modal hidden">
-    <div class="modal-content dex-modal-content">
+    <div class="dex-modal-content">
         <!-- 카드 확대 오버레이 -->
         <div id="cardOverlay" class="card-overlay"></div>
-        <h2>COLLECTION</h2>
+        <h2 class="common-h2">COLLECTION</h2>
         <div id="dexList" class="dex-grid"></div>
         <div id="dexPagination" class="dex-pagination"></div>
     </div>
@@ -110,11 +125,37 @@
 
 <!-- 📌 메시지 모달 -->
 <div id="messageModal" class="modal hidden">
-    <div class="modal-content message-modal-content">
+    <div class="message-modal-content">
         <p id="messageText" class="message-text"></p>
         <button id="messageCloseBtn" class="finish-btn">확인</button>
     </div>
 </div>
+
+<!-- 랭크 모달 -->
+<div id="rankModal" class="modal hidden">
+    <div class="rank-modal-content">
+        <h2 class="rank-title">랭킹</h2>
+<!--        <h3 class="rank-subtitle" id="weekRange">집계기간: </h3>-->
+<!--        <div id="rankList" class="rank-list"></div>-->
+        <!-- 스크롤 되는 랭킹 리스트 -->
+        <div id="rankScrollArea" class="rank-scroll-area">
+            <div id="rankList" class="rank-list"></div>
+        </div>
+        <!-- 내 랭킹 정보 고정 표시 (필요한 경우에만 보임) -->
+        <div id="myRankContainer" class="my-rank-container hidden"></div>
+    </div>
+</div>
+
+<template id="rankItemTemplate">
+    <div class="rank-item">
+        <div class="rank-number"></div>
+        <img class="rank-avatar" src="" alt="캐릭터 이미지">
+        <div class="rank-info">
+            <span class="rank-username">닉네임</span>
+            <span class="rank-total">000 점</span>
+        </div>
+    </div>
+</template>
 
 </body>
 </html>
@@ -123,4 +164,5 @@
 <script src="js/sound.js"></script>
 <script src="js/util.js"></script>
 <script src="js/char.js"></script>
+<script src="js/rank.js"></script>
 

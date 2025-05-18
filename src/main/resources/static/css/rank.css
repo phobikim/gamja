@@ -1,0 +1,136 @@
+
+
+
+.rank-modal-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85vw;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 24px;
+    border-radius: 20px;
+    border: 2px solid #e0cfa3;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+    background: #fff8dc;
+    color: #5e340e;
+    animation: fadeInScale 0.3s ease-out;
+    box-sizing: border-box;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.rank-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 300px; /* ✅ 정확히 5줄 보이게 */
+    width: 100%;
+    padding-right: 4px;
+    margin-bottom: 12px;
+}
+
+.my-rank-container {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+.rank-item.my-rank {
+    border: 5px solid #f5bf44; /* 진한 주황 테두리 */
+    box-shadow: 0 0 6px rgba(255, 166, 0, 0.4); /* 살짝 빛나는 느낌 */
+}
+
+/* 1~3위 특별 색상 */
+.rank-item.rank-1 {
+    background-color: #e94d4d;
+    color: white;
+}
+
+.rank-item.rank-2 {
+    background-color: #4d8de9;
+    color: white;
+}
+
+.rank-item.rank-3 {
+    background-color: #30ad49;
+    color: white;
+}
+
+/* 그 외 (4위~) */
+.rank-item.default-rank {
+    background-color: #edb74c; /* 베이지 */
+    color: #333;
+}
+
+
+
+.rank-title, .rank-subtitle, .rank-username, .rank-total {
+    color: #5e340e;
+}
+
+
+.rank-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.rank-item {
+    display: flex;
+    align-items: center;
+    padding: 7px 18px;
+    border-radius: 12px;
+    background-color: #f9f3e4; /* 기본 배경 */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: none;
+}
+
+.rank-medal {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    margin-right: 6px;
+}
+
+.rank-number {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px; /* 이미지 크기에 맞춰 키워줌 */
+    height: 48px;
+    margin-right: 10px;
+}
+
+.rank-avatar {
+    width: 45px;
+    height: 45px;
+    margin-right: 10px;
+}
+
+.rank-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.rank-username {
+    font-weight: 600;
+}
+
+.rank-total {
+    font-size: 0.9em;
+    color: #fff0f0;
+}

@@ -10,10 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import javax.servlet.http.HttpSession;
-import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -38,7 +36,11 @@ public class LoginController {
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             session.setAttribute("userId", user.getId()); // 세션에 사용자 ID 저장
-            return ResponseEntity.ok(GamJaResponse.ok("로그인 완료"));
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("message", "회원가입 완료");
+            body.put("userId", user.getId());
+            return ResponseEntity.ok(GamJaResponse.success("로그인 완료", body));
         } else {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
@@ -88,7 +90,10 @@ public class LoginController {
 
             session.setAttribute("userId", savedUser.getId());
 
-            return ResponseEntity.ok(GamJaResponse.ok("회원가입 완료"));
+            Map<String, Object> body = new HashMap<>();
+            body.put("message", "회원가입 완료");
+            body.put("userId", savedUser.getId());
+            return ResponseEntity.ok(GamJaResponse.success("회원가입 완료", body));
         }
     }
 

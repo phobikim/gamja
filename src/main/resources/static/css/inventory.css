@@ -1,3 +1,4 @@
+
 /* 인벤토리 */
 .inventory-area {
     margin-bottom: 10px;
@@ -76,49 +77,58 @@
     }
 }
 
-/* 모달 공통 */
+/* ✅ 공통 모달 스타일 */
 .action-modal {
-    width: 200px;
+    width: 75vw;            /* ← 기존보다 줄임 */
+    max-width: 220px;       /* ← 데스크탑 기준도 더 좁게 */
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
     padding: 20px;
-    border-radius: 15px;
+    border-radius: 20px;
+    border: solid #b5a588;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    margin: 0 auto; /* 가운데 정렬 */
 }
-
-.hidden {
-    display: none;
-}
-
 /* 모달 배경 색 */
 .fish { background-color: #74cbdd; }
 .wood { background-color: #7cb334; }
 .stone { background-color: #341508; }
 .cook { background-color: #d47927; }
 
-/* 모달 안 아이템 */
+/* ✅ 아이템 이미지 스타일 */
 .action-img {
-    width: 150px;
-    height: 150px;
+    width: 80%;             /* ← 50% → 80%로 확대 */
+    max-width: 160px;       /* ← 여유 있게 키움 */
+    height: auto;
     cursor: pointer;
+    object-fit: contain;
     transition: transform 0.2s;
+    touch-action: manipulation; /* ✅ 모바일 확대 방지 */
+    display: block;
+    margin: 0 auto; /* ✅ 이미지 중앙 정렬 */
 }
 
 .action-img:active {
     transform: scale(0.9);
 }
 
-/* 완료 버튼 */
+
+/* ✅ 버튼 */
 .finish-btn {
     margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 18px;
-    background-color: #2d2736;
+    padding: 10px 25px;
+    font-size: 16px;
+    background-color: #fa6719;
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
+    display: block;
+    margin-left: auto;
+    margin-right: auto; /* ✅ 버튼 중앙 정렬 */
 }
 
 .finish-btn:hover {

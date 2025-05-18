@@ -13,10 +13,7 @@ import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.gamja.config.XpCofig.*;
@@ -64,6 +61,9 @@ public class DexController {
                             .acquiredAt(formattedDate)
                             .build();
                 })
+                .sorted(Comparator
+                        .comparing(DexDto::isOwned).reversed()
+                        .thenComparing(DexDto::getId))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(GamJaResponse.success("도감 조회 완료", result));

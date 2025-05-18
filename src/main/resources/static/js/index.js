@@ -71,8 +71,10 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const response = await apiRequest('/api/login', 'POST', { username, pin });
 
-            if (response.code === 'OK') {
+            if (response.code === 'SUCCESS') {
                 // 가입 완료 -> 본부로 이동
+                const userId = response.data.userId;
+                localStorage.setItem('userId', userId);
                 location.href = './char.html';
             } else {
                 adminErrorText.textContent = response.message || '로그인 실패. 정보를 확인해주세요.';
@@ -123,8 +125,10 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const response = await apiRequest('/api/signup', 'POST', { username, pin });
 
-            if (response.code === 'OK') {
+            if (response.code === 'SUCCESS') {
                 // 가입 완료 -> 본부로 이동
+                const userId = response.data.userId;
+                localStorage.setItem('userId', userId);
                 location.href = './char.html';
             } else {
                 signupErrorText.textContent = response.message || '회원 가입 실패';
