@@ -60,11 +60,14 @@ async function getRankData() {
             if (entry.id && userId && String(entry.id) === String(userId)) {
                 rankItem.classList.add('my-rank');
 
-                if (index >= 5) {
-                    // 하단 고정용도 복사 생성 (내 점수가 최신 상태 유지)
-                    const myFixedClone = clone.cloneNode(true);
-                    myFixedClone.querySelector('.rank-item').classList.add('my-rank');
-
+                if (index >= 4) {
+                    const myFixedClone = template.content.cloneNode(true);
+                    const myFixedItem = myFixedClone.querySelector('.rank-item');
+                    myFixedItem.classList.add('my-rank');
+                    myFixedClone.querySelector('.rank-number').textContent = `${index + 1} 위`;
+                    myFixedClone.querySelector('.rank-avatar').src = `./images/character/${entry.characterImage}`;
+                    myFixedClone.querySelector('.rank-username').textContent = entry.username;
+                    myFixedClone.querySelector('.rank-total').textContent = `${entry.total} 점`;
                     myContainer.innerHTML = '';
                     myContainer.appendChild(myFixedClone);
                     myContainer.classList.remove('hidden');
