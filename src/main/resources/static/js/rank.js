@@ -73,7 +73,11 @@ async function getRankData() {
                     myContainer.classList.remove('hidden');
                 }
             }
-
+            // 내 랭킹 고정 제거 로직
+            if (userId && String(entry.id) === String(userId) && index < 4) {
+                myContainer.innerHTML = '';
+                myContainer.classList.add('hidden');
+            }
             rankListContainer.appendChild(clone);
         });
     } catch (err) {

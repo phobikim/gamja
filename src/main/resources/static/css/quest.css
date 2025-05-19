@@ -1,0 +1,149 @@
+/* 퀘스트 모달 기본 */
+#questModal.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    animation: fadeInUp 0.3s ease-out;
+}
+
+/* 간단한 애니메이션 */
+@keyframes fadeInUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+
+#questModal.hidden {
+    display: none;
+}
+
+.quest-modal-content,
+.quest-modal-content * {
+    font-weight: bold;
+    color: #247f36; /* 기본 텍스트 색상 */
+}
+
+
+.quest-modal-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85vw;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 24px;
+    border-radius: 20px;
+    border: 2px solid #e0cfa3;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+    background: #fff8dc;
+    color: #5e340e;
+    animation: fadeInScale 0.3s ease-out;
+    box-sizing: border-box;
+}
+
+.quest-header {
+    margin-bottom: 4vw;
+}
+
+.quest-illust {
+    width: 100%;
+    height: 25vw; /* 적당히 큼직한 비율 */
+    object-fit: cover;
+    border-radius: 1vw;
+    display: block;
+}
+.quest-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+}
+#questList {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+.quest-footer {
+    text-align: center;
+    font-size: 3vw;
+    color: #5e340e;
+    font-weight: bold;
+}
+
+
+
+.quest-item {
+    width: 100%; /* ✅ 가로 꽉 채우기 */
+    display: flex;
+    align-items: center;
+    background-color: #edb74c;
+    margin-bottom: 2vw;
+    gap: 3vw;
+    font-weight: bold;
+    color: #5e340e;
+    height: 12vw;
+    box-sizing: border-box; /* ✅ padding 포함해 width 계산 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+/* 좌측 이미지 */
+.quest-image img {
+    width: 12vw;
+    height: 12vw;
+    object-fit: cover;
+    border-radius: 1vw;
+    background-color: #5e340e;
+}
+/* 중앙 영역 */
+.quest-center {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1vw;
+    justify-content: center;
+}
+.quest-action {
+    font-size: 4vw;
+    color: #fa6719;
+}
+.quest-desc {
+    font-size: 3vw;
+}
+/* 우측 완료 영역 */
+.quest-right {
+    width: 20vw;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.quest-complete-area {
+    width: 100%;
+    height: 100%;
+    background-color: #ffda6b;
+    border-radius: 1vw;
+    font-size: 4vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-align: center;
+}
+.quest-done {
+    font-size: 3.5vw;
+    color: green;
+}
