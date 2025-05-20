@@ -49,6 +49,12 @@ body {
     color: #d4a373;
 }
 
+.common-h2-brown {
+    margin-bottom: 15px;
+    font-size: 22px;
+    color: #5e340e;
+}
+
 /* 에러 텍스트 스타일 */
 .error-text {
     color: #ff5c5c;

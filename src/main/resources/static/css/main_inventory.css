@@ -135,33 +135,6 @@
     background-color: #e76f51;
 }
 
-/* 아이템 +1 애니메이션 */
-.get-item-image-text {
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    animation: popUp 1s ease forwards;
-}
-
-.get-item-image {
-    width: 30px;
-    height: 30px;
-}
-
-.get-item-plusone {
-    font-size: 18px;
-    font-weight: bold;
-    color: #fa6719;
-}
-
-@keyframes popUp {
-    0% { transform: translate(-50%, 0); opacity: 1; }
-    100% { transform: translate(-50%, -50px); opacity: 0; }
-}
 
 
 

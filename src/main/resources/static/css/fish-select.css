@@ -1,0 +1,101 @@
+.fish-select-modal-content {
+    background: #fff8e7;
+    border: 3px solid #a86d3c;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    min-width: 250px;
+}
+
+.fishing-spot-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.fishing-spot-list button {
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    background-color: #f5bf44;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+
+
+.fish-modal-content {
+    background: #fff8e7;
+    border: 0.8vw solid #a86d3c;
+    border-radius: 3vw;
+    text-align: center;
+    width: 70vw;
+    height: 30vh; /* ✅ 세로로 넉넉하게 */
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+}
+
+.fishing-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 2vw;
+}
+
+.fishing-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* ✅ 세로 이미지 꽉 채우기 */
+    display: block;
+}
+
+.fishing-complete-btn {
+    position: absolute;
+    bottom: 3vw;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 2.5vw 6vw;
+    font-size: 4vw;
+    background-color: #f5bf44;
+    color: #5c3b1e;
+    border: none;
+    border-radius: 3vw;
+    box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
+
+/* 아이템 +1 애니메이션 */
+.get-item-image-text {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    animation: popUp 1s ease forwards;
+}
+
+.get-item-image {
+    width: 30px;
+    height: 30px;
+}
+
+.get-item-plusone {
+    font-size: 18px;
+    font-weight: bold;
+    color: #fa6719;
+}
+
+@keyframes popUp {
+    0% { transform: translate(-50%, 0); opacity: 1; }
+    100% { transform: translate(-50%, -50px); opacity: 0; }
+}
+
+

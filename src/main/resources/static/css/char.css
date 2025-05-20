@@ -120,53 +120,43 @@ html, body {
 .inventoryCell {
     position: relative;
     display: flex;
+    flex-direction: column; /* ✅ 이미지 + 라벨 수직 정렬 */
+    align-items: center;
+    justify-content: flex-start; /* ✅ 이미지가 위쪽에 배치되도록 */
     width: 60px;
-    height: 60px;
+    height: 80px; /* ✅ 기존보다 높이 늘림 (이미지+라벨 공간 확보) */
     background-color: #d2a679;
     border: 2px dashed #a86d3c;
     border-radius: 8px;
-    align-items: center;
-    justify-content: center;
     box-shadow: inset 0 0 4px #5c3b1e;
     transition: all 0.2s ease;
+    overflow: hidden; /* ✅ 라벨이 밖으로 안 나가도록 */
 }
+
 .inventoryCell:hover {
     background-color: #c6935d;
     transform: scale(1.1);
 }
+
 .inventoryCell img {
     width: 100%;
-    height: 100%;
+    height: 60px; /* ✅ 이미지만 차지할 영역 명확히 */
     object-fit: contain;
     pointer-events: none;
     display: block;
 }
 
 .itemLabel {
-    position: absolute;
-    bottom: -16px; /* ✅ 슬롯 아래로 살짝 벗어나게 */
-    left: 0;
-    width: 100%; /* ✅ 슬롯 전체 너비 채움 */
-    text-align: center; /* ✅ 텍스트 중앙 정렬 */
+    position: relative;
+    width: 100%;
+    height: 20px;
+    text-align: center;
     font-size: 12px;
     font-weight: bold;
     color: #ffffff;
     background-color: #5c3b1e;
-    padding: 2px 0;
-    border-radius: 0 0 4px 4px; /* 하단만 둥글게 */
-    pointer-events: none;
-}
-
-.itemAmount {
-    position: absolute;
-    top: -0.6vw;
-    right: -0.6vw;
-    background-color: #5c3b1e;
-    color: white;
-    font-size: 0.9rem;
-    padding: 0.2em 0.5em;
-    border-radius: 1.2vw;
-    font-weight: bold;
+    line-height: 20px;
+    border-radius: 0 0 4px 4px;
     pointer-events: none;
 }
 

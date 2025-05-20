@@ -7,6 +7,7 @@ bagModal.addEventListener('click', (e) => {
     if (!inside) bagModal.classList.add('hidden');
 });
 async function loadBagItems() {
+    playEffect("se_click2");
     const bagList = document.getElementById('bagList');
     bagList.innerHTML = '';
 

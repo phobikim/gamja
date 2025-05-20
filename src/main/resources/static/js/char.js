@@ -20,13 +20,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dexOverlay = document.getElementById('cardOverlay');
     const dexPagination = document.getElementById('dexPagination');
 
-    // 인벤토리
-    const inventoryElements = {
-        fish: document.getElementById('itemFish'),
-        wood: document.getElementById('itemWood'),
-        stone: document.getElementById('itemStone'),
-        food: document.getElementById('itemFood'),
-    };
 
     // 1. 캐릭터 로딩
     const userId = localStorage.getItem('userId');
@@ -59,8 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             title,
             username,
             xp = 0,
-            characterImage = 'default.png',
-            inventory = {}
+            characterImage = 'default.png'
         } = data;
 
         // 대표 캐릭터 이미지 세팅
@@ -73,14 +65,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('charLevel').textContent = level ?? '-';
         document.getElementById('userTitle').textContent = title || '칭호 없음';
 
-
         hpBarFill.style.width = `${xp}%`;
 
-        Object.entries(inventoryElements).forEach(([key, el]) => {
-            el.textContent = inventory[key] ?? 0;
-        });
 
     }
+    window.setUserInfo = setUserInfo;
 
     // 2. 캐릭터 클릭 → 도감 모달 실행
     mainCharacter.addEventListener('click', async () => {        // 사운드 재생
@@ -221,123 +210,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         const inside = e.target.closest('.dex-modal-content');
         if (!inside) dexModal.classList.add('hidden');
     });
-
-
-    // 액션 모달
-    const catchCounts = {
-        fish: 0,
-        wood: 0,
-        stone: 0,
-        cook: 0
-    };
-    let currentAction = null;
-    let currentIconSrc = "";
-
-    // 모달 열기
-    function openActionModal(slotEl) {
-        playEffect("se_click");
-        const { type, icon, img, alt } = slotEl.dataset;
-
-        currentAction = type;
-        currentIconSrc = `images/items/${icon}`;
-
-        const modal = document.getElementById("actionModal");
-        const modalContent = document.getElementById("actionModalContent");
-        const imgEl = document.getElementById("actionImage");
-
-        imgEl.src = `images/content/${img}`;
-        imgEl.alt = alt;
-
-        modalContent.className = `action-modal ${type}`;
-        modal.classList.remove("hidden");
-
-        catchCounts[type] = 0;
-    }
-    // 모달 닫기
-    async function closeActionModal() {
-        playEffect("se_coin");
-        document.getElementById("actionModal").classList.add("hidden");
-
-        if (!currentAction) return;
-        const count = catchCounts[currentAction];
-        if (count > 0) {
-            try {
-                const response = await apiRequestJson('/api/char/add-item', 'POST', {
-                    count,
-                    action: currentAction
-                });
-
-                if (response?.data) {
-                    renderInventory(response.data.inventory);
-                    setUserInfo(response.data);
-                }
-            } catch (err) {
-                console.error("아이템 추가 실패:", err);
-                showMessageModal("아이템 추가 중 오류가 발생했습니다.");
-            }
-        }
-        // 초기화
-        catchCounts[currentAction] = 0;
-        currentAction = null;
-    }
-
-    // 완료 버튼
-    document.getElementById("actionFinishBtn").addEventListener("click", closeActionModal);
-
-    // 액션 이미지 클릭 → +1 연출
-    document.getElementById("actionImage").addEventListener("click", () => {
-        if (!currentAction) return;
-        catchCounts[currentAction]++;
-        createActionTextWithImage(currentIconSrc, "actionModal");
-    });
-    // 슬롯 클릭 바인딩
-    ["fish", "wood", "stone", "cook"].forEach(type => {
-        const slot = document.getElementById(`slot-${type}`);
-        if (slot) {
-            slot.addEventListener("click", () => openActionModal(slot));
-        }
-    });
-
-    function createActionTextWithImage(imgSrc, modalId) {
-        const actionWrapper = document.createElement('div');
-        actionWrapper.className = 'get-item-image-text';
-
-        const img = document.createElement('img');
-        img.src = imgSrc;
-        img.alt = '+1 item';
-        img.className = 'get-item-image';
-
-        const plusOne = document.createElement('span');
-        plusOne.textContent = '+1';
-        plusOne.className = 'get-item-plusone';
-
-        actionWrapper.appendChild(img);
-        actionWrapper.appendChild(plusOne);
-
-        document.querySelector(`#${modalId}Content`).appendChild(actionWrapper);
-
-
-        setTimeout(() => {
-            actionWrapper.remove();
-        }, 1000);
-    }
-
-    function renderInventory(inventory) {
-        if (!inventory) return;
-
-        const inventoryElements = {
-            fish: document.getElementById('itemFish'),
-            wood: document.getElementById('itemWood'),
-            stone: document.getElementById('itemStone'),
-            food: document.getElementById('itemFood')
-        };
-
-        Object.entries(inventoryElements).forEach(([key, el]) => {
-            if (el && key in inventory) {
-                el.textContent = inventory[key];
-            }
-        });
-    }
-
 
 });

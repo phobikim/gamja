@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="./css/rank.css">
     <link rel="stylesheet" href="./css/quest.css">
     <link rel="stylesheet" href="css/bag.css">
+    <link rel="stylesheet" href="css/fish-select.css">
 </head>
 
 <body class="char-page">
@@ -45,27 +46,28 @@
 
     <!-- 🟠 인벤토리 -->
     <aside id="inventoryWrapper" class="inventory-grid">
-        <div class="inventoryCell" id="slot-fish" data-type="fish" data-icon="i_fish.png" data-img="fish.png" data-alt="물고기">
-            <img src="./images/items/i_fish.png" alt="물고기">
-            <span id="itemFish" class="itemAmount">0</span>
+        <!-- 액션 슬롯 -->
+        <div class="inventoryCell" onclick="actionFish()">
+            <img src="./images/items/i_fish.png" alt="낚시">
+            <span class="itemLabel">낚시터</span>
         </div>
-        <div class="inventoryCell" id="slot-wood" data-type="wood" data-icon="i_wood.png" data-img="wood.png" data-alt="나무">
-            <img src="./images/items/i_wood.png" alt="나무">
-            <span id="itemWood" class="itemAmount">0</span>
+        <div class="inventoryCell" onclick="actionFish()">
+            <img src="./images/items/i_wood.png" alt="낚시">
+            <span class="itemLabel">벌목터</span>
         </div>
-        <div class="inventoryCell" id="slot-stone" data-type="stone" data-icon="i_stone.png" data-img="stone.png" data-alt="돌">
-            <img src="./images/items/i_stone.png" alt="돌">
-            <span id="itemStone" class="itemAmount">0</span>
+        <div class="inventoryCell" onclick="actionFish()">
+            <img src="./images/items/i_stone.png" alt="낚시">
+            <span class="itemLabel">광산입구</span>
         </div>
-        <div class="inventoryCell" id="slot-cook" data-type="cook" data-icon="i_food.png" data-img="cook.png" data-alt="요리">
-            <img src="./images/items/i_food.png" alt="음식">
-            <span id="itemFood" class="itemAmount">0</span>
+        <div class="inventoryCell" onclick="actionFish()">
+            <img src="./images/items/i_food.png" alt="낚시">
+            <span class="itemLabel">감자주방</span>
         </div>
+        <!-- 기능 슬롯 -->
         <div class="inventoryCell" onclick="handleBagClick()">
             <img src="./images/icons/icon_bag.png" alt="배낭">
             <span class="itemLabel">인벤토리</span>
         </div>
-        <!-- 기능 슬롯 -->
         <div class="inventoryCell" onclick="handleQuestClick()">
             <img src="./images/icons/icon_quest2.png" alt="퀘스트">
             <span class="itemLabel">퀘스트</span>
@@ -85,16 +87,28 @@
     </footer>
 </main>
 
-<!-- 공용 액션 모달 -->
-<div id="actionModal" class="modal hidden">
-    <div id="actionModalContent" class="action-modal-content">
-        <img id="actionImage" src="" alt="" class="action-img">
-        <div class="action-bottom">
-            <button id="actionFinishBtn" class="finish-btn">완료</button>
+<!-- 낚시터 선택 모달 -->
+<div id="fishingSpotModal" class="modal hidden">
+    <div class="fish-select-modal-content">
+        <h2 class="common-h2-brown">낚시터 선택</h2>
+        <div class="fishing-spot-list">
+            <button onclick="selectFishingSpot('연못')">1랭크 연못</button>
+            <button onclick="selectFishingSpot('화산 지대')">2랭크 화산</button>
+            <button onclick="selectFishingSpot('망령의 늪')">3랭크 망령의 늪</button>
+            <!-- 원하는 만큼 추가 -->
         </div>
     </div>
 </div>
 
+<!-- 실제 낚시 모달 -->
+<div id="fishingModal" class="modal hidden">
+    <div class="fish-modal-content" id="fishingModalContent" onclick="handleFishingClick()">
+        <div class="fishing-image-wrapper">
+            <img id="fishingImage" src="" alt="낚시터 이미지" class="fishing-image" />
+            <button class="fishing-complete-btn" onclick="closeFishingModal()">완료</button>
+        </div>
+    </div>
+</div>
 
 <!-- 감자단 도감 모달 -->
 <div id="dexModal" class="modal hidden">
@@ -222,4 +236,5 @@
 <script src="js/rank.js"></script>
 <script src="js/quest.js"></script>
 <script src="js/bag.js"></script>
+<script src="js/fish_select.js"></script>
 
