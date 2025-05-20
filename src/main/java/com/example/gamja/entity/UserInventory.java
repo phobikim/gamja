@@ -1,12 +1,16 @@
 package com.example.gamja.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import javax.persistence.*;
 @Entity
 @Data
 @Table(name = "user_inventory")
 public class UserInventory {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)

@@ -11,9 +11,11 @@ questModal.addEventListener('click', (e) => {
     const inside = e.target.closest('.quest-modal-content');
     if (!inside) questModal.classList.add('hidden');
 });
+
 function closeQuestModal() {
     document.getElementById('questModal')?.classList.add('hidden');
 }
+
 async function getQuestList() {
     try {
         playEffect("se_click2");
@@ -31,8 +33,13 @@ async function getQuestList() {
 
         res.data.forEach(quest => {
             const clone = template.content.cloneNode(true);
-            clone.querySelector('.quest-action').textContent = quest.action;
-            clone.querySelector('.quest-desc').textContent = `${quest.progress} / ${quest.goal}`;
+
+            // 텍스트 정보 설정
+            clone.querySelector('.quest-title').textContent = quest.title;
+            clone.querySelector('.quest-desc').textContent = quest.description;
+            clone.querySelector('.quest-difficulty').textContent = `난이도: ${quest.difficulty}`;
+            clone.querySelector('.quest-reward').textContent = `보상: ${quest.rewardValue} ${quest.rewardType}`;
+            clone.querySelector('.quest-progress').textContent = `진행도: ${quest.progress || 0} / ${quest.goalCount}`;
 
 
             // 이미지 (임시 기본)
@@ -42,7 +49,7 @@ async function getQuestList() {
             img.alt = quest.action;
 
 
-            // 완료 처리
+            // 완료 여부
             if (quest.isCompleted) {
                 clone.querySelector('.quest-done').classList.remove('hidden');
             } else {

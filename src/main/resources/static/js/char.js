@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         wood: document.getElementById('itemWood'),
         stone: document.getElementById('itemStone'),
         food: document.getElementById('itemFood'),
-        money: document.getElementById('itemMoney')
     };
 
     // 1. 캐릭터 로딩
@@ -330,8 +329,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             fish: document.getElementById('itemFish'),
             wood: document.getElementById('itemWood'),
             stone: document.getElementById('itemStone'),
-            food: document.getElementById('itemFood'),
-            money: document.getElementById('itemMoney')
+            food: document.getElementById('itemFood')
         };
 
         Object.entries(inventoryElements).forEach(([key, el]) => {
@@ -341,10 +339,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // 상점
-    const moneySlot = document.getElementById('slot-money');
-    moneySlot.addEventListener('click', () => {
-        showMessageModal('돈은 상점이나 퀘스트로 얻을 수 있어요!');
-    });
 
 });

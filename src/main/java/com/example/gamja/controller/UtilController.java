@@ -33,7 +33,7 @@ public class UtilController {
     private final UserDexRepository userDexRepository;
     private final DailyQuestRepository dailyQuestRepository;
     private final UserQuestRepository userQuestRepository;
-    QuestService questService;
+    private final QuestService questService;
 
 
     @ResponseBody
@@ -81,7 +81,7 @@ public class UtilController {
         List<QuestListResponseDto> questList = questService.getTodayQuestList(sessionUserId);
 
 
-        return ResponseEntity.ok(GamJaResponse.success("정상 조회", null));
+        return ResponseEntity.ok(GamJaResponse.success("정상 조회", questList));
     }
 
     @ResponseBody
@@ -92,4 +92,17 @@ public class UtilController {
         return ResponseEntity.ok(GamJaResponse.ok("정상 조회"));
     }
 
+    @ResponseBody
+    @GetMapping("/item/list/{userId}")
+    public ResponseEntity<GamJaResponse> getItemList (@PathVariable Long userId, HttpSession session) {
+        Long sessionUserId = (Long) session.getAttribute("userId");
+
+        if (sessionUserId == null || !sessionUserId.equals(userId)) {
+            return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
+        }
+        UserInventory inventory = userInventoryRepository.findById(sessionUserId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 인벤토리입니다."));
+
+        return ResponseEntity.ok(GamJaResponse.success("정상 조회", inventory));
+    }
 }

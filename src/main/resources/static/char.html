@@ -6,9 +6,10 @@
     <title>감자단 캐릭터 페이지</title>
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/dex.css">
-    <link rel="stylesheet" href="./css/inventory.css">
+    <link rel="stylesheet" href="css/main_inventory.css">
     <link rel="stylesheet" href="./css/rank.css">
     <link rel="stylesheet" href="./css/quest.css">
+    <link rel="stylesheet" href="css/bag.css">
 </head>
 
 <body class="char-page">
@@ -60,9 +61,9 @@
             <img src="./images/items/i_food.png" alt="음식">
             <span id="itemFood" class="itemAmount">0</span>
         </div>
-        <div class="inventoryCell" id="slot-money">
-            <img src="./images/items/i_money.png" alt="돈">
-            <span id="itemMoney" class="itemAmount">0</span>
+        <div class="inventoryCell" onclick="handleBagClick()">
+            <img src="./images/icons/icon_bag.png" alt="배낭">
+            <span class="itemLabel">인벤토리</span>
         </div>
         <!-- 기능 슬롯 -->
         <div class="inventoryCell" onclick="handleQuestClick()">
@@ -185,8 +186,13 @@
 
         <!-- 가운데: 퀘스트 정보 -->
         <div class="quest-center">
-            <div class="quest-action"></div>
+            <div class="quest-title"></div>
             <div class="quest-desc"></div>
+            <div class="quest-meta">
+                <span class="quest-difficulty"></span> ·
+                <span class="quest-reward"></span>
+            </div>
+            <div class="quest-progress"></div>
         </div>
 
         <!-- 오른쪽: 완료 버튼 or 완료 표시 -->
@@ -197,7 +203,14 @@
     </li>
 </template>
 
-
+<!-- 가방 모달 -->
+<div id="bagModal" class="modal hidden">
+    <div class="bag-modal-content">
+        <ul id="bagList" class="bag-grid">
+            <!-- JS로 아이템 슬롯 채울 예정 -->
+        </ul>
+    </div>
+</div>
 
 </body>
 </html>
@@ -208,4 +221,5 @@
 <script src="js/char.js"></script>
 <script src="js/rank.js"></script>
 <script src="js/quest.js"></script>
+<script src="js/bag.js"></script>
 

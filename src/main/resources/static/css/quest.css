@@ -33,7 +33,7 @@
 .quest-modal-content,
 .quest-modal-content * {
     font-weight: bold;
-    color: #247f36; /* 기본 텍스트 색상 */
+    color: #592f0a; /* 기본 텍스트 색상 */
 }
 
 
@@ -43,6 +43,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     width: 85vw;
+    max-height: 85vh; /* ✅ 모달 높이 제한 */
     display: flex;
     flex-direction: column;
     padding: 20px 24px;
@@ -53,6 +54,14 @@
     color: #5e340e;
     animation: fadeInScale 0.3s ease-out;
     box-sizing: border-box;
+}
+
+.quest-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 50vh; /* ✅ 중간 영역 높이 제한 */
+    padding-right: 1vw; /* 스크롤 여백 */
+    margin-bottom: 2vw;
 }
 
 .quest-header {
@@ -66,10 +75,7 @@
     border-radius: 1vw;
     display: block;
 }
-.quest-scroll-area {
-    flex: 1;
-    overflow-y: auto;
-}
+
 #questList {
     width: 100%;
     padding: 0;
@@ -86,18 +92,16 @@
 
 
 .quest-item {
-    width: 100%; /* ✅ 가로 꽉 채우기 */
     display: flex;
-    align-items: center;
-    background-color: #edb74c;
-    margin-bottom: 2vw;
+    align-items: stretch; /* ✅ 오른쪽 영역도 함께 늘어나도록 */
+    min-height: 18vw;
+    padding: 2vw;
     gap: 3vw;
-    font-weight: bold;
-    color: #5e340e;
-    height: 12vw;
-    box-sizing: border-box; /* ✅ padding 포함해 width 계산 */
+    background-color: #edb74c;
+    border-radius: 1vw;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    margin-bottom: 2vw;
+    box-sizing: border-box;
 }
 
 /* 좌측 이미지 */
@@ -115,28 +119,31 @@
     flex-direction: column;
     gap: 1vw;
     justify-content: center;
+    word-break: keep-all;  /* ✅ 단어 단위 줄바꿈 */
+    line-height: 1.4;
 }
 .quest-action {
     font-size: 4vw;
     color: #fa6719;
 }
-.quest-desc {
+.quest-desc, .quest-meta, .quest-progress {
     font-size: 3vw;
 }
+
 /* 우측 완료 영역 */
 .quest-right {
-    width: 20vw;
-    height: 100%;
+    width: auto;
+    min-width: 10vw; /* 필요 최소 크기 확보 */
     display: flex;
-    align-items: center;
+    align-items: center;   /* ✅ 수직 중앙 정렬 */
     justify-content: center;
 }
 .quest-complete-area {
-    width: 100%;
-    height: 100%;
-    background-color: #ffda6b;
+    width: 17vw;
+    height: 10vw;
+    background-color: #279b25;
     border-radius: 1vw;
-    font-size: 4vw;
+    font-size: 3.5vw;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -147,3 +154,9 @@
     font-size: 3.5vw;
     color: green;
 }
+
+.quest-title {
+    font-size: 4vw;
+    color : #e94d4d;
+}
+
