@@ -48,38 +48,50 @@
     <aside id="inventoryWrapper" class="inventory-grid">
         <!-- 액션 슬롯 -->
         <div class="inventoryCell" onclick="actionFish()">
-            <img src="./images/items/i_fish.png" alt="낚시">
+            <img src="./images/icons/icon_fish.png" alt="낚시">
             <span class="itemLabel">낚시터</span>
         </div>
         <div class="inventoryCell" onclick="actionFish()">
-            <img src="./images/items/i_wood.png" alt="낚시">
+            <img src="./images/icons/icon_wood.png" alt="벌목">
             <span class="itemLabel">벌목터</span>
         </div>
         <div class="inventoryCell" onclick="actionFish()">
-            <img src="./images/items/i_stone.png" alt="낚시">
+            <img src="./images/icons/icon_mining.png" alt="광산">
             <span class="itemLabel">광산입구</span>
         </div>
         <div class="inventoryCell" onclick="actionFish()">
-            <img src="./images/items/i_food.png" alt="낚시">
-            <span class="itemLabel">감자주방</span>
+            <img src="./images/icons/icon_field.png" alt="밭">
+            <span class="itemLabel">감자밭</span>
         </div>
         <!-- 기능 슬롯 -->
         <div class="inventoryCell" onclick="handleBagClick()">
-            <img src="./images/icons/icon_bag.png" alt="배낭">
+            <img src="./images/icons/icon_bag2.png" alt="배낭">
             <span class="itemLabel">인벤토리</span>
         </div>
-        <div class="inventoryCell" onclick="handleQuestClick()">
-            <img src="./images/icons/icon_quest2.png" alt="퀘스트">
-            <span class="itemLabel">퀘스트</span>
+        <div class="inventoryCell" onclick="handleBagClick()">
+            <img src="./images/icons/icon_potion.png" alt="공방">
+            <span class="itemLabel">감자공방</span>
         </div>
-        <div class="inventoryCell" onclick="handleRankClick()">
-            <img src="./images/icons/icon_rank.png" alt="랭킹">
-            <span class="itemLabel">랭킹</span>
+        <div class="inventoryCell" onclick="handleBagClick()">
+            <img src="./images/icons/icon_furnace.png" alt="연구소">
+            <span class="itemLabel">감자연구소</span>
         </div>
-        <div class="inventoryCell" >
-            <img src="./images/icons/icon_gotcha.png" alt="뽑기">
-            <span class="itemLabel">뽑기</span>
-        </div>
+<!--        <div class="inventoryCell" onclick="handleBagClick()">-->
+<!--            <img src="./images/icons/icon_bag2.png" alt="배낭">-->
+<!--            <span class="itemLabel">인벤토리</span>-->
+<!--        </div>-->
+<!--        <div class="inventoryCell" onclick="handleQuestClick()">-->
+<!--            <img src="./images/icons/icon_quest2.png" alt="퀘스트">-->
+<!--            <span class="itemLabel">퀘스트</span>-->
+<!--        </div>-->
+<!--        <div class="inventoryCell" onclick="handleRankClick()">-->
+<!--            <img src="./images/icons/icon_rank.png" alt="랭킹">-->
+<!--            <span class="itemLabel">랭킹</span>-->
+<!--        </div>-->
+<!--        <div class="inventoryCell" >-->
+<!--            <img src="./images/icons/icon_gotcha.png" alt="뽑기">-->
+<!--            <span class="itemLabel">뽑기</span>-->
+<!--        </div>-->
     </aside>
 
     <!-- ⚫ 푸터 메뉴 영역 (추후 버튼 등) -->
@@ -220,6 +232,13 @@
 <!-- 가방 모달 -->
 <div id="bagModal" class="modal hidden">
     <div class="bag-modal-content">
+        <div class="bag-tabs">
+            <button data-type="ALL" class="active">전체</button>
+            <button data-type="GATHER_MATERIAL">채집</button>
+            <button data-type="CRAFT_MATERIAL">가공</button>
+            <button data-type="CONSUMABLE">소비</button>
+            <button data-type="EQUIPMENT">장비</button>
+        </div>
         <ul id="bagList" class="bag-grid">
             <!-- JS로 아이템 슬롯 채울 예정 -->
         </ul>

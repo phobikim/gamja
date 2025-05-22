@@ -2,7 +2,7 @@
 .bag-modal-content {
     width: 90vw;
     max-width: 400px;
-    height: calc(50px * 5 + 2vw); /* 5칸만 보이도록 */
+    height: calc(50px * 6 + 2vw); /* 5칸만 보이도록 */
     margin: 10vh auto;
     background: #fff8e7;
     border-radius: 3vw;
@@ -69,4 +69,27 @@
     padding: 2px 0;
     border-radius: 0 0 4px 4px; /* 하단만 둥글게 */
     pointer-events: none;
+}
+
+.bag-tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2vw;
+    gap: 0.5vw;
+}
+
+.bag-tabs button {
+    flex: 1;
+    padding: 0.8vw;
+    font-size: 1rem;
+    background-color: #fa6719;
+    border: none;
+    border-radius: 1vw;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.bag-tabs button.active {
+    background-color: #ffcc66;
+    font-weight: bold;
 }

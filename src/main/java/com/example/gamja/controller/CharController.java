@@ -45,12 +45,10 @@ public class CharController {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
         String finalImage = commonUtil.resolveCharacterImage(userDtl);
         userDtl.setCharacterImage(finalImage);
-        UserInventory inventory = userInventoryRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 인벤토리입니다."));
         UserSkill userSkill = userSkillRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스킬입니다."));
 
-        UserCharInfoDto result = new UserCharInfoDto(userDtl, inventory, userSkill);
+        UserCharInfoDto result = new UserCharInfoDto(userDtl, userSkill);
         result.setTitle(result.getTitleByLevel(userDtl.getLevel()));
         return ResponseEntity.ok(GamJaResponse.success("정상 조회", result));
     }
@@ -91,61 +89,54 @@ public class CharController {
     @PostMapping("/add-item")
     @Transactional
     public ResponseEntity<GamJaResponse> addItem(@RequestBody Map<String, Object> request, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401).body(GamJaResponse.fail("로그인이 필요합니다."));
-        }
-        int count = (int) request.get("count");
-        String action = (String) request.get("action");
-
-        UserInventory inventory = userInventoryRepository.findById(userId).orElseThrow();
-        UserDtl userDtl = userDtlRepository.findById(userId).orElseThrow();
-        String finalImage = commonUtil.resolveCharacterImage(userDtl);
-        userDtl.setCharacterImage(finalImage);
-        // 기존 수량
-        int oldAmount = 0;
-        switch (action) {
-            case "fish":
-                oldAmount = inventory.getFish();
-                inventory.setFish(oldAmount + count);
-                break;
-            case "wood":
-                oldAmount = inventory.getWood();
-                inventory.setWood(oldAmount + count);
-                break;
-            case "stone":
-                oldAmount = inventory.getStone();
-                inventory.setStone(oldAmount + count);
-                break;
-            case "cook":
-                oldAmount = inventory.getFood();
-                inventory.setFood(oldAmount + count);
-                break;
-            default:
-                return ResponseEntity.badRequest().body(GamJaResponse.fail("올바르지 않은 action입니다."));
-        }
-
-        int xpGained = count; // 1개당 1XP니까 그대로
-        int totalXp = userDtl.getXp() + xpGained;
-        int levelUp = totalXp / XP_PER_LEVEL;
-        int remainingXp = totalXp % XP_PER_LEVEL;
-        userDtl.setLevel(userDtl.getLevel() + levelUp);
-        userDtl.setXp(remainingXp);
-
-        userInventoryRepository.save(inventory);
-        userDtlRepository.save(userDtl);
-
-        UserCharInfoDto result = new UserCharInfoDto(userDtl, inventory);
-        return ResponseEntity.ok(GamJaResponse.success("정상 조회", result));
+        return null;
+//        Long userId = (Long) session.getAttribute("userId");
+//        if (userId == null) {
+//            return ResponseEntity.status(401).body(GamJaResponse.fail("로그인이 필요합니다."));
+//        }
+//        int count = (int) request.get("count");
+//        String action = (String) request.get("action");
+//
+//        UserInventory inventory = userInventoryRepository.findById(userId).orElseThrow();
+//        UserDtl userDtl = userDtlRepository.findById(userId).orElseThrow();
+//        String finalImage = commonUtil.resolveCharacterImage(userDtl);
+//        userDtl.setCharacterImage(finalImage);
+//        // 기존 수량
+//        int oldAmount = 0;
+//        switch (action) {
+//            case "fish":
+//                oldAmount = inventory.getId();
+//                inventory.setFish(oldAmount + count);
+//                break;
+//            case "wood":
+//                oldAmount = inventory.getWood();
+//                inventory.setWood(oldAmount + count);
+//                break;
+//            case "stone":
+//                oldAmount = inventory.getStone();
+//                inventory.setStone(oldAmount + count);
+//                break;
+//            case "cook":
+//                oldAmount = inventory.getFood();
+//                inventory.setFood(oldAmount + count);
+//                break;
+//            default:
+//                return ResponseEntity.badRequest().body(GamJaResponse.fail("올바르지 않은 action입니다."));
+//        }
+//
+//        int xpGained = count; // 1개당 1XP니까 그대로
+//        int totalXp = userDtl.getXp() + xpGained;
+//        int levelUp = totalXp / XP_PER_LEVEL;
+//        int remainingXp = totalXp % XP_PER_LEVEL;
+//        userDtl.setLevel(userDtl.getLevel() + levelUp);
+//        userDtl.setXp(remainingXp);
+//
+//        userInventoryRepository.save(inventory);
+//        userDtlRepository.save(userDtl);
+//
+//        UserCharInfoDto result = new UserCharInfoDto(userDtl, inventory);
+//        return ResponseEntity.ok(GamJaResponse.success("정상 조회", result));
     }
 
-    @PostMapping("/add-money")
-    public ResponseEntity<GamJaResponse> addMoney(@PathVariable Long userId, @RequestBody Map<String, Integer> request) {
-        int count = request.get("count");
-        UserInventory inventory = userInventoryRepository.findById(userId).orElseThrow();
-        inventory.setMoney(inventory.getMoney() + count);
-        userInventoryRepository.save(inventory);
-        return ResponseEntity.ok(GamJaResponse.ok("돈 추가 완료"));
-    }
 
 }

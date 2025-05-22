@@ -19,19 +19,7 @@ public class UserCharInfoDto {
 
     @Getter
     public static class Inventory {
-        private int fish;
-        private int wood;
-        private int stone;
-        private int money;
-        private int food;
 
-        public Inventory(UserInventory userInventory) {
-            this.fish = userInventory.getFish();
-            this.wood = userInventory.getWood();
-            this.stone = userInventory.getStone();
-            this.food = userInventory.getFood();
-            this.money = userInventory.getMoney();
-        }
     }
 
     @Getter
@@ -50,24 +38,13 @@ public class UserCharInfoDto {
     }
 
 
-    public UserCharInfoDto(UserDtl userDtl, UserInventory userInventory, UserSkill userSkill) {
+    public UserCharInfoDto(UserDtl userDtl, UserSkill userSkill) {
         this.username = userDtl.getUser().getUsername();
         this.nickname = userDtl.getUsernickname();
         this.characterImage = userDtl.getCharacterImage();
         this.level = userDtl.getLevel();
         this.xp = userDtl.getXp();
-        this.inventory = new Inventory(userInventory);
         this.skill = new Skill(userSkill); // 🔥 추가
-    }
-
-    public UserCharInfoDto(UserDtl userDtl, UserInventory userInventory) {
-        this.username = userDtl.getUser().getUsername();
-        this.nickname = userDtl.getUsernickname();
-        this.characterImage = userDtl.getCharacterImage();
-        this.level = userDtl.getLevel();
-        this.xp = userDtl.getXp();
-        this.inventory = new Inventory(userInventory);
-        this.title = getTitleByLevel(this.level);
     }
 
     public String getTitleByLevel(int level) {

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "\"user\"")  // <-- 백슬래시 + 큰따옴표
+@Table(name = "user")
 
 public class User {
     @Id

@@ -70,9 +70,6 @@ public class LoginController {
             userDtl.setXp(0);
             userDtlRepository.save(userDtl);
 
-            UserInventory userInventory = new UserInventory();
-            userInventory.setUser(savedUser);
-            userInventoryRepository.save(userInventory);
 
             UserSkill userSkill = new UserSkill();
             userSkill.setUser(savedUser);

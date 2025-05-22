@@ -4,22 +4,13 @@ import com.example.gamja.dto.*;
 import com.example.gamja.entity.*;
 import com.example.gamja.message.GamJaResponse;
 import com.example.gamja.repository.*;
-import com.example.gamja.service.QuestService;
 import com.example.gamja.util.CommonUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import javax.transaction.Transactional;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
-import com.example.gamja.dto.UserCharInfoDto;
-
-import static com.example.gamja.config.XpCofig.XP_PER_LEVEL;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,56 +23,40 @@ public class UtilController {
     private final DexRepository dexRepository;
     private final UserDexRepository userDexRepository;
     private final DailyQuestRepository dailyQuestRepository;
-    private final UserQuestRepository userQuestRepository;
-    private final QuestService questService;
 
 
     @ResponseBody
     @GetMapping("/rank")
     public ResponseEntity<GamJaResponse> getCharInfo() {
-        List<UserInventory> inventories = userInventoryRepository.findAll();
-
-        List<RankDto> rankList = inventories.stream()
-                .map(inv -> {
-                    var user = inv.getUser();
-                    Optional<UserDtl> userDtlOpt = userDtlRepository.findByUser(user);
-                    if (userDtlOpt.isEmpty()) {
-                        return null;
-                    }
-                    UserDtl userDtl = userDtlOpt.get();
-                    String finalImage = commonUtil.resolveCharacterImage(userDtl);
-                    int total = inv.getFish() + inv.getWood() + inv.getStone() + inv.getFood();
-
-                    String nickname = Optional.ofNullable(userDtl.getUsernickname())
-                            .orElse(user.getUsername());
-
-                    return new RankDto(
-                            user.getId(),
-                            nickname,
-                            finalImage,
-                            total
-                    );
-                })
-                .filter(Objects::nonNull)
-                .sorted(Comparator.comparingInt(RankDto::getTotal).reversed())
-                .collect(Collectors.toList());
-
-
-        return ResponseEntity.ok(GamJaResponse.success("정상 조회", rankList));
-    }
-
-    @ResponseBody
-    @GetMapping("/quest/list")
-    public ResponseEntity<GamJaResponse> getQuestList(HttpSession session) {
-        Long sessionUserId = (Long) session.getAttribute("userId");
-        if (sessionUserId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(GamJaResponse.error("로그인이 필요합니다"));
-        }
-        List<QuestListResponseDto> questList = questService.getTodayQuestList(sessionUserId);
+//        List<UserInventory> inventories = userInventoryRepository.findAll();
+//
+//        List<RankDto> rankList = inventories.stream()
+//                .map(inv -> {
+//                    var user = inv.getUser();
+//                    Optional<UserDtl> userDtlOpt = userDtlRepository.findByUser(user);
+//                    if (userDtlOpt.isEmpty()) {
+//                        return null;
+//                    }
+//                    UserDtl userDtl = userDtlOpt.get();
+//                    String finalImage = commonUtil.resolveCharacterImage(userDtl);
+//                    int total = inv.getFish() + inv.getWood() + inv.getStone() + inv.getFood();
+//
+//                    String nickname = Optional.ofNullable(userDtl.getUsernickname())
+//                            .orElse(user.getUsername());
+//
+//                    return new RankDto(
+//                            user.getId(),
+//                            nickname,
+//                            finalImage,
+//                            total
+//                    );
+//                })
+//                .filter(Objects::nonNull)
+//                .sorted(Comparator.comparingInt(RankDto::getTotal).reversed())
+//                .collect(Collectors.toList());
 
 
-        return ResponseEntity.ok(GamJaResponse.success("정상 조회", questList));
+        return ResponseEntity.ok(GamJaResponse.success("정상 조회", null));
     }
 
     @ResponseBody
@@ -100,9 +75,31 @@ public class UtilController {
         if (sessionUserId == null || !sessionUserId.equals(userId)) {
             return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
         }
-        UserInventory inventory = userInventoryRepository.findById(sessionUserId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 인벤토리입니다."));
+        List<UserInventory> inventoryList = userInventoryRepository.findByUserId(userId);
 
-        return ResponseEntity.ok(GamJaResponse.success("정상 조회", inventory));
+        List<UserInventoryDto> responseList = inventoryList.stream().map(inv -> {
+            Item item = inv.getItem(); // JPA 연관 객체
+            UserInventoryDto dto = new UserInventoryDto();
+
+            dto.setItemId(inv.getItemId());
+            dto.setQuantity(inv.getQuantity());
+            dto.setUpdatedAt(inv.getUpdatedAt() != null ? inv.getUpdatedAt().toString() : null);
+
+            if (item != null) {
+                dto.setName(item.getName());
+                dto.setDescription(item.getDescription());
+                dto.setRank(item.getRank());
+                dto.setRarity(item.getRarity().name());       // enum → String
+                dto.setItemType(item.getItemType().name());   // enum → String
+                dto.setEquipSlot(item.getEquipSlot().name()); // enum → String
+                dto.setStationIds(item.getStationIds());
+                dto.setIconPath(item.getIconPath());
+            }
+
+            return dto;
+        }).toList();
+
+
+        return ResponseEntity.ok(GamJaResponse.success("정상 조회", responseList));
     }
 }
