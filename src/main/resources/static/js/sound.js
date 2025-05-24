@@ -5,6 +5,7 @@ const audioMap = {
     se_input: new Audio("audio/se_input.mp3"),
     se_ok: new Audio("audio/se_ok.mp3"),
     se_coin: new Audio("audio/se_coin.mp3"),
+    se_craft: new Audio("audio/se_craft.mp3"),
     bgm_main: new Audio("audio/bgm_main.mp3"),
     bgm_gotcha: new Audio("audio/bgm_gotcha.mp3"),
     bgm_base: new Audio("audio/bgm_base.mp3"),

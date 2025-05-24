@@ -7,12 +7,29 @@ const resultName = document.getElementById('result-name');
 const craftBtn = document.getElementById('craftButton');
 
 const recipes = {}; // 이후에 채워질 예정
-let currentType = null;
+let selectedRecipe = null; // 현재 선택된 레시피
+let currentStationCategory = null; // ✅ 현재 선택된 station category 저장용
+let matchedRecipe = null;
+let matchedCard = null;
+workshopModal.addEventListener('click', (e) => {
+    const inside = e.target.closest('.workshop-modal-content');
+    if (!inside) workshopModal.classList.add('hidden');
+});
 
+async function handleStationClick() {
+    playEffect("se_click2");
+    workshopModal.classList.remove('hidden');
+    // 재료 영역 초기화
+    const detail = document.getElementById('recipe-detail');
+    if (detail) detail.innerHTML = '';
+
+    // 공방 목록 조회
+    await getWorkshopStations();
+}
 
 // 공방 선택
 function setActiveCategory(type) {
-    playEffect("se_click")
+    currentStationCategory = type; // ✅ 현재 station category 기억
     document.querySelectorAll('.category').forEach(c => {
         c.classList.toggle('active', c.dataset.type === type);
     });
@@ -58,8 +75,9 @@ function renderStationCategories(stations) {
         categoryDiv.appendChild(img);
 
         categoryDiv.addEventListener('click', () => {
+            playEffect("se_click2");
             setActiveCategory(st.category);
-            loadRecipesByStation(st.category, userId);
+            loadRecipesByStation(st.category, userId, selectedRecipe?.recipeId || null);
         });
 
         categoryContainer.appendChild(categoryDiv);
@@ -67,11 +85,11 @@ function renderStationCategories(stations) {
 }
 
 // 레시피 api 호출
-async function loadRecipesByStation(stationCategory) {
+async function loadRecipesByStation(stationCategory, userId, selectedRecipeId = null) {
     try {
         const res = await apiRequest(`/api/station/recipe/${stationCategory}/${userId}`, 'GET');
         if (res.code === 'SUCCESS') {
-            renderRecipeCards(res.data); // RecipeDto[]
+            renderRecipeCards(res.data,selectedRecipeId); // RecipeDto[]
         }
     } catch (err) {
         console.error('레시피 불러오기 실패:', err);
@@ -79,9 +97,11 @@ async function loadRecipesByStation(stationCategory) {
 }
 
 // 레시피 카드 렌더 영역
-function renderRecipeCards(recipes) {
+function renderRecipeCards(recipes, selectedRecipeId = null) {
     const container = document.getElementById('recipe-card-list');
     container.innerHTML = '';
+    let matchedRecipe = null;
+    let matchedCard = null;
 
     // 첫 레시피 자동 선택
     renderRecipeDetail(recipes[0]);
@@ -110,13 +130,26 @@ function renderRecipeCards(recipes) {
         card.addEventListener('click', () => {
             document.querySelectorAll('.recipe-card').forEach(c => c.classList.remove('active'));
             card.classList.add('active');
+            selectedRecipe = recipe;
             renderRecipeDetail(recipe);
         });
 
         container.appendChild(card);
 
-
+        if (recipe.recipeId === selectedRecipeId) {
+            matchedRecipe = recipe;
+            matchedCard = card;
+        }
     });
+    if (matchedRecipe && matchedCard) {
+        matchedCard.classList.add('active');
+        renderRecipeDetail(matchedRecipe);
+    } else if (recipes.length > 0) {
+        // fallback: 첫 번째 선택
+        container.firstChild.classList.add('active');
+        renderRecipeDetail(recipes[0]);
+        selectedRecipe = recipes[0];
+    }
 }
 
 // 레시피 상세 화면 렌더링
@@ -186,7 +219,7 @@ function renderRecipeDetail(recipe) {
 
     button.addEventListener('click', () => {
         if (canCraft) {
-            showMessageModal("제작하시겠어요?")
+            handleCraft(recipe);
         }
     });
 
@@ -195,12 +228,14 @@ function renderRecipeDetail(recipe) {
     container.appendChild(button);
 }
 
-craftBtn.addEventListener('click', () => {
-    if (canCraft) {
-        handleCraft(recipe);
-    }
-});
+// 제작 api 호출
 async function handleCraft(recipe) {
+    playEffect("se_craft")
+    if (!currentStationCategory) {
+        console.error('station category가 설정되지 않았습니다.');
+        return;
+    }
+
     const payload = {
         resultItemId: recipe.resultItemId,
         resultQuantity: 1, // 현재는 고정 1개
@@ -211,16 +246,17 @@ async function handleCraft(recipe) {
     };
 
     try {
-        const res = await apiRequestJson(`/api/station/userId/craft/${userId}`, 'POST', payload);
+        const url = `/api/station/craft/${userId}`
+        const res = await apiRequestJson(url, 'POST', payload);
 
         if (res.code === 'SUCCESS') {
-            showMessageModal('제작 성공');
-            // ✅ 제작 후 다시 레시피 목록을 새로고침하거나 인벤토리 갱신 필요 시:
-            // loadRecipesByStation(currentType, userId);
+            loadRecipesByStation(currentStationCategory, userId, selectedRecipe?.recipeId);
         } else {
+            workshopModal.classList.add('hidden')
             showMessageModal(`제작 실패: ${res.message}`);
         }
     } catch (err) {
+        workshopModal.classList.add('hidden')
         showMessageModal('제작 중 오류 발생');
     }
 }
