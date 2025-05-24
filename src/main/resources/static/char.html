@@ -73,18 +73,14 @@
             <img src="images/icons/icon_station.png" alt="공방">
             <span class="itemLabel">감자공방</span>
         </div>
-        <div class="inventoryCell" onclick="handleBagClick()">
+        <div class="inventoryCell" onclick=showMessageModal("준비중입니다.")>
             <img src="images/icons/icon_laboratory.png" alt="연구소">
-            <span class="itemLabel">감자연구소</span>
+            <span class="itemLabel">감자감정소</span>
         </div>
-        <div class="inventoryCell" onclick="handleBagClick()">
+        <div class="inventoryCell" onclick=showMessageModal("준비중입니다.")>
             <img src="./images/icons/icon_book.png" alt="도감">
             <span class="itemLabel">도감</span>
         </div>
-<!--        <div class="inventoryCell" onclick="handleBagClick()">-->
-<!--            <img src="./images/icons/icon_bag.png" alt="배낭">-->
-<!--            <span class="itemLabel">인벤토리</span>-->
-<!--        </div>-->
 <!--        <div class="inventoryCell" onclick="handleQuestClick()">-->
 <!--            <img src="./images/icons/default.png" alt="퀘스트">-->
 <!--            <span class="itemLabel">퀘스트</span>-->
@@ -250,7 +246,7 @@
     </div>
 </div>
 
-<!-- 공방 모달 -->
+
 <!-- 공방 모달 구조 -->
 <div id="workshopModal" class="modal hidden">
     <div class="workshop-modal-content">
@@ -273,6 +269,8 @@
             </div>
         </div>
     </div>
+    <div id="craft-effect-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
+
 </div>
 
 

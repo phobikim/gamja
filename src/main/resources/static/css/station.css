@@ -112,6 +112,7 @@
     padding-top: 1vw;
     border-top: 2px solid #a86d3c;
     box-sizing: border-box;
+    position: relative; /* ✅ floatText 위치 기준이 되는 부모 */
 }
 
 .ingredient-scroll {
@@ -124,6 +125,7 @@
 
 /* CRAFT 버튼은 항상 아래쪽에 위치 */
 .craft-button {
+    position: relative; /* ✅ 버튼 기준으로 위치 설정 가능하게 만듦 */
     margin-top: auto;
     padding: 3vw;
     font-size: 1.2rem;
@@ -145,4 +147,33 @@
     background-color: #ccc;
     color: #777;
     cursor: not-allowed;
+}
+
+.craft-float-text {
+    position: absolute;
+    font-size: 1.2rem;
+    color: #4CAF50;
+    text-shadow: 0 0 4px rgba(76, 175, 80, 0.5);
+    font-weight: bold;
+    animation: floatFade 1s ease-out forwards;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 9999;
+    transform: translateX(-50%);
+}
+
+
+@keyframes floatFade {
+    0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.9);
+    }
+    30% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px) scale(1.05);
+    }
 }

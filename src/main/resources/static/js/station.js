@@ -250,7 +250,13 @@ async function handleCraft(recipe) {
         const res = await apiRequestJson(url, 'POST', payload);
 
         if (res.code === 'SUCCESS') {
+            // ✅ 애니메이션은 즉시 실행 (DOM 조작 없음)
+            const btn = document.querySelector('.craft-button');
+            if (btn) showCraftSuccessEffect(btn);
+
+            // ✅ 새로고침은 바로 실행
             loadRecipesByStation(currentStationCategory, userId, selectedRecipe?.recipeId);
+
         } else {
             workshopModal.classList.add('hidden')
             showMessageModal(`제작 실패: ${res.message}`);
@@ -261,3 +267,22 @@ async function handleCraft(recipe) {
     }
 }
 
+function showCraftSuccessEffect(buttonElement, message = '제작 성공!') {
+    const floatText = document.createElement('div');
+    floatText.className = 'craft-float-text';
+    floatText.textContent = message;
+
+    const rect = buttonElement.getBoundingClientRect();
+    const modalRect = workshopModal.getBoundingClientRect();
+
+    floatText.style.left = `${rect.left + rect.width / 2 - modalRect.left}px`;
+    floatText.style.top = `${rect.top - modalRect.top}px`;
+    floatText.style.transform = 'translateX(-50%)'; // 이거 유지!
+
+    const effectLayer = document.getElementById('craft-effect-layer');
+    effectLayer.appendChild(floatText);
+
+    setTimeout(() => {
+        floatText.remove();
+    }, 1000);
+}
