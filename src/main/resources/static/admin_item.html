@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>감자단 관리자 페이지</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f9f9f9; }
+        h1 { margin-bottom: 10px; }
+        .tabs { margin-bottom: 20px; }
+        .tab-button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-right: 10px;
+            background: #ddd;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tab-button.active { background: #666; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; background: white; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #eee; }
+        input, select { padding: 4px; margin: 2px; }
+        img { vertical-align: middle; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<h1>감자단 관리자</h1>
+
+<!-- 탭 버튼 -->
+<div class="tabs">
+    <button class="tab-button active" onclick="showTab('itemTab')">📦 아이템</button>
+    <button class="tab-button" onclick="showTab('recipeTab')">🍳 레시피</button>
+</div>
+
+<!-- 아이템 탭 -->
+<div id="itemTab" class="tab-content active">
+    <button onclick="openItemForm()">➕ 아이템 추가</button>
+    <table id="itemTable">
+        <thead>
+        <tr>
+            <th>ID</th><th>이미지</th><th>이름</th><th>등급</th><th>타입</th><th>슬롯</th><th>수정</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+        <tr id="itemFormRow" class="hidden">
+            <td colspan="7">
+                <input type="hidden" id="itemId">
+                이름: <input type="text" id="itemName">
+                설명: <input type="text" id="itemDesc">
+                등급: <input type="number" id="itemRank" style="width:50px;">
+                희귀도:
+                <select id="itemRarity">
+                    <option value="NORMAL">NORMAL</option><option value="RARE">RARE</option>
+                </select>
+                타입:
+                <select id="itemType">
+                    <option>GATHER_MATERIAL</option><option>CRAFT_MATERIAL</option>
+                    <option>COMPOSITE</option><option>EQUIP_GATHER</option>
+                    <option>EQUIP_BATTLE</option><option>DROP</option>
+                </select>
+                슬롯:
+                <select id="itemSlot">
+                    <option>NONE</option><option>WEAPON</option><option>HELMET</option>
+                    <option>ARMOR</option><option>GLOVES</option><option>SHOES</option>
+                </select>
+                아이콘: <input type="text" id="itemIcon" style="width:150px;">
+                <button onclick="saveItem()">저장</button>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
+
+<!-- 레시피 탭 -->
+<div id="recipeTab" class="tab-content">
+    <button onclick="openRecipeForm()">➕ 레시피 추가</button>
+    <table id="recipeTable">
+        <thead>
+        <tr>
+            <th>ID</th><th>이름</th><th>등급</th><th>스테이션</th><th>결과</th><th>재료</th><th>수정</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+        <tr id="recipeFormRow" class="hidden">
+            <td colspan="7">
+                <input type="hidden" id="recipeId">
+                이름: <input type="text" id="recipeName">
+                등급:
+                <select id="recipeGrade">
+                    <option>COMMON</option><option>UNCOMMON</option><option>RARE</option>
+                    <option>EPIC</option><option>LEGENDARY</option>
+                </select>
+                스테이션:
+                <select id="recipeStation">
+                    <option>kitchen</option><option>woodshop</option><option>furnance</option>
+                    <option>potion</option><option>gather</option><option>battle</option><option>leather</option>
+                </select>
+                결과아이템ID: <input type="number" id="resultItemId"><br>
+                <b>재료</b><br>
+                재료1: <input type="number" id="ingredientItem1"> 수량: <input type="number" id="ingredientQty1"><br>
+                재료2: <input type="number" id="ingredientItem2"> 수량: <input type="number" id="ingredientQty2"><br>
+                재료3: <input type="number" id="ingredientItem3"> 수량: <input type="number" id="ingredientQty3"><br>
+                재료4: <input type="number" id="ingredientItem4"> 수량: <input type="number" id="ingredientQty4"><br>
+                <button onclick="saveRecipe()">저장</button>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
+
+<!-- 탭 전환 스크립트 -->
+<script>
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelector(`.tab-button[onclick*="${tabId}"]`).classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
+</script>
+
+<!-- 메인 로직 -->
+<script src="/js/admin_item.js"></script>
+</body>
+</html>

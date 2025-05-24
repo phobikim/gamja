@@ -58,7 +58,7 @@
 
 /* 상단: 카드 리스트 */
 .recipe-card-list {
-    height: 60%;
+    height: 40%;
     overflow-y: auto;
     display: flex;
     flex-wrap: wrap;
@@ -68,7 +68,7 @@
 
 
 .recipe-card {
-    width: 60px;
+    width: 50px;
     height: 85px;
     background-color: #f5bc66;
     border: 3px solid #62210eb8;
@@ -105,12 +105,13 @@
 
 /* 하단: 상세 재료 + 버튼 */
 .recipe-detail {
-    height: 50%;
+    height: 60%;
     display: flex;
     flex-direction: column;
     justify-content: space-between; /* ✅ 위: 재료, 아래: 버튼 */
     padding-top: 1vw;
-    border-top: 2px solid #a86d3c;
+    border-top: 3px solid #a86d3c;
+    background-color: #ffeccf;
     box-sizing: border-box;
     position: relative; /* ✅ floatText 위치 기준이 되는 부모 */
 }
