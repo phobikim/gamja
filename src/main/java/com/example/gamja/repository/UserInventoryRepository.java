@@ -11,7 +11,6 @@ public interface UserInventoryRepository extends JpaRepository<UserInventory, Lo
 
     // 특정 유저의 모든 인벤토리 아이템 조회
     List<UserInventory> findByUserId(Long userId);
+    Optional<UserInventory> findByUserIdAndItemId(Long userId, Long itemId);
 
-    // 특정 유저의 특정 아이템 조회
-    UserInventory findByUserIdAndItemId(Long userId, Long itemId);
 }

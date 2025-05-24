@@ -32,9 +32,6 @@ public class Item {
     @Column(name = "equip_slot", nullable = false)
     private EquipSlot equipSlot = EquipSlot.NONE;
 
-    @Column(name = "station_ids", length = 100)
-    private String stationIds;
-
     @Column(name = "icon_path", length = 255)
     private String iconPath;
 

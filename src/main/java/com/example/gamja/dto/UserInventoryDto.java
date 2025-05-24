@@ -21,7 +21,6 @@ public class UserInventoryDto {
     private String rarity;
     private String itemType;
     private String equipSlot;
-    private String stationIds;
     private String iconPath;
 
 }

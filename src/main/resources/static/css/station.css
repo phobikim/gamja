@@ -1,0 +1,148 @@
+.workshop-modal-content {
+    display: flex;
+    width: 90vw;
+    max-width: 800px;
+    height: 65vh; /* ✅ 명확한 기준 */
+    margin: 5vh auto;
+    background: #fff8e7;
+    border-radius: 2vw;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    padding: 2vw;
+    gap: 2vw;
+    box-sizing: border-box;
+}
+
+.workshop-left {
+    background-color: #fcf2dd;
+    display: flex;
+    flex-direction: column;
+    gap: 2vw;
+    flex-shrink: 0;
+}
+
+.category {
+    background-color: #f9e1c0; /* 밝은 베이지톤 (모달과 유사하지만 더 연함) */
+    border-radius: 1vw;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 1vw;
+}
+
+.category.active {
+    background-color: #ffcc66;
+}
+
+.category img {
+    width: 64px; /* ✅ 훨씬 더 큼직하게 */
+    height: 64px;
+    object-fit: contain;
+    padding: 0;
+    border: none;
+}
+
+.workshop-right {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 1vw;
+    background-color: #f9e1c0;
+    border: 3px dashed #a86d3c;
+    border-radius: 1vw;
+    padding: 2vw;
+    height: 100%; /* 부모 height 기준 */
+    box-sizing: border-box;
+}
+
+
+/* 상단: 카드 리스트 */
+.recipe-card-list {
+    height: 60%;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1vw;
+    justify-content: flex-start;
+}
+
+
+.recipe-card {
+    width: 60px;
+    height: 85px;
+    background-color: #f5bc66;
+    border: 3px solid #62210eb8;
+    border-radius: 8px;
+    padding: 1vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.recipe-card.active {
+    border-color: #ff9900;
+    box-shadow: 0 0 5px #ff9900;
+}
+
+.recipe-card img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+.recipe-card span {
+    font-size: 0.9rem;
+    margin-top: 0.5vw;
+    color: #3d2b1f;
+}
+
+.recipe-name {
+    font-weight: bold;
+}
+
+/* 하단: 상세 재료 + 버튼 */
+.recipe-detail {
+    height: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* ✅ 위: 재료, 아래: 버튼 */
+    padding-top: 1vw;
+    border-top: 2px solid #a86d3c;
+    box-sizing: border-box;
+}
+
+.ingredient-scroll {
+    overflow-y: auto;
+    flex: 1;
+    width: 100%;
+    margin-bottom: 1vw;
+    padding-right: 1vw; /* 스크롤 공간 확보 */
+}
+
+/* CRAFT 버튼은 항상 아래쪽에 위치 */
+.craft-button {
+    margin-top: auto;
+    padding: 3vw;
+    font-size: 1.2rem;
+    background-color: #fa6719;
+    color: white;
+    border: none;
+    border-radius: 1vw;
+    cursor: pointer;
+    width: 100%;
+    max-width: 300px;
+    transition: background-color 0.2s;
+    align-self: center;
+}
+.craft-button:hover {
+    background-color: #d85e16;
+}
+
+.craft-button:disabled {
+    background-color: #ccc;
+    color: #777;
+    cursor: not-allowed;
+}

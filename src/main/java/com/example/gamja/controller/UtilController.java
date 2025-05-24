@@ -24,49 +24,6 @@ public class UtilController {
     private final UserDexRepository userDexRepository;
     private final DailyQuestRepository dailyQuestRepository;
 
-
-    @ResponseBody
-    @GetMapping("/rank")
-    public ResponseEntity<GamJaResponse> getCharInfo() {
-//        List<UserInventory> inventories = userInventoryRepository.findAll();
-//
-//        List<RankDto> rankList = inventories.stream()
-//                .map(inv -> {
-//                    var user = inv.getUser();
-//                    Optional<UserDtl> userDtlOpt = userDtlRepository.findByUser(user);
-//                    if (userDtlOpt.isEmpty()) {
-//                        return null;
-//                    }
-//                    UserDtl userDtl = userDtlOpt.get();
-//                    String finalImage = commonUtil.resolveCharacterImage(userDtl);
-//                    int total = inv.getFish() + inv.getWood() + inv.getStone() + inv.getFood();
-//
-//                    String nickname = Optional.ofNullable(userDtl.getUsernickname())
-//                            .orElse(user.getUsername());
-//
-//                    return new RankDto(
-//                            user.getId(),
-//                            nickname,
-//                            finalImage,
-//                            total
-//                    );
-//                })
-//                .filter(Objects::nonNull)
-//                .sorted(Comparator.comparingInt(RankDto::getTotal).reversed())
-//                .collect(Collectors.toList());
-
-
-        return ResponseEntity.ok(GamJaResponse.success("정상 조회", null));
-    }
-
-    @ResponseBody
-    @PostMapping("/quest/complete")
-    public ResponseEntity<GamJaResponse> completeQuest(@RequestParam Long id, HttpSession session) {
-
-
-        return ResponseEntity.ok(GamJaResponse.ok("정상 조회"));
-    }
-
     @ResponseBody
     @GetMapping("/item/list/{userId}")
     public ResponseEntity<GamJaResponse> getItemList (@PathVariable Long userId, HttpSession session) {
@@ -78,7 +35,7 @@ public class UtilController {
         List<UserInventory> inventoryList = userInventoryRepository.findByUserId(userId);
 
         List<UserInventoryDto> responseList = inventoryList.stream().map(inv -> {
-            Item item = inv.getItem(); // JPA 연관 객체
+            Item item = inv.getItem();
             UserInventoryDto dto = new UserInventoryDto();
 
             dto.setItemId(inv.getItemId());
@@ -92,7 +49,6 @@ public class UtilController {
                 dto.setRarity(item.getRarity().name());       // enum → String
                 dto.setItemType(item.getItemType().name());   // enum → String
                 dto.setEquipSlot(item.getEquipSlot().name()); // enum → String
-                dto.setStationIds(item.getStationIds());
                 dto.setIconPath(item.getIconPath());
             }
 

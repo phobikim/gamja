@@ -29,5 +29,6 @@ public class UserInventory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", insertable = false, updatable = false)
-    private Item item; // <- 반드시 있어야 함
+    private Item item;
+
 }

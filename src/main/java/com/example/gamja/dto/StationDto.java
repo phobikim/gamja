@@ -1,0 +1,20 @@
+package com.example.gamja.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class StationDto {
+    private String name;
+    private String category;
+    private String imagePath;
+
+    private List<RecipeDto> recipes;
+}
