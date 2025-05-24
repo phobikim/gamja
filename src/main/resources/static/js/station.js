@@ -1,4 +1,4 @@
-
+const userId = localStorage.getItem('userId');
 const workshopModal = document.getElementById('workshopModal');
 const categoryContainer = document.querySelector('.workshop-left'); // ✅ 정확한 컨테이너
 const materialList = document.getElementById('material-list');

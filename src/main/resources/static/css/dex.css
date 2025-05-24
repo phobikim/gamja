@@ -1,8 +1,7 @@
 
 /* 감자단 도감 모달 전용 스타일 */
 .dex-modal-content {
-    width: 100%;
-    max-width: 90vw;
+    width: 90%;
     background-color: #814b1a;
     border-radius: 1rem;
     padding: 5vw;
@@ -10,15 +9,28 @@
     text-align: center;
     overflow: hidden;
 }
+/*페이징 버전*/
+/*.dex-grid {*/
+/*    display: grid;*/
+/*    grid-template-columns: repeat(5, 1fr);*/
+/*    grid-template-rows: repeat(3, 1fr);*/
+/*    gap: 4vw;*/
+/*    justify-items: center;*/
+/*    align-items: center;*/
+/*    height: auto;*/
+/*}*/
 
+/*스크롤버전*/
 .dex-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 4vw;
     justify-items: center;
-    align-items: center;
-    height: auto;
+    align-items: start;
+
+    max-height: 40vh; /* ✅ 세로 제한 */
+    overflow-y: auto; /* ✅ 세로 스크롤 */
+    padding-right: 0.5rem; /* 스크롤 여유 */
 }
 
 /* 카드 크기 비율 유지 + 반응형 */
@@ -158,12 +170,12 @@
     opacity: 0.5;
 }
 
-.dex-pagination {
-    margin-top: 3vh;
-    display: flex;
-    justify-content: center;
-    gap: 2vw;
-}
+/*.dex-pagination {*/
+/*    margin-top: 3vh;*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*    gap: 2vw;*/
+/*}*/
 
 .dex-page-btn {
     padding: 1vh 2vw;
@@ -198,7 +210,7 @@
     position: relative;
     z-index: 1000;
     cursor: pointer;
-    transform: scale(1.5); /* 💥 시각적으로 확대 */
+    transform: scale(1.7); /* 💥 시각적으로 확대 */
     transition: transform 0.3s ease;
 }
 
