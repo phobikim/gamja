@@ -6,15 +6,16 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
+@IdClass(UserInventoryId.class)
 @Table(name = "user_inventory")
 public class UserInventory {
-
-    @Id // 단일 기본키로 item_id 사용
-    @Column(name = "item_id", nullable = false)
-    private Long itemId;
-
+    @Id
     @Column(name = "user_id", nullable = false)
     private Long userId;
+
+    @Id
+    @Column(name = "item_id", nullable = false)
+    private Long itemId;
 
     @Column(nullable = false)
     private int quantity;

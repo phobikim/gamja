@@ -63,13 +63,14 @@
     display: flex;
     flex-wrap: wrap;
     gap: 1vw;
-    justify-content: flex-start;
+    justify-content: flex-start; /* 왼쪽 정렬 */
 }
 
-
 .recipe-card {
-    width: 50px;
-    height: 85px;
+    max-height: 50%;
+    flex: 0 0 calc((100% - 2vw) / 3); /* gap이 1vw씩 2개 있으므로 전체에서 2vw 빼기 */
+    height: auto; /* 고정 height 제거 (비율 유지 위해 아래 사용) */
+    aspect-ratio: 3 / 4; /* 가로:세로 비율 유지 */
     background-color: #f5bc66;
     border: 3px solid #62210eb8;
     border-radius: 8px;
@@ -80,6 +81,7 @@
     text-align: center;
     cursor: pointer;
     transition: transform 0.2s ease;
+    box-sizing: border-box;
 }
 
 .recipe-card.active {

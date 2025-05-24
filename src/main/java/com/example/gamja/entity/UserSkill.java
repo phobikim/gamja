@@ -6,18 +6,22 @@ import javax.persistence.*;
 
 @Entity
 @Data
+@IdClass(UserSkillId.class)
 @Table(name = "user_skill")
 public class UserSkill {
+
     @Id
-    private Long id;
+    @Column(name = "user_id")
+    private Long userId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
-    @JoinColumn(name = "id")
-    private User user;
+    @Id
+    @Enumerated(EnumType.STRING)
+    @Column(name = "skill_type")
+    private SkillType skillType;
 
-    private int fishLevel = 1;
-    private int woodLevel = 1;
-    private int stoneLevel = 1;
-    private int cookLevel = 1;
+    @Column(nullable = false)
+    private int level = 1;
+
+    @Column(nullable = false)
+    private int exp = 0;
 }

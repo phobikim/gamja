@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/quest.css">
     <link rel="stylesheet" href="css/bag.css">
     <link rel="stylesheet" href="css/station.css">
-    <link rel="stylesheet" href="css/fish-select.css">
+    <link rel="stylesheet" href="css/action.css">
 </head>
 
 <body class="char-page">
@@ -48,19 +48,19 @@
     <!-- 🟠 인벤토리 -->
     <aside id="inventoryWrapper" class="inventory-grid">
         <!-- 액션 슬롯 -->
-        <div class="inventoryCell" onclick="actionFish()">
+        <div class="inventoryCell" onclick="actionGather('FISHING')">
             <img src="./images/icons/icon_fish.png" alt="낚시">
             <span class="itemLabel">낚시터</span>
         </div>
-        <div class="inventoryCell" onclick="actionFish()">
+        <div class="inventoryCell" onclick="actionGather('WOODCUTTING')">
             <img src="./images/icons/icon_wood.png" alt="벌목">
             <span class="itemLabel">벌목터</span>
         </div>
-        <div class="inventoryCell" onclick="actionFish()">
+        <div class="inventoryCell" onclick="actionGather('MINING')">
             <img src="./images/icons/icon_mining.png" alt="광산">
             <span class="itemLabel">광산입구</span>
         </div>
-        <div class="inventoryCell" onclick="actionFish()">
+        <div class="inventoryCell" onclick="actionGather('GATHERING')">
             <img src="./images/icons/icon_field.png" alt="밭">
             <span class="itemLabel">감자밭</span>
         </div>
@@ -100,28 +100,28 @@
     </footer>
 </main>
 
-<!-- 낚시터 선택 모달 -->
-<div id="fishingSpotModal" class="modal hidden">
-    <div class="fish-select-modal-content">
-        <h2 class="common-h2-brown">낚시터 선택</h2>
-        <div class="fishing-spot-list">
-            <button onclick="selectFishingSpot('연못')">1랭크 연못</button>
-            <button onclick="selectFishingSpot('화산 지대')">2랭크 화산</button>
-            <button onclick="selectFishingSpot('망령의 늪')">3랭크 망령의 늪</button>
-            <!-- 원하는 만큼 추가 -->
+<!-- 공통 장소 선택 모달 -->
+<div id="spotSelectModal" class="modal hidden">
+    <div class="spot-select-modal-content">
+        <h2 class="common-h2-brown" id="spotSelectTitle">장소 선택</h2>
+        <div id="userSkillInfo" class="skill-info">
+            <!-- JS에서 동적으로 레벨, 경험치 삽입 -->
+        </div>
+        <div class="spot-list" id="spotButtonList">
+            <!-- JS로 버튼이 동적으로 삽입됨 -->
         </div>
     </div>
 </div>
 
-<!-- 실제 낚시 모달 -->
-<div id="fishingModal" class="modal hidden">
-    <div class="fish-modal-content" id="fishingModalContent" onclick="handleFishingClick()">
-        <div class="fishing-image-wrapper">
-            <img id="fishingImage" src="" alt="낚시터 이미지" class="fishing-image" />
-            <button class="fishing-complete-btn" onclick="closeFishingModal()">완료</button>
+<div id="activityModal" class="modal hidden">
+    <div class="action-modal-content" id="activityModalContent">
+        <div class="action-image-wrapper">
+            <img id="activityImage" class="action-image" src="" alt="" onclick="handleActivityClick()">
         </div>
+        <button class="action-complete-btn" onclick="completeActivity()">채집 완료</button>
     </div>
 </div>
+
 
 <!-- 감자단 도감 모달 -->
 <div id="dexModal" class="modal hidden">
@@ -285,5 +285,5 @@
 <script src="js/bag.js"></script>
 <script src="js/station.js"></script>
 <script src="js/dex.js"></script>
-<script src="js/fish_select.js"></script>
+<script src="js/action.js"></script>
 

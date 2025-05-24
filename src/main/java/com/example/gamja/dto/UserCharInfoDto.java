@@ -14,7 +14,6 @@ public class UserCharInfoDto {
     private int level;
     private int xp;
     private Inventory inventory;
-    private Skill skill;
     private String title;
 
     @Getter
@@ -22,29 +21,12 @@ public class UserCharInfoDto {
 
     }
 
-    @Getter
-    public static class Skill { // 🔥 추가
-        private int fishLevel;
-        private int woodLevel;
-        private int stoneLevel;
-        private int cookLevel;
-
-        public Skill(UserSkill userSkill) {
-            this.fishLevel = userSkill.getFishLevel();
-            this.woodLevel = userSkill.getWoodLevel();
-            this.stoneLevel = userSkill.getStoneLevel();
-            this.cookLevel = userSkill.getCookLevel();
-        }
-    }
-
-
-    public UserCharInfoDto(UserDtl userDtl, UserSkill userSkill) {
+    public UserCharInfoDto(UserDtl userDtl) {
         this.username = userDtl.getUser().getUsername();
         this.nickname = userDtl.getUsernickname();
         this.characterImage = userDtl.getCharacterImage();
         this.level = userDtl.getLevel();
         this.xp = userDtl.getXp();
-        this.skill = new Skill(userSkill); // 🔥 추가
     }
 
     public String getTitleByLevel(int level) {

@@ -19,7 +19,6 @@ import javax.servlet.http.HttpSession;
 public class LoginController {
     private final UserRepository userRepository;
     private final UserDtlRepository userDtlRepository;
-    private final UserInventoryRepository userInventoryRepository;
     private final UserSkillRepository userSkillRepository;
     private final UserDexRepository userDexRepository;
 
@@ -71,9 +70,18 @@ public class LoginController {
             userDtlRepository.save(userDtl);
 
 
-            UserSkill userSkill = new UserSkill();
-            userSkill.setUser(savedUser);
-            userSkillRepository.save(userSkill);
+            // ✅ 활동/제작 스킬 초기화
+            List<UserSkill> skillList = Arrays.stream(SkillType.values())
+                    .map(skillType -> {
+                        UserSkill skill = new UserSkill();
+                        skill.setUserId(savedUser.getId());
+                        skill.setSkillType(skillType);
+                        skill.setLevel(1);
+                        skill.setExp(0);
+                        return skill;
+                    })
+                    .toList();
+            userSkillRepository.saveAll(skillList);
 
             List<Long> dexIds = List.of(100L, 101L);
             List<UserDex> toSave = dexIds.stream()
