@@ -18,6 +18,9 @@
     flex-direction: column;
     gap: 2vw;
     flex-shrink: 0;
+    max-height: 60vh; /* ✅ 높이 제한 */
+    overflow-y: auto;  /* ✅ 세로 스크롤 */
+    padding-right: 1vw; /* ✅ 스크롤 생길 때 내용 잘리지 않게 여유 */
 }
 
 .category {
@@ -67,7 +70,7 @@
 }
 
 .recipe-card {
-    max-height: 50%;
+    max-height: 60%;
     flex: 0 0 calc((100% - 2vw) / 3); /* gap이 1vw씩 2개 있으므로 전체에서 2vw 빼기 */
     height: auto; /* 고정 height 제거 (비율 유지 위해 아래 사용) */
     aspect-ratio: 3 / 4; /* 가로:세로 비율 유지 */
@@ -179,4 +182,16 @@
         opacity: 0;
         transform: translateY(-20px) scale(1.05);
     }
+}
+
+/*스크롤바 삭제*/
+.workshop-left::-webkit-scrollbar {
+    width: 6px;
+}
+.workshop-left::-webkit-scrollbar-thumb {
+    background-color: #d2a679;
+    border-radius: 6px;
+}
+.workshop-left::-webkit-scrollbar-track {
+    background: transparent;
 }

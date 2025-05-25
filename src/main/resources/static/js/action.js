@@ -13,10 +13,6 @@ spotModal.addEventListener('click', (e) => {
     if (!inside) spotModal.classList.add('hidden');
 });
 
-activityModal.addEventListener('click', (e) => {
-    const inside = e.target.closest('.action-modal-content');
-    if (!inside) activityModal.classList.add('hidden');
-});
 
 async function actionGather(activityType) {
     playEffect("se_click2");
@@ -85,6 +81,11 @@ async function actionGather(activityType) {
 
 async function selectSpot(rank, imagePath, displayName) {
     currentSpotRank = rank;
+    // ✅ 모든 상태 초기화
+    dropTable = [];
+    droppedItems = {};
+    gainedExp = 0;
+
     closeSpotSelectModal();
 
     try {
@@ -95,6 +96,7 @@ async function selectSpot(rank, imagePath, displayName) {
         dropTable = [];
     }
 
+    preloadDropImages()
     openActivityModal(currentActivityType, rank, imagePath, displayName);
 }
 
@@ -107,14 +109,22 @@ function openActivityModal(activityType, rank, imagePath, displayName) {
 
     const modal = document.getElementById("activityModal");
     const img = document.getElementById("activityImage");
+    const title = document.getElementById("activityLocationName");
 
-    img.src = imagePath || '';
+    img.src = basePath + imagePath || '';
     img.alt = `${displayName} (${activityType} ${rank}랭크)`;
+    title.textContent = `${displayName}`;
+
+    // renderPossibleItems();
+    renderGainedItems();    // ✅ 항상 dropTable 기준 x0으로 초기화
 
     modal.classList.remove("hidden");
 }
 
 async function handleActivityClick() {
+    const tooltip = document.querySelector('.activity-click-tooltip');
+    if (tooltip) tooltip.remove();
+
     if (dropTable.length === 0) return;
 
     const rand = Math.random();
@@ -134,6 +144,8 @@ async function handleActivityClick() {
             break;
         }
     }
+    renderGainedItems();
+
 }
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -171,11 +183,12 @@ async function completeActivity() {
 
 
 function createActionTextWithImage(imgSrc, modalId) {
+
     const actionWrapper = document.createElement('div');
     actionWrapper.className = 'get-item-image-text';
 
     const img = document.createElement('img');
-    img.src = imgSrc;
+    img.src = basePath + imgSrc;
     img.alt = '+1 item';
     img.className = 'get-item-image';
 
@@ -193,3 +206,58 @@ function createActionTextWithImage(imgSrc, modalId) {
     }, 1000);
 }
 
+
+function renderPossibleItems() {
+    const container = document.getElementById('possibleItems');
+    container.innerHTML = '';
+    dropTable.forEach(drop => {
+        const row = document.createElement('div');
+        row.className = 'drop-item';
+        row.innerHTML = `
+      <img src="${basePath + drop.iconPath}" alt="${drop.name}">
+    `;
+        container.appendChild(row);
+    });
+}
+
+function renderGainedItems() {
+    const container = document.getElementById('gainedItems');
+    container.innerHTML = ''; // ✅ 항상 초기화하고 새로 생성
+
+    dropTable.forEach(drop => {
+        const count = droppedItems[drop.itemId]?.count || 0;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'gained-item';
+        wrapper.dataset.itemId = drop.itemId;
+
+        const img = document.createElement('img');
+        img.src = basePath + drop.iconPath;
+        img.alt = drop.name;
+
+        const countSpan = document.createElement('span');
+        countSpan.textContent = `x${count}`;
+        countSpan.className = 'gained-count';
+
+        wrapper.appendChild(img);
+        wrapper.appendChild(countSpan);
+        container.appendChild(wrapper);
+    });
+
+    // 수량만 갱신
+    dropTable.forEach(drop => {
+        const count = droppedItems[drop.itemId]?.count || 0;
+        const wrapper = container.querySelector(`[data-item-id='${drop.itemId}']`);
+        if (wrapper) {
+            const countSpan = wrapper.querySelector('.gained-count');
+            countSpan.textContent = `x${count}`;
+        }
+    });
+}
+
+function preloadDropImages() {
+    dropTable.forEach(drop => {
+        const img = new Image();
+        img.src = basePath + drop.iconPath;
+    });
+}

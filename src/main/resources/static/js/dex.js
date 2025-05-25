@@ -38,7 +38,7 @@ async function handleDexClick() {
 
 function renderDexCards(data) {
     dexList.innerHTML = ''; // 기존 카드 제거
-    const CharImagePath = './images/character/'
+    const CharImagePath = '/character/'
     data.forEach(item => {
         const clone = dexCardTemplate.content.cloneNode(true);
         const card = clone.querySelector('.dex-card');
@@ -50,7 +50,7 @@ function renderDexCards(data) {
 
         if (!item.owned) card.classList.add('unowned');
 
-        frontImg.src = CharImagePath + `${item.image}`;
+        frontImg.src = basePath_image + CharImagePath + `${item.image}`;
         frontImg.alt = item.name;
         if (!item.owned) frontImg.classList.add('unowned');
 

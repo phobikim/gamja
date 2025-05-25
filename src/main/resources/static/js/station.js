@@ -66,7 +66,7 @@ function renderStationCategories(stations) {
         categoryDiv.title = st.name; // ✅ 마우스 올리면 툴팁
 
         const img = document.createElement('img');
-        img.src = st.imagePath || '/images/items/default.png';
+        img.src = basePath + st.imagePath || '/images/items/default.png';
         img.alt = st.name;
         img.onerror = () => {
             img.src = '/images/character/default.png';
@@ -111,7 +111,7 @@ function renderRecipeCards(recipes, selectedRecipeId = null) {
         card.title = recipe.recipeName;
 
         const img = document.createElement('img');
-        img.src = recipe.resultItemIcon || '/images/items/default.png';
+        img.src = basePath + recipe.resultItemIcon || '/images/items/default.png';
         img.alt = recipe.resultItemName;
 
         const name = document.createElement('span');
@@ -163,7 +163,7 @@ function renderRecipeDetail(recipe) {
     resultWrapper.style.marginBottom = '1vw';
 
     const resultImg = document.createElement('img');
-    resultImg.src = recipe.resultItemIcon || '/images/items/default.png';
+    resultImg.src = basePath + recipe.resultItemIcon || '/images/items/default.png';
     resultImg.alt = recipe.resultItemName;
     resultImg.style.width = '48px';
     resultImg.style.height = '48px';
@@ -196,7 +196,7 @@ function renderRecipeDetail(recipe) {
     recipe.ingredients.forEach(ing => {
         const li = document.createElement('li');
         li.innerHTML = `
-            <img src="${ing.itemIcon}" style="width:24px; height:24px; vertical-align:middle;">
+            <img src="${basePath}/${ing.itemIcon}" style="width:24px; height:24px; vertical-align:middle;">
             ${ing.itemName} x${ing.quantity}
             <span style="color:${ing.userOwned < ing.quantity ? 'red' : 'green'};">
               (보유: ${ing.userOwned})

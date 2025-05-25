@@ -29,13 +29,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 캐릭터 정보는 data 아래에 넘겨준다.
         if (res.code !== 'SUCCESS' || !res.data) {
             showMessageModal('캐릭터 정보를 불러오지 못했습니다.');
-            return;
+            location.href = '/login.html'; // 또는 사용자 정의 메시지
         }
         //캐릭터 기본 정보 설정
         setUserInfo(res.data);
 
     } catch (err) {
         showMessageModal('캐릭터 정보를 불러오지 못했습니다.');
+        location.href = '/login.html'; // 또는 사용자 정의 메시지
         console.error(err);
     }
 
@@ -50,8 +51,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         } = data;
 
         // 대표 캐릭터 이미지 세팅
-        const imagePath = './images/character/';
-        mainCharacter.src = imagePath + characterImage;
+        const imagePath = '/character/';
+        mainCharacter.src = basePath_image + imagePath + characterImage;
         mainCharacter.alt = nickname || username || '캐릭터';
 
         // 캐릭터 이름, 레벨 세팅

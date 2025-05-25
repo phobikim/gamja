@@ -1,3 +1,8 @@
+
+/* 이미지 서버 경로  */
+window.basePath_image = 'http://211.208.163.16:51080/images';
+window.basePath = 'http://211.208.163.16:51080';
+
 async function apiRequest(url, method = 'GET', data = null) {
     const options = {
         method,
@@ -39,6 +44,7 @@ async function apiRequestJson(url, method = 'GET', data = null) {
         throw error;
     }
 }
+
 
 
 

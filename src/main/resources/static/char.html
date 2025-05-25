@@ -24,10 +24,10 @@
 <main class="game-main-ui">
 
     <button id="mainBtn" class="circle-btn"></button>
-    <button id="bgmToggleBtn" class="bgm-off"></button>
+    <button id="bgmToggleBtn" class="bgm-off" style="background-image: url('http://211.208.163.16:51080/images/icons/bgm_off.png');"></button>
     <!-- 🌕 배경 + 캐릭터 -->
     <section id="bgSceneArea" class="background-area">
-        <img id="mainCharacter" src="./images/character/default.png" alt="캐릭터" class="character-img">
+        <img id="mainCharacter" src="http://211.208.163.16:51080/images/character/default.png" alt="캐릭터" class="character-img">
     </section>
 
     <!-- 🟢 캐릭터 정보 영역 -->
@@ -49,50 +49,38 @@
     <aside id="inventoryWrapper" class="inventory-grid">
         <!-- 액션 슬롯 -->
         <div class="inventoryCell" onclick="actionGather('FISHING')">
-            <img src="./images/icons/icon_fish.png" alt="낚시">
+            <img src="http://211.208.163.16:51080/images/icons/icon_fish.png" alt="낚시">
             <span class="itemLabel">낚시터</span>
         </div>
         <div class="inventoryCell" onclick="actionGather('WOODCUTTING')">
-            <img src="./images/icons/icon_wood.png" alt="벌목">
+            <img src="http://211.208.163.16:51080/images/icons/icon_wood.png" alt="벌목">
             <span class="itemLabel">벌목터</span>
         </div>
         <div class="inventoryCell" onclick="actionGather('MINING')">
-            <img src="./images/icons/icon_mining.png" alt="광산">
+            <img src="http://211.208.163.16:51080/images/icons/icon_mining.png" alt="광산">
             <span class="itemLabel">광산입구</span>
         </div>
         <div class="inventoryCell" onclick="actionGather('GATHERING')">
-            <img src="./images/icons/icon_field.png" alt="밭">
+            <img src="http://211.208.163.16:51080/images/icons/icon_field.png" alt="밭">
             <span class="itemLabel">감자밭</span>
         </div>
         <!-- 기능 슬롯 -->
         <div class="inventoryCell" onclick="handleBagClick()">
-            <img src="./images/icons/icon_bag.png" alt="배낭">
+            <img src="http://211.208.163.16:51080/images/icons/icon_bag.png" alt="배낭">
             <span class="itemLabel">인벤토리</span>
         </div>
         <div class="inventoryCell" onclick="handleStationClick()">
-            <img src="images/icons/icon_station.png" alt="공방">
+            <img src="http://211.208.163.16:51080/images/icons/icon_station.png" alt="공방">
             <span class="itemLabel">감자공방</span>
         </div>
         <div class="inventoryCell" onclick=showMessageModal("준비중입니다.")>
-            <img src="images/icons/icon_laboratory.png" alt="연구소">
+            <img src="http://211.208.163.16:51080/images/icons/icon_laboratory.png" alt="연구소">
             <span class="itemLabel">감자감정소</span>
         </div>
         <div class="inventoryCell" onclick="handleDexClick()">
-            <img src="./images/icons/icon_book.png" alt="도감">
+            <img src="http://211.208.163.16:51080/images/icons/icon_book.png" alt="도감">
             <span class="itemLabel">도감</span>
         </div>
-<!--        <div class="inventoryCell" onclick="handleQuestClick()">-->
-<!--            <img src="./images/icons/default.png" alt="퀘스트">-->
-<!--            <span class="itemLabel">퀘스트</span>-->
-<!--        </div>-->
-<!--        <div class="inventoryCell" onclick="handleRankClick()">-->
-<!--            <img src="./images/icons/default.png" alt="랭킹">-->
-<!--            <span class="itemLabel">랭킹</span>-->
-<!--        </div>-->
-<!--        <div class="inventoryCell" >-->
-<!--            <img src="./images/icons/icon_gotcha.png" alt="뽑기">-->
-<!--            <span class="itemLabel">뽑기</span>-->
-<!--        </div>-->
     </aside>
 
     <!-- ⚫ 푸터 메뉴 영역 (추후 버튼 등) -->
@@ -115,12 +103,53 @@
 
 <div id="activityModal" class="modal hidden">
     <div class="action-modal-content" id="activityModalContent">
-        <div class="action-image-wrapper">
-            <img id="activityImage" class="action-image" src="" alt="" onclick="handleActivityClick()">
+
+        <div class="action-card-frame">
+
+            <!-- 장소 이름: 상단 -->
+            <div class="activity-location-name" id="activityLocationName">Mystic Pond</div>
+
+            <!-- 가로 분할: 이미지 + 로그 -->
+            <div class="action-card-body">
+                <!-- 이미지 -->
+                <div class="action-image-wrapper">
+                    <img id="activityImage" class="action-image" src="" alt="" onclick="handleActivityClick()">
+                    <div class="activity-click-tooltip">Click to gather!</div>
+                </div>
+
+
+                <!-- 오른쪽 정보 -->
+                <div class="activity-right-info">
+                    <div class="spot-info-title">Spot Info</div>
+                    <ul class="spot-info-list">
+                        <li>Recommended Lv. 3+</li>
+                        <li>Time Bonus Active</li>
+                        <li>Night Boost Zone</li>
+                    </ul>
+                </div>
+                <!-- 드랍 로그 -->
+<!--                <div class="action-log-wrapper">-->
+<!--                    <div class="item-drop-title">Drops</div>-->
+<!--                    <div class="item-drop-vertical-list" id="possibleItems"></div>-->
+<!--                </div>-->
+            </div>
+
         </div>
-        <button class="action-complete-btn" onclick="completeActivity()">채집 완료</button>
+
+        <!-- 하단: 획득한 아이템 + 완료 버튼 -->
+        <div class="action-info-section">
+            <div class="item-gain-info">
+                <div class="item-gain-title">Acquired Items</div>
+                <div class="item-gain-list" id="gainedItems"></div>
+            </div>
+            <button class="action-complete-btn" onclick="completeActivity()">Complete</button>
+        </div>
+
     </div>
 </div>
+
+
+
 
 
 <!-- 감자단 도감 모달 -->

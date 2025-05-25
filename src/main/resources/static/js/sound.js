@@ -77,12 +77,15 @@ function stopBGM(audio) {
 // ✅ 버튼 텍스트 갱신
 function updateBGMButton(isPlaying) {
     const btn = document.getElementById("bgmToggleBtn");
+    const basePath = window.basePath_image || "http://211.208.163.16:51080/images";
 
     if (isPlaying) {
         btn.classList.remove("bgm-off");
         btn.classList.add("bgm-on");
+        btn.style.backgroundImage = `url("${basePath_image}/icons/bgm_on.png")`;
     } else {
         btn.classList.remove("bgm-on");
         btn.classList.add("bgm-off");
+        btn.style.backgroundImage = `url("${basePath_image}/icons/bgm_off.png")`;
     }
 }

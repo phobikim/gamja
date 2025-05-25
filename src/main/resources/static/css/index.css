@@ -8,7 +8,7 @@
 
 
 #mainBtn {
-    background-image: url('../images/icons/btn_main.png');
+    background-image: url('http://211.208.163.16:51080/images//icons/btn_main.png');
     position: absolute;
     top: 2vh;
     left: 3vw;
@@ -37,17 +37,6 @@
     z-index: 10;
     cursor: pointer;
 }
-
-/* 기본 상태 (음소거 상태) */
-#bgmToggleBtn.bgm-off {
-    background-image: url('../images/icons/bgm_off.png'); /* 음소거 이미지 */
-}
-
-/* BGM 켜진 상태 */
-#bgmToggleBtn.bgm-on {
-    background-image: url('../images/icons/bgm_on.png'); /* 켜진 이미지 */
-}
-
 
 
 /* 기본 배경 */

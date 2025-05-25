@@ -28,7 +28,7 @@ function renderItemsByType(type) {
         wrapper.className = 'item-image-wrapper';
 
         const img = document.createElement('img');
-        img.src = img.src = item.iconPath || `/images/items/default.png`;
+        img.src = img.src = basePath + item.iconPath || `/images/items/default.png`;
         img.alt = item.name || `item-${item.itemId}`;
         img.className = 'item-icon';
 

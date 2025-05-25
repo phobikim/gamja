@@ -2,7 +2,7 @@ window.onload = async function () {
     await loadItems();
     await loadRecipes();
 };
-
+const basePath = 'http://211.208.163.16:51080';
 // 📦 아이템 목록 불러오기
 async function loadItems() {
     const res = await fetch("/api/admin/items");
@@ -11,7 +11,7 @@ async function loadItems() {
     tbody.innerHTML = items.map(item => `
       <tr id="itemRow_${item.id}">
         <td>${item.id}</td>
-        <td><img src="${item.iconPath}" width="32" /></td>
+        <td><img src="${basePath}/${item.iconPath}" width="32" /></td>
         <td>${item.name}</td>
         <td>${item.rank}</td>
         <td>${item.itemType}</td>
@@ -32,12 +32,12 @@ async function loadRecipes() {
         <td>${r.recipeName}</td>
         <td>${r.grade}</td>
         <td>${r.stationCategory}</td>
-        <td><img src="${r.resultItemIcon}" width="32" /><br>${r.resultItemName}</td>
+        <td><img src="${basePath}/${r.resultItemIcon}" width="32" /><br>${r.resultItemName}</td>
         <td>
           <ul style="padding-left: 0; list-style: none;">
             ${r.ingredients.map(i => `
               <li>
-                <img src="${i.itemIcon}" width="24" /> ${i.itemName} x ${i.quantity}
+                <img src="${basePath}/${i.itemIcon}" width="24" /> ${i.itemName} x ${i.quantity}
               </li>
             `).join('')}
           </ul>
