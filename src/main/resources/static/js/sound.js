@@ -6,6 +6,7 @@ const audioMap = {
     se_ok: new Audio("audio/se_ok.mp3"),
     se_coin: new Audio("audio/se_coin.mp3"),
     se_craft: new Audio("audio/se_craft.mp3"),
+    se_attack: new Audio("audio/se_attack.mp3"),
     bgm_main: new Audio("audio/bgm_main.mp3"),
     bgm_gotcha: new Audio("audio/bgm_gotcha.mp3"),
     bgm_base: new Audio("audio/bgm_base.mp3"),
@@ -25,6 +26,7 @@ function playEffect(name) {
     const audio = audioMap[name];
     if (!audio) return console.warn('효과음 "${name}" 없음');
     audio.currentTime = 0;
+    audio.volume = 0.3; // 볼륨 조절 (0.0 ~ 1.0)
     audio.play();
 }
 

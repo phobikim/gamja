@@ -91,6 +91,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 장비창
     });
 
-
-
 });

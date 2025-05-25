@@ -87,7 +87,7 @@ function openItemForm(item = null, afterRowId = null) {
         document.getElementById("itemIcon").value = item.iconPath?.replace("/images/items/", "").replace(".png", "") || "";
     } else {
         document.getElementById("itemFormRow").querySelectorAll("input, select").forEach(el => el.value = "");
-        document.getElementById("itemRarity").value = "NORMAL";
+        document.getElementById("itemRarity").value = "COMMON";
         document.getElementById("itemType").value = "GATHER_MATERIAL";
         document.getElementById("itemSlot").value = "NONE";
     }

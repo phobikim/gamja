@@ -71,11 +71,13 @@ function updateBattleUI() {
 }
 
 function doAttack() {
+    playEffect("se_attack");
     if (battleEnded) return;
-
-    // 플레이어 공격
-    const damage = battleState.player.power;
+    const damage = battleState.player.power; // 또는 랜덤 계산
     battleState.monster.currentHp -= damage;
+    // 타격 애니메이션: 몬스터
+    applyHitEffect('.monster-character');
+    showDamageText('.monster-container', damage);``
 
     logBattle(`플레이어의 공격! ${damage}의 피해`, 'player');
 
@@ -84,8 +86,32 @@ function doAttack() {
         return;
     }
 
-    monsterTurn();
+    // ✅ 턴 딜레이: 500ms 후 몬스터 반격
+    setTimeout(() => {
+        monsterTurn();
+    }, 500);
 }
+
+function monsterTurn() {
+    const damage = Math.floor(Math.random() * battleState.monster.power) + 1;
+
+    // 타격 애니메이션: 플레이어
+    applyHitEffect('.player-character');
+    showDamageText('.player-container', damage);
+
+    battleState.player.currentHp -= damage;
+    logBattle(`몬스터의 공격! ${damage}의 피해`, 'monster');
+
+    setTimeout(() => {
+        updateBattleUI();
+
+        if (battleState.player.currentHp <= 0) {
+            showMessageModal("패배했습니다...");
+            closeBattleModal();
+        }
+    }, 400); // UI 반영과 패배 체크는 약간 늦게
+}
+
 
 function doDefend() {
 }
@@ -94,21 +120,6 @@ function doHeal() {
     if (battleEnded) return;
     showMessageModal("휴식을 선택했습니다. 전투를 종료합니다.");
     closeBattleModal();
-}
-
-function monsterTurn() {
-    const damage = Math.floor(Math.random() * battleState.monster.power) + 1;
-
-    battleState.player.currentHp -= damage;
-    logBattle(`몬스터의 공격! ${damage}의 피해`, 'monster');
-
-    if (battleState.player.currentHp <= 0) {
-        showMessageModal("패배했습니다...");
-        closeBattleModal();
-        return;
-    }
-
-    updateBattleUI();
 }
 
 function winBattle() {
@@ -265,9 +276,37 @@ function showTooltip(event, item) {
 }
 
 // 외부 클릭 시 툴팁 닫기
-document.addEventListener('click', (e) => {
-    const tooltip = document.getElementById('itemTooltip');
-    if (!e.target.classList.contains('drop-icon')) {
-        tooltip.classList.add('hidden');
-    }
-});
+// document.addEventListener('click', (e) => {
+//     const tooltip = document.getElementById('itemTooltip');
+//     if (!e.target.classList.contains('drop-icon')) {
+//         tooltip.classList.add('hidden');
+//     }
+// });
+
+function applyHitEffect(targetSelector) {
+    const el = document.querySelector(targetSelector);
+    if (!el) return;
+    el.classList.remove('hit-effect'); // 기존 animation 제거
+    void el.offsetWidth; // 강제 리플로우 (다시 animation 적용 가능하게)
+    el.classList.add('hit-effect');
+}
+
+function showDamageText(targetSelector, damage) {
+    const container = document.querySelector(targetSelector);
+    if (!container) return;
+
+    const dmg = document.createElement('div');
+    dmg.className = 'damage-float';
+    dmg.textContent = `-${damage}`;
+
+    // 위치 조정 (가운데 위쪽)
+    dmg.style.left = '50%';
+    dmg.style.top = '0';
+
+    container.appendChild(dmg);
+
+    // 1초 뒤 제거
+    setTimeout(() => {
+        dmg.remove();
+    }, 1000);
+}
