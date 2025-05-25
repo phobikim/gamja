@@ -30,6 +30,16 @@ function playEffect(name) {
     audio.play();
 }
 
+function setBGMVolume(volume) {
+    if (typeof volume !== 'number' || volume < 0 || volume > 1) {
+        console.warn("볼륨은 0.0 ~ 1.0 사이의 숫자여야 함");
+        return;
+    }
+    if (currentBGM) {
+        currentBGM.volume = volume;
+    }
+}
+
 // ✅ 사운드 토글 함수 (사용자 호출용)
 async function toggleBGM(name) {
     const bgm = audioMap[name];

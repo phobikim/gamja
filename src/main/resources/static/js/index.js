@@ -22,6 +22,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const closeSignupBtn = document.getElementById('closeSignupBtn');
     const signupErrorText = document.getElementById('signupErrorText');
 
+    // ✅ 이름 유효성 검사 함수
+    function isValidUsername(str) {
+        const regex = /^[가-힣a-zA-Z0-9]+$/;
+        return regex.test(str);
+    }
+
+// ✅ 이벤트 리스너: 입력 시 검사 (로그인 + 회원가입)
+    adminLoginUserName.addEventListener('input', () => {
+        const val = adminLoginUserName.value;
+        adminLoginUserName.value = val.replace(/[^가-힣a-zA-Z0-9]/g, '');
+    });
+
+    signupUsernameInput.addEventListener('input', () => {
+        const val = signupUsernameInput.value;
+        signupUsernameInput.value = val.replace(/[^가-힣a-zA-Z0-9]/g, '');
+    });
+
     // 	모달 내부의 콘텐츠 영역을 지정하기 위해 선언
     const adminModalContent = document.querySelector('#adminModal .pin-modal-content');
     const signupModalContent = document.querySelector('#signupModal .pin-modal-content');
@@ -61,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const username = document.getElementById('LoginUsernameInput').value.trim();
         const pin = Array.from(loginPinInputs).map(input => input.value).join('');
 
-        if (!username || pin.length !== 4) {
+        if (!username || pin.length !== 4 || !isValidUsername(username)) {
             adminErrorText.textContent = '이름과 PIN을 모두 입력해주세요.';
             adminErrorText.classList.remove('hidden');
             loginPinInputs[0].focus();
@@ -116,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const username = signupUsernameInput.value.trim();
         const pin = Array.from(signupPinInputs).map(input => input.value).join('');
 
-        if (!username || pin.length !== 4) {
+        if (!username || pin.length !== 4 || !isValidUsername(username)) {
             adminErrorText.textContent = '이름과 PIN을 모두 입력해주세요.';
             adminErrorText.classList.remove('hidden');
             return;

@@ -27,7 +27,7 @@
     position: relative;
     display: flex;
     width: 60px;
-    height: 70px;
+    height: 80px; /* 10px 증가 */
     background-color: #d2a679;
     border: 2px dashed #a86d3c;
     border-radius: 8px;
@@ -39,6 +39,7 @@
     overflow: hidden;
 }
 .item-image-wrapper {
+    flex: 1; /* 자동으로 남은 공간 차지 */
     width: 100%;
     height: calc(100% - 16px); /* ✅ 아래 라벨 높이만큼 제외 */
     display: flex;
@@ -47,8 +48,8 @@
 
 
 .item-icon {
-    width: 100%;
-    height: 100%;
+    max-width: 90%;
+    max-height: 90%;
     object-fit: contain;
     pointer-events: none;
     display: block;

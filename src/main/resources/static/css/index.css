@@ -23,10 +23,17 @@
     cursor: pointer;
 }
 
-#bgmToggleBtn {
+.bgm-control {
     position: absolute;
     top: 2vh;
-    right: 3vw; /* 모바일 기준 살짝 안쪽으로 */
+    right: 3vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+}
+
+#bgmToggleBtn {
     width: 45px;
     height: 45px;
     background-size: contain;
@@ -34,10 +41,39 @@
     background-position: center;
     border: none;
     background-color: transparent;
-    z-index: 10;
     cursor: pointer;
 }
 
+/* 🎵 작고 귀여운 슬라이더 */
+.bgm-slider {
+    width: 30px;
+    height: 10px; /* ✅ 트랙 두께 ↑ */
+    appearance: none;
+    background: #ccc;
+    border-radius: 3px;
+    outline: none;
+    padding: 0;
+    margin-top: 2px;
+}
+
+.bgm-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fa6719;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    margin-top: -1.5px; /* ✅ 트랙 높이에 맞춰 중앙 정렬 */
+}
+
+.bgm-slider:hover::-webkit-slider-thumb {
+    transform: scale(1.5);
+}
+
+.bgm-slider:hover::-moz-range-thumb {
+    transform: scale(1.5);
+}
 
 /* 기본 배경 */
 .intro-page {

@@ -165,12 +165,16 @@ function closeBattleModal() {
 
 battleModal.addEventListener('click', (e) => {
     const inside = e.target.closest('.battle-modal-content');
-    if (!inside) battleModal.classList.add('hidden');
+    if (!inside) {
+        battleModal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
 });
 
 
 async function handleAttackClick() {
     playEffect("se_click2")
+    document.body.style.overflow = 'hidden';
     document.getElementById('battleModal').classList.remove('hidden');
 
 
@@ -259,6 +263,9 @@ async function handleAttackClick() {
 
 function showTooltip(event, item) {
     const tooltip = document.getElementById('itemTooltip');
+    // 기존 툴팁 강제 닫기 (안 보이게)
+    tooltip.classList.add('hidden');
+
     tooltip.classList.remove('hidden');
 
     const rarity = item.rarity || 'COMMON';
@@ -276,12 +283,12 @@ function showTooltip(event, item) {
 }
 
 // 외부 클릭 시 툴팁 닫기
-// document.addEventListener('click', (e) => {
-//     const tooltip = document.getElementById('itemTooltip');
-//     if (!e.target.classList.contains('drop-icon')) {
-//         tooltip.classList.add('hidden');
-//     }
-// });
+document.addEventListener('click', (e) => {
+    const tooltip = document.getElementById('itemTooltip');
+    if (!e.target.classList.contains('drop-icon')) {
+        tooltip.classList.add('hidden');
+    }
+});
 
 function applyHitEffect(targetSelector) {
     const el = document.querySelector(targetSelector);
