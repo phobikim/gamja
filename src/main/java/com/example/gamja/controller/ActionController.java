@@ -2,6 +2,8 @@ package com.example.gamja.controller;
 
 import com.example.gamja.dto.ActionDto;
 import com.example.gamja.dto.DropTableEntryDto;
+import com.example.gamja.dto.UserCharInfoDto;
+import com.example.gamja.dto.UserDtlDto;
 import com.example.gamja.entity.*;
 import com.example.gamja.message.GamJaResponse;
 import com.example.gamja.repository.*;
@@ -25,6 +27,7 @@ public class ActionController {
     private final UserInventoryRepository userInventoryRepository;
     private final UserSkillRepository userSkillRepository;
     private final ActionRepository actionRepository;
+    private final UserDtlRepository userDtlRepository;
 
     /* action 테이블 조회 및 메타데이터 반환 */
     @GetMapping("/{activityType}/{userId}")
@@ -119,11 +122,12 @@ public class ActionController {
                     s.setExp(0);
                     return s;
                 });
-        // 누적 경험치 추가
+
         int baseExp = userSkill.getExp();
         double totalExp = baseExp + exp;
 
-        // 레벨업 예시 기준: 100xp마다 레벨업
+
+        // 스킬 레벨업 (레벨업 공식: 100 + 10*레벨 등 자유 조절 가능)
         int level = userSkill.getLevel();
         while (totalExp >= getRequiredExp(level)) {
             totalExp -= getRequiredExp(level);
@@ -133,6 +137,24 @@ public class ActionController {
         userSkill.setLevel(level);
         userSkill.setExp((int) totalExp);
         userSkillRepository.save(userSkill);
+        UserDtl userDtl = new UserDtl();
+        // 🟠 추가 처리: ATTACK 타입이면 캐릭터 레벨도 증가
+        if (skillType == SkillType.ATTACK) {
+            userDtl = userDtlRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
+            int charXp = userDtl.getXp() + (int) exp;
+            int charLevel = userDtl.getLevel();
+
+            while (charXp >= getRequiredExp(charLevel)) {
+                charXp -= getRequiredExp(charLevel);
+                charLevel++;
+            }
+
+            userDtl.setLevel(charLevel);
+            userDtl.setXp(charXp);
+            userDtlRepository.save(userDtl);
+        }
 
         // 아이템 획득 처리
         List<Map<String, Object>> items = (List<Map<String, Object>>) request.get("items");
@@ -155,11 +177,13 @@ public class ActionController {
             }
         }
 
-        return ResponseEntity.ok(GamJaResponse.success("아이템 추가 완료", null));
+        UserCharInfoDto result = new UserCharInfoDto(userDtl);
+        return ResponseEntity.ok(GamJaResponse.success("아이템 추가 완료", result));
     }
 
+    // 필요 경험치 20씩 증가
     private int getRequiredExp(int level) {
-        return 100 + (level - 1) * 20; // 예: 레벨 1은 100, 레벨 2는 120...
+        return 100 + (level - 1) * 20;
     }
 
 }

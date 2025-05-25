@@ -35,4 +35,8 @@ public class Dex {
 
     @Column(name = "user_flag", nullable = false)
     private boolean userFlag;
+
+    private String dexPower;
+    private String dexShield;
+    private String dexHp;
 }

@@ -46,24 +46,43 @@ document.addEventListener('DOMContentLoaded', async () => {
             nickname,
             title,
             username,
-            xp = 0,
-            characterImage = 'default.png'
+            xp,
+            characterImage
         } = data;
 
-        // 대표 캐릭터 이미지 세팅
-        const imagePath = '/character/';
-        mainCharacter.src = basePath_image + imagePath + characterImage;
-        mainCharacter.alt = nickname || username || '캐릭터';
+        const charNameEl = document.getElementById('charName');
+        const charLevelEl = document.getElementById('charLevel');
+        const userTitleEl = document.getElementById('userTitle');
 
-        // 캐릭터 이름, 레벨 세팅
-        document.getElementById('charName').textContent = nickname || username || '---';
-        document.getElementById('charLevel').textContent = level ?? '-';
-        document.getElementById('userTitle').textContent = title || '칭호 없음';
+        // 이미지 교체: null이 아닌 경우만
+        if (characterImage) {
+            const imagePath = '/character/';
+            mainCharacter.src = basePath_image + imagePath + characterImage;
+            mainCharacter.alt = nickname || username || '캐릭터';
+        }
 
-        hpBarFill.style.width = `${xp}%`;
+        // 닉네임
+        if (nickname || username) {
+            charNameEl.textContent = nickname || username;
+        }
 
+        // 레벨
+        if (level !== null && level !== undefined) {
+            charLevelEl.textContent = level;
+        }
 
+        // 칭호
+        if (title !== null && title !== undefined) {
+            userTitleEl.textContent = title;
+        }
+
+        // 경험치
+        if (xp !== null && xp !== undefined) {
+            hpBarFill.style.width = `${xp}%`;
+        }
     }
+
+
     window.setUserInfo = setUserInfo;
 
     // 2. 캐릭터 클릭 → 장비창

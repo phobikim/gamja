@@ -161,25 +161,3 @@ html, body {
     pointer-events: none;
 }
 
-/* 하단 푸터 */
-.footer-ui {
-    width: 90%;
-    height: 60px;
-    display: flex;
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-}
-
-.footer-icon {
-    width: 60px;
-    height: 60px;
-    cursor: pointer;
-    object-fit: contain;
-    display: block;
-    background: none;
-    border: none;
-    padding: 0;
-    margin: 0;
-}
-

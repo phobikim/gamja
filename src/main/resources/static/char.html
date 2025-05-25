@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="css/bag.css">
     <link rel="stylesheet" href="css/station.css">
     <link rel="stylesheet" href="css/action.css">
+    <link rel="stylesheet" href="css/attack.css">
 </head>
 
 <body class="char-page">
@@ -81,6 +82,10 @@
             <img src="http://211.208.163.16:51080/images/icons/icon_book.png" alt="도감">
             <span class="itemLabel">도감</span>
         </div>
+
+        <button id="attackButton" onclick="handleAttackClick()">
+            <span>전투</span>
+        </button>
     </aside>
 
     <!-- ⚫ 푸터 메뉴 영역 (추후 버튼 등) -->
@@ -299,7 +304,74 @@
         </div>
     </div>
     <div id="craft-effect-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
+</div>
 
+<!-- 전투 모달 -->
+<div id="battleModal" class="modal hidden">
+    <div class="battle-modal-content">
+        <!-- 전투 장면 -->
+        <div class="battle-scene">
+            <img src="http://211.208.163.16:51080/images/backgrounds/bg_attack_scene2.png" alt="전투 씬">
+
+            <!-- 🟢 플레이어 영역 -->
+            <div class="player-container">
+                <div class="char-shadow"></div>
+                <img id="userCharacter" class="player-character" src="" alt="내 캐릭터">
+            </div>
+
+            <!-- 🔴 몬스터 영역 -->
+            <div class="monster-container">
+                <div class="char-shadow"></div>
+                <img id="monsterCharacter" class="monster-character" src="" alt="몬스터">
+            </div>
+        </div>
+        <div class="battle-log" id="battleLog">
+        </div>
+
+        <div class="battle-stats" id="battleStats" >
+            <!-- 유저 카드 -->
+            <div class="stat-card user-stats">
+                <div class="card-head">
+                    <strong class="user-name">유저이름</strong>
+                </div>
+                <div class="card-body">
+                    Lv.<span class="user-level">0</span><br>
+                    공격력: <span class="user-power">0</span><br>
+                    HP: <span class="user-hp">0</span><br>
+                </div>
+            </div>
+
+            <!-- 몬스터 카드 -->
+            <div class="stat-card monster-stats">
+                <div class="card-head">
+                    <strong class="monster-name">몬스터이름</strong>
+                </div>
+                <div class="card-body">
+                    Lv. <span class="monster-rank">0</span><br>
+                    공격력: <span class="monster-power">0</span><br>
+                    처치 경험치: <span class="monster-xp">0</span><br>
+                    HP: <span class="monster-hp">0</span><br>
+                </div>
+            </div>
+        </div>
+        <!-- 드랍 아이템 영역 (가로 전체) -->
+        <div class="battle-drops">
+            <span class="drop-label" >드랍 아이템</span>
+            <div class="monster-drops"></div>
+        </div>
+        <div id="itemTooltip" class="item-tooltip hidden"></div>
+        <div class="battle-actions">
+            <button onclick="doAttack()">
+                <img src="http://211.208.163.16:51080/images/icons/icon_skill_attack.png" alt="공격">
+            </button>
+<!--            <button onclick="doDefend()">-->
+<!--                <img src="http://211.208.163.16:51080/images/icons/icon_skill_shied.png" alt="방어">-->
+<!--            </button>-->
+            <button onclick="doHeal()">
+                <img src="http://211.208.163.16:51080/images/icons/icon_skill_heal.png" alt="회복">
+            </button>
+        </div>
+    </div>
 </div>
 
 </body>
@@ -315,4 +387,5 @@
 <script src="js/station.js"></script>
 <script src="js/dex.js"></script>
 <script src="js/action.js"></script>
+<script src="js/attack.js"></script>
 

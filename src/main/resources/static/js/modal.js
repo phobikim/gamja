@@ -3,7 +3,7 @@ function showMessageModal(message) {
     const text = document.getElementById('messageText');
     const closeBtn = document.getElementById('messageCloseBtn');
 
-    text.textContent = message;
+    text.innerHTML = message;
     modal.classList.remove('hidden');
 
     closeBtn.onclick = () => {

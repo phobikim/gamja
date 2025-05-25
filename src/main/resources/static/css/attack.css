@@ -1,0 +1,319 @@
+#attackButton {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8vw;
+
+    padding: 1.5vw;
+    cursor: pointer;
+    background: #fa6719;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 1vw;
+    box-shadow: 0 0.4vw 1vw rgba(0, 0, 0, 0.3);
+    transition: transform 0.1s ease;
+}
+
+#attackButton:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0.6vw 1.2vw rgba(0, 0, 0, 0.4);
+}
+
+
+.battle-modal-content {
+    display: flex;
+    flex-direction: column;
+    width: 90vw;
+    max-width: 800px;
+    height: 65vh;
+    margin: 5vh auto;
+    background-color: #ffeccf;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    padding: 2vw;
+    border: 4px solid #fff;
+    border-radius: 2vw;
+    font-family: 'Press Start 2P', monospace;
+    color: #fff;
+    gap: 1.5vh;
+    box-sizing: border-box;
+    justify-content: space-between; /* 핵심! 아래 버튼 고정 */
+}
+
+
+.battle-scene {
+    position: relative; /* 내부 요소 absolute 배치 가능하게 */
+    width: 100%;
+    max-height: 30vh;
+    overflow: hidden;
+    border: 2px solid #ccc;
+}
+
+.battle-scene .battle-bg {
+    width: 100%;
+    height: auto;
+    display: block;
+    image-rendering: pixelated;
+}
+
+.player-container, .monster-container {
+    position: absolute;
+    bottom: 1vh;        /* 🔄 상대적 위치 */
+    width: 25vw;        /* 🔄 화면 가로 기준 크기 */
+    max-width: 150px;   /* 📏 너무 커지지 않도록 제한 */
+    z-index: 2;
+    image-rendering: pixelated;
+}
+
+.player-container {
+    left: 6vw;
+}
+
+.monster-container {
+    right: 6vw;
+}
+
+
+.player-character, .monster-character {
+    width: 100%;
+    image-rendering: pixelated;
+    display: block;
+    position: relative;
+    z-index: 2;
+}
+
+
+/* 공통 그림자 - 반응형 */
+.char-shadow {
+    width: 60%;
+    height: 1.2vw;           /* 🔄 반응형 높이 */
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    margin: 0 auto;
+    position: absolute;
+    bottom: -0.4vw;          /* 🔄 위치 조정도 비율로 */
+    left: 50%;
+    transform: translateX(-50%);
+    filter: blur(0.3vw);     /* 🔄 흐림도 비율로 */
+    z-index: 1;
+}
+
+.battle-stats {
+    background-color: #4f4c48;
+    flex: 1;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 3vw;
+    padding: 2vw;
+    border: 2px solid white;
+    border-radius: 2vw;
+    box-shadow: 0 0.6vw 1vw rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    flex-wrap: wrap;
+}
+
+/* 유저 카드: 파란 계열 */
+.user-stats {
+    background-color: #212121;
+}
+
+/* 몬스터 카드: 빨간 계열 */
+.monster-stats {
+    background-color: #212121;
+}
+
+
+.stat-card {
+    width: 47%;
+    /*border: 2px solid rgba(255, 255, 255, 0.5);*/
+    border-radius: 1vw;
+    padding: 1.2vw;
+    box-shadow:
+            0 0.3vw 0.6vw rgba(0, 0, 0, 0.3),
+            inset 0 0.1vw 0.2vw rgba(255, 255, 255, 0.1); /* 🔥 안쪽-바깥쪽 입체감 */
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    box-sizing: border-box;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+.stat-card:hover {
+    transform: translateY(-0.3vw);
+    box-shadow:
+            0 0.6vw 1vw rgba(0, 0, 0, 0.4),
+            inset 0 0.1vw 0.2vw rgba(255, 255, 255, 0.1);
+}
+
+.card-head {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 0.5rem;
+}
+
+.card-body {
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.95rem;
+    color: #eee;
+    line-height: 1.6;
+}
+
+.card-footer {
+    text-align: center;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    padding-top: 0.5rem;
+    color: #ffcc99;
+}
+
+
+.user-stats strong,
+.monster-stats strong {
+    font-size: 1.1rem;
+    color: #fff;
+}
+
+
+.user-stats {
+    text-align: left;
+}
+
+.monster-stats {
+    text-align: right;
+}
+
+
+/* 액션 버튼 영역 (하단 고정) */
+.battle-actions {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.battle-actions button {
+    flex: 1;
+    background-color: #fff8dc;
+    border: 2px solid #5e340e;
+    padding: 0.8rem;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 56px;
+}
+.battle-actions button img {
+    width: 48px;
+    height: 48px;
+    image-rendering: pixelated;
+}
+
+
+.battle-drops {
+    width: 100%;
+    padding: 1vw;
+    border: 2px solid white;
+    border-radius: 2vw;
+    background-color: chocolate;
+    box-shadow: 0 0.4vw 1vw rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.drop-label {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.monster-drops {
+    display: flex;
+    justify-content: center;
+    gap: 0.8vw;
+    flex-wrap: wrap;
+    padding-top: 0.3rem;
+}
+
+.drop-icon {
+    width: 48px;
+    height: 48px;
+    image-rendering: pixelated;
+    object-fit: contain;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+/* 공통 호버 효과 */
+.drop-icon:hover {
+    transform: scale(1.1);
+}
+
+/* ✅ 희귀도별 스타일 */
+
+.rarity-text {
+    font-weight: bold;
+}
+
+.rarity-common {
+    color: inherit;
+    filter: brightness(1); /* 노말은 평범하게 */
+}
+
+.rarity-rare {
+    color: #4aa8ff; /* 밝은 파랑 */
+    filter: drop-shadow(0 0 6px rgba(173, 216, 230, 0.7)); /* 연한 하늘빛 glow */
+}
+
+.rarity-epic {
+    filter: drop-shadow(0 0 6px rgba(147, 112, 219, 0.8)); /* 보라색 glow */
+}
+
+.rarity-legendary {
+    filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.9)); /* 주황빛 glow */
+}
+.item-tooltip {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 200px;
+    background-color: #222;
+    color: #fff;
+    padding: 1rem;
+    border: 2px solid #888;
+    border-radius: 1.2rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    font-size: 1.15rem;
+    white-space: pre-line;
+    line-height: 1.5;
+}
+.battle-log {
+    width: 100%;
+    height: 6rem;
+    overflow-y: auto;
+    background-color: #000000;
+    border: 1px solid #fff;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    color: #fff;
+    font-family: monospace;
+    box-sizing: border-box;
+}
+
