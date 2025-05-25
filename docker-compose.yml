@@ -6,5 +6,5 @@ services:
       context: .
     container_name: gamja-server
     ports:
-      - "51888:8080"
+      - "51888:58080"
     restart: always

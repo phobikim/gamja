@@ -10,7 +10,8 @@ spring:
 #    driver-class-name: org.mariadb.jdbc.Driver
 
 #    docker mariadb
-    url: jdbc:mariadb://192.168.45.202:13306/gamja
+#    url: jdbc:mariadb://192.168.45.202:13306/gamja
+    url: jdbc:mariadb://192.168.45.212:13316/gamja
     username: phobikim
     password: phobikim8038!
     driver-class-name: org.mariadb.jdbc.Driver
