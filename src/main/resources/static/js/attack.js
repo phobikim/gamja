@@ -1,6 +1,9 @@
 const battleModal = document.getElementById('battleModal');
 
 let battleEnded = false;
+let isPlayerTurn = true; // ✅ 턴 상태 관리
+let isProcessingTurn = false; // ✅ 턴 처리 중 상태 관리
+
 let battleState = {
     player: {
         maxHp: 0,
@@ -35,9 +38,11 @@ function logBattle(message, type = 'player') {
     logBox.scrollTop = logBox.scrollHeight;
 }
 function startBattle(user, monster) {
-
-    logBox.innerHTML = ''
+    logBox.innerHTML = '';
     battleEnded = false;
+    isPlayerTurn = true; // ✅ 플레이어 턴으로 시작
+    isProcessingTurn = false; // ✅ 턴 처리 상태 초기화
+
     battleState.player = {
         maxHp: user.hp,
         currentHp: user.hp,
@@ -51,7 +56,10 @@ function startBattle(user, monster) {
         drops: monster.dropItems || [],
         exp: monster.monsterXp
     };
+
     updateBattleUI();
+    updateButtonStates(); // ✅ 버튼 상태 업데이트
+    updateCardTurnStyles(); // ✅ 턴 표시 업데이트
 
     // ✅ 중앙에 Fight !! 문구 삽입
     const fightLine = document.createElement('div');
@@ -70,29 +78,97 @@ function updateBattleUI() {
     document.querySelector('.monster-hp').textContent = battleState.monster.currentHp;
 }
 
+// ✅ 카드 턴 스타일 업데이트
+function updateCardTurnStyles() {
+    const playerCard = document.querySelector('.user-stats');
+    const monsterCard = document.querySelector('.monster-stats');
+
+    // 기존 클래스 제거
+    playerCard.classList.remove('active-turn', 'inactive-turn');
+    monsterCard.classList.remove('active-turn', 'inactive-turn');
+
+    if (battleEnded) {
+        // 전투 종료 시 모든 효과 제거
+        return;
+    } else if (isProcessingTurn) {
+        // 처리 중일 때는 현재 턴 유지하되 약간 다른 스타일
+        if (isPlayerTurn) {
+            playerCard.classList.add('active-turn');
+            monsterCard.classList.add('inactive-turn');
+        } else {
+            monsterCard.classList.add('active-turn');
+            playerCard.classList.add('inactive-turn');
+        }
+    } else if (isPlayerTurn) {
+        // 플레이어 턴
+        playerCard.classList.add('active-turn');
+        monsterCard.classList.add('inactive-turn');
+    } else {
+        // 몬스터 턴
+        monsterCard.classList.add('active-turn');
+        playerCard.classList.add('inactive-turn');
+    }
+}
+
+// ✅ 버튼 상태 업데이트 함수
+function updateButtonStates() {
+    const attackBtn = document.getElementById('attackBtn');
+    const healBtn = document.getElementById('healBtn');
+
+    // 플레이어 턴이고 턴 처리 중이 아닐 때만 버튼 활성화
+    const canAct = isPlayerTurn && !isProcessingTurn && !battleEnded;
+
+    if (attackBtn) {
+        attackBtn.disabled = !canAct;
+    }
+    if (healBtn) {
+        healBtn.disabled = !canAct;
+    }
+
+    updateCardTurnStyles();
+}
+
+
 function doAttack() {
+    if (!isPlayerTurn || isProcessingTurn || battleEnded) {
+        console.log('공격 불가:', { isPlayerTurn, isProcessingTurn, battleEnded });
+        return;
+    }
     playEffect("se_attack");
-    if (battleEnded) return;
-    const damage = battleState.player.power; // 또는 랜덤 계산
+    // ✅ 턴 처리 시작
+    isProcessingTurn = true;
+    updateButtonStates();
+
+    const damage = battleState.player.power;
     battleState.monster.currentHp -= damage;
     // 타격 애니메이션: 몬스터
     applyHitEffect('.monster-character');
     showDamageText('.monster-container', damage);``
 
     logBattle(`플레이어의 공격! ${damage}의 피해`, 'player');
+    updateBattleUI();
 
     if (battleState.monster.currentHp <= 0) {
         winBattle();
         return;
     }
 
-    // ✅ 턴 딜레이: 500ms 후 몬스터 반격
+    // ✅ 플레이어 턴 종료, 몬스터 턴으로 변경
+    isPlayerTurn = false;
+    updateButtonStates();
+
+    // 500ms 후 몬스터 반격
     setTimeout(() => {
         monsterTurn();
     }, 500);
 }
 
 function monsterTurn() {
+    // ✅ 몬스터 턴 검증
+    if (isPlayerTurn || battleEnded) {
+        console.log('몬스터 턴 불가:', { isPlayerTurn, battleEnded });
+        return;
+    }
     const damage = Math.floor(Math.random() * battleState.monster.power) + 1;
 
     // 타격 애니메이션: 플레이어
@@ -108,8 +184,15 @@ function monsterTurn() {
         if (battleState.player.currentHp <= 0) {
             showMessageModal("패배했습니다...");
             closeBattleModal();
+            return;
         }
-    }, 400); // UI 반영과 패배 체크는 약간 늦게
+
+        // ✅ 몬스터 턴 종료, 플레이어 턴으로 변경
+        isPlayerTurn = true;
+        isProcessingTurn = false;
+        updateButtonStates();
+
+    }, 400);
 }
 
 
@@ -117,14 +200,20 @@ function doDefend() {
 }
 
 function doHeal() {
-    if (battleEnded) return;
-    showMessageModal("휴식을 선택했습니다. 전투를 종료합니다.");
+    // ✅ 턴 검증
+    if (!isPlayerTurn || isProcessingTurn || battleEnded) {
+        return;
+    }
+
+    showMessageModal("도망쳤습니다!");
     closeBattleModal();
 }
 
 function winBattle() {
     battleEnded = true;
+    isProcessingTurn = false;
     updateBattleUI();
+    updateButtonStates();
 
     const dropList = battleState.monster.drops;
     const expReward = battleState.monster.exp || 0; // 처치 경험치
@@ -161,12 +250,17 @@ function winBattle() {
 
 function closeBattleModal() {
     document.getElementById('battleModal').classList.add('hidden');
+    document.body.style.overflow = '';
+    // ✅ 모달 닫을 때 상태 초기화
+    battleEnded = false;
+    isPlayerTurn = true;
+    isProcessingTurn = false;
 }
 
 battleModal.addEventListener('click', (e) => {
     const inside = e.target.closest('.battle-modal-content');
     if (!inside) {
-        battleModal.classList.add('hidden');
+        // closeBattleModal();
         document.body.style.overflow = '';
     }
 });

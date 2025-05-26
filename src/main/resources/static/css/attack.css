@@ -1,10 +1,30 @@
+/* ⚔️ 전투 모달 전용 CSS - 다른 스타일에 간섭하지 않음 */
+
+/* 전투 모달 배경 - 모달이 활성화될 때만 적용 */
+#battleModal.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#battleModal.modal-overlay.hidden {
+    display: none;
+}
+
+/* 메인 화면의 공격 버튼 스타일 */
 #attackButton {
     grid-column: 1 / -1;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 0.8vw;
-
     padding: 1.5vw;
     cursor: pointer;
     background: #fa6719;
@@ -22,8 +42,8 @@
     box-shadow: 0 0.6vw 1.2vw rgba(0, 0, 0, 0.4);
 }
 
-
-.battle-modal-content {
+/* 전투 모달 컨텐츠 - battleModal 내부에서만 적용 */
+#battleModal .battle-modal-content {
     overflow-x: hidden;
     scroll-behavior: smooth;
     display: flex;
@@ -31,58 +51,59 @@
     width: 90vw;
     max-width: 800px;
     max-height: 95vh;
-    height: 80vh;
-    margin: 3vh auto;
+    height: 85vh;
+    margin: 2.5vh auto;
     background-color: #ffeccf;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    padding: 2vw;
+    padding: 1.5vw;
     border: 4px solid #fff;
     border-radius: 2vw;
     font-family: 'Press Start 2P', monospace;
     color: #fff;
-    gap: 1.5vh;
+    gap: 1vh;
     box-sizing: border-box;
-    justify-content: space-between; /* 핵심! 아래 버튼 고정 */
+    justify-content: space-between;
     overflow-y: auto;
-    touch-action: pan-y; /* ⬅ 세로 스크롤 허용 */
+    touch-action: pan-y;
 }
 
-
-.battle-scene {
+/* 전투 씬 */
+#battleModal .battle-scene {
     position: relative;
     width: 100%;
-    aspect-ratio: 18 / 7; /* 화면 비율 유지 */
-    min-height: 120px;    /* 너무 작아지지 않도록 */
+    aspect-ratio: 18 / 7;
+    min-height: 120px;
     overflow: hidden;
     border: 2px solid #ccc;
 }
 
-.battle-scene .battle-bg {
+#battleModal .battle-scene img {
     width: 100%;
     height: auto;
     display: block;
     image-rendering: pixelated;
 }
 
-.player-container, .monster-container {
+#battleModal .player-container,
+#battleModal .monster-container {
     position: absolute;
-    bottom: 0vh;        /* 🔄 상대적 위치 */
-    width: 22vw;        /* 🔄 화면 가로 기준 크기 */
-    max-width: 150px;   /* 📏 너무 커지지 않도록 제한 */
+    bottom: 0vh;
+    width: 22vw;
+    max-width: 150px;
     z-index: 2;
     image-rendering: pixelated;
 }
 
-.player-container {
+#battleModal .player-container {
     left: 6vw;
 }
 
-.monster-container {
+#battleModal .monster-container {
     right: 6vw;
 }
 
-
-.player-character, .monster-character {
+#battleModal .player-character,
+#battleModal .monster-character {
     width: 100%;
     image-rendering: pixelated;
     display: block;
@@ -90,30 +111,30 @@
     z-index: 2;
 }
 
-
-/* 공통 그림자 - 반응형 */
-.char-shadow {
+/* 공통 그림자 */
+#battleModal .char-shadow {
     width: 60%;
-    height: 1.2vw;           /* 🔄 반응형 높이 */
+    height: 1.2vw;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 50%;
     margin: 0 auto;
     position: absolute;
-    bottom: -0.4vw;          /* 🔄 위치 조정도 비율로 */
+    bottom: -0.4vw;
     left: 50%;
     transform: translateX(-50%);
-    filter: blur(0.3vw);     /* 🔄 흐림도 비율로 */
+    filter: blur(0.3vw);
     z-index: 1;
 }
 
-.battle-stats {
+/* 전투 스탯 */
+#battleModal .battle-stats {
     background-color: #4f4c48;
-    flex: 1;
+    flex: 0 0 auto;
     width: 100%;
     display: flex;
     justify-content: center;
     gap: 3vw;
-    padding: 2vw;
+    padding: 1.5vw;
     border: 2px solid white;
     border-radius: 2vw;
     box-shadow: 0 0.6vw 1vw rgba(0, 0, 0, 0.3);
@@ -121,42 +142,38 @@
     flex-wrap: wrap;
 }
 
-/* 유저 카드: 파란 계열 */
-.user-stats {
+#battleModal .user-stats {
     background-color: #212121;
 }
 
-/* 몬스터 카드: 빨간 계열 */
-.monster-stats {
+#battleModal .monster-stats {
     background-color: #212121;
 }
 
-
-.stat-card {
+#battleModal .stat-card {
     width: 47%;
-    /*border: 2px solid rgba(255, 255, 255, 0.5);*/
     border-radius: 1vw;
     padding: 1.2vw;
     box-shadow:
             0 0.3vw 0.6vw rgba(0, 0, 0, 0.3),
-            inset 0 0.1vw 0.2vw rgba(255, 255, 255, 0.1); /* 🔥 안쪽-바깥쪽 입체감 */
+            inset 0 0.1vw 0.2vw rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     box-sizing: border-box;
     text-align: center;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
 }
 
-
-.stat-card:hover {
+#battleModal .stat-card:hover:not(.active-turn):not(.inactive-turn) {
     transform: translateY(-0.3vw);
     box-shadow:
             0 0.6vw 1vw rgba(0, 0, 0, 0.4),
             inset 0 0.1vw 0.2vw rgba(255, 255, 255, 0.1);
 }
 
-.card-head {
+#battleModal .card-head {
     text-align: center;
     font-size: 1.2rem;
     font-weight: bold;
@@ -165,7 +182,7 @@
     padding-bottom: 0.5rem;
 }
 
-.card-body {
+#battleModal .card-body {
     text-align: center;
     font-weight: bold;
     font-size: 0.95rem;
@@ -173,7 +190,7 @@
     line-height: 1.6;
 }
 
-.card-footer {
+#battleModal .card-footer {
     text-align: center;
     font-size: 0.9rem;
     margin-top: 0.5rem;
@@ -182,25 +199,55 @@
     color: #ffcc99;
 }
 
-
-.user-stats strong,
-.monster-stats strong {
+#battleModal .user-stats strong,
+#battleModal .monster-stats strong {
     font-size: 1.1rem;
     color: #fff;
 }
 
-
-.user-stats {
+#battleModal .user-stats {
     text-align: left;
 }
 
-.monster-stats {
+#battleModal .monster-stats {
     text-align: right;
 }
 
+/* 턴 표시 - 카드 활성화 스타일 */
+#battleModal .stat-card.active-turn {
+    transform: scale(1.05) translateY(-0.5vw);
+    border: 3px solid #39ff14;
+    box-shadow:
+            0 0.8vw 1.5vw rgba(0, 0, 0, 0.5),
+            inset 0 0.1vw 0.2vw rgba(255, 255, 255, 0.2),
+            0 0 15px rgba(57, 255, 20, 0.6);
+    animation: turnPulse 2s ease-in-out infinite;
+}
 
-/* 액션 버튼 영역 (하단 고정) */
-.battle-actions {
+#battleModal .stat-card.inactive-turn {
+    transform: scale(0.95);
+    opacity: 0.7;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 턴 펄스 애니메이션 */
+@keyframes turnPulse {
+    0%, 100% {
+        box-shadow:
+                0 0.8vw 1.5vw rgba(0, 0, 0, 0.5),
+                inset 0 0.1vw 0.2vw rgba(255, 255, 255, 0.2),
+                0 0 15px rgba(57, 255, 20, 0.6);
+    }
+    50% {
+        box-shadow:
+                0 0.8vw 1.5vw rgba(0, 0, 0, 0.5),
+                inset 0 0.1vw 0.2vw rgba(255, 255, 255, 0.2),
+                0 0 25px rgba(57, 255, 20, 0.8);
+    }
+}
+
+/* 액션 버튼 영역 */
+#battleModal .battle-actions {
     flex: 0 0 auto;
     display: flex;
     gap: 8px;
@@ -208,7 +255,7 @@
     justify-content: space-between;
 }
 
-.battle-actions button {
+#battleModal .battle-actions button {
     flex: 1;
     background-color: #fff8dc;
     border: 2px solid #5e340e;
@@ -219,26 +266,42 @@
     justify-content: center;
     align-items: center;
     height: 56px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
 }
-.battle-actions button img {
+
+#battleModal .battle-actions button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #ccc;
+}
+
+#battleModal .battle-actions button:not(:disabled):hover {
+    transform: scale(1.05);
+    background-color: #f0e68c;
+}
+
+#battleModal .battle-actions button img {
     width: 48px;
     height: 48px;
     image-rendering: pixelated;
 }
 
-
-.battle-drops {
+/* 드롭 아이템 */
+#battleModal .battle-drops {
     width: 100%;
-    padding: 1vw;
+    padding: 0.8vw;
     border: 2px solid white;
     border-radius: 2vw;
     background-color: chocolate;
     box-shadow: 0 0.4vw 1vw rgba(0, 0, 0, 0.2);
     box-sizing: border-box;
     text-align: center;
+    flex: 0 0 auto;
 }
 
-.drop-label {
+#battleModal .drop-label {
     display: block;
     font-size: 1.2rem;
     font-weight: bold;
@@ -246,7 +309,7 @@
     color: #fff;
 }
 
-.monster-drops {
+#battleModal .monster-drops {
     display: flex;
     justify-content: center;
     gap: 0.8vw;
@@ -254,7 +317,7 @@
     padding-top: 0.3rem;
 }
 
-.drop-icon {
+#battleModal .drop-icon {
     width: 48px;
     height: 48px;
     image-rendering: pixelated;
@@ -264,35 +327,35 @@
     transition: transform 0.2s ease;
 }
 
-/* 공통 호버 효과 */
-.drop-icon:hover {
+#battleModal .drop-icon:hover {
     transform: scale(1.1);
 }
 
-/* ✅ 희귀도별 스타일 */
-
-.rarity-text {
+/* 희귀도별 스타일 */
+#battleModal .rarity-text {
     font-weight: bold;
 }
 
-.rarity-common {
+#battleModal .rarity-common {
     color: inherit;
-    filter: brightness(1); /* 노말은 평범하게 */
+    filter: brightness(1);
 }
 
-.rarity-rare {
-    color: #4aa8ff; /* 밝은 파랑 */
-    filter: drop-shadow(0 0 6px rgba(173, 216, 230, 0.7)); /* 연한 하늘빛 glow */
+#battleModal .rarity-rare {
+    color: #4aa8ff;
+    filter: drop-shadow(0 0 6px rgba(173, 216, 230, 0.7));
 }
 
-.rarity-epic {
-    filter: drop-shadow(0 0 6px rgba(147, 112, 219, 0.8)); /* 보라색 glow */
+#battleModal .rarity-epic {
+    filter: drop-shadow(0 0 6px rgba(147, 112, 219, 0.8));
 }
 
-.rarity-legendary {
-    filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.9)); /* 주황빛 glow */
+#battleModal .rarity-legendary {
+    filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.9));
 }
-.item-tooltip {
+
+/* 아이템 툴팁 */
+#battleModal .item-tooltip {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -309,10 +372,12 @@
     white-space: pre-line;
     line-height: 1.5;
 }
-.battle-log {
-    flex: 1 1 6rem;        /* shrink도 가능하게 */
-    min-height: 60px;
-    max-height: 150px;
+
+/* 전투 로그 */
+#battleModal .battle-log {
+    flex: 1 1 auto;
+    min-height: 80px;
+    max-height: 120px;
     width: 100%;
     overflow-y: auto;
     background-color: #000;
@@ -325,7 +390,7 @@
     box-sizing: border-box;
 }
 
-/* 타격 시 살짝 흔들리는 애니메이션 */
+/* 타격 애니메이션 */
 @keyframes hitShake {
     0%   { transform: translate(0, 0); }
     25%  { transform: translate(-4px, 0); }
@@ -334,11 +399,11 @@
     100% { transform: translate(0, 0); }
 }
 
-.hit-effect {
+#battleModal .hit-effect {
     animation: hitShake 0.3s ease;
 }
 
-.damage-float {
+#battleModal .damage-float {
     position: absolute;
     font-size: 1.2rem;
     font-weight: bold;
@@ -356,5 +421,57 @@
     100% {
         opacity: 0;
         transform: translate(-50%, -40px);
+    }
+}
+
+/* 🎮 모바일 최적화 */
+@media (max-width: 480px) {
+    #battleModal .battle-modal-content {
+        height: 90vh;
+        margin: 1vh auto;
+        padding: 12px;
+        gap: 8px;
+    }
+
+    #battleModal .battle-stats {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    #battleModal .battle-drops {
+        padding: 12px;
+    }
+
+    #battleModal .battle-actions button {
+        height: 64px;
+        font-size: 0.7rem;
+    }
+
+    #battleModal .battle-log {
+        min-height: 60px;
+        max-height: 100px;
+    }
+}
+
+/* 세로 모드 초소형 화면 */
+@media (max-width: 480px) and (max-height: 700px) {
+    #battleModal .battle-modal-content {
+        height: 95vh;
+        margin: 0.5vh auto;
+    }
+
+    #battleModal .battle-scene {
+        min-height: 100px;
+    }
+}
+
+/* 터치 디바이스 최적화 */
+@media (hover: none) {
+    #battleModal .battle-actions button:active {
+        transform: scale(0.98);
+    }
+
+    #battleModal .drop-icon:active {
+        transform: scale(1.1);
     }
 }
