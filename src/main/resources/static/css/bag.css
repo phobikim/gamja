@@ -24,10 +24,12 @@
 
 /* 슬롯 스타일 */
 .bag-slot {
+    overflow: visible; /* 이걸로 확실하게 */
+    box-sizing: border-box;
     position: relative;
     display: flex;
     width: 60px;
-    height: 80px; /* 10px 증가 */
+    height: 84px; /* +4px */
     background-color: #d2a679;
     border: 2px dashed #a86d3c;
     border-radius: 8px;
@@ -36,7 +38,6 @@
     transition: all 0.2s ease;
     flex-direction: column; /* ✅ 세로 배치 */
     justify-content: space-between; /* 위: 이미지, 아래: 라벨 */
-    overflow: hidden;
 }
 .item-image-wrapper {
     flex: 1; /* 자동으로 남은 공간 차지 */

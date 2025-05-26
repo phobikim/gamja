@@ -128,7 +128,7 @@ async function applyDexImage(dexId) {
             showMessageModal('대표 감자가 변경되었습니다!');
 
             if (result.data?.characterImage) {
-                mainCharacter.src = `./images/character/${result.data.characterImage}`;
+                mainCharacter.src = `${basePath_image}/character/${result.data.characterImage}`;
             }
             dexOverlay.style.display = 'none';
             dexModal.classList.add('hidden');

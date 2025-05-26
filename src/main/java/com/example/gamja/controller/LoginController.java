@@ -67,6 +67,7 @@ public class LoginController {
             userDtl.setCharacterImage("default.png");
             userDtl.setLevel(1);
             userDtl.setXp(0);
+            userDtl.setCharacterDexId(100L);
             userDtlRepository.save(userDtl);
 
 

@@ -137,7 +137,9 @@ public class ActionController {
         userSkill.setLevel(level);
         userSkill.setExp((int) totalExp);
         userSkillRepository.save(userSkill);
-        UserDtl userDtl = new UserDtl();
+        UserDtl userDtl = userDtlRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
         // 🟠 추가 처리: ATTACK 타입이면 캐릭터 레벨도 증가
         if (skillType == SkillType.ATTACK) {
             userDtl = userDtlRepository.findById(userId)
@@ -150,7 +152,6 @@ public class ActionController {
                 charXp -= getRequiredExp(charLevel);
                 charLevel++;
             }
-
             userDtl.setLevel(charLevel);
             userDtl.setXp(charXp);
             userDtlRepository.save(userDtl);

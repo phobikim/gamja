@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const mainCharacter = document.getElementById('mainCharacter');
     const hpBarFill = document.getElementById('hpBarFill');
+    const hpBarText = document.getElementById('hpBarText');
 
     // 1. 캐릭터 로딩
     const userId = localStorage.getItem('userId');
@@ -76,12 +77,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             userTitleEl.textContent = title;
         }
 
+        const maxExp = 100 + (level - 1) * 20;
+        const expPercent = ((xp / maxExp) * 100).toFixed(1); // 퍼센트로 계산
         // 경험치
         if (xp !== null && xp !== undefined) {
-            hpBarFill.style.width = `${xp}%`;
+            hpBarText.textContent = `${xp} / ${maxExp}`;
+            hpBarFill.style.width = `${expPercent}%`;
         }
     }
-
 
     window.setUserInfo = setUserInfo;
 

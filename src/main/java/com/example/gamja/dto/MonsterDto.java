@@ -10,7 +10,7 @@ public class MonsterDto {
     private Long id;
     private String name;
     private String desc;
-    private int rank;
+    private String rank;
     private String imagePath;
     private int monsterPower;
     private int monsterHp;

@@ -18,7 +18,7 @@ public class Monster {
     private String name;
     private String desc;
 
-    private int rank;
+    private String rank;
 
     @Column(name = "image_path")
     private String imagePath;

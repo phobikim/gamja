@@ -24,13 +24,15 @@
 
 
 .battle-modal-content {
+    overflow-x: hidden;
+    scroll-behavior: smooth;
     display: flex;
     flex-direction: column;
     width: 90vw;
     max-width: 800px;
-    max-height: 90vh;
-    height: 65vh;
-    margin: 5vh auto;
+    max-height: 95vh;
+    height: 80vh;
+    margin: 3vh auto;
     background-color: #ffeccf;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     padding: 2vw;
@@ -49,7 +51,7 @@
 .battle-scene {
     position: relative;
     width: 100%;
-    aspect-ratio: 16 / 7; /* 화면 비율 유지 */
+    aspect-ratio: 18 / 7; /* 화면 비율 유지 */
     min-height: 120px;    /* 너무 작아지지 않도록 */
     overflow: hidden;
     border: 2px solid #ccc;

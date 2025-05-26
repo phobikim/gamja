@@ -37,6 +37,6 @@ public class Dex {
     private boolean userFlag;
 
     private String dexPower;
-    private String dexShield;
     private String dexHp;
+    private String attribute;
 }

@@ -228,6 +228,18 @@ async function handleAttackClick() {
     document.querySelector('.monster-power').textContent = monster.monsterPower;
     document.querySelector('.monster-xp').textContent = monster.monsterXp;
 
+    const rankText = monster.rank;
+    const rankElement = document.querySelector('.monster-rank');
+    // 색상 매핑
+    const rankColorMap = {
+        '야생': '#39ff14',   // 연두
+        '병사': '#2196f3',   // 파랑
+        '변이': '#9c27b0'    // 보라
+    };
+
+    // 해당 rank에 맞는 색상 적용
+    rankElement.style.color = rankColorMap[rankText] || '#000'; // 기본은 검정
+
     const dropContainer = document.querySelector('.monster-drops');
     dropContainer.innerHTML = ''; // 기존 내용 초기화
 
@@ -257,7 +269,7 @@ async function handleAttackClick() {
 
     const powerEl = document.querySelector('.user-power');
     powerEl.innerHTML = `${totalPower} (<span style="color:#fff8dc;">${basePower}</span> + <span style="color:#39ff14;">${levelBonus}</span>)`;
-
+    user.power = totalPower;
     startBattle(user, monster);
 }
 
