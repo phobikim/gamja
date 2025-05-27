@@ -369,6 +369,7 @@ async function handleAttackClick() {
 
 function showTooltip(event, item) {
     const tooltip = document.getElementById('itemTooltip');
+    const content = document.getElementById('itemTooltipContent');
     // 기존 툴팁 강제 닫기 (안 보이게)
     tooltip.classList.add('hidden');
 
@@ -377,8 +378,8 @@ function showTooltip(event, item) {
     const rarity = item.rarity || 'COMMON';
     const rarityClass = `rarity-${rarity.toLowerCase()}`;
 
-    tooltip.innerHTML = `
-      <strong>${item.name}</strong><br>
+    content.innerHTML = `
+      <div style="text-align: center;"><strong>[${item.name}]</strong></div><br>
       희귀도: <span class="rarity-text ${rarityClass}">${rarity}</span><br>
       ${item.description || '설명이 없습니다.'}
     `;

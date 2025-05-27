@@ -25,6 +25,13 @@
     font-style: normal;
 }
 
+:root {
+    --char-bg-color : #c97a16;
+    --char-border-color : #8b4513;
+    --brown-color: #5c3b1e;
+    --orange-color: #fa6719;
+    --white-color: #fff1cc;
+}
 
 * {
     user-select: none; /* 텍스트 선택 완전 차단 */
@@ -81,5 +88,28 @@ button {
 
 button:hover {
     background-color: #e76f51; /* hover 색상 유지 */
+}
+
+/* 희귀도별 스타일 */
+.rarity-text {
+    font-weight: bold;
+}
+
+.rarity-common {
+    color: inherit;
+    filter: brightness(1);
+}
+
+.rarity-rare {
+    color: #4aa8ff;
+    filter: drop-shadow(0 0 6px rgba(173, 216, 230, 0.7));
+}
+
+.rarity-epic {
+    filter: drop-shadow(0 0 6px rgba(147, 112, 219, 0.8));
+}
+
+.rarity-legendary {
+    filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.9));
 }
 

@@ -77,10 +77,11 @@
     background-color: #f5bc66;
     border: 3px solid #62210eb8;
     border-radius: 8px;
-    padding: 1vw;
+    padding: 1vw 1vw 1.5vw 1vw; /* 하단 패딩 추가 */
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between; /* 내용물 간격 균등 분배 */
     text-align: center;
     cursor: pointer;
     transition: transform 0.2s ease;
@@ -96,18 +97,22 @@
     width: 50px;
     height: 50px;
     object-fit: contain;
+    flex-shrink: 0; /* 이미지 크기 고정 */
 }
 
 .recipe-card span {
-    font-size: 0.9rem;
+    font-size: clamp(0.7rem, 2.3vw, 0.9rem); /* 반응형 폰트 크기 */
     margin-top: 0.5vw;
     color: #3d2b1f;
+    line-height: 1.2; /* 줄 간격 조정 */
 }
 
 .recipe-name {
     font-weight: bold;
+    margin-bottom: 0.3vw; /* 하단 여백 추가 */
+    word-break: keep-all; /* 단어 단위로 줄바꿈 */
+    overflow-wrap: break-word; /* 긴 단어는 강제 줄바꿈 */
 }
-
 /* 하단: 상세 재료 + 버튼 */
 .recipe-detail {
     height: 60%;
@@ -194,4 +199,40 @@
 }
 .workshop-left::-webkit-scrollbar-track {
     background: transparent;
+}
+
+/* 🎮 모바일 최적화 */
+@media (max-width: 768px) {
+    .recipe-card {
+        padding: 1.2vw 1vw 2vw 1vw; /* 모바일에서 하단 패딩 더 증가 */
+    }
+
+    .recipe-card span {
+        font-size: clamp(0.6rem, 2.7vw, 0.8rem);
+        margin-top: 0.3vw;
+    }
+
+    .recipe-name {
+        margin-bottom: 0.5vw; /* 모바일에서 하단 여백 더 증가 */
+    }
+}
+
+@media (max-width: 480px) {
+    .recipe-card {
+        padding: 1.5vw 1vw 2.5vw 1vw; /* 초소형 화면에서 하단 패딩 최대 */
+    }
+
+    .recipe-card span {
+        font-size: clamp(0.5rem, 3.2vw, 0.7rem);
+        line-height: 1.1;
+    }
+
+    .recipe-name {
+        margin-bottom: 0.8vw; /* 초소형 화면에서 하단 여백 최대 */
+    }
+
+    .recipe-card img {
+        width: 40px; /* 작은 화면에서 이미지 크기 축소 */
+        height: 40px;
+    }
 }

@@ -1,15 +1,14 @@
-
 document.addEventListener('DOMContentLoaded', async () => {
     // BGM
-    const toggleBtn = document.getElementById("bgmToggleBtn");
-    // BGM Toggle
-    toggleBtn.addEventListener("click", () => {
-        toggleBGM("bgm_char");
-    });
-    const mainBtn = document.getElementById("mainBtn");
-    mainBtn.addEventListener("click", () => {
-        location.href = './index.html';
-    });
+    // const toggleBtn = document.getElementById("bgmToggleBtn");
+    // // BGM Toggle
+    // toggleBtn.addEventListener("click", () => {
+    //     toggleBGM("bgm_char");
+    // });
+    // const mainBtn = document.getElementById("mainBtn");
+    // mainBtn.addEventListener("click", () => {
+    //     location.href = './index.html';
+    // });
 
     const mainCharacter = document.getElementById('mainCharacter');
     const hpBarFill = document.getElementById('hpBarFill');

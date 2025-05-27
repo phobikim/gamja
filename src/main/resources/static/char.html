@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no ">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>감자단 키우기</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dex.css">
@@ -17,59 +17,61 @@
 
 <body class="char-page">
 
-<!-- 🔵 상단 좌우 동그란 버튼 -->
+<!-- 🔵 상단 헤더 (설정 버튼만) -->
 <header class="header-ui">
+    <!-- 우상단 설정 아이콘 - 카드 위에 배치 -->
+    <div class="settings-icon" onclick="handleSettingsClick()">
+        <img src="http://211.208.163.16:51080/images/icons/icon_settings.png" alt="설정">
+    </div>
 </header>
 
-<!-- 🟡 메인 UI 구조 -->
-<main class="game-main-ui">
+<!-- 🎮 메인 게임 카드 -->
+<main class="game-card">
 
-    <button id="mainBtn" class="circle-btn"></button>
-    <div class="bgm-control">
-        <input type="range" min="0" max="1" step="0.01" value="1" onchange="setBGMVolume(parseFloat(this.value))" class="bgm-slider" />
-        <button id="bgmToggleBtn" class="bgm-off" style="background-image: url('http://211.208.163.16:51080/images/icons/bgm_off.png');"></button>
+    <!-- 🔥 큰 사각형 컨테이너 - background-area와 info-section을 감쌈 -->
+    <div class="main-wrapper">
+        <!-- 상단 캐릭터 영역 -->
+        <section class="character-section">
+            <div class="background-area"></div>
+            <img id="mainCharacter" src="http://211.208.163.16:51080/images/character/default.png" alt="캐릭터" class="character-img">
+        </section>
+
+        <!-- 캐릭터 정보 영역 -->
+        <section class="info-section">
+            <p id="charInfoText" class="char-text">
+                <span class="char-title" id="userTitle">씨앗</span>
+                <span id="charName">포비</span>
+                <span class="level-text">(LV <span id="charLevel" class="level-num">1</span>)</span>
+            </p>
+
+            <div class="hp-bar">
+                <div id="hpBarFill" class="hp-bar-fill" style="width: 5%;"></div>
+                <span id="hpBarText" class="hp-bar-text">10 / 200</span>
+            </div>
+        </section>
     </div>
-    <!-- 🌕 배경 + 캐릭터 -->
-    <section id="bgSceneArea" class="background-area">
-        <img id="mainCharacter" src="http://211.208.163.16:51080/images/character/default.png" alt="캐릭터" class="character-img">
-    </section>
 
-    <!-- 🟢 캐릭터 정보 영역 -->
-    <section class="status-ui">
-        <p id="charInfoText" class="char-text">
-            <span class="char-title" id="userTitle"></span>
-            <span id="charName"></span>
-            <span class="level-text">(LV <span id="charLevel" class="level-num"></span>)</span>
-        </p>
-
-        <div class="hp-bar">
-            <div id="hpBarFill" class="hp-bar-fill" style="width: 0%;"></div>
-            <span id="hpBarText" class="hp-bar-text"></span>
-        </div>
-    </section>
-
-
-
-    <!-- 🟠 인벤토리 -->
-    <aside id="inventoryWrapper" class="inventory-grid">
-        <!-- 액션 슬롯 -->
-        <div class="inventoryCell" onclick="actionGather('FISHING')">
-            <img src="http://211.208.163.16:51080/images/icons/icon_fish.png" alt="낚시">
-            <span class="itemLabel">낚시터</span>
-        </div>
+    <!-- 하단 인벤토리 그리드 (4x2) -->
+    <section class="inventory-grid">
+        <!-- 첫 번째 줄 -->
         <div class="inventoryCell" onclick="actionGather('WOODCUTTING')">
             <img src="http://211.208.163.16:51080/images/icons/icon_wood.png" alt="벌목">
-            <span class="itemLabel">벌목터</span>
+            <span class="itemLabel">벌목</span>
         </div>
         <div class="inventoryCell" onclick="actionGather('MINING')">
             <img src="http://211.208.163.16:51080/images/icons/icon_mining.png" alt="광산">
-            <span class="itemLabel">광산입구</span>
+            <span class="itemLabel">광산</span>
         </div>
         <div class="inventoryCell" onclick="actionGather('GATHERING')">
             <img src="http://211.208.163.16:51080/images/icons/icon_field.png" alt="밭">
             <span class="itemLabel">감자밭</span>
         </div>
-        <!-- 기능 슬롯 -->
+        <div class="inventoryCell" onclick="actionGather('FISHING')">
+            <img src="http://211.208.163.16:51080/images/icons/icon_fish.png" alt="낚시">
+            <span class="itemLabel">낚시</span>
+        </div>
+
+        <!-- 두 번째 줄 -->
         <div class="inventoryCell" onclick="handleBagClick()">
             <img src="http://211.208.163.16:51080/images/icons/icon_bag.png" alt="배낭">
             <span class="itemLabel">인벤토리</span>
@@ -78,25 +80,19 @@
             <img src="http://211.208.163.16:51080/images/icons/icon_station.png" alt="공방">
             <span class="itemLabel">감자공방</span>
         </div>
-        <div class="inventoryCell" onclick=showMessageModal("준비중입니다.")>
-            <img src="http://211.208.163.16:51080/images/icons/icon_laboratory.png" alt="연구소">
-            <span class="itemLabel">감자감정소</span>
-        </div>
         <div class="inventoryCell" onclick="handleDexClick()">
             <img src="http://211.208.163.16:51080/images/icons/icon_book.png" alt="도감">
             <span class="itemLabel">도감</span>
         </div>
+        <div class="inventoryCell" onclick="handleAttackClick()">
+            <img src="http://211.208.163.16:51080/images/icons/icon_skill_attack.png" alt="전투">
+            <span class="itemLabel">전투</span>
+        </div>
+    </section>
 
-        <button id="attackButton" onclick="handleAttackClick()">
-            <span>전투</span>
-        </button>
-    </aside>
-
-    <!-- ⚫ 푸터 메뉴 영역 (추후 버튼 등) -->
-    <footer id="footerNav" class="footer-ui">
-    </footer>
 </main>
 
+<!-- 모든 모달들은 기존과 동일 -->
 <!-- 공통 장소 선택 모달 -->
 <div id="spotSelectModal" class="modal hidden">
     <div class="spot-select-modal-content">
@@ -112,9 +108,7 @@
 
 <div id="activityModal" class="modal hidden">
     <div class="action-modal-content" id="activityModalContent">
-
         <div class="action-card-frame">
-
             <!-- 장소 이름: 상단 -->
             <div class="activity-location-name" id="activityLocationName">Mystic Pond</div>
 
@@ -126,7 +120,6 @@
                     <div class="activity-click-tooltip">Click to gather!</div>
                 </div>
 
-
                 <!-- 오른쪽 정보 -->
                 <div class="activity-right-info">
                     <div class="spot-info-title">Spot Info</div>
@@ -136,13 +129,7 @@
                         <li>Night Boost Zone</li>
                     </ul>
                 </div>
-                <!-- 드랍 로그 -->
-<!--                <div class="action-log-wrapper">-->
-<!--                    <div class="item-drop-title">Drops</div>-->
-<!--                    <div class="item-drop-vertical-list" id="possibleItems"></div>-->
-<!--                </div>-->
             </div>
-
         </div>
 
         <!-- 하단: 획득한 아이템 + 완료 버튼 -->
@@ -153,20 +140,15 @@
             </div>
             <button class="action-complete-btn" onclick="completeActivity()">Complete</button>
         </div>
-
     </div>
 </div>
-
-
-
-
 
 <!-- 감자단 도감 모달 -->
 <div id="dexModal" class="modal hidden">
     <div class="dex-modal-content">
         <!-- 카드 확대 오버레이 -->
         <div id="cardOverlay" class="card-overlay"></div>
-        <h2 class="common-h2">COLLECTION</h2>
+        <h2 class="common-h2">감자단 도감</h2>
         <div id="dexList" class="dex-grid"></div>
         <div id="dexPagination" class="dex-pagination"></div>
     </div>
@@ -202,8 +184,6 @@
 <div id="rankModal" class="modal hidden">
     <div class="rank-modal-content">
         <h2 class="rank-title">랭킹</h2>
-<!--        <h3 class="rank-subtitle" id="weekRange">집계기간: </h3>-->
-<!--        <div id="rankList" class="rank-list"></div>-->
         <!-- 스크롤 되는 랭킹 리스트 -->
         <div id="rankScrollArea" class="rank-scroll-area">
             <div id="rankList" class="rank-list"></div>
@@ -241,6 +221,7 @@
         </div>
     </div>
 </div>
+
 <!-- 퀘스트 항목 템플릿 -->
 <template id="questItemTemplate">
     <li class="quest-item">
@@ -270,6 +251,10 @@
 
 <!-- 가방 모달 -->
 <div id="bagModal" class="modal hidden">
+    <div id="bagTooltip" class="item-tooltip hidden">
+        <div id="tooltipContent"></div>
+        <button id="closeTooltipBtn" class="tooltip-close-btn">닫기</button>
+    </div>
     <div class="bag-modal-content">
         <div class="bag-tabs">
             <button data-type="ALL" class="active">전체</button>
@@ -283,7 +268,6 @@
         </ul>
     </div>
 </div>
-
 
 <!-- 공방 모달 구조 -->
 <div id="workshopModal" class="modal hidden">
@@ -315,7 +299,6 @@
     <div class="battle-modal-content">
         <!-- 전투 장면 -->
         <div class="battle-scene">
-<!--            <img src="http://211.208.163.16:51080/images/backgrounds/bg_forest.png" alt="전투 씬">-->
             <img src="./images/backgrounds/bg_forest2.png" alt="전투 씬">
 
             <!-- 🟢 플레이어 영역 -->
@@ -333,7 +316,7 @@
         <div class="battle-log" id="battleLog">
         </div>
 
-        <div class="battle-stats" id="battleStats" >
+        <div class="battle-stats" id="battleStats">
             <!-- 유저 카드 -->
             <div class="stat-card user-stats">
                 <div class="card-head">
@@ -361,17 +344,18 @@
         </div>
         <!-- 드랍 아이템 영역 (가로 전체) -->
         <div class="battle-drops">
-            <span class="drop-label" >드랍 아이템</span>
+            <span class="drop-label">드랍 아이템</span>
             <div class="monster-drops"></div>
         </div>
-        <div id="itemTooltip" class="item-tooltip hidden"></div>
+        <div id="itemTooltip" class="item-tooltip hidden">
+            <div id="itemTooltipContent"></div>
+            <button id="itemCloseTooltipBtn" class="tooltip-close-btn">닫기</button>
+        </div>
+
         <div class="battle-actions">
             <button onclick="doAttack()">
                 <img src="http://211.208.163.16:51080/images/icons/icon_skill_attack.png" alt="공격">
             </button>
-<!--            <button onclick="doDefend()">-->
-<!--                <img src="http://211.208.163.16:51080/images/icons/icon_skill_shied.png" alt="방어">-->
-<!--            </button>-->
             <button onclick="doHeal()">
                 <img src="http://211.208.163.16:51080/images/icons/icon_skill_heal.png" alt="도망">
             </button>
@@ -379,18 +363,16 @@
     </div>
 </div>
 
-</body>
-</html>
-
+<!-- 📌 JS 파일들 로드 -->
 <script src="js/modal.js"></script>
 <script src="js/sound.js"></script>
 <script src="js/util.js"></script>
 <script src="js/char.js"></script>
-<!--<script src="js/rank.js"></script>-->
-<!--<script src="js/quest.js"></script>-->
 <script src="js/bag.js"></script>
 <script src="js/station.js"></script>
 <script src="js/dex.js"></script>
 <script src="js/action.js"></script>
 <script src="js/attack.js"></script>
 
+</body>
+</html>

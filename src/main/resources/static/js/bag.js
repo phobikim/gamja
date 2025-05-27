@@ -3,6 +3,9 @@
 const bagModal = document.getElementById('bagModal');
 const allItems = []; // 전체 아이템을 여기에 저장
 
+const tooltip = document.getElementById('bagTooltip');
+const content = document.getElementById('tooltipContent');
+
 function renderItemsByType(type) {
     const bagList = document.getElementById("bagList");
     bagList.innerHTML = "";
@@ -35,6 +38,10 @@ function renderItemsByType(type) {
         img.onerror = () => {
             img.src = '/images/character/default.png';
         };
+
+        wrapper.addEventListener('click', (e) => {
+            showItemTooltip(e, item);
+        });
         wrapper.appendChild(img);
 
         const span = document.createElement('span');
@@ -65,11 +72,19 @@ document.querySelectorAll(".bag-tabs button").forEach(btn => {
 
 bagModal.addEventListener('click', (e) => {
     const inside = e.target.closest('.bag-modal-content');
-    if (!inside) bagModal.classList.add('hidden');
+    const isTooltip = e.target.closest('#bagTooltip'); // 툴팁 클릭도 허용
+    if (!inside && !isTooltip) {bagModal.classList.add('hidden')};
+});
+
+document.getElementById('closeTooltipBtn').addEventListener('click', () => {
+    document.getElementById('bagTooltip').classList.add('hidden');
 });
 
 async function loadBagItems() {
     playEffect("se_click2");
+    const bagContent = document.querySelector('.bag-modal-content');
+    bagContent.scrollTop = 0; // ← 스크롤 맨 위로 초기화
+    tooltip.classList.add('hidden');
     const bagList = document.getElementById('bagList');
     bagList.innerHTML = '';
 
@@ -100,4 +115,24 @@ async function handleBagClick() {
     playEffect("se_click2");
     bagModal.classList.remove('hidden');
     await loadBagItems();
+}
+
+function showItemTooltip(event, item) {
+    // 기존 툴팁 강제 닫기 (안 보이게)
+    tooltip.classList.add('hidden');
+    tooltip.classList.remove('hidden');
+
+    const rarity = item.rarity || 'COMMON';
+    const rarityClass = `rarity-${rarity.toLowerCase()}`;
+
+    content.innerHTML = `
+      <div style="text-align: center;"><strong>[${item.name}]</strong></div><br>
+      희귀도: <span class="rarity-text ${rarityClass}">${rarity}</span><br>
+      ${item.description || '설명이 없습니다.'}
+    `;
+
+    // 모달 안에 고정 배치되도록 설정 (모달이 relative 여야 함)
+    const modal = document.getElementById('bagModal');
+    modal.appendChild(tooltip);
+
 }
