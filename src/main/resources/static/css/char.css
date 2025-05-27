@@ -122,7 +122,9 @@
     height: 210px;
     object-fit: contain;
     z-index: 2;
-    margin-bottom: -20px;
+    margin-bottom: -12%;
+    /* 부드러운 외곽 그림자 */
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
 }
 
 /* 하단 정보 사각형 */
