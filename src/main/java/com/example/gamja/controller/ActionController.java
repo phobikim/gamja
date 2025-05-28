@@ -7,6 +7,7 @@ import com.example.gamja.dto.UserDtlDto;
 import com.example.gamja.entity.*;
 import com.example.gamja.message.GamJaResponse;
 import com.example.gamja.repository.*;
+import com.example.gamja.util.CommonUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ActionController {
 
+    private final CommonUtil commonUtil;
     private final ActionDropRepository actionDropRepository;
     private final ItemRepository itemRepository;
     private final UserInventoryRepository userInventoryRepository;
@@ -177,6 +179,8 @@ public class ActionController {
                 userInventoryRepository.save(newInventory);
             }
         }
+        String finalImage = commonUtil.resolveCharacterImage(userDtl);
+        userDtl.setCharacterImage(finalImage);
 
         UserCharInfoDto result = new UserCharInfoDto(userDtl);
         return ResponseEntity.ok(GamJaResponse.success("아이템 추가 완료", result));
