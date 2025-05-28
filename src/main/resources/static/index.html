@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>감자단 입장</title>
     <link rel="stylesheet" href="./css/style.css">
+    <link rel="manifest" href="manifest.webmanifest">
 </head>
 <body class="intro-page">
-    <button id="bgmToggleBtn" class="bgm-off" style="background-image: url('http://211.208.163.16:51080/images/icons/bgm_off.png');"></button>
+    <button id="bgmToggleBtn" class="bgm-off" style="background-image: url('https://phobi.me/gamja.img/images/icons/bgm_off.png');"></button>
 
     <input type="range" min="0" max="1" step="0.01" value="1" onchange="setBGMVolume(parseFloat(this.value))" />
     <div class="logo-container">
-        <img id="gamjadanLogo" src="http://211.208.163.16:51080/images/logo/logo.png" alt="감자단 로고" class="logo-img">
+        <img id="gamjadanLogo" src="https://phobi.me/gamja.img/images/logo/logo.png" alt="감자단 로고" class="logo-img">
         <p class="click-guide">👆 로고를 클릭해 로그인하세요</p>
     </div>
 
@@ -65,3 +65,16 @@
 <script src="js/sound.js"></script>
 <script src="js/util.js"></script>
 <script src="js/index.js"></script>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./service-worker.js')
+                .then(registration => {
+                    console.log('ServiceWorker 등록 성공:', registration);
+                })
+                .catch(error => {
+                    console.log('ServiceWorker 등록 실패:', error);
+                });
+        });
+    }
+</script>

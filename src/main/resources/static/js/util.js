@@ -1,7 +1,7 @@
 
 /* 이미지 서버 경로  */
-window.basePath_image = 'http://211.208.163.16:51080/images';
-window.basePath = 'http://211.208.163.16:51080';
+window.basePath_image = 'https://phobi.me/gamja.img/images';
+window.basePath = 'https://phobi.me/gamja.img';
 
 async function apiRequest(url, method = 'GET', data = null) {
     const options = {

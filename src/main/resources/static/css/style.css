@@ -4,7 +4,7 @@
 @font-face {
     /*숫자 - 픽셀 */
     font-family: 'neodgm';
-    src: url('/fonts/neodgm.ttf') format('truetype');
+    src: url('https://phobi.me/gamja.img/fonts/neodgm.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -12,7 +12,7 @@
 @font-face {
     /*한글 - 깔끔*/
     font-family: 'jua';
-    src: url('/fonts/Jua-Regular.ttf') format('truetype');
+    src: url('https://phobi.me/gamja.img/fonts/Jua-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -20,7 +20,7 @@
 @font-face {
     /*한글 - 두껍고 귀엽 */
     font-family: 'hansan';
-    src: url('/fonts/BlackHanSans-Regular.ttf') format('truetype');
+    src: url('https://phobi.me/gamja.img/fonts/BlackHanSans-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }

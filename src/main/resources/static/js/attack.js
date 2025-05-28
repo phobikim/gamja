@@ -200,25 +200,24 @@ function doDefend() {
     const player = document.querySelector(".player-container");
     const effect = document.createElement("img");
     effect.className = "heal-frame-effect";
-    effect.src = "../images/effect/1.png"; // 초기 프레임
+    effect.src = "https://phobi.me/gamja.img/images/effect/1.png"; // 초기 프레임
     player.appendChild(effect);
     const framePaths = [
-        "../images/effect/1.png",
-        "../images/effect/2.png",
-        "../images/effect/3.png",
-        "../images/effect/4.png"
+        "https://phobi.me/gamja.img/images/effect/1.png",
+        "https://phobi.me/gamja.img/images/effect/2.png",
+        "https://phobi.me/gamja.img/images/effect/3.png",
+        "https://phobi.me/gamja.img/images/effect/4.png"
     ];
     let index = 0;
     const interval = setInterval(() => {
         index++;
         if (index >= framePaths.length) {
             clearInterval(interval);
-            // 효과 끝나면 삭제하고 싶으면 아래 줄 살려
             effect.remove();
             return;
         }
         effect.src = framePaths[index];
-    }, 150);
+    }, 200);
 }
 
 function doHeal() {
