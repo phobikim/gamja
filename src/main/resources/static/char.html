@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="css/station.css">
     <link rel="stylesheet" href="css/action.css">
     <link rel="stylesheet" href="css/attack.css">
+    <link rel="stylesheet" href="css/winBox.css">
 </head>
 
 <body class="char-page">
@@ -368,6 +369,55 @@
     </div>
 </div>
 
+<!-- ========== 전리품 상자 모달 (독립적으로 분리) ========== -->
+<div id="lootModal" class="modal hidden">
+    <div class="loot-modal-content">
+        <!-- 보상 결과 단계 -->
+        <div id="rewardStage" class="reward-stage" style="display: none;">
+            <!-- 캐릭터 정보 섹션 -->
+            <div class="character-reward-section">
+                <div class="character-avatar">
+                    <img id="rewardCharacterImage" src="" alt="캐릭터" class="reward-char-img">
+                </div>
+                <div class="character-level-info">
+                    <div class="level-display">
+                        Lv.<span id="rewardCharLevel">10</span>
+                    </div>
+                    <div class="xp-bar-container">
+                        <div class="xp-bar">
+                            <div id="xpBarFill" class="xp-bar-fill"></div>
+                            <div id="xpGainText" class="xp-gain-text">+25 XP</div>
+                        </div>
+                        <div class="xp-text">
+                            <span id="currentXp">150</span> / <span id="maxXp">200</span> XP
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 전리품 섹션 -->
+            <div class="loot-items-section">
+                <img src="https://phobi.me/gamja.img/images/icons/icon_chest_closed.png"
+                     alt="보물상자"
+                     class="chest-image"
+                     id="chestImage"
+                     onclick="openChest()">
+                <div id="lootItemsList" class="loot-items-list">
+                    <!-- 동적으로 아이템들이 추가될 곳 -->
+                </div>
+            </div>
+
+            <!-- 다음 전투 버튼 -->
+            <div class="next-battle-section">
+                <button id="nextBattleBtn" class="modal-btn btn-continue" onclick="nextBattle()">
+                    다음 전투
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
 <!-- 📌 JS 파일들 로드 -->
 <script src="js/modal.js"></script>
 <script src="js/sound.js"></script>
@@ -378,6 +428,7 @@
 <script src="js/dex.js"></script>
 <script src="js/action.js"></script>
 <script src="js/attack.js"></script>
+<script src="js/winBox.js"></script>
 
 </body>
 </html>

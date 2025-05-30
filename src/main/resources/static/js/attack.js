@@ -1,14 +1,21 @@
 const battleModal = document.getElementById('battleModal');
+const lootModal = document.getElementById('lootModal');
 
 let battleEnded = false;
 let isPlayerTurn = true; // ✅ 턴 상태 관리
 let isProcessingTurn = false; // ✅ 턴 처리 중 상태 관리
 
-let battleState = {
+window.battleState = {
     player: {
+        name: '',
         maxHp: 0,
         currentHp: 0,
         power: 0,
+        currentXp: 0,
+        xp:0,
+        maxXp:0,
+        level:0,
+        charImg:''
     },
     monster: {
         name: '',
@@ -44,9 +51,14 @@ function startBattle(user, monster) {
     isProcessingTurn = false; // ✅ 턴 처리 상태 초기화
 
     battleState.player = {
+        name: user.name,
         maxHp: user.hp,
         currentHp: user.hp,
-        power: user.power
+        power: user.power,
+        xp:user.xp,
+        maxXp: user.maxXp || 200, // user 조회 할 때, 같이 내려주건, 경험치 구하는 함수여기서 똑같이 구현하거나 해.
+        lv:user.lv,
+        charImg:user.charImage
     };
     battleState.monster = {
         name: monster.name,
@@ -235,36 +247,37 @@ function winBattle() {
     isProcessingTurn = false;
     updateBattleUI();
     updateButtonStates();
+    updateWinBox();
 
-    const dropList = battleState.monster.drops;
-    const expReward = battleState.monster.exp || 0; // 처치 경험치
-
-    const randomItem = dropList[Math.floor(Math.random() * dropList.length)];
-    const payload = {
-        activityType: "ATTACK",
-        exp:expReward,
-        items: [{ itemId: randomItem.id, count: 1 }]
-    };
-
-    apiRequestJson(`/api/action/addItems/${userId}`, 'POST', payload)
-        .then(res => {
-            if (res.code === 'SUCCESS') {
-                const imgTag = `<img src="${basePath + randomItem.iconPath}" alt="${randomItem.name}" 
-                style="width: 48px; height: 48px; image-rendering: pixelated; vertical-align: middle;">`;
-
-                const message = `
-              <div style="text-align: center; font-size: 1.3rem;">
-                ${imgTag} 획득
-                <div style="color: gold;">+${expReward} EXP</div>
-              </div>
-            `;
-                showMessageModal(message);
-            } else {
-                showMessageModal("아이템 획득 처리 실패");
-            }
-            setUserInfo(res.data);
-            closeBattleModal();
-        });
+    // const dropList = battleState.monster.drops;
+    // const expReward = battleState.monster.exp || 0; // 처치 경험치
+    //
+    // const randomItem = dropList[Math.floor(Math.random() * dropList.length)];
+    // const payload = {
+    //     activityType: "ATTACK",
+    //     exp:expReward,
+    //     items: [{ itemId: randomItem.id, count: 1 }]
+    // };
+    //
+    // apiRequestJson(`/api/action/addItems/${userId}`, 'POST', payload)
+    //     .then(res => {
+    //         if (res.code === 'SUCCESS') {
+    //             const imgTag = `<img src="${basePath + randomItem.iconPath}" alt="${randomItem.name}"
+    //             style="width: 48px; height: 48px; image-rendering: pixelated; vertical-align: middle;">`;
+    //
+    //             const message = `
+    //           <div style="text-align: center; font-size: 1.3rem;">
+    //             ${imgTag} 획득
+    //             <div style="color: gold;">+${expReward} EXP</div>
+    //           </div>
+    //         `;
+    //             showMessageModal(message);
+    //         } else {
+    //             showMessageModal("아이템 획득 처리 실패");
+    //         }
+    //         setUserInfo(res.data);
+    //         closeBattleModal();
+    //     });
 
 
 }
