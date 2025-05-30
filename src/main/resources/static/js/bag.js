@@ -98,7 +98,7 @@ async function loadBagItems() {
     }
 
     try {
-        const res = await apiRequest(`/api/util/item/list/${userId}`, 'GET');
+        const res = await apiRequest('/api/util/item/list', 'GET');
         if (res.code === 'SUCCESS') {
             const data = res.data;
             allItems.length = 0;

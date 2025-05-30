@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const res  = await apiRequest(`/api/char/${userId}`, 'GET');
+        const res  = await apiRequest('/api/char', 'GET');
 
         // 캐릭터 정보는 data 아래에 넘겨준다.
         if (res.code !== 'SUCCESS' || !res.data) {

@@ -28,8 +28,9 @@ public class DexController {
     @GetMapping("list")
     public ResponseEntity<GamJaResponse> getDexList(HttpSession session) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Long sessionUserId = (Long) session.getAttribute("userId");
-        if (sessionUserId == null) {
+        Long userId = (Long) session.getAttribute("userId");
+
+        if (userId == null) {
             return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
         }
         // 1. 전체 도감 리스트 조회
@@ -37,7 +38,7 @@ public class DexController {
         List<Dex> dexList = dexRepository.findAllEnabledForUser();
 
         // 2. 유저가 가진 도감 ID 목록 조회
-        List<UserDex> ownedDexList = userDexRepository.findByUserId(sessionUserId);
+        List<UserDex> ownedDexList = userDexRepository.findByUserId(userId);
 
         List<DexDto> result = dexList.stream()
                 .map(dex -> {

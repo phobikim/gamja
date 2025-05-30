@@ -22,7 +22,7 @@ async function actionGather(activityType) {
     listContainer.innerHTML = '';
 
     try {
-        const result  = await apiRequestJson(`/api/action/${activityType}/${userId}`, 'GET');
+        const result  = await apiRequestJson(`/api/action/${activityType}`, 'GET');
 
         if (result.code !== 'SUCCESS') {
             showMessageModal(result.message || "스팟 목록을 불러오는 데 실패했습니다.");
@@ -89,7 +89,7 @@ async function selectSpot(rank, imagePath, displayName) {
     closeSpotSelectModal();
 
     try {
-        const response = await apiRequestJson(`/api/action/${currentActivityType}/${rank}/${userId}`, 'GET');
+        const response = await apiRequestJson(`/api/action/${currentActivityType}/${rank}`, 'GET');
         dropTable = response?.data || [];
     } catch (e) {
         console.error("드랍 테이블 조회 실패:", e);
@@ -163,7 +163,7 @@ async function completeActivity() {
 
     const roundedExp = Math.floor(gainedExp);
     try {
-        const response = await apiRequestJson(`/api/action/addItems/${userId}`, 'POST', {
+        const response = await apiRequestJson(`/api/action/addItems`, 'POST', {
             activityType: currentActivityType,
             items,
             exp: roundedExp

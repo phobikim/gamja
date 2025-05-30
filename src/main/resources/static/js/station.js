@@ -38,7 +38,7 @@ function setActiveCategory(type) {
 // 공방 List api 호출
 async function getWorkshopStations() {
     try {
-        const res = await apiRequest(`/api/station/list/${userId}`, 'GET');
+        const res = await apiRequest('/api/station/list', 'GET');
         if (res.code === 'SUCCESS') {
             const data = res.data;
             renderStationCategories(data);
@@ -77,7 +77,7 @@ function renderStationCategories(stations) {
         categoryDiv.addEventListener('click', () => {
             playEffect("se_click2");
             setActiveCategory(st.category);
-            loadRecipesByStation(st.category, userId, selectedRecipe?.recipeId || null);
+            loadRecipesByStation(st.category,selectedRecipe?.recipeId || null);
         });
 
         categoryContainer.appendChild(categoryDiv);
@@ -85,9 +85,9 @@ function renderStationCategories(stations) {
 }
 
 // 레시피 api 호출
-async function loadRecipesByStation(stationCategory, userId, selectedRecipeId = null) {
+async function loadRecipesByStation(stationCategory, selectedRecipeId = null) {
     try {
-        const res = await apiRequest(`/api/station/recipe/${stationCategory}/${userId}`, 'GET');
+        const res = await apiRequest(`/api/station/recipe/${stationCategory}`, 'GET');
         if (res.code === 'SUCCESS') {
             renderRecipeCards(res.data,selectedRecipeId); // RecipeDto[]
         }
@@ -246,7 +246,7 @@ async function handleCraft(recipe) {
     };
 
     try {
-        const url = `/api/station/craft/${userId}`
+        const url = '/api/station/craft'
         const res = await apiRequestJson(url, 'POST', payload);
 
         if (res.code === 'SUCCESS') {

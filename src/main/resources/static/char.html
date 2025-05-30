@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>감자단 키우기</title>
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dex.css">
     <link rel="stylesheet" href="css/main_inventory.css">
@@ -372,6 +373,7 @@
 <!-- ========== 전리품 상자 모달 (독립적으로 분리) ========== -->
 <div id="lootModal" class="modal hidden">
     <div class="loot-modal-content">
+        <img src="https://phobi.me/gamja.img/images/icons/icon_victory1.png" alt="승리">
         <!-- 보상 결과 단계 -->
         <div id="rewardStage" class="reward-stage" style="display: none;">
             <!-- 캐릭터 정보 섹션 -->
@@ -392,17 +394,12 @@
                             <span id="currentXp">150</span> / <span id="maxXp">200</span> XP
                         </div>
                     </div>
-                </div>
-            </div>
-            <!-- 전리품 섹션 -->
-            <div class="loot-items-section">
-                <img src="https://phobi.me/gamja.img/images/icons/icon_chest_closed.png"
-                     alt="보물상자"
-                     class="chest-image"
-                     id="chestImage"
-                     onclick="openChest()">
-                <div id="lootItemsList" class="loot-items-list">
-                    <!-- 동적으로 아이템들이 추가될 곳 -->
+
+                    <div class="loot-items-section">
+                        <div id="lootItemsList" class="loot-items-list">
+                            <!-- 동적으로 아이템들이 추가될 곳 -->
+                        </div>
+                    </div>
                 </div>
             </div>
 

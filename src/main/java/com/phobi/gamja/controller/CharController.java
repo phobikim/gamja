@@ -27,11 +27,11 @@ public class CharController {
     private final UserDexRepository userDexRepository;
 
     @ResponseBody
-    @GetMapping("/{userId}")
-    public ResponseEntity<GamJaResponse> getCharInfo(@PathVariable Long userId, HttpSession session) {
-        Long sessionUserId = (Long) session.getAttribute("userId");
+    @GetMapping("")
+    public ResponseEntity<GamJaResponse> getCharInfo(HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
 
-        if (sessionUserId == null || !sessionUserId.equals(userId)) {
+        if (userId == null) {
             return ResponseEntity.status(403).body(GamJaResponse.fail("접근 권한이 없습니다."));
         }
 

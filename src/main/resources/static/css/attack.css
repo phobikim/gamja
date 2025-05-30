@@ -50,7 +50,7 @@
     flex-direction: column;
     width: 90vw;
     max-width: 800px;
-    max-height: 95vh;
+    max-height: 80vh;
     height: 85vh;
     margin: 2.5vh auto;
     background-color: #ffeccf;
@@ -442,7 +442,7 @@
 /* 🎮 모바일 최적화 */
 @media (max-width: 480px) {
     #battleModal .battle-modal-content {
-        height: 90vh;
+        height: 80vh;
         margin: 1vh auto;
         padding: 12px;
         gap: 8px;
@@ -479,7 +479,7 @@
 /* 세로 모드 초소형 화면 */
 @media (max-width: 480px) and (max-height: 700px) {
     #battleModal .battle-modal-content {
-        height: 95vh;
+        height: 80vh;
         margin: 0.5vh auto;
     }
 

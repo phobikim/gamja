@@ -12,8 +12,6 @@ window.battleState = {
         currentHp: 0,
         power: 0,
         currentXp: 0,
-        xp:0,
-        maxXp:0,
         level:0,
         charImg:''
     },
@@ -55,8 +53,7 @@ function startBattle(user, monster) {
         maxHp: user.hp,
         currentHp: user.hp,
         power: user.power,
-        xp:user.xp,
-        maxXp: user.maxXp || 200, // user 조회 할 때, 같이 내려주건, 경험치 구하는 함수여기서 똑같이 구현하거나 해.
+        currentXp:user.xp,
         lv:user.lv,
         charImg:user.charImage
     };
@@ -248,38 +245,6 @@ function winBattle() {
     updateBattleUI();
     updateButtonStates();
     updateWinBox();
-
-    // const dropList = battleState.monster.drops;
-    // const expReward = battleState.monster.exp || 0; // 처치 경험치
-    //
-    // const randomItem = dropList[Math.floor(Math.random() * dropList.length)];
-    // const payload = {
-    //     activityType: "ATTACK",
-    //     exp:expReward,
-    //     items: [{ itemId: randomItem.id, count: 1 }]
-    // };
-    //
-    // apiRequestJson(`/api/action/addItems/${userId}`, 'POST', payload)
-    //     .then(res => {
-    //         if (res.code === 'SUCCESS') {
-    //             const imgTag = `<img src="${basePath + randomItem.iconPath}" alt="${randomItem.name}"
-    //             style="width: 48px; height: 48px; image-rendering: pixelated; vertical-align: middle;">`;
-    //
-    //             const message = `
-    //           <div style="text-align: center; font-size: 1.3rem;">
-    //             ${imgTag} 획득
-    //             <div style="color: gold;">+${expReward} EXP</div>
-    //           </div>
-    //         `;
-    //             showMessageModal(message);
-    //         } else {
-    //             showMessageModal("아이템 획득 처리 실패");
-    //         }
-    //         setUserInfo(res.data);
-    //         closeBattleModal();
-    //     });
-
-
 }
 
 function closeBattleModal() {
@@ -307,7 +272,7 @@ async function handleAttackClick() {
 
 
     // 1. 유저 스탯 정보 가져오기
-    const userRes = await apiRequestJson(`/api/attack/user-stat/${userId}`, 'GET');
+    const userRes = await apiRequestJson('/api/attack/user-stat', 'GET');
     if (userRes.code !== 'SUCCESS') {
         battleModal.classList.add('hidden');
         showMessageModal(userRes.message || "유저 정보를 불러오지 못했습니다.");

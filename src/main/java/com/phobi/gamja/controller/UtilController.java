@@ -29,11 +29,11 @@ public class UtilController {
     private final DailyQuestRepository dailyQuestRepository;
 
     @ResponseBody
-    @GetMapping("/item/list/{userId}")
-    public ResponseEntity<GamJaResponse> getItemList (@PathVariable Long userId, HttpSession session) {
-        Long sessionUserId = (Long) session.getAttribute("userId");
+    @GetMapping("/item/list")
+    public ResponseEntity<GamJaResponse> getItemList (HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
 
-        if (sessionUserId == null || !sessionUserId.equals(userId)) {
+        if (userId == null) {
             return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
         }
         List<UserInventory> inventoryList = userInventoryRepository.findByUserId(userId);

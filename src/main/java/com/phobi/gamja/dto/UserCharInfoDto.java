@@ -3,6 +3,7 @@ package com.phobi.gamja.dto;
 import com.phobi.gamja.entity.UserDtl;
 import lombok.Data;
 import lombok.Getter;
+import org.springframework.objenesis.SpringObjenesis;
 
 @Data
 public class UserCharInfoDto {
@@ -13,6 +14,7 @@ public class UserCharInfoDto {
     private int xp;
     private Inventory inventory;
     private String title;
+    private int maxExp;
 
     @Getter
     public static class Inventory {
@@ -25,6 +27,7 @@ public class UserCharInfoDto {
         this.characterImage = userDtl.getCharacterImage();
         this.level = userDtl.getLevel();
         this.xp = userDtl.getXp();
+        this.maxExp = userDtl.getMaxExp();
     }
 
     public String getTitleByLevel(int level) {

@@ -27,15 +27,6 @@ async function handleDexClick() {
     }
 }
 
-// 3. 도감 카드 렌더링
-// function renderDexCardsWithPaging(data, page = 1) {
-//     fullDexList = data;
-//     const start = (page - 1) * itemsPerPage;
-//     const paged = data.slice(start, start + itemsPerPage);
-//     renderDexCards(paged);
-//     renderPagination(data.length, page);
-// }
-
 function renderDexCards(data) {
     dexList.innerHTML = ''; // 기존 카드 제거
     const CharImagePath = '/character/'
@@ -82,18 +73,6 @@ function renderDexCards(data) {
     });
 }
 
-// function renderPagination(total, current) {
-//     dexPagination.innerHTML = '';
-//     const totalPages = Math.ceil(total / itemsPerPage);
-//     for (let i = 1; i <= totalPages; i++) {
-//         const btn = document.createElement('button');
-//         btn.className = 'dex-page-btn';
-//         if (i === current) btn.classList.add('active');
-//         btn.textContent = i;
-//         btn.addEventListener('click', () => renderDexCardsWithPaging(fullDexList, i));
-//         dexPagination.appendChild(btn);
-//     }
-// }
 
 // 도감 미리보기 → 닫기
 dexOverlay.addEventListener('click', (e) => {

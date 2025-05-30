@@ -31,14 +31,13 @@ public class ActionController {
     private final UserDtlRepository userDtlRepository;
 
     /* action 테이블 조회 및 메타데이터 반환 */
-    @GetMapping("/{activityType}/{userId}")
+    @GetMapping("/{activityType}")
     public ResponseEntity<GamJaResponse> getActionsByCategory(
             @PathVariable String activityType,
-            @PathVariable Long userId,
             HttpSession session) {
 
-        Long sessionUserId = (Long) session.getAttribute("userId");
-        if (sessionUserId == null || !sessionUserId.equals(userId)) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
             return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
         }
 
@@ -62,16 +61,15 @@ public class ActionController {
 
 
     /*action 별 drop item 조회*/
-    @GetMapping("/{activityType}/{spotRank}/{userId}")
+    @GetMapping("/{activityType}/{spotRank}")
     public ResponseEntity<GamJaResponse> getDropTable(
             @PathVariable String activityType,
             @PathVariable int spotRank,
-            @PathVariable Long userId,
             HttpSession session
     ) {
-        Long sessionUserId = (Long) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute("userId");
 
-        if (sessionUserId == null || !sessionUserId.equals(userId)) {
+        if (userId == null) {
             return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
         }
 
@@ -89,15 +87,14 @@ public class ActionController {
     }
 
     /*action 완료 후 skill lv,xp 조정 및 아이템 획득 처리 */
-    @PostMapping("/addItems/{userId}")
+    @PostMapping("/addItems")
     @Transactional
     public ResponseEntity<GamJaResponse> addItem(
             @RequestBody Map<String, Object> request,
-            @PathVariable Long userId,
             HttpSession session) {
-        Long sessionUserId = (Long) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute("userId");
 
-        if (sessionUserId == null || !sessionUserId.equals(userId)) {
+        if (userId == null ) {
             return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
         }
 
@@ -130,8 +127,9 @@ public class ActionController {
 
         // 스킬 레벨업 (레벨업 공식: 100 + 10*레벨 등 자유 조절 가능)
         int level = userSkill.getLevel();
-        while (totalExp >= getRequiredExp(level)) {
-            totalExp -= getRequiredExp(level);
+        int maxExp = getRequiredExp(level);
+        while (totalExp >= maxExp) {
+            totalExp -= maxExp;
             level++;
         }
 
@@ -141,6 +139,7 @@ public class ActionController {
         UserDtl userDtl = userDtlRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
+        int charMaxExp = 0;
         // 🟠 추가 처리: ATTACK 타입이면 캐릭터 레벨도 증가
         if (skillType == SkillType.ATTACK) {
             userDtl = userDtlRepository.findById(userId)
@@ -148,13 +147,14 @@ public class ActionController {
 
             int charXp = userDtl.getXp() + (int) exp;
             int charLevel = userDtl.getLevel();
-
-            while (charXp >= getRequiredExp(charLevel)) {
-                charXp -= getRequiredExp(charLevel);
+            charMaxExp = getRequiredExp(charLevel);
+            while (charXp >= charMaxExp) {
+                charXp -= charMaxExp;
                 charLevel++;
             }
             userDtl.setLevel(charLevel);
             userDtl.setXp(charXp);
+            userDtl.setMaxExp(charMaxExp);
             userDtlRepository.save(userDtl);
         }
 

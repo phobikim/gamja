@@ -33,11 +33,11 @@ public class StationController {
 
 
     @ResponseBody
-    @GetMapping("/list/{userId}")
-    public ResponseEntity<GamJaResponse> getStationList (@PathVariable Long userId, HttpSession session) {
-        Long sessionUserId = (Long) session.getAttribute("userId");
+    @GetMapping("/list")
+    public ResponseEntity<GamJaResponse> getStationList (HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
 
-        if (sessionUserId == null || !sessionUserId.equals(userId)) {
+        if (userId == null) {
             return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
         }
 
@@ -56,13 +56,12 @@ public class StationController {
     }
 
     @ResponseBody
-    @GetMapping("/recipe/{stationCategory}/{userId}")
+    @GetMapping("/recipe/{stationCategory}")
     public ResponseEntity<GamJaResponse> getRecipeWithInventory (
             @PathVariable String stationCategory,
-            @PathVariable Long userId,
             HttpSession session) {
-        Long sessionUserId = (Long) session.getAttribute("userId");
-        if (sessionUserId == null || !sessionUserId.equals(userId)) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null ) {
             return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
         }
 
@@ -82,14 +81,13 @@ public class StationController {
 
 
     @ResponseBody
-    @PostMapping("/craft/{userId}")
+    @PostMapping("/craft")
     public ResponseEntity<GamJaResponse> itemCraft (
-            @PathVariable Long userId,
             @RequestBody CraftRequest request,
             HttpSession session) {
-        Long sessionUserId = (Long) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute("userId");
 
-        if (sessionUserId == null || !sessionUserId.equals(userId)) {
+        if (userId == null) {
             return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
         }
 

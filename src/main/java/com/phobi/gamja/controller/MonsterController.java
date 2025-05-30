@@ -31,10 +31,10 @@ public class MonsterController {
     private final ItemRepository itemRepository;
 
     /** 1. 유저 스탯 + 프로필 정보 조회 **/
-    @GetMapping("/user-stat/{userId}")
-    public ResponseEntity<GamJaResponse> getUserStat(@PathVariable Long userId, HttpSession session) {
-        Long sessionUserId = (Long) session.getAttribute("userId");
-        if (sessionUserId == null || !sessionUserId.equals(userId)) {
+    @GetMapping("/user-stat")
+    public ResponseEntity<GamJaResponse> getUserStat(HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
             return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
         }
 

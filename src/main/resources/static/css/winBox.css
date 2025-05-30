@@ -19,9 +19,9 @@
 }
 
 #lootModal .loot-modal-content {
-    background: linear-gradient(145deg, #2c3e50, #34495e);
+    background: var(--white-color);
     border-radius: 20px;
-    padding: 6vw;
+    padding: 3vw;
     width: 90%;
     max-width: 600px;
     max-height: 90vh;
@@ -29,6 +29,7 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     color: white;
     box-sizing: border-box;
+    position: relative;
 }
 
 /* 보상 결과 단계 */
@@ -42,7 +43,7 @@
     align-items: flex-start;
     gap: 4vw;
     padding: 4vw;
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--char-border-color);
     border-radius: 20px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
@@ -67,6 +68,7 @@
 }
 
 #lootModal .level-display {
+    text-align: center;
     font-size: clamp(1.6rem, 4vw, 2.2rem);
     font-weight: bold;
     color: #DAA520;
@@ -89,7 +91,7 @@
 /* XP 바 채우기 애니메이션 */
 #lootModal .xp-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #39ff14, #2ecc40);
+    background: linear-gradient(90deg, var(--green-hignlight), #2ecc40);
     width: 0%;
     transition: width 0.8s ease-out;
     position: relative;
@@ -131,6 +133,7 @@
 }
 
 #lootModal .xp-text {
+    font-weight: bold;
     font-size: clamp(0.8rem, 2vw, 1.1rem);
     color: #ccc;
     margin-top: 1vh;
@@ -140,81 +143,89 @@
 /* 전리품 섹션 - 컴팩트하게 조정 */
 #lootModal .loot-items-section {
     flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #lootModal .loot-items-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 2vw;
-    justify-content: flex-start;
+    gap: 1.5vw;
+    justify-content: center;
     align-items: center;
+    padding: 1vw;
 }
 
 #lootModal .loot-item-card {
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 2vw;
+    border-radius: 8px;
+    padding: 1vw;
     text-align: center;
-    border: 2px solid transparent;
     transition: all 0.3s;
-    min-width: clamp(80px, 18vw, 120px);
+    min-width: clamp(60px, 12vw, 80px);
     backdrop-filter: blur(5px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    /* 애니메이션 초기값 */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
 }
 
-#lootModal .loot-item-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+/* 애니메이션 완료 상태 */
+#lootModal .loot-item-card.animate-in {
+    opacity: 1;
+    transform: translateY(0);
 }
 
-/* 희귀도별 색상 */
+/* 희귀도별 색상 - border 제거하고 배경색만 유지 */
 #lootModal .loot-item-card.rarity-common {
-    border-color: #ccc;
     background: rgba(204, 204, 204, 0.15);
 }
 #lootModal .loot-item-card.rarity-uncommon {
-    border-color: #39ff14;
     background: rgba(57, 255, 20, 0.15);
-    box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+    box-shadow: 0 0 8px rgba(57, 255, 20, 0.2);
 }
 #lootModal .loot-item-card.rarity-rare {
-    border-color: #4d94ff;
     background: rgba(77, 148, 255, 0.15);
-    box-shadow: 0 0 10px rgba(77, 148, 255, 0.3);
+    box-shadow: 0 0 8px rgba(77, 148, 255, 0.2);
 }
 #lootModal .loot-item-card.rarity-epic {
-    border-color: #9c27b0;
     background: rgba(156, 39, 176, 0.15);
-    box-shadow: 0 0 10px rgba(156, 39, 176, 0.3);
+    box-shadow: 0 0 8px rgba(156, 39, 176, 0.2);
 }
 #lootModal .loot-item-card.rarity-legendary {
-    border-color: #ff8c00;
     background: rgba(255, 140, 0, 0.15);
-    box-shadow: 0 0 15px rgba(255, 140, 0, 0.4);
+    box-shadow: 0 0 10px rgba(255, 140, 0, 0.3);
 }
 
 #lootModal .loot-item-image {
-    width: clamp(40px, 8vw, 60px);
-    height: clamp(40px, 8vw, 60px);
+    width: clamp(36px, 6vw, 48px);
+    height: clamp(36px, 6vw, 48px);
     image-rendering: pixelated;
-    margin-bottom: 1vh;
+    margin-bottom: 0.5vh;
     display: block;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 #lootModal .loot-item-name {
-    font-size: clamp(0.7rem, 1.8vw, 0.9rem);
+    font-size: clamp(0.7rem, 1.4vw, 0.75rem);
     font-weight: bold;
-    margin-bottom: 0.5vh;
+    margin-bottom: 0.2vh;
     word-wrap: break-word;
+    text-align: center;
+    line-height: 1.1;
 }
 
 #lootModal .loot-item-count {
-    font-size: clamp(0.6rem, 1.6vw, 0.8rem);
-    color: #39ff14;
+    font-size: clamp(0.85rem, 1.3vw, 0.7rem);
+    color: var(--green-hignlight);
     font-weight: bold;
+    text-align: center;
 }
-
 /* 다음 전투 버튼 */
 #lootModal .next-battle-section {
     margin-top: 2vh;
@@ -224,7 +235,7 @@
     width: 100%;
     padding: 3vw 4vw;
     font-size: clamp(0.9rem, 2.2vw, 1.2rem);
-    background: linear-gradient(45deg, #39ff14, #2ecc40);
+    background: var(--orange-color);
     color: #000;
     border: none;
     border-radius: 12px;
@@ -234,10 +245,6 @@
     box-shadow: 0 3px 10px rgba(57, 255, 20, 0.3);
 }
 
-#lootModal .next-battle-section .modal-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(57, 255, 20, 0.4);
-}
 
 /* 모달 공통 스타일 */
 #lootModal h2 {
@@ -251,4 +258,30 @@
     font-size: clamp(0.8rem, 2vw, 1.1rem);
     line-height: 1.4;
     margin: 2vh 0;
+}
+
+
+/* 승리 아이콘 스타일링 */
+.loot-modal-content img[src*="icon_victory"] {
+    width: 120px;
+    height: 50px;
+    image-rendering: pixelated;
+    display: block;
+    margin: 0 auto 0vh auto;
+}
+
+#rewardCharLevel {
+    display: inline-block;
+}
+
+.level-up-highlight {
+    color: var(--green-hignlight);
+    font-weight: bold;
+    animation: levelUpPop 0.4s ease;
+}
+
+@keyframes levelUpPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.4); }
+    100% { transform: scale(1); }
 }

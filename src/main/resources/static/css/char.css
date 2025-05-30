@@ -118,8 +118,8 @@
 /* 캐릭터 이미지 */
 .character-img {
     position: relative;
-    width: 210px;
-    height: 210px;
+    width: 170px;
+    height: 170px;
     object-fit: contain;
     z-index: 2;
     margin-bottom: -12%;
