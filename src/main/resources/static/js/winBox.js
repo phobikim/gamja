@@ -97,10 +97,7 @@ function updateCharacterReward(user, expReward, items) {
 
 }
 
-function updateRewardUI(user, expReward) {
-    console.log("레벨", user.beforeLevel, user.level);
-
-    // 캐릭터 이미지 설정
+function updateRewardUI(user, expReward) {// 캐릭터 이미지 설정
     const charImg = document.getElementById('rewardCharacterImage');
     if (charImg) {
         if (typeof basePath_image !== 'undefined') {
@@ -182,11 +179,7 @@ function updateLootItemsDisplay(items) {
 
 function nextBattle() {
     lootModal.classList.add('hidden');
-
-    // 새로운 전투 시작
-    setTimeout(() => {
-        loadNewBattle();
-    }, 300);
+    loadNewBattle();
 }
 
 
@@ -194,7 +187,7 @@ function nextBattle() {
 function loadNewBattle() {
     // 실제 서버 API 호출 (기존 코드 구조 유지)
     if (typeof apiRequestJson === 'function' && typeof userId !== 'undefined') {
-        handleAttackClick(); // 기존 함수 재사용
+        handleAttackClick();
     }
 }
 

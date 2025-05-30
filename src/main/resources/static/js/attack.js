@@ -5,6 +5,8 @@ let battleEnded = false;
 let isPlayerTurn = true; // ✅ 턴 상태 관리
 let isProcessingTurn = false; // ✅ 턴 처리 중 상태 관리
 
+const monsterImage = document.getElementById('monsterCharacter');
+
 window.battleState = {
     player: {
         name: '',
@@ -244,6 +246,13 @@ function winBattle() {
     isProcessingTurn = false;
     updateBattleUI();
     updateButtonStates();
+
+    monsterImage.classList.remove('jump-in', 'hit-effect', 'fade-out');
+    monsterImage.style.animation = 'none';
+
+    void monsterImage.offsetWidth;
+    monsterImage.style.animation = '';
+    monsterImage.classList.add('fade-out');
     updateWinBox();
 }
 
@@ -305,7 +314,14 @@ async function handleAttackClick() {
     userImage.src = charImage + user.charImage;
     userImage.alt = user.name;
 
-    const monsterImage = document.getElementById('monsterCharacter');
+    // 몬스터 등장 애니메이션
+    monsterImage.classList.remove('jump-in', 'fade-out', 'hit-effect');
+    monsterImage.onload = () => {
+        // 리플로우 강제 실행
+        void monsterImage.offsetWidth;
+        // 애니메이션 시작
+        monsterImage.classList.add('jump-in');
+    };
     monsterImage.src = basePath + monster.imagePath;
     monsterImage.alt = monster.name;
 
