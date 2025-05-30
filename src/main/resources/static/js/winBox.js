@@ -37,21 +37,40 @@ function getCurrentBattleUser() {
 
 function generateLootItems() {
     const dropList = battleState.monster.drops || [];
-    const lootCount = Math.random() < 0.3 ? 2 : 1; // 30% 확률로 2개
+    const lootCount = Math.random() < 0.3 ? 2 : 1; // 드랍할 아이템 수
     const selectedItems = [];
 
-    for (let i = 0; i < lootCount && i < dropList.length; i++) {
-        const randomItem = dropList[Math.floor(Math.random() * dropList.length)];
-        const count = Math.floor(Math.random() * 3) + 1; // 1~3개
+    // 드랍 후보 중에서 무작위로 고르기
+    const candidates = [...dropList];
+
+    for (let i = 0; i < lootCount && candidates.length > 0; i++) {
+        const randomIndex = Math.floor(Math.random() * candidates.length);
+        const item = candidates.splice(randomIndex, 1)[0]; // 중복 방지 위해 제거
+
+        let count = 1;
+        switch (item.rarity?.toUpperCase()) {
+            case 'COMMON':
+                count = Math.floor(Math.random() * 2) + 2; // 2~3
+                break;
+            case 'UNCOMMON':
+                count = Math.floor(Math.random() * 2) + 1; // 1~2
+                break;
+            case 'RARE':
+                count = 1; // 고정
+                break;
+            default:
+                count = 1; // 그 외는 기본 1
+        }
 
         selectedItems.push({
-            ...randomItem,
+            ...item,
             count: count
         });
     }
 
     return selectedItems;
 }
+
 
 function updateCharacterReward(user, expReward, items) {
     const payload = {
