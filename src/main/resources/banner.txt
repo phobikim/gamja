@@ -1,0 +1,12 @@
+   🍽️  감자단 요리사 감자 입장중... 🍽️
+
+     ⠀⠀⠀⠀⢀⣠⣤⣤⣄⡀⠀⠀⠀⠀⠀⠀
+     ⠀⠀⣠⡾⠛⠉⠀⠀⠈⠙⠳⣦⠀⠀⠀   🍳
+     ⠀⣼⡟⠀⠀⠀⣠⣤⠀⠀⠀⢸⣷⠀⠀   (˘◡˘)
+     ⢸⣿⠀⢀⣴⡿⠛⠛⢷⣦⠀⠈⣿⡇⠀  (🍠 )つ🍲
+     ⠈⠻⣷⣌⠻⣷⣶⣾⡿⠋⣁⣾⠟⠁⠀
+     ⠀⠀⠈⠙⠻⠶⠶⠶⠾⠛⠋⠁⠀⠀⠀
+
+   :: GAMJADAN SERVER STARTING UP ::
+   :: version :: ${application.version}
+   :: Spring Boot :: ${spring.boot.version}
