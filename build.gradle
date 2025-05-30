@@ -4,7 +4,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'com.example'
+group = 'com.phobi'
 version = '1.0.0'
 
 bootJar {
@@ -32,7 +32,8 @@ repositories {
 dependencies {
     // 웹 서버 (Spring MVC)
     implementation 'org.springframework.boot:spring-boot-starter-web'
-
+    //swagger
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.14'
     // JPA (DB ORM)
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
@@ -50,6 +51,7 @@ dependencies {
     // 테스트
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
 }
 
 tasks.named('test') {
