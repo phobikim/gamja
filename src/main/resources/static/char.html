@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="css/action.css">
     <link rel="stylesheet" href="css/attack.css">
     <link rel="stylesheet" href="css/winBox.css">
+    <link rel="stylesheet" href="css/map.css">
 </head>
 
 <body class="char-page">
@@ -55,44 +56,57 @@
 
     <!-- 하단 인벤토리 그리드 (4x2) -->
     <section class="inventory-grid">
-        <!-- 첫 번째 줄 -->
-        <div class="inventoryCell" onclick="actionGather('WOODCUTTING')">
-            <img src="https://phobi.me/gamja.img/images/icons/icon_wood.png" alt="벌목">
-            <span class="itemLabel">벌목</span>
+        <div class="inventoryCell" onclick="openMapModal()">
+            <img src="https://phobi.me/gamja.img/images/icons/icon_map.png" alt="지도">
+<!--            <span class="itemLabel">생활</span>-->
         </div>
-        <div class="inventoryCell" onclick="actionGather('MINING')">
-            <img src="https://phobi.me/gamja.img/images/icons/icon_mining.png" alt="광산">
-            <span class="itemLabel">광산</span>
-        </div>
-        <div class="inventoryCell" onclick="actionGather('GATHERING')">
-            <img src="https://phobi.me/gamja.img/images/icons/icon_field.png" alt="밭">
-            <span class="itemLabel">감자밭</span>
-        </div>
-        <div class="inventoryCell" onclick="actionGather('FISHING')">
-            <img src="https://phobi.me/gamja.img/images/icons/icon_fish.png" alt="낚시">
-            <span class="itemLabel">낚시</span>
-        </div>
-
-        <!-- 두 번째 줄 -->
         <div class="inventoryCell" onclick="handleBagClick()">
             <img src="https://phobi.me/gamja.img/images/icons/icon_bag.png" alt="배낭">
-            <span class="itemLabel">인벤토리</span>
-        </div>
-        <div class="inventoryCell" onclick="handleStationClick()">
-            <img src="https://phobi.me/gamja.img/images/icons/icon_station.png" alt="공방">
-            <span class="itemLabel">감자공방</span>
+<!--            <span class="itemLabel">인벤토리</span>-->
         </div>
         <div class="inventoryCell" onclick="handleDexClick()">
             <img src="https://phobi.me/gamja.img/images/icons/icon_book.png" alt="도감">
-            <span class="itemLabel">도감</span>
+<!--            <span class="itemLabel">도감</span>-->
         </div>
         <div class="inventoryCell" onclick="handleAttackClick()">
             <img src="https://phobi.me/gamja.img/images/icons/icon_skill_attack.png" alt="전투">
-            <span class="itemLabel">전투</span>
+<!--            <span class="itemLabel">전투</span>-->
         </div>
     </section>
-
 </main>
+
+<!-- 생활 선택 모달 -->
+<div id="mapSelectModal" class="modal hidden">
+    <div class="spot-select-modal-content">
+        <h2 class="common-h2-brown">이동할 장소 선택</h2>
+        <div class="spot-list map-select-list">
+            <div class="inventoryCell" onclick="actionGather('WOODCUTTING'); closeLifeSelectModal()">
+                <img src="https://phobi.me/gamja.img/images/icons/icon_wood.png" alt="벌목">
+                <span class="itemLabel">벌목</span>
+            </div>
+            <div class="inventoryCell" onclick="actionGather('MINING'); closeLifeSelectModal()">
+                <img src="https://phobi.me/gamja.img/images/icons/icon_mining.png" alt="광산">
+                <span class="itemLabel">광산</span>
+            </div>
+            <div class="inventoryCell" onclick="actionGather('GATHERING'); closeLifeSelectModal()">
+                <img src="https://phobi.me/gamja.img/images/icons/icon_field.png" alt="감자밭">
+                <span class="itemLabel">감자밭</span>
+            </div>
+            <div class="inventoryCell" onclick="actionGather('FISHING'); closeLifeSelectModal()">
+                <img src="https://phobi.me/gamja.img/images/icons/icon_fish.png" alt="낚시">
+                <span class="itemLabel">낚시</span>
+            </div>
+            <div class="inventoryCell" onclick="handleStationClick()">
+                <img src="https://phobi.me/gamja.img/images/icons/icon_station.png" alt="공방">
+                <span class="itemLabel">감자공방</span>
+            </div>
+            <div class="inventoryCell" onclick="handleStationClick()">
+                <img src="https://phobi.me/gamja.img/images/icons/icon_station.png" alt="공방">
+                <span class="itemLabel">목장</span>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- 모든 모달들은 기존과 동일 -->
 <!-- 공통 장소 선택 모달 -->
@@ -347,15 +361,15 @@
                 </div>
             </div>
         </div>
-        <!-- 드랍 아이템 영역 (가로 전체) -->
-        <div class="battle-drops">
-            <span class="drop-label">드랍 아이템</span>
-            <div class="monster-drops"></div>
-        </div>
-        <div id="itemTooltip" class="item-tooltip hidden">
-            <div id="itemTooltipContent"></div>
-            <button id="itemCloseTooltipBtn" class="tooltip-close-btn">닫기</button>
-        </div>
+<!--        &lt;!&ndash; 드랍 아이템 영역 (가로 전체) &ndash;&gt;-->
+<!--        <div class="battle-drops">-->
+<!--            <span class="drop-label">드랍 아이템</span>-->
+<!--            <div class="monster-drops"></div>-->
+<!--        </div>-->
+<!--        <div id="itemTooltip" class="item-tooltip hidden">-->
+<!--            <div id="itemTooltipContent"></div>-->
+<!--            <button id="itemCloseTooltipBtn" class="tooltip-close-btn">닫기</button>-->
+<!--        </div>-->
 
         <div class="battle-actions">
             <button onclick="doAttack()">
@@ -397,12 +411,11 @@
                             <span id="currentXp">150</span> / <span id="maxXp">200</span> XP
                         </div>
                     </div>
-
-                    <div class="loot-items-section">
-                        <div id="lootItemsList" class="loot-items-list">
-                            <!-- 동적으로 아이템들이 추가될 곳 -->
-                        </div>
-                    </div>
+                </div>
+            </div>
+            <div class="loot-items-section">
+                <div id="lootItemsList" class="loot-items-list">
+                    <!-- 동적으로 아이템들이 추가될 곳 -->
                 </div>
             </div>
 
@@ -440,6 +453,7 @@
 <script src="js/action.js"></script>
 <script src="js/attack.js"></script>
 <script src="js/winBox.js"></script>
+<script src="js/map.js"></script>
 
 </body>
 </html>

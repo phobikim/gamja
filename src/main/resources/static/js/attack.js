@@ -195,13 +195,19 @@ function monsterTurn() {
         updateBattleUI();
 
         if (battleState.player.currentHp <= 0) {
-            // 전투 패배 시 캐릭터 이미지 fade-out
-            playerImage.classList.remove('jump-in', 'hit-effect', 'fade-out');
-            playerImage.style.animation = 'none';
-            void playerImage.offsetWidth; // 리플로우로 재시작 유도
-            playerImage.style.animation = '';
-            playerImage.classList.add('fade-out');
-            showDefeatModal("여기에 다시 묻히다...");
+            // 0.2초 딜레이 후 fade-out → 0.6초 후 모달
+            setTimeout(() => {
+                playerImage.classList.remove('jump-in', 'hit-effect', 'fade-out');
+                playerImage.style.animation = 'none';
+                void playerImage.offsetWidth;
+                playerImage.style.animation = '';
+                playerImage.classList.add('fade-out');
+            }, 200); // 🕒 fade-out 0.2초 딜레이
+
+            setTimeout(() => {
+                showDefeatModal("여기에 다시 묻히다...");
+            }, 800); // 🕒 모달은 fade-out 이후 0.6초 뒤
+
             return;
         }
 
@@ -404,27 +410,27 @@ async function handleAttackClick() {
     // 해당 rank에 맞는 색상 적용
     rankElement.style.color = rankColorMap[rankText] || '#000'; // 기본은 검정
 
-    const dropContainer = document.querySelector('.monster-drops');
-    dropContainer.innerHTML = ''; // 기존 내용 초기화
-
-    (monster.dropItems || []).forEach(item => {
-        const img = document.createElement('img');
-        img.src = basePath + item.iconPath;
-        img.alt = item.name;
-        img.title = item.name;
-        img.classList.add('drop-icon');
-        if (item.rarity) {
-            img.classList.add(`rarity-${item.rarity.toLowerCase()}`);
-        }
-        img.addEventListener('click', (e) => {
-            showTooltip(e, item);
-        });
-        dropContainer.appendChild(img);
-    });
-
-    if (dropContainer.children.length === 0) {
-        dropContainer.textContent = '없음';
-    }
+    // const dropContainer = document.querySelector('.monster-drops');
+    // dropContainer.innerHTML = ''; // 기존 내용 초기화
+    //
+    // (monster.dropItems || []).forEach(item => {
+    //     const img = document.createElement('img');
+    //     img.src = basePath + item.iconPath;
+    //     img.alt = item.name;
+    //     img.title = item.name;
+    //     img.classList.add('drop-icon');
+    //     if (item.rarity) {
+    //         img.classList.add(`rarity-${item.rarity.toLowerCase()}`);
+    //     }
+    //     img.addEventListener('click', (e) => {
+    //         showTooltip(e, item);
+    //     });
+    //     dropContainer.appendChild(img);
+    // });
+    //
+    // if (dropContainer.children.length === 0) {
+    //     dropContainer.textContent = '없음';
+    // }
 
     // 기존 값
     const basePower = Number(user.power) || 0;
@@ -437,35 +443,35 @@ async function handleAttackClick() {
     startBattle(user, monster);
 }
 
-function showTooltip(event, item) {
-    const tooltip = document.getElementById('itemTooltip');
-    const content = document.getElementById('itemTooltipContent');
-    // 기존 툴팁 강제 닫기 (안 보이게)
-    tooltip.classList.add('hidden');
-
-    tooltip.classList.remove('hidden');
-
-    const rarity = item.rarity || 'COMMON';
-    const rarityClass = `rarity-${rarity.toLowerCase()}`;
-
-    content.innerHTML = `
-      <div style="text-align: center;"><strong>[${item.name}]</strong></div><br>
-      희귀도: <span class="rarity-text ${rarityClass}">${rarity}</span><br>
-      ${item.description || '설명이 없습니다.'}
-    `;
-
-    // 모달 안에 고정 배치되도록 설정 (모달이 relative 여야 함)
-    const modal = document.getElementById('battleModal');
-    modal.appendChild(tooltip);
-}
+// function showTooltip(event, item) {
+//     const tooltip = document.getElementById('itemTooltip');
+//     const content = document.getElementById('itemTooltipContent');
+//     // 기존 툴팁 강제 닫기 (안 보이게)
+//     tooltip.classList.add('hidden');
+//
+//     tooltip.classList.remove('hidden');
+//
+//     const rarity = item.rarity || 'COMMON';
+//     const rarityClass = `rarity-${rarity.toLowerCase()}`;
+//
+//     content.innerHTML = `
+//       <div style="text-align: center;"><strong>[${item.name}]</strong></div><br>
+//       희귀도: <span class="rarity-text ${rarityClass}">${rarity}</span><br>
+//       ${item.description || '설명이 없습니다.'}
+//     `;
+//
+//     // 모달 안에 고정 배치되도록 설정 (모달이 relative 여야 함)
+//     const modal = document.getElementById('battleModal');
+//     modal.appendChild(tooltip);
+// }
 
 // 외부 클릭 시 툴팁 닫기
-document.addEventListener('click', (e) => {
-    const tooltip = document.getElementById('itemTooltip');
-    if (!e.target.classList.contains('drop-icon')) {
-        tooltip.classList.add('hidden');
-    }
-});
+// document.addEventListener('click', (e) => {
+//     const tooltip = document.getElementById('itemTooltip');
+//     if (!e.target.classList.contains('drop-icon')) {
+//         tooltip.classList.add('hidden');
+//     }
+// });
 
 function applyHitEffect(targetSelector) {
     const el = document.querySelector(targetSelector);

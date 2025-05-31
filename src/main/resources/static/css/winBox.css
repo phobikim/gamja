@@ -19,7 +19,7 @@
 }
 
 #lootModal .loot-modal-content {
-    background: var(--white-color);
+    background: var(--char-border-color);
     border-radius: 20px;
     padding: 3vw;
     width: 90%;
@@ -43,7 +43,7 @@
     align-items: flex-start;
     gap: 4vw;
     padding: 4vw;
-    background: var(--char-border-color);
+    background: var(--white-color);
     border-radius: 20px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
@@ -71,7 +71,7 @@
     text-align: center;
     font-size: clamp(1.6rem, 4vw, 2.2rem);
     font-weight: bold;
-    color: #DAA520;
+    color: var(--dark-font-color);
 }
 
 #lootModal .xp-bar-container {
@@ -135,17 +135,19 @@
 #lootModal .xp-text {
     font-weight: bold;
     font-size: clamp(0.8rem, 2vw, 1.1rem);
-    color: #ccc;
+    color: var(--dark-font-color);
     margin-top: 1vh;
     text-align: center;
 }
 
 /* 전리품 섹션 - 컴팩트하게 조정 */
 #lootModal .loot-items-section {
-    flex: 1;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* 상단에 붙임 */
+    padding: 0;
+    margin-top: 1vh;
+    margin-bottom: 1vh;
 }
 
 #lootModal .loot-items-list {
@@ -154,15 +156,12 @@
     gap: 1.5vw;
     justify-content: center;
     align-items: center;
-    padding: 1vw;
 }
 
 #lootModal .loot-item-card {
-    background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     padding: 1vw;
     text-align: center;
-    transition: all 0.3s;
     min-width: clamp(60px, 12vw, 80px);
     backdrop-filter: blur(5px);
     display: flex;
@@ -184,23 +183,18 @@
 
 /* 희귀도별 색상 - border 제거하고 배경색만 유지 */
 #lootModal .loot-item-card.rarity-common {
-    background: rgba(204, 204, 204, 0.15);
+    background: var(--dark-orange-color);
 }
 #lootModal .loot-item-card.rarity-uncommon {
-    background: rgba(57, 255, 20, 0.15);
-    box-shadow: 0 0 8px rgba(57, 255, 20, 0.2);
+    background: #61bb11;
 }
 #lootModal .loot-item-card.rarity-rare {
-    background: rgba(77, 148, 255, 0.15);
-    box-shadow: 0 0 8px rgba(77, 148, 255, 0.2);
+    background: #ca51f9;
+
 }
 #lootModal .loot-item-card.rarity-epic {
-    background: rgba(156, 39, 176, 0.15);
-    box-shadow: 0 0 8px rgba(156, 39, 176, 0.2);
 }
 #lootModal .loot-item-card.rarity-legendary {
-    background: rgba(255, 140, 0, 0.15);
-    box-shadow: 0 0 10px rgba(255, 140, 0, 0.3);
 }
 
 #lootModal .loot-item-image {
@@ -214,6 +208,7 @@
 #lootModal .loot-item-name {
     font-size: clamp(0.7rem, 1.4vw, 0.75rem);
     font-weight: bold;
+    color: var(--white-color);
     margin-bottom: 0.2vh;
     word-wrap: break-word;
     text-align: center;
@@ -228,7 +223,7 @@
 }
 /* 다음 전투 버튼 */
 #lootModal .next-battle-section {
-    margin-top: 2vh;
+    margin-top: 1.2vh;
 }
 
 #lootModal .next-battle-section .modal-btn {
@@ -242,7 +237,6 @@
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 3px 10px rgba(57, 255, 20, 0.3);
 }
 
 
