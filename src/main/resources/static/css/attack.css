@@ -361,46 +361,6 @@
     image-rendering: pixelated;
 }
 
-
-/* 아이템 툴팁 */
-#battleModal .item-tooltip {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    min-width: 150px; /* 200px → 150px로 축소 */
-    max-width: 80vw; /* 화면 너비의 80% 이상 커지지 않도록 제한 */
-    background-color: #222;
-    color: #fff;
-    padding: 0.5rem;
-    border: 2px solid #888;
-    border-radius: 1rem; /* 1.2rem → 1rem으로 축소 */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
-    z-index: 9999;
-    font-size: 0.95rem; /* 1.15rem → 0.95rem으로 축소 */
-    white-space: pre-line;
-    line-height: 1.1;
-}
-
-#battleModal .tooltip-close-btn {
-    display: block;
-    margin: 0.8rem auto 0; /* 1rem → 0.8rem으로 축소 */
-    padding: 4px 10px;
-    background-color: #fa6719;
-    color: white;
-    border: none;
-    border-radius: 6px; /* 8px → 6px로 축소 */
-    font-size: 0.9rem; /* 1rem → 0.9rem으로 축소 */
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.item-tooltip.hidden {
-    display: none;
-}
-
-
 .tooltip-close-btn:hover {
     background-color: #e85c11;
 }
@@ -502,12 +462,12 @@
         max-height: 65px;
     }
 
-    .item-tooltip {
-        min-width: 120px; /* 더 작은 화면에서는 더욱 축소 */
-        font-size: 0.85rem;
-        padding: 0.6rem;
-        border-radius: 0.8rem;
-    }
+    /*.item-tooltip {*/
+    /*    min-width: 120px; !* 더 작은 화면에서는 더욱 축소 *!*/
+    /*    font-size: 0.85rem;*/
+    /*    padding: 0.6rem;*/
+    /*    border-radius: 0.8rem;*/
+    /*}*/
 
     .tooltip-close-btn {
         font-size: 0.8rem;

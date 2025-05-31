@@ -23,7 +23,7 @@
     margin: 0;
 }
 
-.item-tooltip {
+.bag-tooltip {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -56,7 +56,7 @@
     transition: background-color 0.2s ease;
 }
 
-.item-tooltip.hidden {
+.bag-tooltip .hidden {
     display: none;
 }
 
@@ -143,7 +143,7 @@
 }
 /* 추가: 더 작은 모바일 화면을 위한 미디어 쿼리 */
 @media (max-width: 480px) {
-    .item-tooltip {
+    .bag-tooltip  {
         min-width: 120px; /* 더 작은 화면에서는 더욱 축소 */
         font-size: 0.85rem;
         padding: 0.6rem;

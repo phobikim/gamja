@@ -40,7 +40,7 @@ function renderItemsByType(type) {
         };
 
         wrapper.addEventListener('click', (e) => {
-            showItemTooltip(e, item);
+            showItemTooltipBag(e, item);
         });
         wrapper.appendChild(img);
 
@@ -117,8 +117,7 @@ async function handleBagClick() {
     await loadBagItems();
 }
 
-function showItemTooltip(event, item) {
-    console.log("클릭?")
+function showItemTooltipBag(event, item) {
     // 기존 툴팁 강제 닫기 (안 보이게)
     tooltip.classList.add('hidden');
     tooltip.classList.remove('hidden');
