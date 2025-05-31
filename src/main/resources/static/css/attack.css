@@ -594,38 +594,114 @@
 
 
 
-.monster-container .jump-in {
-    animation: monsterJumpIn 0.5s ease-out forwards !important;
+
+.player-character.jump-in,
+.monster-character.jump-in {
+    animation: monsterJumpIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.player-character.fade-out,
+.monster-character.fade-out {
+    animation: monsterFadeOut 0.5s ease-in forwards;
 }
 
-@keyframes monsterJumpIn {
-    0% {
-        opacity: 0;
-        transform: translateY(80px) scale(1.3);
-    }
-    50% {
-        opacity: 1;
-        transform: translateY(-10px) scale(1);
-    }
-    70% {
-        transform: translateY(5px);
-    }
-    100% {
-        transform: translateY(0);
-    }
-}
 
 @keyframes monsterFadeOut {
     0% {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1) rotate(0deg);
+    }
+    30% {
+        transform: translateY(-10px) scale(1.05) rotate(-2deg);
+    }
+    60% {
+        transform: translateY(20px) scale(0.95) rotate(3deg);
     }
     100% {
         opacity: 0;
-        transform: translateY(40px);
+        transform: translateY(60px) scale(0.7) rotate(-5deg);
     }
 }
 
-.monster-character.fade-out {
-    animation: monsterFadeOut 0.4s ease-out forwards;
+
+@keyframes monsterJumpIn {
+    0% {
+        opacity: 0;
+        transform: translateY(80px);
+        filter: brightness(0.7);
+    }
+    40% {
+        opacity: 1;
+        transform: translateY(-8px);
+        filter: brightness(1.1);
+    }
+    60% {
+        transform: translateY(4px);
+    }
+    80% {
+        transform: translateY(-2px);
+    }
+    100% {
+        transform: translateY(0);
+        filter: brightness(1);
+    }
+}
+
+.monster-effect-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0; /* 몬스터 이미지보다 뒤 */
+}
+
+.monster-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    border-radius: 50%;
+}
+
+/* 공통 애니메이션 */
+.monster-effect.pop {
+    animation: effectPop 0.6s ease-out forwards;
+}
+
+@keyframes effectPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0.2);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.4);
+        opacity: 0;
+    }
+}
+
+/* 🟢 야생: 초록 작은 원 */
+.effect-wild {
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(57, 255, 20, 0.6), transparent);
+}
+
+/* 🟠 병사: 주황 중간 원 */
+.effect-soldier {
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(255, 165, 0, 0.7), transparent);
+}
+
+/* 🟣 변이: 보라 큰 원 */
+.effect-mutant {
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(156, 39, 176, 0.8), transparent);
 }

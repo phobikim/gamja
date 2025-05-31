@@ -311,6 +311,9 @@
 
             <!-- 🔴 몬스터 영역 -->
             <div class="monster-container">
+                <div id="monsterEffectContainer" class="monster-effect-container hidden">
+                    <div id="monsterEffect" class="monster-effect"></div>
+                </div>
                 <div class="char-shadow"></div>
                 <img id="monsterCharacter" class="monster-character" src="" alt="몬스터">
             </div>
@@ -411,6 +414,17 @@
             </div>
 
         </div>
+    </div>
+</div>
+
+<!-- 패배 모달 -->
+<div id="defeatModal" class="modal hidden">
+    <div class="defeat-modal-content">
+        <div class="defeat-image-wrapper">
+            <img src="https://phobi.me/gamja.img/images/icons/icon_defeat.png" alt="Defeat Image" class="defeat-image">
+            <div class="sign-text" id="defeatSignText">여기에 다시 묻히다...</div>
+        </div>
+        <button onclick="nextBattle()" class="modal-btn btn-continue">다시 도전하기</button>
     </div>
 </div>
 

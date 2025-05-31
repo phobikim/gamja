@@ -1,11 +1,13 @@
 const battleModal = document.getElementById('battleModal');
 const lootModal = document.getElementById('lootModal');
+const defeatModal = document.getElementById('defeatModal')
 
 let battleEnded = false;
 let isPlayerTurn = true; // ✅ 턴 상태 관리
 let isProcessingTurn = false; // ✅ 턴 처리 중 상태 관리
 
 const monsterImage = document.getElementById('monsterCharacter');
+const playerImage = document.getElementById('userCharacter');
 
 window.battleState = {
     player: {
@@ -193,8 +195,13 @@ function monsterTurn() {
         updateBattleUI();
 
         if (battleState.player.currentHp <= 0) {
-            showMessageModal("패배했습니다...");
-            closeBattleModal();
+            // 전투 패배 시 캐릭터 이미지 fade-out
+            playerImage.classList.remove('jump-in', 'hit-effect', 'fade-out');
+            playerImage.style.animation = 'none';
+            void playerImage.offsetWidth; // 리플로우로 재시작 유도
+            playerImage.style.animation = '';
+            playerImage.classList.add('fade-out');
+            showDefeatModal("여기에 다시 묻히다...");
             return;
         }
 
@@ -204,6 +211,14 @@ function monsterTurn() {
         updateButtonStates();
 
     }, 400);
+}
+
+function showDefeatModal(text) {
+    document.getElementById('defeatModal').classList.remove('hidden');
+    document.getElementById('defeatSignText').innerText = text || "여기에 다시 묻히다...";
+}
+function hideDefeatModal() {
+    document.getElementById('defeatModal').classList.add('hidden');
 }
 
 
@@ -247,6 +262,7 @@ function winBattle() {
     updateBattleUI();
     updateButtonStates();
 
+    // 전투 승리 시 몬스터 fade-out
     monsterImage.classList.remove('jump-in', 'hit-effect', 'fade-out');
     monsterImage.style.animation = 'none';
 
@@ -314,16 +330,55 @@ async function handleAttackClick() {
     userImage.src = charImage + user.charImage;
     userImage.alt = user.name;
 
+    // player 등장 애니메이션
+    playerImage.classList.remove('jump-in', 'fade-out', 'hit-effect');
+    playerImage.style.animation = 'none';
+    void playerImage.offsetWidth;
+    playerImage.style.animation = '';
+    playerImage.classList.add('jump-in');
+
+
     // 몬스터 등장 애니메이션
-    monsterImage.classList.remove('jump-in', 'fade-out', 'hit-effect');
-    monsterImage.onload = () => {
-        // 리플로우 강제 실행
-        void monsterImage.offsetWidth;
-        // 애니메이션 시작
-        monsterImage.classList.add('jump-in');
-    };
     monsterImage.src = basePath + monster.imagePath;
     monsterImage.alt = monster.name;
+
+    monsterImage.classList.remove('jump-in', 'fade-out', 'hit-effect');
+    monsterImage.style.animation = 'none';
+
+    // 효과 처리 요소 준비
+    const effectContainer = document.getElementById('monsterEffectContainer');
+    const effectElement = document.getElementById('monsterEffect');
+
+    // 기존 효과 클래스 초기화
+    effectElement.className = 'monster-effect'; // 기본 클래스만 남기고 싹 초기화
+    void effectElement.offsetWidth; // 리플로우
+
+    // 배경 이펙트 등급별 클래스 추가
+    if (monster.rank === '변이') {
+        effectElement.classList.add('effect-mutant');
+    } else if (monster.rank === '병사') {
+        effectElement.classList.add('effect-soldier');
+    } else if (monster.rank === '야생') {
+        effectElement.classList.add('effect-wild');
+    } else {
+        effectContainer.classList.add('hidden');
+    }
+
+    // 👉 onload 안에서 동시에 jump-in + 팡 효과!
+    monsterImage.onload = () => {
+        void monsterImage.offsetWidth;
+        monsterImage.style.animation = '';
+        monsterImage.classList.add('jump-in');
+
+        // 팡 이펙트 실행
+        effectContainer.classList.remove('hidden');
+        effectElement.classList.add('pop');
+
+        setTimeout(() => {
+            effectContainer.classList.add('hidden');
+            effectElement.classList.remove('pop');
+        }, 800);
+    };
 
     // 5. 스탯 영역 세팅
     document.querySelector('.user-name').textContent = `${user.name}`;

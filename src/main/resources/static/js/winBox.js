@@ -178,6 +178,7 @@ function updateLootItemsDisplay(items) {
 }
 
 function nextBattle() {
+    defeatModal.classList.add('hidden');
     lootModal.classList.add('hidden');
     loadNewBattle();
 }
@@ -190,4 +191,5 @@ function loadNewBattle() {
         handleAttackClick();
     }
 }
+
 
