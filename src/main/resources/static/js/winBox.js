@@ -74,7 +74,6 @@ function generateLootItems() {
 
 function updateCharacterReward(user, expReward, items) {
     const payload = {
-        activityType: "ATTACK",
         exp:expReward,
         items: items.map(item => ({
             itemId: item.id,
@@ -82,7 +81,7 @@ function updateCharacterReward(user, expReward, items) {
         }))
     };
 
-    apiRequestJson('/api/action/addItems', 'POST', payload)
+    apiRequestJson('/api/action/endBattle', 'POST', payload)
         .then(res => {
             if (res.code === 'SUCCESS') {
                 user.afterXp = res.data.xp; //승리 후 경험치

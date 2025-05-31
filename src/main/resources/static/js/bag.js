@@ -118,6 +118,7 @@ async function handleBagClick() {
 }
 
 function showItemTooltip(event, item) {
+    console.log("클릭?")
     // 기존 툴팁 강제 닫기 (안 보이게)
     tooltip.classList.add('hidden');
     tooltip.classList.remove('hidden');

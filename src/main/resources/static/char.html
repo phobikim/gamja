@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="css/attack.css">
     <link rel="stylesheet" href="css/winBox.css">
     <link rel="stylesheet" href="css/map.css">
+    <link rel="stylesheet" href="css/playerInfo.css">
 </head>
 
 <body class="char-page">
@@ -31,10 +32,9 @@
 <!-- 🎮 메인 게임 카드 -->
 <main class="game-card">
 
-    <!-- 🔥 큰 사각형 컨테이너 - background-area와 info-section을 감쌈 -->
     <div class="main-wrapper">
         <!-- 상단 캐릭터 영역 -->
-        <section class="character-section">
+        <section class="character-section" onclick="openInfoModal()">
             <div class="background-area"></div>
             <img id="mainCharacter" src="https://phobi.me/gamja.img/images/character/default.png" alt="캐릭터" class="character-img">
         </section>
@@ -101,7 +101,7 @@
                 <span class="itemLabel">감자공방</span>
             </div>
             <div class="inventoryCell" onclick="handleStationClick()">
-                <img src="https://phobi.me/gamja.img/images/icons/icon_station.png" alt="공방">
+                <img src="https://phobi.me/gamja.img/images/icons/icon_pasture.png" alt="공방">
                 <span class="itemLabel">목장</span>
             </div>
         </div>
@@ -345,6 +345,7 @@
                     Lv.<span class="user-level">0</span><br>
                     공격력: <span class="user-power">0</span><br>
                     HP: <span class="user-hp">0</span><br>
+                    Speed: <span class="user-speed">0</span><br>
                 </div>
             </div>
 
@@ -361,15 +362,6 @@
                 </div>
             </div>
         </div>
-<!--        &lt;!&ndash; 드랍 아이템 영역 (가로 전체) &ndash;&gt;-->
-<!--        <div class="battle-drops">-->
-<!--            <span class="drop-label">드랍 아이템</span>-->
-<!--            <div class="monster-drops"></div>-->
-<!--        </div>-->
-<!--        <div id="itemTooltip" class="item-tooltip hidden">-->
-<!--            <div id="itemTooltipContent"></div>-->
-<!--            <button id="itemCloseTooltipBtn" class="tooltip-close-btn">닫기</button>-->
-<!--        </div>-->
 
         <div class="battle-actions">
             <button onclick="doAttack()">
@@ -442,6 +434,75 @@
 </div>
 
 
+<!-- 캐릭터 정보 모달 -->
+<div id="characterModal" class="modal hidden">
+    <div class="character-modal-content">
+
+        <!-- 탭 영역 -->
+        <div class="char-tab">
+            <button class="tab-btn active" data-tab="battle" id="battleTabBtn">전투</button>
+            <button class="tab-btn" data-tab="life" id="lifeTabBtn">생활</button>
+        </div>
+
+        <!-- 캐릭터 이미지 + 스탯 -->
+        <div class="char-body-row">
+            <!-- 이미지 -->
+            <div class="char-image-area">
+                <img id="charImage" src="https://phobi.me/gamja.img/images/character/default.png" alt="캐릭터 이미지">
+            </div>
+            <!-- 스탯 -->
+            <div class="char-stats-area">
+                <div class="char-stats" id="combatStats">
+                    <div>LV <span id="combatLevelValue">1</span></div>
+                    <div>POWER <span id="combatAtkValue">1</span></div>
+                    <div>HP <span id="combatHpCurrent">1</span></div>
+                    <div>SPEED <span id="combatSpeedValue">1</span></div>
+                </div>
+                <div class="char-stats hidden" id="lifeStats">
+                    <div>낚시 <span id="skillFishingValue">1</span></div>
+                    <div>벌목 <span id="skillWoodcuttingValue">1</span></div>
+                    <div>채집 <span id="skillGatheringValue">1</span></div>
+                    <div>채광 <span id="skillMiningValue">1</span></div>
+                    <div>제작 <span id="skillCraftingValue">1</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 장비 슬롯 -->
+        <div class="inventory-grid " id="combatEquipment">
+            <div class="inventoryCell" id="combatSlotHead">머리</div>
+            <div class="inventoryCell" id="combatSlotTop">상의</div>
+            <div class="inventoryCell" id="combatSlotBottom">하의</div>
+            <div class="inventoryCell" id="combatSlotWeapon">무기</div>
+            <div class="inventoryCell" id="combatSlotShoes">신발</div>
+            <div class="inventoryCell" id="combatSlotSub2">목걸이</div>
+            <div class="inventoryCell" id="combatSlotSub3">반지</div>
+            <div class="inventoryCell" id="combatSlotSub1">소비</div>
+        </div>
+
+        <div class="inventory-grid  hidden" id="lifeEquipment">
+            <div class="inventoryCell" id="lifeSlotHead">머리</div>
+            <div class="inventoryCell" id="lifeSlotTop">상의</div>
+            <div class="inventoryCell" id="lifeSlotBottom">하의</div>
+            <div class="inventoryCell" id="lifeSlotTool">도구</div>
+            <div class="inventoryCell" id="lifeSlotShoes">신발</div>
+            <div class="inventoryCell" id="lifeSlotSub2">목걸이</div>
+            <div class="inventoryCell" id="lifeSlotSub3">반지</div>
+            <div class="inventoryCell" id="lifeSlotSub1">소비</div>
+        </div>
+
+    </div>
+</div>
+
+<!-- 아이템 툴팁 -->
+<div id="itemTooltip" class="tooltip-modal hidden">
+    <div class="tooltip-content">
+        <div class="item-name" id="tooltipName"></div>
+        <div class="item-rarity" id="tooltipRarity"></div>
+        <div class="item-description" id="tooltipDescription"></div>
+    </div>
+</div>
+
 <!-- 📌 JS 파일들 로드 -->
 <script src="js/modal.js"></script>
 <script src="js/sound.js"></script>
@@ -454,6 +515,8 @@
 <script src="js/attack.js"></script>
 <script src="js/winBox.js"></script>
 <script src="js/map.js"></script>
+<script src="js/playerInfo.js"></script>
+
 
 </body>
 </html>

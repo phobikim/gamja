@@ -1,13 +1,9 @@
 package com.phobi.gamja.controller;
 
-import com.phobi.gamja.entity.*;
-import com.phobi.gamja.entity.*;
+import com.phobi.gamja.entity.contents.SkillType;
+import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
-import com.phobi.gamja.repository.*;
-import com.phobi.gamja.repository.UserDexRepository;
-import com.phobi.gamja.repository.UserDtlRepository;
-import com.phobi.gamja.repository.UserRepository;
-import com.phobi.gamja.repository.UserSkillRepository;
+import com.phobi.gamja.repository.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +23,7 @@ public class LoginController {
     private final UserDtlRepository userDtlRepository;
     private final UserSkillRepository userSkillRepository;
     private final UserDexRepository userDexRepository;
+    private final UserStatRepository userStatRepository;
 
 
     @Transactional
@@ -83,6 +80,14 @@ public class LoginController {
             userDtl.setCharacterDexId(100L);
             userDtlRepository.save(userDtl);
 
+            // ✅ 기본 stat 생성
+            UserStat userStat = new UserStat();
+            userStat.setUser(savedUser);
+            userStat.setUserPower(1);
+            userStat.setUserHp(1);
+            userStat.setUserSpeed(1);
+            userStatRepository.save(userStat);
+
 
             // ✅ 활동/제작 스킬 초기화
             List<UserSkill> skillList = Arrays.stream(SkillType.values())
@@ -97,6 +102,7 @@ public class LoginController {
                     .toList();
             userSkillRepository.saveAll(skillList);
 
+            // ✅ 기본 캐릭터 지급
             List<Long> dexIds = List.of(100L, 101L);
             List<UserDex> toSave = dexIds.stream()
                     .map(dexId -> UserDex.builder()

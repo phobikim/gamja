@@ -1,12 +1,25 @@
 package com.phobi.gamja.controller;
 
-import com.phobi.gamja.dto.ActionDto;
-import com.phobi.gamja.dto.DropTableEntryDto;
-import com.phobi.gamja.dto.UserCharInfoDto;
+import com.phobi.gamja.dto.contents.ActionDto;
+import com.phobi.gamja.dto.contents.DropTableEntryDto;
+import com.phobi.gamja.dto.user.UserCharInfoDto;
+import com.phobi.gamja.entity.contents.Action;
+import com.phobi.gamja.entity.contents.ActionDrop;
+import com.phobi.gamja.entity.contents.ActivityType;
+import com.phobi.gamja.entity.contents.SkillType;
+import com.phobi.gamja.entity.item.Item;
+import com.phobi.gamja.entity.user.UserDtl;
+import com.phobi.gamja.entity.user.UserInventory;
+import com.phobi.gamja.entity.user.UserSkill;
+import com.phobi.gamja.entity.user.UserSkillId;
 import com.phobi.gamja.message.GamJaResponse;
+import com.phobi.gamja.repository.contents.ActionDropRepository;
+import com.phobi.gamja.repository.contents.ActionRepository;
+import com.phobi.gamja.repository.item.ItemRepository;
+import com.phobi.gamja.repository.user.UserDtlRepository;
+import com.phobi.gamja.repository.user.UserInventoryRepository;
+import com.phobi.gamja.repository.user.UserSkillRepository;
 import com.phobi.gamja.util.CommonUtil;
-import com.phobi.gamja.entity.*;
-import com.phobi.gamja.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -85,11 +98,69 @@ public class ActionController {
 
         return ResponseEntity.ok(GamJaResponse.success("정상 조회", result));
     }
+    /*battle 완료 후 skill lv,xp 조정 및 아이템 획득 처리 */
+    @PostMapping("/endBattle")
+    @Transactional
+    public ResponseEntity<GamJaResponse> endBattle (
+            @RequestBody Map<String, Object> request,
+            HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+
+        if (userId == null ) {
+            return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
+        }
+        double exp = ((Number) request.getOrDefault("exp", 0)).doubleValue();
+        UserDtl userDtl = userDtlRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
+        int charMaxExp = 0;
+        // 🟠 battle 의 승리는 캐릭터 xp 증가
+        userDtl = userDtlRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
+        int charXp = userDtl.getXp() + (int) exp;
+        int charLevel = userDtl.getLevel();
+        charMaxExp = getRequiredExp(charLevel);
+        while (charXp >= charMaxExp) {
+            charXp -= charMaxExp;
+            charLevel++;
+        }
+        userDtl.setLevel(charLevel);
+        userDtl.setXp(charXp);
+        userDtl.setMaxExp(charMaxExp);
+        userDtlRepository.save(userDtl);
+
+        // 아이템 획득 처리
+        List<Map<String, Object>> items = (List<Map<String, Object>>) request.get("items");
+
+        for (Map<String, Object> itemMap : items) {
+            Long itemId = ((Number) itemMap.get("itemId")).longValue();
+            int count = ((Number) itemMap.get("count")).intValue();
+
+            Optional<UserInventory> optional = userInventoryRepository.findByUserIdAndItemId(userId, itemId);
+            if (optional.isPresent()) {
+                UserInventory inventory = optional.get();
+                inventory.setQuantity(inventory.getQuantity() + count);
+                userInventoryRepository.save(inventory);
+            } else {
+                UserInventory newInventory = new UserInventory();
+                newInventory.setUserId(userId);
+                newInventory.setItemId(itemId);
+                newInventory.setQuantity(count);
+                userInventoryRepository.save(newInventory);
+            }
+        }
+        String finalImage = commonUtil.resolveCharacterImage(userDtl);
+        userDtl.setCharacterImage(finalImage);
+
+        UserCharInfoDto result = new UserCharInfoDto(userDtl);
+        return ResponseEntity.ok(GamJaResponse.success("아이템 추가 완료", result));
+    }
 
     /*action 완료 후 skill lv,xp 조정 및 아이템 획득 처리 */
     @PostMapping("/addItems")
     @Transactional
-    public ResponseEntity<GamJaResponse> addItem(
+    public ResponseEntity<GamJaResponse> addItem (
             @RequestBody Map<String, Object> request,
             HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
@@ -139,24 +210,7 @@ public class ActionController {
         UserDtl userDtl = userDtlRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
-        int charMaxExp = 0;
-        // 🟠 추가 처리: ATTACK 타입이면 캐릭터 레벨도 증가
-        if (skillType == SkillType.ATTACK) {
-            userDtl = userDtlRepository.findById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
-            int charXp = userDtl.getXp() + (int) exp;
-            int charLevel = userDtl.getLevel();
-            charMaxExp = getRequiredExp(charLevel);
-            while (charXp >= charMaxExp) {
-                charXp -= charMaxExp;
-                charLevel++;
-            }
-            userDtl.setLevel(charLevel);
-            userDtl.setXp(charXp);
-            userDtl.setMaxExp(charMaxExp);
-            userDtlRepository.save(userDtl);
-        }
 
         // 아이템 획득 처리
         List<Map<String, Object>> items = (List<Map<String, Object>>) request.get("items");

@@ -1,13 +1,11 @@
 package com.phobi.gamja.controller;
 
-import com.phobi.gamja.dto.DexDto;
-import com.phobi.gamja.entity.*;
-import com.phobi.gamja.entity.UserDex;
+import com.phobi.gamja.dto.contents.DexDto;
+import com.phobi.gamja.entity.user.UserDex;
 import com.phobi.gamja.message.GamJaResponse;
-import com.phobi.gamja.repository.*;
-import com.phobi.gamja.entity.Dex;
-import com.phobi.gamja.repository.DexRepository;
-import com.phobi.gamja.repository.UserDexRepository;
+import com.phobi.gamja.entity.contents.Dex;
+import com.phobi.gamja.repository.contents.DexRepository;
+import com.phobi.gamja.repository.user.UserDexRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

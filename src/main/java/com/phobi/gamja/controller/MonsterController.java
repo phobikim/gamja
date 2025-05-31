@@ -1,17 +1,18 @@
 package com.phobi.gamja.controller;
 
-import com.phobi.gamja.dto.MonsterDto;
-import com.phobi.gamja.entity.Dex;
-import com.phobi.gamja.entity.Item;
-import com.phobi.gamja.entity.Monster;
-import com.phobi.gamja.entity.UserDtl;
+import com.phobi.gamja.dto.contents.MonsterDto;
+import com.phobi.gamja.dto.user.BattleStatDto;
+import com.phobi.gamja.entity.contents.Dex;
+import com.phobi.gamja.entity.item.Item;
+import com.phobi.gamja.entity.contents.Monster;
+import com.phobi.gamja.entity.user.UserDtl;
 import com.phobi.gamja.message.GamJaResponse;
-import com.phobi.gamja.repository.*;
 import com.phobi.gamja.util.CommonUtil;
-import com.phobi.gamja.repository.DexRepository;
-import com.phobi.gamja.repository.ItemRepository;
-import com.phobi.gamja.repository.MonsterRepository;
-import com.phobi.gamja.repository.UserDtlRepository;
+import com.phobi.gamja.repository.contents.DexRepository;
+import com.phobi.gamja.repository.item.ItemRepository;
+import com.phobi.gamja.repository.contents.MonsterRepository;
+import com.phobi.gamja.repository.user.UserDtlRepository;
+import com.phobi.gamja.util.StatCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ import java.util.*;
 public class MonsterController {
 
     private final CommonUtil commonUtil;
+    private final StatCalculator statCalculator;
     private final UserDtlRepository userDtlRepository;
     private final DexRepository dexRepository;
     private final MonsterRepository monsterRepository;
@@ -51,14 +53,16 @@ public class MonsterController {
 
         // 이미지 보정 처리
         userDtl.setCharacterImage(commonUtil.resolveCharacterImage(userDtl));
+        BattleStatDto result = statCalculator.calculateBattleStat(userId);
 
         Map<String, Object> userInfo = new HashMap<>();
         userInfo.put("name", userDtl.getUser().getUsername());
         userInfo.put("lv", userDtl.getLevel());
         userInfo.put("xp", userDtl.getXp());
         userInfo.put("charImage", userDtl.getCharacterImage());
-        userInfo.put("power", dex.getDexPower());
-        userInfo.put("hp", dex.getDexHp());
+        userInfo.put("power", result.getTotalPower());
+        userInfo.put("hp", result.getTotalHp());
+        userInfo.put("speed", result.getTotalSpeed());
 
         return ResponseEntity.ok(GamJaResponse.success("유저 스탯 조회 성공", userInfo));
     }

@@ -1,10 +1,10 @@
 package com.phobi.gamja.controller;
 
-import com.phobi.gamja.dto.RecipeDto;
-import com.phobi.gamja.entity.Item;
-import com.phobi.gamja.entity.ItemRecipe;
-import com.phobi.gamja.repository.ItemRecipeRepository;
-import com.phobi.gamja.repository.ItemRepository;
+import com.phobi.gamja.dto.item.ItemRecipeDto;
+import com.phobi.gamja.entity.item.Item;
+import com.phobi.gamja.entity.item.ItemRecipe;
+import com.phobi.gamja.repository.item.ItemRecipeRepository;
+import com.phobi.gamja.repository.item.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,20 +50,20 @@ public class AdminController {
 
     // 4. 레시피 목록 조회 (RecipeDto 변환 포함)
     @GetMapping("/recipes")
-    public List<RecipeDto> getAllRecipes() {
+    public List<ItemRecipeDto> getAllRecipes() {
         List<Item> items = itemRepository.findAll();
         Map<Long, Item> itemMap = items.stream().collect(Collectors.toMap(Item::getId, i -> i));
 
         return recipeRepository.findAll().stream().map(recipe -> {
             Item result = itemMap.get(recipe.getResultItemId());
 
-            List<RecipeDto.IngredientDto> ingredients = new ArrayList<>();
+            List<ItemRecipeDto.IngredientDto> ingredients = new ArrayList<>();
             addIngredient(ingredients, itemMap, recipe.getIngredientItemId1(), recipe.getIngredientQuantity1());
             addIngredient(ingredients, itemMap, recipe.getIngredientItemId2(), recipe.getIngredientQuantity2());
             addIngredient(ingredients, itemMap, recipe.getIngredientItemId3(), recipe.getIngredientQuantity3());
             addIngredient(ingredients, itemMap, recipe.getIngredientItemId4(), recipe.getIngredientQuantity4());
 
-            return RecipeDto.builder()
+            return ItemRecipeDto.builder()
                     .recipeId(recipe.getId())
                     .recipeName(recipe.getName())
                     .recipeDescription("") // 필요 시 설정
@@ -77,11 +77,11 @@ public class AdminController {
         }).collect(Collectors.toList());
     }
 
-    private void addIngredient(List<RecipeDto.IngredientDto> list, Map<Long, Item> itemMap, Long id, Integer qty) {
+    private void addIngredient(List<ItemRecipeDto.IngredientDto> list, Map<Long, Item> itemMap, Long id, Integer qty) {
         if (id != null && qty != null) {
             Item item = itemMap.get(id);
             if (item != null) {
-                list.add(RecipeDto.IngredientDto.builder()
+                list.add(ItemRecipeDto.IngredientDto.builder()
                         .itemId(item.getId())
                         .itemName(item.getName())
                         .itemIcon(item.getIconPath())

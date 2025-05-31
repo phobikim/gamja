@@ -1,8 +1,8 @@
 package com.phobi.gamja.controller;
 
-import com.phobi.gamja.entity.SkillShop;
+import com.phobi.gamja.entity.contents.SkillShop;
 import com.phobi.gamja.message.GamJaResponse;
-import com.phobi.gamja.repository.SkillShopRepository;
+import com.phobi.gamja.repository.contents.SkillShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

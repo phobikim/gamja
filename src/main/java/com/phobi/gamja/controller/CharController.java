@@ -1,30 +1,42 @@
 package com.phobi.gamja.controller;
 
-import com.phobi.gamja.dto.UserCharInfoDto;
-import com.phobi.gamja.dto.UserDtlDto;
-import com.phobi.gamja.entity.UserDtl;
+import com.phobi.gamja.dto.item.ItemDto;
+import com.phobi.gamja.dto.user.*;
+import com.phobi.gamja.entity.contents.Dex;
+import com.phobi.gamja.entity.item.Item;
+import com.phobi.gamja.entity.item.ItemSkillBonus;
+import com.phobi.gamja.entity.item.ItemStatBonus;
+import com.phobi.gamja.entity.user.*;
+import com.phobi.gamja.repository.user.*;
 import com.phobi.gamja.message.GamJaResponse;
+import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
+import com.phobi.gamja.repository.item.ItemStatBonusRepository;
 import com.phobi.gamja.util.CommonUtil;
-import com.phobi.gamja.repository.DexRepository;
-import com.phobi.gamja.repository.UserDexRepository;
-import com.phobi.gamja.repository.UserDtlRepository;
-import com.phobi.gamja.repository.UserSkillRepository;
+import com.phobi.gamja.repository.contents.DexRepository;
+import com.phobi.gamja.util.StatCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/char")
 public class CharController {
     private final CommonUtil commonUtil;
+    private final StatCalculator statCalculator;
+
     private final UserDtlRepository userDtlRepository;
     private final UserSkillRepository userSkillRepository;
     private final DexRepository dexRepository;
     private final UserDexRepository userDexRepository;
+
+    private final UserStatRepository userStatRepository;
+    private final UserEquipmentRepository userEquipmentRepository;
+    private final ItemStatBonusRepository itemStatBonusRepository;
+    private final ItemSkillBonusRepository itemSkillBonusRepository;
 
     @ResponseBody
     @GetMapping("")
@@ -43,6 +55,72 @@ public class CharController {
         UserCharInfoDto result = new UserCharInfoDto(userDtl);
         result.setTitle(result.getTitleByLevel(userDtl.getLevel()));
         return ResponseEntity.ok(GamJaResponse.success("정상 조회", result));
+    }
+
+    @GetMapping("/battle")
+    public ResponseEntity<GamJaResponse> getBattleInfo (HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+
+        if (userId == null) {
+            return ResponseEntity.status(403).body(GamJaResponse.fail("접근 권한이 없습니다."));
+        }
+        BattleStatDto result = statCalculator.calculateBattleStat(userId);
+        return ResponseEntity.ok(GamJaResponse.success("정상 조회", result));
+
+    }
+
+    @GetMapping("/life")
+    public ResponseEntity<GamJaResponse> getLifeInfo (HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+
+        if (userId == null) {
+            return ResponseEntity.status(403).body(GamJaResponse.fail("접근 권한이 없습니다."));
+        }
+
+        // 기본 스킬 레벨
+        Map<String, Integer> baseSkillMap = new HashMap<>();
+        List<UserSkill> skillList = userSkillRepository.findByUserId(userId);
+        for (UserSkill skill : skillList) {
+            baseSkillMap.put(skill.getSkillType().name(), skill.getLevel());
+        }
+        int fishing = baseSkillMap.getOrDefault("FISHING", 1);
+        int mining = baseSkillMap.getOrDefault("MINING", 1);
+        int woodcutting = baseSkillMap.getOrDefault("WOODCUTTING", 1);
+        int gathering = baseSkillMap.getOrDefault("GATHERING", 1);
+        int making = baseSkillMap.getOrDefault("MAKING", 1);
+
+        // 장비 스킬 보너스
+        List<UserEquipment> gatherEquipments = userEquipmentRepository.findByUserIdAndType(userId, EquipmentType.GATHER);
+        List<ItemDto> itemDtoList = new ArrayList<>();
+        for (UserEquipment eq : gatherEquipments) {
+            Item item = eq.getItem();
+            itemDtoList.add(toItemDto(item));
+            ItemSkillBonus bonus = itemSkillBonusRepository.findById(eq.getItemId()).orElse(null);
+            if (bonus != null) {
+                fishing += bonus.getFishing();
+                mining += bonus.getMining();
+                woodcutting += bonus.getWoodcutting();
+                gathering += bonus.getGathering();
+                making += bonus.getMaking();
+            }
+        }
+
+        LifeStatDto dto = new LifeStatDto(fishing, mining, woodcutting, gathering, making,itemDtoList);
+        return ResponseEntity.ok(GamJaResponse.success("생활 스탯 조회 성공", dto));
+
+    }
+
+    private ItemDto toItemDto(Item item) {
+        return new ItemDto(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.getRank(),
+                item.getRarity(),
+                item.getItemType().name(),
+                item.getEquipSlot().name(),
+                item.getIconPath()
+        );
     }
 
     @PostMapping("/setImage")

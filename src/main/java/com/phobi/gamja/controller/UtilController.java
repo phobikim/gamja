@@ -1,14 +1,16 @@
 package com.phobi.gamja.controller;
 
-import com.phobi.gamja.dto.*;
-import com.phobi.gamja.entity.*;
-import com.phobi.gamja.entity.UserInventory;
+import com.phobi.gamja.entity.user.UserInventory;
 import com.phobi.gamja.message.GamJaResponse;
-import com.phobi.gamja.repository.*;
+import com.phobi.gamja.repository.contents.DailyQuestRepository;
+import com.phobi.gamja.repository.contents.DexRepository;
+import com.phobi.gamja.repository.user.UserDexRepository;
+import com.phobi.gamja.repository.user.UserDtlRepository;
+import com.phobi.gamja.repository.user.UserInventoryRepository;
+import com.phobi.gamja.repository.user.UserSkillRepository;
 import com.phobi.gamja.util.CommonUtil;
-import com.phobi.gamja.dto.UserInventoryDto;
-import com.phobi.gamja.entity.Item;
-import com.phobi.gamja.repository.*;
+import com.phobi.gamja.dto.user.UserInventoryDto;
+import com.phobi.gamja.entity.item.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

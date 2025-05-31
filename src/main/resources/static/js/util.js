@@ -24,7 +24,7 @@ async function apiRequest(url, method = 'GET', data = null) {
     }
 }
 
-async function apiRequestJson(url, method = 'GET', data = null) {
+async function apiRequestJson(url, method = 'POST', data = null) {
     const options = {
         method,
         headers: {

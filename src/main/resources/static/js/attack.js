@@ -389,8 +389,9 @@ async function handleAttackClick() {
     // 5. 스탯 영역 세팅
     document.querySelector('.user-name').textContent = `${user.name}`;
     document.querySelector('.user-level').textContent = user.lv;
-    document.querySelector('.user-hp').textContent = user.hp;
     document.querySelector('.user-power').textContent = user.power;
+    document.querySelector('.user-hp').textContent = user.hp;
+    document.querySelector('.user-speed').textContent = user.speed;
 
     document.querySelector('.monster-name').textContent = `${monster.name}`;
     document.querySelector('.monster-rank').textContent = monster.rank;
@@ -410,28 +411,6 @@ async function handleAttackClick() {
     // 해당 rank에 맞는 색상 적용
     rankElement.style.color = rankColorMap[rankText] || '#000'; // 기본은 검정
 
-    // const dropContainer = document.querySelector('.monster-drops');
-    // dropContainer.innerHTML = ''; // 기존 내용 초기화
-    //
-    // (monster.dropItems || []).forEach(item => {
-    //     const img = document.createElement('img');
-    //     img.src = basePath + item.iconPath;
-    //     img.alt = item.name;
-    //     img.title = item.name;
-    //     img.classList.add('drop-icon');
-    //     if (item.rarity) {
-    //         img.classList.add(`rarity-${item.rarity.toLowerCase()}`);
-    //     }
-    //     img.addEventListener('click', (e) => {
-    //         showTooltip(e, item);
-    //     });
-    //     dropContainer.appendChild(img);
-    // });
-    //
-    // if (dropContainer.children.length === 0) {
-    //     dropContainer.textContent = '없음';
-    // }
-
     // 기존 값
     const basePower = Number(user.power) || 0;
     const levelBonus = Number(user.lv) || 0;
@@ -443,35 +422,6 @@ async function handleAttackClick() {
     startBattle(user, monster);
 }
 
-// function showTooltip(event, item) {
-//     const tooltip = document.getElementById('itemTooltip');
-//     const content = document.getElementById('itemTooltipContent');
-//     // 기존 툴팁 강제 닫기 (안 보이게)
-//     tooltip.classList.add('hidden');
-//
-//     tooltip.classList.remove('hidden');
-//
-//     const rarity = item.rarity || 'COMMON';
-//     const rarityClass = `rarity-${rarity.toLowerCase()}`;
-//
-//     content.innerHTML = `
-//       <div style="text-align: center;"><strong>[${item.name}]</strong></div><br>
-//       희귀도: <span class="rarity-text ${rarityClass}">${rarity}</span><br>
-//       ${item.description || '설명이 없습니다.'}
-//     `;
-//
-//     // 모달 안에 고정 배치되도록 설정 (모달이 relative 여야 함)
-//     const modal = document.getElementById('battleModal');
-//     modal.appendChild(tooltip);
-// }
-
-// 외부 클릭 시 툴팁 닫기
-// document.addEventListener('click', (e) => {
-//     const tooltip = document.getElementById('itemTooltip');
-//     if (!e.target.classList.contains('drop-icon')) {
-//         tooltip.classList.add('hidden');
-//     }
-// });
 
 function applyHitEffect(targetSelector) {
     const el = document.querySelector(targetSelector);

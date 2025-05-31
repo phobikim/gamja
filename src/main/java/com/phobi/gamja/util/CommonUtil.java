@@ -1,8 +1,8 @@
 package com.phobi.gamja.util;
 
-import com.phobi.gamja.entity.Dex;
-import com.phobi.gamja.entity.UserDtl;
-import com.phobi.gamja.repository.DexRepository;
+import com.phobi.gamja.entity.contents.Dex;
+import com.phobi.gamja.entity.user.UserDtl;
+import com.phobi.gamja.repository.contents.DexRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -22,4 +22,5 @@ public class CommonUtil {
         }
         return userDtl.getCharacterImage(); // 기본 이미지
     }
+
 }

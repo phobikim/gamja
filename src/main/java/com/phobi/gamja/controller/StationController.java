@@ -1,16 +1,20 @@
 package com.phobi.gamja.controller;
 
-import com.phobi.gamja.dto.RecipeDto;
-import com.phobi.gamja.dto.StationDto;
-import com.phobi.gamja.entity.Item;
-import com.phobi.gamja.entity.ItemRecipe;
-import com.phobi.gamja.entity.Station;
-import com.phobi.gamja.entity.UserInventory;
+import com.phobi.gamja.dto.item.ItemRecipeDto;
+import com.phobi.gamja.dto.contents.StationDto;
+import com.phobi.gamja.entity.item.Item;
+import com.phobi.gamja.entity.item.ItemRecipe;
+import com.phobi.gamja.entity.contents.Station;
+import com.phobi.gamja.entity.user.UserInventory;
 import com.phobi.gamja.message.CraftRequest;
 import com.phobi.gamja.message.GamJaResponse;
-import com.phobi.gamja.repository.*;
+import com.phobi.gamja.repository.contents.StationRepository;
+import com.phobi.gamja.repository.item.ItemRecipeRepository;
+import com.phobi.gamja.repository.item.ItemRepository;
+import com.phobi.gamja.repository.user.UserDtlRepository;
+import com.phobi.gamja.repository.user.UserInventoryRepository;
+import com.phobi.gamja.repository.user.UserSkillRepository;
 import com.phobi.gamja.util.CommonUtil;
-import com.phobi.gamja.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -72,7 +76,7 @@ public class StationController {
         Map<Long, Integer> inventoryMap = userInventoryRepository.findByUserId(userId).stream()
                 .collect(Collectors.toMap(UserInventory::getItemId, UserInventory::getQuantity));
 
-        List<RecipeDto> result = recipes.stream()
+        List<ItemRecipeDto> result = recipes.stream()
                 .map(recipe -> toRecipeDto(recipe, itemMap, inventoryMap))
                 .filter(Objects::nonNull)
                 .toList();
@@ -121,20 +125,20 @@ public class StationController {
 
     }
 
-    private RecipeDto toRecipeDto(ItemRecipe recipe, Map<Long, Item> itemMap, Map<Long, Integer> inventoryMap) {
+    private ItemRecipeDto toRecipeDto(ItemRecipe recipe, Map<Long, Item> itemMap, Map<Long, Integer> inventoryMap) {
         Item resultItem = itemMap.get(recipe.getResultItemId());
         if (resultItem == null) return null;
 
         // user 가 가진 아이템 수
         int resultItemUserOwned = inventoryMap.getOrDefault(resultItem.getId(), 0);
 
-        List<RecipeDto.IngredientDto> ingredients = new ArrayList<>();
+        List<ItemRecipeDto.IngredientDto> ingredients = new ArrayList<>();
         addIngredient(recipe.getIngredientItemId1(), recipe.getIngredientQuantity1(), itemMap, inventoryMap, ingredients);
         addIngredient(recipe.getIngredientItemId2(), recipe.getIngredientQuantity2(), itemMap, inventoryMap, ingredients);
         addIngredient(recipe.getIngredientItemId3(), recipe.getIngredientQuantity3(), itemMap, inventoryMap, ingredients);
         addIngredient(recipe.getIngredientItemId4(), recipe.getIngredientQuantity4(), itemMap, inventoryMap, ingredients);
 
-        return RecipeDto.builder()
+        return ItemRecipeDto.builder()
                 .recipeId(recipe.getId())
                 .recipeName(recipe.getName())
                 .recipeDescription(resultItem.getDescription())
@@ -149,7 +153,7 @@ public class StationController {
     private void addIngredient(Long itemId, Integer qty,
                                Map<Long, Item> itemMap,
                                Map<Long, Integer> inventoryMap,
-                               List<RecipeDto.IngredientDto> list) {
+                               List<ItemRecipeDto.IngredientDto> list) {
         if (itemId == null || qty == null) return;
 
         Item item = itemMap.get(itemId);
@@ -157,7 +161,7 @@ public class StationController {
 
         int userHas = inventoryMap.getOrDefault(itemId, 0);
 
-        list.add(RecipeDto.IngredientDto.builder()
+        list.add(ItemRecipeDto.IngredientDto.builder()
                 .itemId(item.getId())
                 .itemName(item.getName())
                 .itemIcon(item.getIconPath())

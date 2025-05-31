@@ -1,0 +1,37 @@
+package com.phobi.gamja.dto.user;
+
+import com.phobi.gamja.entity.item.Item;
+import lombok.Getter;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "user_equipment")
+@IdClass(UserEquipmentId.class)
+@Getter
+public class UserEquipment {
+
+    @Id
+    @Column(name = "user_id")
+    private Long userId;
+
+    @Id
+    private String slot;  // HELMET, ARMOR, GLOVES, SHOES, WEAPON
+
+    @Id
+    @Enumerated(EnumType.STRING)
+    private EquipmentType type;  // BATTLE or GATHER
+
+    @Column(name = "item_id")
+    private Long itemId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id", insertable = false, updatable = false)
+    private Item item;
+
+    @Column(name = "equipped_at")
+    private LocalDateTime equippedAt;
+
+    // getter, setter 생략
+}
