@@ -1,7 +1,10 @@
 package com.phobi.gamja.dto.user;
 
+import com.phobi.gamja.dto.item.EquipmentSlot;
+import com.phobi.gamja.dto.item.EquipmentType;
 import com.phobi.gamja.entity.item.Item;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -10,6 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "user_equipment")
 @IdClass(UserEquipmentId.class)
 @Getter
+@Setter
 public class UserEquipment {
 
     @Id
@@ -17,7 +21,8 @@ public class UserEquipment {
     private Long userId;
 
     @Id
-    private String slot;  // HELMET, ARMOR, GLOVES, SHOES, WEAPON
+    @Enumerated(EnumType.STRING)
+    private EquipmentSlot slot;  // HELMET, ARMOR, GLOVES, SHOES, WEAPON
 
     @Id
     @Enumerated(EnumType.STRING)

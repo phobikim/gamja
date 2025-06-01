@@ -158,3 +158,21 @@ button:hover {
     font-size: 0.85rem;
     line-height: 1.4;
 }
+
+/* 메세지 모달 스타일 */
+#messageModal {
+    position: fixed; /* ⭐ 모달이 위에 떠야 하므로 반드시 필요 */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999; /* 다른 모달보다 충분히 높은 값 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0,0,0,0.4); /* 선택 사항: 뒷배경 어둡게 */
+}
+
+#messageModal.hidden {
+    display: none;
+}

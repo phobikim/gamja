@@ -1,5 +1,6 @@
 package com.phobi.gamja.util;
 
+import com.phobi.gamja.dto.item.EquipmentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -9,22 +9,31 @@ const content = document.getElementById('tooltipContent');
 function renderItemsByType(typeString) {
     const bagList = document.getElementById("bagList");
     bagList.innerHTML = "";
+
     const typeArray = typeString.split(',');
     const filtered = (typeString === "ALL")
         ? allItems
         : allItems.filter(item => typeArray.includes(item.itemType));
 
+    const isAllTab = typeString === "ALL";
+    const slotCount = isAllTab ? 50 : 30;
+
+    // ✅ 고정 슬롯 수만큼 생성
     const slots = [];
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < slotCount; i++) {
         const li = document.createElement('li');
         li.className = 'bag-slot';
         slots.push(li);
         bagList.appendChild(li);
     }
 
+    // ✅ 스크롤은 항상 끄기
+    bagList.style.overflowY = 'unset';
+    bagList.style.maxHeight = 'none';
+
     let insertIndex = 0;
     filtered.forEach(item => {
-        if (item.quantity === 0 || insertIndex >= 30) return;
+        if (item.quantity === 0 || insertIndex >= slotCount) return;
 
         const slot = slots[insertIndex];
         slot.innerHTML = '';
@@ -33,7 +42,7 @@ function renderItemsByType(typeString) {
         wrapper.className = 'item-image-wrapper';
 
         const img = document.createElement('img');
-        img.src = img.src = basePath + item.iconPath || `/images/items/default.png`;
+        img.src = basePath + item.iconPath || `/images/items/default.png`;
         img.alt = item.name || `item-${item.itemId}`;
         img.className = 'item-icon';
 
@@ -42,7 +51,7 @@ function renderItemsByType(typeString) {
         };
 
         wrapper.addEventListener('click', (e) => {
-            e.stopPropagation(); // 버블링 방지 추가
+            e.stopPropagation();
             showItemTooltipBag(e, item);
         });
         wrapper.appendChild(img);
@@ -68,7 +77,6 @@ function setTabActive(type) {
 document.querySelectorAll(".bag-tabs button").forEach(btn => {
     btn.addEventListener("click", () => {
         const type = btn.dataset.type;
-        console.log("type:" , type);
         setTabActive(type);
         renderItemsByType(type);
     });
@@ -96,34 +104,41 @@ function hideTooltip() {
 }
 
 async function loadBagItems() {
-    playEffect("se_click2");
     const bagContent = document.querySelector('.bag-modal-content');
-    bagContent.scrollTop = 0; // ← 스크롤 맨 위로 초기화
-    tooltip.classList.add('hidden');
     const bagList = document.getElementById('bagList');
+
+    bagContent.scrollTop = 0;
+    tooltip.classList.add('hidden');
     bagList.innerHTML = '';
 
-    // 1. 빈칸 먼저 채우기
-    const slots = [];
+    // 초기 슬롯 30개만 넣기 (ALL 탭일 경우 나중에 render에서 다시 그려짐)
     for (let i = 0; i < 30; i++) {
         const li = document.createElement('li');
         li.className = 'bag-slot';
-        slots.push(li);
         bagList.appendChild(li);
     }
 
+    const success = await getBagItems();
+    if (success) {
+        const defaultType = "ALL";
+        setTabActive(defaultType);
+        renderItemsByType(defaultType);
+    }
+}
+
+// 아이템 List 호출
+async function getBagItems() {
     try {
         const res = await apiRequest('/api/util/item/list', 'GET');
         if (res.code === 'SUCCESS') {
-            const data = res.data;
             allItems.length = 0;
-            allItems.push(...data);
-            setTabActive("ALL");
-            renderItemsByType("ALL");
+            allItems.push(...res.data);
+            return true;
         }
     } catch (err) {
-        console.error('가방 아이템 로딩 실패:', err);
+        console.error('가방 아이템 API 호출 실패:', err);
     }
+    return false;
 }
 
 async function handleBagClick() {
@@ -138,39 +153,64 @@ function showItemTooltipBag(event, item) {
 
     const isEquip = item.itemType?.startsWith("EQUIP");
     const rarity = item.rarity || 'COMMON';
+    const equipped = item.equipped;
 
-    // 아이템 정보 설정
-    document.getElementById('bagTooltipName').textContent = `[${item.name}]`;
-    document.getElementById('bagTooltipRarity').innerHTML = `희귀도: <span class="rarity-text rarity-${rarity.toLowerCase()}">${rarity}</span>`;
-    document.getElementById('bagTooltipDescription').textContent = item.description || '설명이 없습니다.';
+    const nameEl = document.getElementById('bagTooltipName');
+    const rarityEl = document.getElementById('bagTooltipRarity');
+    const descEl = document.getElementById('bagTooltipDescription');
+    const closeBtn = document.getElementById('bagTooltipCloseBtn');
+    const equipBtn = document.getElementById('bagTooltipEquipBtn');
 
-    // 버튼 영역 완전 재생성
-    content.querySelector('.tooltip-btn-group')?.remove();
+    // 정보 설정
+    nameEl.textContent = `[${item.name}]`;
+    rarityEl.innerHTML = `희귀도: <span class="rarity-text rarity-${rarity.toLowerCase()}">${rarity}</span>`;
+    descEl.textContent = item.description || '설명이 없습니다.';
 
-    const btnGroup = document.createElement('div');
-    btnGroup.className = 'tooltip-btn-group';
-    btnGroup.innerHTML = `
-        <button class="tooltip-close-btn" onclick="hideTooltip()">닫기</button>
-        ${isEquip ? `<button class="equip-btn" onclick="console.log('장착 이벤트')">장착</button>` : ''}
-    `;
+    // 닫기 버튼 이벤트
+    closeBtn.onclick = hideTooltip;
 
-    content.appendChild(btnGroup);
+    // 장착 버튼 제어
+    if (isEquip) {
+        equipBtn.classList.remove('hidden');
+
+        if (equipped) {
+            equipBtn.textContent = '장착중';
+            equipBtn.disabled = true;
+            equipBtn.classList.add('equipped');
+            equipBtn.style.backgroundColor = '#73685e';
+            equipBtn.onclick = null;
+        } else {
+            equipBtn.textContent = '장착';
+            equipBtn.disabled = false;
+            equipBtn.classList.remove('equipped');
+            equipBtn.style.backgroundColor = '';
+            equipBtn.onclick = () => equipItem(item);
+        }
+    } else {
+        equipBtn.classList.add('hidden');
+        equipBtn.onclick = null;
+    }
+
+    // 툴팁 부착
     bagModal.appendChild(tooltip);
 }
 
-function equipItem(item) {
-    // 예: 서버에 장착 요청 보내기
-    apiRequest('/api/char/equip', 'POST', {
-        itemId: item.itemId
-    }).then(res => {
+
+async function equipItem(item) {
+    const url = '/api/util/item/equip';
+    try {
+        const res = await apiRequestJson(url, 'POST', {
+            itemId: item.itemId
+        });
         if (res.code === 'SUCCESS') {
-            alert('장착 완료!');
             tooltip.classList.add('hidden');
-            loadCharacterBattleInfo(); // or loadBagItems() 등 갱신
-        } else {
-            alert('장착 실패: ' + res.message);
+            showMessageModal("장착 완료!");
+            const success = await getBagItems();
+            if (success) {
+                renderItemsByType("EQUIP_GATHER,EQUIP_BATTLE"); // or 현재 탭 타입 유지하고 싶으면 따로 저장된 type 사용
+            }
         }
-    }).catch(err => {
-        console.error('장착 오류:', err);
-    });
+    } catch (e) {
+        showMessageModal("아이템 추가 중 오류가 발생했습니다.");
+    }
 }

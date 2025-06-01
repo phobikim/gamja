@@ -1,11 +1,10 @@
 package com.phobi.gamja.controller;
 
+import com.phobi.gamja.dto.item.EquipmentType;
 import com.phobi.gamja.dto.item.ItemDto;
 import com.phobi.gamja.dto.user.*;
-import com.phobi.gamja.entity.contents.Dex;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.item.ItemSkillBonus;
-import com.phobi.gamja.entity.item.ItemStatBonus;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.repository.user.*;
 import com.phobi.gamja.message.GamJaResponse;

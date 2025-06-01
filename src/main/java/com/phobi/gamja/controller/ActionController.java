@@ -98,6 +98,8 @@ public class ActionController {
 
         return ResponseEntity.ok(GamJaResponse.success("정상 조회", result));
     }
+
+
     /*battle 완료 후 skill lv,xp 조정 및 아이템 획득 처리 */
     @PostMapping("/endBattle")
     @Transactional
@@ -124,6 +126,8 @@ public class ActionController {
         while (charXp >= charMaxExp) {
             charXp -= charMaxExp;
             charLevel++;
+
+            commonUtil.levelUp(userDtl);
         }
         userDtl.setLevel(charLevel);
         userDtl.setXp(charXp);

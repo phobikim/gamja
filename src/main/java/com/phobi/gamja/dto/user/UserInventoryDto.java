@@ -23,4 +23,7 @@ public class UserInventoryDto {
     private String equipSlot;
     private String iconPath;
 
+    // 장착중 아이템
+    private boolean equipped; // 장착 여부
+
 }

@@ -1,12 +1,6 @@
 const characterModal = document.getElementById('characterModal');
 const itemtooltip = document.getElementById('itemTooltip');
 
-function openInfoModal() {
-    characterModal.classList.remove('hidden');
-    // 캐릭터 기본 정보 호출
-    loadCharacterBasicInfo();
-    loadCharacterBattleInfo();
-}
 // 탭 버튼
 const battleTabBtn = document.getElementById('battleTabBtn');
 const lifeTabBtn = document.getElementById('lifeTabBtn');
@@ -17,6 +11,23 @@ const lifeStats = document.getElementById('lifeStats');
 const combatEquipment = document.getElementById('combatEquipment');
 const lifeEquipment = document.getElementById('lifeEquipment');
 
+
+// 수치 조정
+function updateStatValue(statId, value, max = 50) {
+    const block = document.getElementById(`stat-${statId}`);
+    if (!block) return;
+    const bar = block.querySelector('.stat-bar-fill');
+    const valueSpan = block.querySelector('.stat-bar-value');
+    bar.style.width = `${Math.min((value / max) * 100, 100)}%`;
+    valueSpan.textContent = value;
+}
+
+function openInfoModal() {
+    characterModal.classList.remove('hidden');
+    // 캐릭터 기본 정보 호출
+    loadCharacterBasicInfo();
+    loadCharacterBattleInfo();
+}
 
 
 function loadCharacterBasicInfo() {
@@ -48,110 +59,64 @@ function setCharacterBasicInfo(data) {
 }
 
 function loadCharacterBattleInfo() {
-    const url = '/api/char/battle';
-
-    apiRequest(url, 'GET')
+    apiRequest('/api/char/battle', 'GET')
         .then(res => {
-            if (res.code === 'SUCCESS') {
-                const data = res.data;
-                setCharacterBattleInfo(res.data);
-            } else {
-                console.error('캐릭터 정보 불러오기 실패:', res.message);
-            }
+            if (res.code === 'SUCCESS') setCharacterBattleInfo(res.data);
+            else console.error('전투 정보 불러오기 실패:', res.message);
         })
-        .catch(err => {
-            console.error('API 요청 에러:', err);
-        });
+        .catch(console.error);
 }
 
 // ✅ 전투 정보 DOM 세팅
 function setCharacterBattleInfo(data) {
 
-    const stats = [
-        {
-            id: 'combatAtk',
-            label: '공격력',
-            icon: 'https://phobi.me/gamja.img/images/icons/icon_power.png',
-            value: data.totalPower
-        },
-        {
-            id: 'combatHp',
-            label: '체력',
-            icon: 'https://phobi.me/gamja.img/images/icons/icon_hp.png',
-            value: data.totalHp
-        },
-        {
-            id: 'combatSpeed',
-            label: '스피드',
-            icon: 'https://phobi.me/gamja.img/images/icons/icon_speed.png',
-            value: data.totalSpeed
-        }
-    ];
-
-    const container = document.getElementById('combatStats');
-    container.innerHTML = ''; // 기존 내용 지우고
-    stats.forEach(stat => generateStatBar({ ...stat, containerId: 'combatStats' }));
+    updateStatValue('combatAtk', data.totalPower);
+    updateStatValue('combatHp', data.totalHp);
+    updateStatValue('combatSpeed', data.totalSpeed);
 
     const slotMap = {
-        HEAD: 'combatSlotHead',
+        HELMET: 'combatSlotHead',
         ARMOR: 'combatSlotTop',
         PANTS: 'combatSlotBottom',
         WEAPON: 'combatSlotWeapon',
         SUB: 'combatSlotSub',
         SHOES: 'combatSlotShoes'
     };
+
     data.equippedItems.forEach(item => {
         const slotId = slotMap[item.equipSlot];
         if (slotId) {
             const slot = document.getElementById(slotId);
-            slot.innerHTML = ''; // 기존 이미지 지우고
-
+            slot.innerHTML = '';
             const img = document.createElement('img');
             img.src = `${window.basePath}${item.iconPath}`;
             img.alt = item.name;
             img.title = item.name;
-            img.dataset.item = JSON.stringify(item); // 안전하게 저장
-
+            img.dataset.item = JSON.stringify(item);
             slot.appendChild(img);
         }
     });
     bindItemTooltipEvents();
 }
-
 function loadCharacterLifeInfo() {
-    const url = '/api/char/life';
-
-    apiRequest(url, 'GET')
+    apiRequest('/api/char/life', 'GET')
         .then(res => {
-            if (res.code === 'SUCCESS') {
-                const data = res.data;
-                setCharacterLifeInfo(res.data);
-
-            } else {
-                console.error('캐릭터 정보 불러오기 실패:', res.message);
-            }
+            if (res.code === 'SUCCESS') setCharacterLifeInfo(res.data);
+            else console.error('생활 정보 불러오기 실패:', res.message);
         })
-        .catch(err => {
-            console.error('API 요청 에러:', err);
-        });
+        .catch(console.error);
 }
 
 // ✅ 생활 정보 DOM 세팅
 function setCharacterLifeInfo(data) {
-    const stats = [
-        { label: '낚시', icon: 'https://phobi.me/gamja.img/images/icon_fishing.png', value: data.fishing },
-        { label: '벌목', icon: 'https://phobi.me/gamja.img/images/icon_woodcut.png', value: data.woodcutting },
-        { label: '채집', icon: 'https://phobi.me/gamja.img/images/icon_gather.png', value: data.gathering },
-        { label: '채광', icon: 'https://phobi.me/gamja.img/images/icon_mining.png', value: data.mining },
-        { label: '제작', icon: 'https://phobi.me/gamja.img/images/icon_craft.png', value: data.making }
-    ];
-
-    const container = document.getElementById('lifeStats');
-    container.innerHTML = ''; // 기존 내용 지우고
-    stats.forEach(stat => generateStatBar({ ...stat, containerId: 'lifeStats' }));
+    updateStatValue('lifeFishing', data.fishing);
+    updateStatValue('lifeWoodcutting', data.woodcutting);
+    updateStatValue('lifeGathering', data.gathering);
+    updateStatValue('lifeMining', data.mining);
+    updateStatValue('lifeMaking', data.making);
 
     const slotMap = {
-        HEAD: 'lifeSlotHead',
+        HELMET: 'lifeSlotHead',
         ARMOR: 'lifeSlotTop',
         PANTS: 'lifeSlotBottom',
         TOOL: 'lifeSlotTool',
@@ -162,21 +127,19 @@ function setCharacterLifeInfo(data) {
         const slotId = slotMap[item.equipSlot];
         if (slotId) {
             const slot = document.getElementById(slotId);
-            slot.innerHTML = ''; // 기존 이미지 지우고
-
+            slot.innerHTML = '';
             const img = document.createElement('img');
             img.src = `${window.basePath}${item.iconPath}`;
             img.alt = item.name;
             img.title = item.name;
-            img.dataset.item = JSON.stringify(item); // 안전하게 저장
-
+            img.dataset.item = JSON.stringify(item);
             slot.appendChild(img);
         }
     });
     bindItemTooltipEvents();
 }
 
-function generateStatBar({ containerId, id, label, icon, value, max = 30 }) {
+function generateStatBar({ containerId, id, label, icon, value, max = 50 }) {
     const container = document.getElementById(containerId);
     const template = document.getElementById('statBarTemplate');
     const clone = template.content.cloneNode(true);

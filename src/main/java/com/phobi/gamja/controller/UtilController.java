@@ -1,13 +1,10 @@
 package com.phobi.gamja.controller;
 
-import com.phobi.gamja.entity.user.UserInventory;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.contents.DailyQuestRepository;
 import com.phobi.gamja.repository.contents.DexRepository;
-import com.phobi.gamja.repository.user.UserDexRepository;
-import com.phobi.gamja.repository.user.UserDtlRepository;
-import com.phobi.gamja.repository.user.UserInventoryRepository;
-import com.phobi.gamja.repository.user.UserSkillRepository;
+import com.phobi.gamja.repository.user.*;
+import com.phobi.gamja.service.UtilService;
 import com.phobi.gamja.util.CommonUtil;
 import com.phobi.gamja.dto.user.UserInventoryDto;
 import com.phobi.gamja.entity.item.Item;
@@ -23,6 +20,7 @@ import java.util.*;
 @RequestMapping("/api/util")
 public class UtilController {
     private final CommonUtil commonUtil;
+    private final UtilService itemService;
     private final UserDtlRepository userDtlRepository;
     private final UserInventoryRepository userInventoryRepository;
     private final UserSkillRepository userSkillRepository;
@@ -38,30 +36,24 @@ public class UtilController {
         if (userId == null) {
             return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
         }
-        List<UserInventory> inventoryList = userInventoryRepository.findByUserId(userId);
-
-        List<UserInventoryDto> responseList = inventoryList.stream().map(inv -> {
-            Item item = inv.getItem();
-            UserInventoryDto dto = new UserInventoryDto();
-
-            dto.setItemId(inv.getItemId());
-            dto.setQuantity(inv.getQuantity());
-            dto.setUpdatedAt(inv.getUpdatedAt() != null ? inv.getUpdatedAt().toString() : null);
-
-            if (item != null) {
-                dto.setName(item.getName());
-                dto.setDescription(item.getDescription());
-                dto.setRank(item.getRank());
-                dto.setRarity(item.getRarity().name());       // enum → String
-                dto.setItemType(item.getItemType().name());   // enum → String
-                dto.setEquipSlot(item.getEquipSlot().name()); // enum → String
-                dto.setIconPath(item.getIconPath());
-            }
-
-            return dto;
-        }).toList();
-
+        List<UserInventoryDto> responseList = itemService.getUserInventoryWithEquipStatus(userId);
 
         return ResponseEntity.ok(GamJaResponse.success("정상 조회", responseList));
+    }
+
+    @ResponseBody
+    @PostMapping("/item/equip")
+    public ResponseEntity<GamJaResponse> itemEquip (HttpSession session, @RequestBody Map<String, Long> body) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
+        }
+        Long itemId = body.get("itemId");
+        try {
+            List<UserInventoryDto> responseList = itemService.equipItem(userId, itemId);
+            return ResponseEntity.ok(GamJaResponse.success("장착 완료", responseList));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(GamJaResponse.fail("장착 실패: " + e.getMessage()));
+        }
     }
 }

@@ -272,6 +272,10 @@
             <div class="item-name" id="bagTooltipName"></div>
             <div class="item-rarity" id="bagTooltipRarity"></div>
             <div class="item-description" id="bagTooltipDescription"></div>
+            <div class="tooltip-btn-group">
+                <button id="bagTooltipCloseBtn" class="tooltip-close-btn">닫기</button>
+                <button id="bagTooltipEquipBtn" class="equip-btn">장착</button>
+            </div>
         </div>
 
     </div>
@@ -461,8 +465,109 @@
             </div>
             <!-- 스탯 -->
             <div class="char-stats-area">
-                <div class="char-stats" id="combatStats"></div>
-                <div class="char-stats hidden" id="lifeStats"></div>
+                <!-- 전투 스탯 -->
+                <div id="combatStats" class="char-stats">
+                    <div class="stat-block" id="stat-combatAtk">
+                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_power.png" class="stat-icon" />
+                        <div class="stat-info">
+                            <div class="stat-label">공격력</div>
+                            <div class="stat-bar-wrapper">
+                                <div class="stat-bar-bg">
+                                    <div class="stat-bar-fill"></div>
+                                </div>
+                                <span class="stat-bar-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-block" id="stat-combatHp">
+                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_hp.png" class="stat-icon" />
+                        <div class="stat-info">
+                            <div class="stat-label">체력</div>
+                            <div class="stat-bar-wrapper">
+                                <div class="stat-bar-bg">
+                                    <div class="stat-bar-fill"></div>
+                                </div>
+                                <span class="stat-bar-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-block" id="stat-combatSpeed">
+                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_speed.png" class="stat-icon" />
+                        <div class="stat-info">
+                            <div class="stat-label">스피드</div>
+                            <div class="stat-bar-wrapper">
+                                <div class="stat-bar-bg">
+                                    <div class="stat-bar-fill"></div>
+                                </div>
+                                <span class="stat-bar-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 생활 스탯 -->
+                <div id="lifeStats" class="char-stats hidden">
+                    <div class="stat-block" id="stat-lifeFishing">
+                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_fishing.png" class="stat-icon" />
+                        <div class="stat-info">
+                            <div class="stat-label">낚시</div>
+                            <div class="stat-bar-wrapper">
+                                <div class="stat-bar-bg">
+                                    <div class="stat-bar-fill"></div>
+                                </div>
+                                <span class="stat-bar-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-block" id="stat-lifeWoodcutting">
+                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_woodcut.png" class="stat-icon" />
+                        <div class="stat-info">
+                            <div class="stat-label">벌목</div>
+                            <div class="stat-bar-wrapper">
+                                <div class="stat-bar-bg">
+                                    <div class="stat-bar-fill"></div>
+                                </div>
+                                <span class="stat-bar-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-block" id="stat-lifeGathering">
+                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_gather.png" class="stat-icon" />
+                        <div class="stat-info">
+                            <div class="stat-label">채집</div>
+                            <div class="stat-bar-wrapper">
+                                <div class="stat-bar-bg">
+                                    <div class="stat-bar-fill"></div>
+                                </div>
+                                <span class="stat-bar-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-block" id="stat-lifeMining">
+                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_mining.png" class="stat-icon" />
+                        <div class="stat-info">
+                            <div class="stat-label">채광</div>
+                            <div class="stat-bar-wrapper">
+                                <div class="stat-bar-bg">
+                                    <div class="stat-bar-fill"></div>
+                                </div>
+                                <span class="stat-bar-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-block" id="stat-lifeMaking">
+                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_craft.png" class="stat-icon" />
+                        <div class="stat-info">
+                            <div class="stat-label">제작</div>
+                            <div class="stat-bar-wrapper">
+                                <div class="stat-bar-bg">
+                                    <div class="stat-bar-fill"></div>
+                                </div>
+                                <span class="stat-bar-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <!-- 장비 슬롯 -->
@@ -491,21 +596,7 @@
     </div>
 </div>
 
-<!-- 스탯 항목 템플릿 -->
-<template id="statBarTemplate">
-    <div class="stat-block">
-        <img src="" class="stat-icon" />
-        <div class="stat-info">
-            <div class="stat-label"></div>
-            <div class="stat-bar-wrapper">
-                <div class="stat-bar-bg">
-                    <div class="stat-bar-fill"></div>
-                </div>
-                <span class="stat-bar-value"></span>
-            </div>
-        </div>
-    </div>
-</template>
+
 
 <!-- 아이템 툴팁 -->
 <div id="itemTooltip" class="tooltip-modal hidden">
