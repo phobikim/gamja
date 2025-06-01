@@ -268,8 +268,12 @@
 <!-- 가방 모달 -->
 <div id="bagModal" class="modal hidden">
     <div id="bagTooltip" class="bag-tooltip hidden">
-        <div id="tooltipContent"></div>
-        <button id="closeTooltipBtn" class="tooltip-close-btn">닫기</button>
+        <div id="tooltipContent">
+            <div class="item-name" id="bagTooltipName"></div>
+            <div class="item-rarity" id="bagTooltipRarity"></div>
+            <div class="item-description" id="bagTooltipDescription"></div>
+        </div>
+
     </div>
     <div class="bag-modal-content">
         <div class="bag-tabs">
@@ -277,7 +281,7 @@
             <button data-type="GATHER_MATERIAL">채집</button>
             <button data-type="CRAFT_MATERIAL">가공</button>
             <button data-type="COMPOSITE">합성</button>
-            <button data-type="EQUIPMENT">장비</button>
+            <button data-type="EQUIP_GATHER,EQUIP_BATTLE">장비</button>
         </div>
         <ul id="bagList" class="bag-grid">
             <!-- JS로 아이템 슬롯 채울 예정 -->
@@ -429,7 +433,7 @@
             <img src="https://phobi.me/gamja.img/images/icons/icon_defeat.png" alt="Defeat Image" class="defeat-image">
             <div class="sign-text" id="defeatSignText">여기에 다시 묻히다...</div>
         </div>
-        <button onclick="nextBattle()" class="modal-btn btn-continue">다시 도전하기</button>
+        <button onclick="nextBattle()" class="modal-btn defeat-buttons">다시 도전!</button>
     </div>
 </div>
 
@@ -449,25 +453,18 @@
             <!-- 이미지 -->
             <div class="char-image-area">
                 <img id="charImage" src="https://phobi.me/gamja.img/images/character/default.png" alt="캐릭터 이미지">
+                <!-- 캐릭터 카드 정보 -->
+                <div class="char-card-info">
+                    <div id="characterName">이름없음</div>
+                    <div>LV <span id="combatLevelValue">1</span></div>
+                </div>
             </div>
             <!-- 스탯 -->
             <div class="char-stats-area">
-                <div class="char-stats" id="combatStats">
-                    <div>LV <span id="combatLevelValue">1</span></div>
-                    <div>POWER <span id="combatAtkValue">1</span></div>
-                    <div>HP <span id="combatHpCurrent">1</span></div>
-                    <div>SPEED <span id="combatSpeedValue">1</span></div>
-                </div>
-                <div class="char-stats hidden" id="lifeStats">
-                    <div>낚시 <span id="skillFishingValue">1</span></div>
-                    <div>벌목 <span id="skillWoodcuttingValue">1</span></div>
-                    <div>채집 <span id="skillGatheringValue">1</span></div>
-                    <div>채광 <span id="skillMiningValue">1</span></div>
-                    <div>제작 <span id="skillCraftingValue">1</span></div>
-                </div>
+                <div class="char-stats" id="combatStats"></div>
+                <div class="char-stats hidden" id="lifeStats"></div>
             </div>
         </div>
-
         <!-- 장비 슬롯 -->
         <div class="inventory-grid " id="combatEquipment">
             <div class="inventoryCell" id="combatSlotHead">머리</div>
@@ -493,6 +490,22 @@
 
     </div>
 </div>
+
+<!-- 스탯 항목 템플릿 -->
+<template id="statBarTemplate">
+    <div class="stat-block">
+        <img src="" class="stat-icon" />
+        <div class="stat-info">
+            <div class="stat-label"></div>
+            <div class="stat-bar-wrapper">
+                <div class="stat-bar-bg">
+                    <div class="stat-bar-fill"></div>
+                </div>
+                <span class="stat-bar-value"></span>
+            </div>
+        </div>
+    </div>
+</template>
 
 <!-- 아이템 툴팁 -->
 <div id="itemTooltip" class="tooltip-modal hidden">

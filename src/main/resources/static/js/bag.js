@@ -6,11 +6,13 @@ const allItems = []; // 전체 아이템을 여기에 저장
 const tooltip = document.getElementById('bagTooltip');
 const content = document.getElementById('tooltipContent');
 
-function renderItemsByType(type) {
+function renderItemsByType(typeString) {
     const bagList = document.getElementById("bagList");
     bagList.innerHTML = "";
-
-    const filtered = (type === "ALL") ? allItems : allItems.filter(item => item.itemType === type);
+    const typeArray = typeString.split(',');
+    const filtered = (typeString === "ALL")
+        ? allItems
+        : allItems.filter(item => typeArray.includes(item.itemType));
 
     const slots = [];
     for (let i = 0; i < 30; i++) {
@@ -40,6 +42,7 @@ function renderItemsByType(type) {
         };
 
         wrapper.addEventListener('click', (e) => {
+            e.stopPropagation(); // 버블링 방지 추가
             showItemTooltipBag(e, item);
         });
         wrapper.appendChild(img);
@@ -65,6 +68,7 @@ function setTabActive(type) {
 document.querySelectorAll(".bag-tabs button").forEach(btn => {
     btn.addEventListener("click", () => {
         const type = btn.dataset.type;
+        console.log("type:" , type);
         setTabActive(type);
         renderItemsByType(type);
     });
@@ -72,13 +76,24 @@ document.querySelectorAll(".bag-tabs button").forEach(btn => {
 
 bagModal.addEventListener('click', (e) => {
     const inside = e.target.closest('.bag-modal-content');
-    const isTooltip = e.target.closest('#bagTooltip'); // 툴팁 클릭도 허용
-    if (!inside && !isTooltip) {bagModal.classList.add('hidden')};
+    const isTooltip = e.target.closest('#bagTooltip');
+
+    // 툴팁이 열려있는 상태에서 툴팁 외부를 클릭했을 때만 툴팁 닫기
+    if (!tooltip.classList.contains('hidden') && !isTooltip) {
+        tooltip.classList.add('hidden');
+        return;
+    }
+
+    // 모달 바깥을 클릭했을 때 모달 닫기
+    if (!inside && !isTooltip) {
+        bagModal.classList.add('hidden');
+        tooltip.classList.add('hidden');
+    }
 });
 
-document.getElementById('closeTooltipBtn').addEventListener('click', () => {
-    document.getElementById('bagTooltip').classList.add('hidden');
-});
+function hideTooltip() {
+    tooltip.classList.add('hidden');
+}
 
 async function loadBagItems() {
     playEffect("se_click2");
@@ -118,21 +133,44 @@ async function handleBagClick() {
 }
 
 function showItemTooltipBag(event, item) {
-    // 기존 툴팁 강제 닫기 (안 보이게)
-    tooltip.classList.add('hidden');
+    event.stopPropagation();
     tooltip.classList.remove('hidden');
 
+    const isEquip = item.itemType?.startsWith("EQUIP");
     const rarity = item.rarity || 'COMMON';
-    const rarityClass = `rarity-${rarity.toLowerCase()}`;
 
-    content.innerHTML = `
-      <div style="text-align: center;"><strong>[${item.name}]</strong></div><br>
-      희귀도: <span class="rarity-text ${rarityClass}">${rarity}</span><br>
-      ${item.description || '설명이 없습니다.'}
+    // 아이템 정보 설정
+    document.getElementById('bagTooltipName').textContent = `[${item.name}]`;
+    document.getElementById('bagTooltipRarity').innerHTML = `희귀도: <span class="rarity-text rarity-${rarity.toLowerCase()}">${rarity}</span>`;
+    document.getElementById('bagTooltipDescription').textContent = item.description || '설명이 없습니다.';
+
+    // 버튼 영역 완전 재생성
+    content.querySelector('.tooltip-btn-group')?.remove();
+
+    const btnGroup = document.createElement('div');
+    btnGroup.className = 'tooltip-btn-group';
+    btnGroup.innerHTML = `
+        <button class="tooltip-close-btn" onclick="hideTooltip()">닫기</button>
+        ${isEquip ? `<button class="equip-btn" onclick="console.log('장착 이벤트')">장착</button>` : ''}
     `;
 
-    // 모달 안에 고정 배치되도록 설정 (모달이 relative 여야 함)
-    const modal = document.getElementById('bagModal');
-    modal.appendChild(tooltip);
+    content.appendChild(btnGroup);
+    bagModal.appendChild(tooltip);
+}
 
+function equipItem(item) {
+    // 예: 서버에 장착 요청 보내기
+    apiRequest('/api/char/equip', 'POST', {
+        itemId: item.itemId
+    }).then(res => {
+        if (res.code === 'SUCCESS') {
+            alert('장착 완료!');
+            tooltip.classList.add('hidden');
+            loadCharacterBattleInfo(); // or loadBagItems() 등 갱신
+        } else {
+            alert('장착 실패: ' + res.message);
+        }
+    }).catch(err => {
+        console.error('장착 오류:', err);
+    });
 }

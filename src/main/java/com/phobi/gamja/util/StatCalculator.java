@@ -45,7 +45,7 @@ public class StatCalculator {
         }
 
         // 장비 스탯
-        List<UserEquipment> battleEquipments = userEquipmentRepository.findByUserIdAndType(userId, EquipmentType.BATTLE);
+        List<UserEquipment> battleEquipments = userEquipmentRepository.findByUserIdAndType(userId, EquipmentType.EQUIP_BATTLE);
         int equipHp = 0, equipPower = 0, equipSpeed = 0;
         List<ItemDto> itemDtoList = new ArrayList<>();
         for (UserEquipment eq : battleEquipments) {

@@ -32,6 +32,7 @@
     --orange-color: #fa6719;
     --dark-orange-color: #df5d00;
     --white-color: #fff1cc;
+    --baige-color: #ffcf75;
     --green-hignlight: #39ff14;
     --dark-font-color: #45200f;
 }
@@ -117,3 +118,43 @@ button:hover {
     filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.9));
 }
 
+/* 툴팁 공통 스타일 */
+
+.tooltip-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff8dc;
+    border: 3px solid #d2a679;
+    border-radius: 12px;
+    padding: 1rem;
+    width: 260px;
+    z-index: 2000;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+
+.tooltip-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: #5e340e;
+}
+
+.item-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fa6719;
+}
+
+.item-rarity {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #555;
+}
+
+.item-description {
+    font-weight: bold;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}

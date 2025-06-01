@@ -90,7 +90,7 @@ public class CharController {
         int making = baseSkillMap.getOrDefault("MAKING", 1);
 
         // 장비 스킬 보너스
-        List<UserEquipment> gatherEquipments = userEquipmentRepository.findByUserIdAndType(userId, EquipmentType.GATHER);
+        List<UserEquipment> gatherEquipments = userEquipmentRepository.findByUserIdAndType(userId, EquipmentType.EQUIP_GATHER);
         List<ItemDto> itemDtoList = new ArrayList<>();
         for (UserEquipment eq : gatherEquipments) {
             Item item = eq.getItem();

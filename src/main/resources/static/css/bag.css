@@ -3,7 +3,7 @@
     position: relative;
     width: 90vw;
     max-width: 400px;
-    height: calc(50px * 6 + 2vw); /* 5칸만 보이도록 */
+    height: calc(50px * 7 + 2vw);
     margin: 10vh auto;
     background: #fff8e7;
     border-radius: 3vw;
@@ -24,36 +24,49 @@
 }
 
 .bag-tooltip {
+    font-size: 1.1rem;
+    font-weight: bold;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     min-width: 150px; /* 200px → 150px로 축소 */
     max-width: 80vw; /* 화면 너비의 80% 이상 커지지 않도록 제한 */
-    background-color: #222;
-    color: #fff;
+    background: #fff8dc;
+    color: #5e340e;
+    border: 3px solid #d2a679;
+    border-radius: 12px;
     padding: 0.5rem;
-    border: 2px solid #888;
-    border-radius: 1rem; /* 1.2rem → 1rem으로 축소 */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
     z-index: 9999;
-    font-size: 0.95rem; /* 1.15rem → 0.95rem으로 축소 */
     white-space: pre-line;
     line-height: 1.1;
 }
 
-.tooltip-close-btn {
-    display: block;
-    margin: 0.8rem auto 0; /* 1rem → 0.8rem으로 축소 */
+.tooltip-btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+}
+
+.tooltip-close-btn,
+.equip-btn {
+    flex: 1;
     padding: 4px 10px;
-    background-color: #fa6719;
+    background-color: var(--dark-orange-color);
     color: white;
     border: none;
-    border-radius: 6px; /* 8px → 6px로 축소 */
-    font-size: 0.9rem; /* 1rem → 0.9rem으로 축소 */
+    border-radius: 6px;
+    font-size: 0.9rem;
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s ease;
+}
+
+.tooltip-close-btn:hover,
+.equip-btn:hover {
+    background-color: #e85c11;
 }
 
 .bag-tooltip .hidden {
@@ -128,7 +141,7 @@
 
 .bag-tabs button {
     flex: 1;
-    padding: 0.8vw;
+    padding: 2.5vw;
     font-size: 1rem;
     background-color: #fa6719;
     border: none;
@@ -150,7 +163,7 @@
         border-radius: 0.8rem;
     }
 
-    .tooltip-close-btn {
+    .tooltip-close-btn .equip-btn {
         font-size: 0.8rem;
         padding: 4px 10px;
         margin: 0.6rem auto 0;
