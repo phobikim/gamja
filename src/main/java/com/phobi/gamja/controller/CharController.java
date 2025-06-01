@@ -76,37 +76,8 @@ public class CharController {
             return ResponseEntity.status(403).body(GamJaResponse.fail("접근 권한이 없습니다."));
         }
 
-        // 기본 스킬 레벨
-        Map<String, Integer> baseSkillMap = new HashMap<>();
-        List<UserSkill> skillList = userSkillRepository.findByUserId(userId);
-        for (UserSkill skill : skillList) {
-            baseSkillMap.put(skill.getSkillType().name(), skill.getLevel());
-        }
-        int fishing = baseSkillMap.getOrDefault("FISHING", 1);
-        int mining = baseSkillMap.getOrDefault("MINING", 1);
-        int woodcutting = baseSkillMap.getOrDefault("WOODCUTTING", 1);
-        int gathering = baseSkillMap.getOrDefault("GATHERING", 1);
-        int making = baseSkillMap.getOrDefault("MAKING", 1);
-
-        // 장비 스킬 보너스
-        List<UserEquipment> gatherEquipments = userEquipmentRepository.findByUserIdAndType(userId, EquipmentType.EQUIP_GATHER);
-        List<ItemDto> itemDtoList = new ArrayList<>();
-        for (UserEquipment eq : gatherEquipments) {
-            Item item = eq.getItem();
-            itemDtoList.add(toItemDto(item));
-            ItemSkillBonus bonus = itemSkillBonusRepository.findById(eq.getItemId()).orElse(null);
-            if (bonus != null) {
-                fishing += bonus.getFishing();
-                mining += bonus.getMining();
-                woodcutting += bonus.getWoodcutting();
-                gathering += bonus.getGathering();
-                making += bonus.getMaking();
-            }
-        }
-
-        LifeStatDto dto = new LifeStatDto(fishing, mining, woodcutting, gathering, making,itemDtoList);
-        return ResponseEntity.ok(GamJaResponse.success("생활 스탯 조회 성공", dto));
-
+        LifeStatDto result = statCalculator.calculateLifeSkill(userId);
+        return ResponseEntity.ok(GamJaResponse.success("정상 조회", result));
     }
 
     private ItemDto toItemDto(Item item) {

@@ -175,9 +175,9 @@ function renderRecipeDetail(recipe) {
 
     const desc = document.createElement('div');
     desc.textContent = recipe.recipeDescription;
-    title.style.fontWeight = 'bold';
+    desc.style.fontWeight = 'bold';
     desc.style.fontSize = '0.9rem';
-    desc.style.color = '#555';
+    desc.style.color = 'var(--char-border-color)';
     desc.style.marginTop = '0.2vw';
 
     resultWrapper.appendChild(resultImg);

@@ -22,7 +22,7 @@ public class UserEquipment {
 
     @Id
     @Enumerated(EnumType.STRING)
-    private EquipmentSlot slot;  // HELMET, ARMOR, GLOVES, SHOES, WEAPON
+    private EquipmentSlot slot;  // WEAPON, HELMET, ARMOR, PANTS, SHOES, RING, NECK, POTION
 
     @Id
     @Enumerated(EnumType.STRING)

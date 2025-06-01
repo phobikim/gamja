@@ -35,42 +35,76 @@ function getCurrentBattleUser() {
     };
 }
 
-function generateLootItems() {
-    const dropList = battleState.monster.drops || [];
-    const lootCount = Math.random() < 0.3 ? 2 : 1; // 드랍할 아이템 수
-    const selectedItems = [];
+const rarityWeights = {
+    'COMMON': 80,
+    'UNCOMMON': 10,
+    'RARE': 5,
+    'EPIC': 1,
+    'LEGENDARY': 0.5,
+};
 
-    // 드랍 후보 중에서 무작위로 고르기
-    const candidates = [...dropList];
+function pickWeightedRandomItems(items, count) {
+    const result = [];
+    const pool = [...items];
 
-    for (let i = 0; i < lootCount && candidates.length > 0; i++) {
-        const randomIndex = Math.floor(Math.random() * candidates.length);
-        const item = candidates.splice(randomIndex, 1)[0]; // 중복 방지 위해 제거
+    for (let i = 0; i < count && pool.length > 0; i++) {
+        const totalWeight = pool.reduce((sum, item) => {
+            const weight = rarityWeights[item.rarity?.toUpperCase()] || 0;
+            return sum + weight;
+        }, 0);
 
-        let count = 1;
-        switch (item.rarity?.toUpperCase()) {
-            case 'COMMON':
-                count = Math.floor(Math.random() * 2) + 2; // 2~3
+        if (totalWeight <= 0) break;
+
+        let rand = Math.random() * totalWeight;
+        let selectedIndex = -1;
+
+        for (let j = 0; j < pool.length; j++) {
+            const item = pool[j];
+            const weight = rarityWeights[item.rarity?.toUpperCase()] || 0;
+            rand -= weight;
+            if (rand <= 0) {
+                selectedIndex = j;
                 break;
-            case 'UNCOMMON':
-                count = Math.floor(Math.random() * 2) + 1; // 1~2
-                break;
-            case 'RARE':
-                count = 1; // 고정
-                break;
-            default:
-                count = 1; // 그 외는 기본 1
+            }
         }
 
-        selectedItems.push({
-            ...item,
-            count: count
-        });
+        if (selectedIndex !== -1) {
+            const [picked] = pool.splice(selectedIndex, 1);
+            result.push(picked);
+        }
     }
+
+    return result;
+}
+
+function generateLootItems() {
+    const dropList = battleState.monster.drops || [];
+    const lootCount = Math.random() < 0.3 ? 2 : 1;
+
+    const selected = pickWeightedRandomItems(dropList, lootCount);
+
+    const selectedItems = selected.map(item => {
+        let count = 1;
+        if (item.itemType === 'EQUIP_BATTLE' || item.itemType === 'EQUIP_GATHER') {
+            count = 1;
+        } else {
+            switch (item.rarity?.toUpperCase()) {
+                case 'COMMON':
+                    count = Math.floor(Math.random() * 2) + 2; // 2~3
+                    break;
+                default:
+                    count = 1;
+            }
+        }
+
+        return {
+            ...item,
+            count
+        };
+    });
 
     return selectedItems;
 }
-
 
 function updateCharacterReward(user, expReward, items) {
     const payload = {

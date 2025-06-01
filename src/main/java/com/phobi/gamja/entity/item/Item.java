@@ -46,7 +46,7 @@ public class Item {
     }
 
     public enum EquipSlot {
-        WEAPON, HELMET, ARMOR, GLOVES, SHOES, NONE
+        NONE, WEAPON, HELMET, ARMOR, PANTS, SHOES, RING, NECK, POTION
     }
 
 }

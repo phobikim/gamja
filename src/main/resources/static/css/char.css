@@ -110,6 +110,7 @@
     width: 100%;
     height: 100%;
     background-image: url('https://phobi.me/gamja.img/images/backgrounds/bg_vilige.png');
+    /*background-image: url('https://phobi.me/gamja.img/images/backgrounds/bg_night.png');*/
     background-size: cover;
     background-position: center;
     border-radius: 8px;

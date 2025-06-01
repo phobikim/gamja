@@ -1,7 +1,11 @@
 package com.phobi.gamja.util;
 
 import com.phobi.gamja.dto.item.EquipmentType;
+import com.phobi.gamja.entity.item.ItemSkillBonus;
+import com.phobi.gamja.message.GamJaResponse;
+import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.phobi.gamja.dto.item.ItemDto;
@@ -19,10 +23,12 @@ import java.util.*;
 public class StatCalculator {
 
     private final UserStatRepository userStatRepository;
+    private final UserSkillRepository userSkillRepository;
     private final UserDtlRepository userDtlRepository;
     private final DexRepository dexRepository;
     private final UserEquipmentRepository userEquipmentRepository;
     private final ItemStatBonusRepository itemStatBonusRepository;
+    private final ItemSkillBonusRepository itemSkillBonusRepository;
 
     public BattleStatDto calculateBattleStat(Long userId) {
         // 기본 스탯
@@ -66,6 +72,45 @@ public class StatCalculator {
                 baseSpeed + dexSpeed + equipSpeed,
                 itemDtoList
         );
+    }
+
+    public LifeStatDto calculateLifeSkill(Long userId) {
+        // 기본 스킬 레벨
+        Map<String, Integer> baseSkillMap = new HashMap<>();
+        List<UserSkill> skillList = userSkillRepository.findByUserId(userId);
+        for (UserSkill skill : skillList) {
+            baseSkillMap.put(skill.getSkillType().name(), skill.getLevel());
+        }
+        int baseFishing = baseSkillMap.getOrDefault("FISHING", 1);
+        int baseMining = baseSkillMap.getOrDefault("MINING", 1);
+        int baseWoodcutting = baseSkillMap.getOrDefault("WOODCUTTING", 1);
+        int baseGathering = baseSkillMap.getOrDefault("GATHERING", 1);
+        int baseMaking = baseSkillMap.getOrDefault("MAKING", 1);
+
+        // 장비 스킬 보너스
+        List<UserEquipment> gatherEquipments = userEquipmentRepository.findByUserIdAndType(userId, EquipmentType.EQUIP_GATHER);
+        int equipFishing = 0, equipMining = 0, equipWoodcutting = 0, equipGathering = 0, equipMaking = 0;
+        List<ItemDto> itemDtoList = new ArrayList<>();
+        for (UserEquipment eq : gatherEquipments) {
+            Item item = eq.getItem();
+            itemDtoList.add(toItemDto(item));
+            ItemSkillBonus bonus = itemSkillBonusRepository.findById(eq.getItemId()).orElse(null);
+            if (bonus != null) {
+                equipFishing += bonus.getFishing();
+                equipMining += bonus.getMining();
+                equipWoodcutting += bonus.getWoodcutting();
+                equipGathering += bonus.getGathering();
+                equipMaking += bonus.getMaking();
+            }
+        }
+
+        return new LifeStatDto(
+                baseFishing + equipFishing,
+                baseMining + equipMining,
+                baseWoodcutting + equipWoodcutting,
+                baseGathering + equipGathering,
+                baseMaking + equipMaking,
+                itemDtoList);
     }
 
     private ItemDto toItemDto(Item item) {

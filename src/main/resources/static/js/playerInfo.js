@@ -75,12 +75,14 @@ function setCharacterBattleInfo(data) {
     updateStatValue('combatSpeed', data.totalSpeed);
 
     const slotMap = {
+        WEAPON: 'combatSlotWeapon',
         HELMET: 'combatSlotHead',
         ARMOR: 'combatSlotTop',
         PANTS: 'combatSlotBottom',
-        WEAPON: 'combatSlotWeapon',
-        SUB: 'combatSlotSub',
-        SHOES: 'combatSlotShoes'
+        SHOES: 'combatSlotShoes',
+        RING: 'combatSlotRing',
+        NECK: 'combatSlotNeck',
+        POTION: 'combatSlotPotion'
     };
 
     data.equippedItems.forEach(item => {
@@ -109,19 +111,23 @@ function loadCharacterLifeInfo() {
 
 // ✅ 생활 정보 DOM 세팅
 function setCharacterLifeInfo(data) {
+    // 스탯 설정
     updateStatValue('lifeFishing', data.fishing);
     updateStatValue('lifeWoodcutting', data.woodcutting);
     updateStatValue('lifeGathering', data.gathering);
     updateStatValue('lifeMining', data.mining);
     updateStatValue('lifeMaking', data.making);
 
+    // 슬롯 설정
     const slotMap = {
+        WEAPON: 'lifeSlotWeapon',
         HELMET: 'lifeSlotHead',
         ARMOR: 'lifeSlotTop',
         PANTS: 'lifeSlotBottom',
-        TOOL: 'lifeSlotTool',
-        SUB: 'lifeSlotSub',
-        SHOES: 'lifeSlotShoes'
+        SHOES: 'lifeSlotShoes',
+        RING: 'lifeSlotRing',
+        NECK: 'lifeSlotNeck',
+        POTION: 'lifeSlotPotion'
     };
     data.equippedItems.forEach(item => {
         const slotId = slotMap[item.equipSlot];
