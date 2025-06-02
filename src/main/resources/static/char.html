@@ -13,10 +13,12 @@
     <link rel="stylesheet" href="css/bag.css">
     <link rel="stylesheet" href="css/station.css">
     <link rel="stylesheet" href="css/action.css">
-    <link rel="stylesheet" href="css/attack.css">
+    <link rel="stylesheet" href="css/battle.css">
+    <link rel="stylesheet" href="css/battleMap.css">
     <link rel="stylesheet" href="css/winBox.css">
     <link rel="stylesheet" href="css/map.css">
     <link rel="stylesheet" href="css/playerInfo.css">
+    <link rel="stylesheet" href="css/color.css">
 </head>
 
 <body class="char-page">
@@ -322,12 +324,46 @@
     <div id="craft-effect-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
 </div>
 
+<!-- 전투맵 선택 모달 -->
+<div id="battleMapSelectModal" class="modal hidden">
+    <div class="map-select-modal-content">
+
+        <!-- 🔹 가로 스크롤 맵 리스트 영역 -->
+        <div id="mapListScroll" class="map-list-horizontal">
+            <!-- JS로 .map-card 썸네일이 여기에 들어감 -->
+        </div>
+
+        <!-- 🔸 상세 정보 패널 -->
+        <div id="mapDetailPanel" class="map-detail-box">
+            <div class="map-name">Misty Forest</div>
+            <div class="map-meta">
+                <span class="map-level">Level 17</span> ·
+                <span class="map-desc">Chapter 3</span>
+            </div>
+
+            <div class="map-info-card">
+                <div class="section-title">ENEMIES</div>
+                <div class="map-monsters" id="mapMonsters"></div>
+            </div>
+
+            <div class="map-info-card">
+                <div class="section-title">REWARD</div>
+                <div class="map-rewards" id="mapRewards"></div>
+            </div>
+
+            <button id="startBattleBtn" class="start-battle-button">🔥 PLAY</button>
+        </div>
+
+    </div>
+</div>
+
 <!-- 전투 모달 -->
 <div id="battleModal" class="modal hidden">
     <div class="battle-modal-content">
         <!-- 전투 장면 -->
         <div class="battle-scene">
-            <img src="https://phobi.me/gamja.img/images/backgrounds/bg_night.png" alt="전투 씬">
+            <div id="battleMapName" class="map-name-banner">야생 들판</div>
+            <img id="battleBackground" src="" alt="전투 씬">
 
             <!-- 🟢 플레이어 영역 -->
             <div class="player-container">
@@ -642,10 +678,10 @@
 <script src="js/station.js"></script>
 <script src="js/dex.js"></script>
 <script src="js/action.js"></script>
-<script src="js/attack.js"></script>
+<script src="js/battle.js"></script>
+<script src="js/battleMap.js"></script>
 <script src="js/winBox.js"></script>
 <script src="js/map.js"></script>
-<script src="js/playerInfo.js"></script>
 
 
 </body>

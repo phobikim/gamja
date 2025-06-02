@@ -690,23 +690,4 @@
     }
 }
 
-/* 🟢 야생: 초록 작은 원 */
-.effect-wild {
-    width: 100px;
-    height: 100px;
-    background: radial-gradient(circle, rgba(57, 255, 20, 0.6), transparent);
-}
 
-/* 🟠 병사: 주황 중간 원 */
-.effect-soldier {
-    width: 150px;
-    height: 150px;
-    background: radial-gradient(circle, rgba(255, 165, 0, 0.7), transparent);
-}
-
-/* 🟣 변이: 보라 큰 원 */
-.effect-mutant {
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(156, 39, 176, 0.8), transparent);
-}

@@ -1,0 +1,173 @@
+/* 맵 선택 모달 */
+
+#battleMapSelectModal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.map-select-modal-content {
+    background: #222;
+    border-radius: 16px;
+    padding: 1rem;
+    max-width: 600px;
+    width: 90%;
+    box-sizing: border-box;
+}
+
+.map-list-horizontal {
+    padding: 8px;
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    border-bottom: 2px dashed #555;
+    justify-content: center;
+}
+
+.map-card {
+    width: 100px;
+    aspect-ratio: 1 / 1;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.map-card:hover {
+    transform: scale(1.05);
+}
+
+.map-card.selected {
+    border-color: #fa6719;
+}
+
+.map-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.map-detail-box {
+    margin-top: 1rem;
+    background: #3c3f58;
+    border-radius: 12px;
+    padding: 1rem;
+    color: white;
+    text-align: center;
+}
+
+.map-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #9cffb2;
+    margin-bottom: 0.3rem;
+}
+
+.map-meta {
+    font-size: 0.85rem;
+    margin-bottom: 1.1rem;
+    font-weight: bold;
+    color: #e0e0e0;
+}
+
+.map-info-card {
+    background: #2e3047;
+    border-radius: 10px;
+    padding: 0.7rem 1rem;
+    margin-top: 0.8rem;
+}
+
+.section-title {
+    font-weight: bold;
+    color: #ffd54f;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+}
+
+.map-monsters, .map-rewards {
+    display: flex;
+    flex-wrap: wrap; /* 자동 줄바꿈 */
+    justify-content: center;
+    gap: 0.5rem;
+    max-width: 100%;
+}
+
+.map-monsters img,
+.map-rewards img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #44485c;
+    padding: 4px;
+    box-sizing: border-box;
+}
+
+.start-battle-button {
+    margin-top: 1.2rem;
+    padding: 0.6rem 2rem;
+    font-size: 1rem;
+    background-color: #fa6719;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s ease;
+}
+
+.start-battle-button:hover {
+    background-color: #e95b12;
+}
+
+.map-name-banner {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 248, 220, 0.9); /* 밝은 배너 */
+    padding: 6px 16px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #5e340e;
+    z-index: 2;
+}
+
+.tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-wrapper .custom-tooltip {
+    pointer-events: auto;
+    white-space: normal;
+    position: fixed;         /* ✅ 모달 전체 기준으로 고정 */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2000;           /* ✅ 최상단 유지 */
+    padding: 12px 16px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.9);
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff8dc;
+    text-align: center;
+    max-width: 240px;
+    word-break: break-word;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease;
+}
+
+.tooltip-wrapper:hover .custom-tooltip {
+    visibility: visible;
+    opacity: 1;
+}

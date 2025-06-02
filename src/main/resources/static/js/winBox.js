@@ -28,10 +28,16 @@ function showRewardResults() {
 
 function getCurrentBattleUser() {
     return {
+        dexName: battleState.player.dexName,
+        attribute : battleState.player.attribute,
         beforeXp: battleState.player.currentXp, // 승리 전 경험치
         beforeLevel : battleState.player.lv, // 승리 전 레벨
-        charImage: battleState.player.charImg
-
+        charImage: battleState.player.charImg,
+        hp: battleState.player.maxHp,
+        power: battleState.player.power,
+        speed: battleState.player.speed || 0,  // 없으면 0 기본값
+        xp: battleState.player.currentXp,
+        lv: battleState.player.lv
     };
 }
 
@@ -219,10 +225,16 @@ function nextBattle() {
 
 // ========== 새로운 전투 로딩 ==========
 function loadNewBattle() {
-    // 실제 서버 API 호출 (기존 코드 구조 유지)
-    if (typeof apiRequestJson === 'function' && typeof userId !== 'undefined') {
-        handleAttackClick();
+    const user = getCurrentBattleUser(); // 이전 유저 정보 재활용
+    const nextMonster = getRandomMonster(); // 저장된 몬스터 리스트에서 랜덤
+
+    if (!nextMonster || !user) {
+        showMessageModal("다음 전투를 불러올 수 없습니다.");
+        return;
     }
+
+    initializeBattleScene(user, nextMonster);
+    startBattle(user, nextMonster);
 }
 
 

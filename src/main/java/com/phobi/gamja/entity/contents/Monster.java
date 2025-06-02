@@ -9,6 +9,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+
 public class Monster {
 
     @Id
@@ -17,7 +18,11 @@ public class Monster {
 
     private String name;
     private String desc;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "map_id")
+    private MonsterMap map;
 
+    private boolean enabled;
     private String rank;
 
     @Column(name = "image_path")
@@ -46,4 +51,6 @@ public class Monster {
 
     @Column(name = "drop_item5_id")
     private Long dropItem5Id;
+
+
 }

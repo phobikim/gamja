@@ -37,7 +37,8 @@ public class Item {
 
     // enum 선언
     public enum Rarity {
-        COMMON, UNCOMMON, RARE, EPIC, LEGENDARY
+        COMMON, UNCOMMON, RARE, EPIC, LEGENDARY;
+
     }
 
     public enum ItemType {

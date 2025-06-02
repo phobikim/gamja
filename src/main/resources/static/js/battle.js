@@ -1,5 +1,9 @@
+
+//실제 전투 모달
 const battleModal = document.getElementById('battleModal');
+// 승리 모달
 const lootModal = document.getElementById('lootModal');
+// 패배 모달
 const defeatModal = document.getElementById('defeatModal')
 
 let battleEnded = false;
@@ -12,9 +16,11 @@ const playerImage = document.getElementById('userCharacter');
 window.battleState = {
     player: {
         dexName: '',
+        attribute: '',
         maxHp: 0,
         currentHp: 0,
         power: 0,
+        speed: 0,
         currentXp: 0,
         level:0,
         charImg:''
@@ -53,10 +59,12 @@ function startBattle(user, monster) {
     isProcessingTurn = false; // ✅ 턴 처리 상태 초기화
 
     battleState.player = {
-        name: user.dexName,
+        dexName: user.dexName,
+        attribute : user.attribute,
         maxHp: user.hp,
         currentHp: user.hp,
         power: user.power,
+        speed: user.speed,
         currentXp:user.xp,
         lv:user.lv,
         charImg:user.charImage
@@ -296,87 +304,77 @@ battleModal.addEventListener('click', (e) => {
 });
 
 
-async function handleAttackClick() {
-    playEffect("se_click2")
-    document.body.style.overflow = 'hidden';
-    document.getElementById('battleModal').classList.remove('hidden');
-
-
-    // 1. 유저 스탯 정보 가져오기
-    const userRes = await apiRequestJson('/api/attack/user-stat', 'GET');
-    if (userRes.code !== 'SUCCESS') {
-        battleModal.classList.add('hidden');
-        showMessageModal(userRes.message || "유저 정보를 불러오지 못했습니다.");
-        return;
+function initializeBattleScene(user, monster) {
+    // ✅ 배경 이미지 설정
+    const background = document.getElementById('battleBackground');
+    if (background && selectedMap?.imagePath) {
+        background.src = basePath + selectedMap.imagePath;
     }
-    const user = userRes.data;
-
-    // 2. 몬스터 목록 가져오기
-    const monsterRes = await apiRequestJson('/api/attack/monster_list', 'GET');
-    if (monsterRes.code !== 'SUCCESS') {
-        battleModal.classList.add('hidden');
-        showMessageModal(monsterRes.message || "몬스터 정보를 불러오지 못했습니다.");
-        return;
+    // ✅ 맵 이름 표시
+    const mapNameBanner = document.getElementById('battleMapName');
+    if (mapNameBanner) {
+        mapNameBanner.textContent = selectedMap?.name || '전투 지역';
     }
-
-    const monsters = monsterRes.data;
-    if (!monsters || monsters.length === 0) {
-        battleModal.classList.add('hidden');
-        showMessageModal("출현 가능한 몬스터가 없습니다.");
-        return;
+    // ✅ 로그 배경색 설정
+    const log = document.getElementById('battleLog');
+    if (log) {
+        // 맵 이름 or 추천 레벨에 따라 색상 지정
+        const colorMap = {
+            '야생 들판': '#00653f',
+            '감자도둑쥐의 소굴': '#0d072b',
+            '기본': '#f5f5f5'
+        };
+        const color = colorMap[selectedMap?.name] || colorMap['기본'];
+        log.style.backgroundColor = color;
     }
 
-
-    // 3. 랜덤 몬스터 선택
-    const monster = monsters[Math.floor(Math.random() * monsters.length)];
-
-    // 4. 이미지 교체
+    const charImage = basePath_image + "/character/";
     const userImage = document.getElementById('userCharacter');
-    const charImage = basePath_image + "/character/"
     userImage.src = charImage + user.charImage;
     userImage.alt = user.name;
 
-    // player 등장 애니메이션
     playerImage.classList.remove('jump-in', 'fade-out', 'hit-effect');
     playerImage.style.animation = 'none';
     void playerImage.offsetWidth;
     playerImage.style.animation = '';
     playerImage.classList.add('jump-in');
 
-
-    // 몬스터 등장 애니메이션
+    const monsterImage = document.getElementById('monsterCharacter');
     monsterImage.src = basePath + monster.imagePath;
     monsterImage.alt = monster.name;
-
     monsterImage.classList.remove('jump-in', 'fade-out', 'hit-effect');
     monsterImage.style.animation = 'none';
 
-    // 효과 처리 요소 준비
     const effectContainer = document.getElementById('monsterEffectContainer');
     const effectElement = document.getElementById('monsterEffect');
 
-    // 기존 효과 클래스 초기화
-    effectElement.className = 'monster-effect'; // 기본 클래스만 남기고 싹 초기화
-    void effectElement.offsetWidth; // 리플로우
-
-    // 배경 이펙트 등급별 클래스 추가
-    if (monster.rank === '변이') {
-        effectElement.classList.add('effect-mutant');
-    } else if (monster.rank === '병사') {
-        effectElement.classList.add('effect-soldier');
+    effectElement.classList.remove(
+        'effect-wild', 'effect-common', 'effect-normal',
+        'effect-rare', 'effect-elite', 'effect-boss'
+    );
+    effectElement.classList.add('monster-effect');
+    /* 등급 별 등장 색깔 다르게 */
+    if (monster.rank === '보스') {
+        effectElement.classList.add('effect-boss');
+    } else if (monster.rank === '정예') {
+        effectElement.classList.add('effect-elite');
+    } else if (monster.rank === '희귀') {
+        effectElement.classList.add('effect-rare');
+    } else if (monster.rank === '일반') {
+        effectElement.classList.add('effect-normal');
+    } else if (monster.rank === '하급') {
+        effectElement.classList.add('effect-common');
     } else if (monster.rank === '야생') {
         effectElement.classList.add('effect-wild');
-    } else {
-        effectContainer.classList.add('hidden');
     }
 
-    // 👉 onload 안에서 동시에 jump-in + 팡 효과!
+    else effectContainer.classList.add('hidden');
+
     monsterImage.onload = () => {
         void monsterImage.offsetWidth;
         monsterImage.style.animation = '';
         monsterImage.classList.add('jump-in');
 
-        // 팡 이펙트 실행
         effectContainer.classList.remove('hidden');
         effectElement.classList.add('pop');
 
@@ -386,33 +384,32 @@ async function handleAttackClick() {
         }, 800);
     };
 
-    // 5. 스탯 영역 세팅
-    document.querySelector('.user-name').textContent = `${user.dexName}`;
+    // 스탯 UI 설정
+    document.querySelector('.user-name').textContent = user.dexName;
     document.querySelector('.user-attribute').textContent = user.attribute;
     document.querySelector('.user-power').textContent = user.power;
     document.querySelector('.user-hp').textContent = user.hp;
     document.querySelector('.user-speed').textContent = user.speed;
 
-    document.querySelector('.monster-name').textContent = `${monster.name}`;
+    document.querySelector('.monster-name').textContent = monster.name;
     document.querySelector('.monster-rank').textContent = monster.rank;
     document.querySelector('.monster-hp').textContent = monster.monsterHp;
     document.querySelector('.monster-power').textContent = monster.monsterPower;
     document.querySelector('.monster-xp').textContent = monster.monsterXp;
 
-    const rankText = monster.rank;
-    const rankElement = document.querySelector('.monster-rank');
-    // 색상 매핑
-    const rankColorMap = {
-        '야생': '#39ff14',   // 연두
-        '병사': '#2196f3',   // 파랑
-        '변이': '#9c27b0'    // 보라
+    const rankColorClassMap = {
+        '야생': 'rank-color-wild',
+        '하급': 'rank-color-common',
+        '일반': 'rank-color-normal',
+        '희귀': 'rank-color-rare',
+        '정예': 'rank-color-elite',
+        '보스': 'rank-color-boss'
     };
 
-    // 해당 rank에 맞는 색상 적용
-    rankElement.style.color = rankColorMap[rankText] || '#000'; // 기본은 검정
+    const rankElement = document.querySelector('.monster-rank');
+    const rankColorClass = rankColorClassMap[monster.rank?.trim()];
+    if (rankColorClass) rankElement.classList.add(rankColorClass);
 
-
-    startBattle(user, monster);
 }
 
 

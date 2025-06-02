@@ -13,7 +13,7 @@ const lifeEquipment = document.getElementById('lifeEquipment');
 
 
 // 수치 조정
-function updateStatValue(statId, value, max = 50) {
+function updateStatValue(statId, value, max = 100) {
     const block = document.getElementById(`stat-${statId}`);
     if (!block) return;
     const bar = block.querySelector('.stat-bar-fill');

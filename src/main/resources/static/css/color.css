@@ -1,0 +1,65 @@
+
+/* 몬스터 텍스트 색상 전용 클래스 */
+.rank-color-wild   { color: #39ff14; }
+.rank-color-common { color: #c1994d; }
+.rank-color-normal { color: #ffa500; }
+.rank-color-rare   { color: #569cd6; }
+.rank-color-elite  { color: #9c27b0; }
+.rank-color-boss   { color: #ff0000; }
+
+/* 몬스터 rank 별 테두리 효과 */
+.rank-wild       { box-shadow: 0 0 10px #39ff14aa; border-radius: 8px; }
+.rank-common     { box-shadow: 0 0 10px #c1994daa; border-radius: 8px; }
+.rank-normal     { box-shadow: 0 0 10px #ffa500aa; border-radius: 8px; }
+.rank-rare       { box-shadow: 0 0 12px #569cd6cc; border-radius: 8px; }
+.rank-elite      { box-shadow: 0 0 14px #9c27b0cc; border-radius: 8px; }
+.rank-boss       { box-shadow: 0 0 16px #ff0000cc; border-radius: 8px; }
+
+
+/* 아이템 테두리 + 텍스트 컬러 */
+.rarity-common      { box-shadow: 0 0 6px #cccccc; border-radius: 6px; }
+.rarity-uncommon    { box-shadow: 0 0 8px #00b894aa; border-radius: 6px; }
+.rarity-rare        { box-shadow: 0 0 10px #0984e3aa; border-radius: 6px; }
+.rarity-epic        { box-shadow: 0 0 12px #a29bfeaa; border-radius: 6px; }
+.rarity-legendary   { box-shadow: 0 0 14px #fdcb6eaa; border-radius: 6px; }
+
+
+/* 전투용 오라 배경 효과 */
+.effect-wild     { width: 100px; height: 100px; background: radial-gradient(circle, rgba(57, 255, 20, 0.6), transparent); }
+.effect-common   { width: 110px; height: 110px; background: radial-gradient(circle, rgba(193, 155, 77, 0.5), transparent); }
+.effect-normal   { width: 130px; height: 130px; background: radial-gradient(circle, rgba(255, 165, 0, 0.7), transparent); }
+.effect-rare     { width: 150px; height: 150px; background: radial-gradient(circle, rgba(86, 156, 214, 0.7), transparent); }
+.effect-elite    { width: 170px; height: 170px; background: radial-gradient(circle, rgba(156, 39, 176, 0.8), transparent); }
+.effect-boss     { width: 200px; height: 200px; background: radial-gradient(circle, rgba(255, 0, 0, 0.85), transparent); }
+
+
+
+/* 텍스트용  */
+.rarity-text {
+    font-weight: bold;
+}
+
+.rarity-text.rarity-common {
+    color: inherit;
+    filter: none;
+}
+
+.rarity-text.rarity-uncommon {
+    color: #00b894;
+    filter: drop-shadow(0 0 4px rgba(0, 184, 148, 0.6));
+}
+
+.rarity-text.rarity-rare {
+    color: #4aa8ff;
+    filter: drop-shadow(0 0 6px rgba(173, 216, 230, 0.7));
+}
+
+.rarity-text.rarity-epic {
+    color: #a29bfe;
+    filter: drop-shadow(0 0 6px rgba(147, 112, 219, 0.8));
+}
+
+.rarity-text.rarity-legendary {
+    color: #fdcb6e;
+    filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.9));
+}
