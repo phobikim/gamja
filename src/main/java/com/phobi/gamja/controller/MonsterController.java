@@ -5,8 +5,11 @@ import com.phobi.gamja.dto.user.BattleStatDto;
 import com.phobi.gamja.entity.contents.Dex;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.contents.Monster;
+import com.phobi.gamja.entity.user.UserDexStat;
+import com.phobi.gamja.entity.user.UserDexStatId;
 import com.phobi.gamja.entity.user.UserDtl;
 import com.phobi.gamja.message.GamJaResponse;
+import com.phobi.gamja.repository.user.UserDexStatRepository;
 import com.phobi.gamja.util.CommonUtil;
 import com.phobi.gamja.repository.contents.DexRepository;
 import com.phobi.gamja.repository.item.ItemRepository;
@@ -31,6 +34,7 @@ public class MonsterController {
     private final DexRepository dexRepository;
     private final MonsterRepository monsterRepository;
     private final ItemRepository itemRepository;
+    private final UserDexStatRepository userDexStatRepository;
 
     /** 1. 유저 스탯 + 프로필 정보 조회 **/
     @GetMapping("/user-stat")
@@ -48,17 +52,22 @@ public class MonsterController {
             return ResponseEntity.ok(GamJaResponse.fail("장착한 캐릭터가 없습니다."));
         }
 
-        Dex dex = dexRepository.findById(dexId)
-                .orElseThrow(() -> new IllegalArgumentException("캐릭터 도감 정보가 없습니다."));
+        // 🔸 캐릭터 스탯
+        UserDexStatId statId = new UserDexStatId(userId, dexId);
+        UserDexStat userDexStat = userDexStatRepository.findById(statId)
+                .orElseThrow(() -> new IllegalArgumentException("캐릭터 스탯 정보가 없습니다."));
 
-        // 이미지 보정 처리
-        userDtl.setCharacterImage(commonUtil.resolveCharacterImage(userDtl));
+        // 🔸 전투 스탯 계산
         BattleStatDto result = statCalculator.calculateBattleStat(userId);
+
+        // 🔸 이미지 경로 보정
+        userDtl.setCharacterImage(commonUtil.resolveCharacterImage(userDtl));
 
         Map<String, Object> userInfo = new HashMap<>();
         userInfo.put("name", userDtl.getUser().getUsername());
-        userInfo.put("lv", userDtl.getLevel());
-        userInfo.put("xp", userDtl.getXp());
+        userInfo.put("lv", userDexStat.getLevel());
+        userInfo.put("xp", userDexStat.getXp());
+        userInfo.put("maxExp", userDexStat.getMaxExp());
         userInfo.put("charImage", userDtl.getCharacterImage());
         userInfo.put("power", result.getTotalPower());
         userInfo.put("hp", result.getTotalHp());

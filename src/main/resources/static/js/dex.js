@@ -96,7 +96,7 @@ dexOverlay.addEventListener('click', (e) => {
 // 적용하기 버튼 처리
 async function applyDexImage(dexId) {
     try {
-        const res = await fetch('/api/char/setImage', {
+        const res = await fetch('/api/char/setDex', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ dexId })

@@ -28,14 +28,8 @@ public class UserDtl {
     @Column(name = "character_dex_id")
     private Long characterDexId; // 대표 감자 설정용
 
-    @Column(nullable = false)
-    private int level = 1;
-
-    @Column(nullable = false)
-    private int xp = 0;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    private int maxExp;
 }

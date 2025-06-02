@@ -2,10 +2,8 @@ package com.phobi.gamja.util;
 
 import com.phobi.gamja.dto.item.EquipmentType;
 import com.phobi.gamja.entity.item.ItemSkillBonus;
-import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.phobi.gamja.dto.item.ItemDto;
@@ -22,7 +20,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class StatCalculator {
 
-    private final UserStatRepository userStatRepository;
+    private final UserDexStatRepository userDexStatRepository;
     private final UserSkillRepository userSkillRepository;
     private final UserDtlRepository userDtlRepository;
     private final DexRepository dexRepository;
@@ -31,26 +29,28 @@ public class StatCalculator {
     private final ItemSkillBonusRepository itemSkillBonusRepository;
 
     public BattleStatDto calculateBattleStat(Long userId) {
-        // 기본 스탯
-        UserStat stat = userStatRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("기본 스탯이 없습니다."));
-        int baseHp = stat.getUserHp();
-        int basePower = stat.getUserPower();
-        int baseSpeed = stat.getUserSpeed();
-
-        // 도감 스탯
+        // 1. 유저 상세정보 + 착용 캐릭터 ID
         UserDtl userDtl = userDtlRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저 상세정보가 없습니다."));
         Long equippedDexId = userDtl.getCharacterDexId();
-        Dex dex = dexRepository.findById(equippedDexId).orElse(null);
 
+        // 2. 캐릭터별 스탯 (user_dex_stat)
+        UserDexStatId statId = new UserDexStatId(userId, equippedDexId);
+        UserDexStat stat = userDexStatRepository.findById(statId)
+                .orElseThrow(() -> new RuntimeException("캐릭터 스탯 정보가 없습니다."));
+
+        int baseHp = stat.getHp();
+        int basePower = stat.getPower();
+        int baseSpeed = stat.getSpeed();
+
+        // 3. 도감 기본값 (dex table)
+        Dex dex = dexRepository.findById(equippedDexId).orElse(null);
         int dexHp = 0, dexPower = 0, dexSpeed = 0;
         if (dex != null) {
             dexHp = dex.getDexHp();
             dexPower = dex.getDexPower();
             dexSpeed = dex.getDexSpeed();
         }
-
         // 장비 스탯
         List<UserEquipment> battleEquipments = userEquipmentRepository.findByUserIdAndType(userId, EquipmentType.EQUIP_BATTLE);
         int equipHp = 0, equipPower = 0, equipSpeed = 0;

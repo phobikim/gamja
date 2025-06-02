@@ -1,5 +1,6 @@
 package com.phobi.gamja.dto.user;
 
+import com.phobi.gamja.entity.user.UserDexStat;
 import com.phobi.gamja.entity.user.UserDtl;
 import lombok.Data;
 
@@ -13,14 +14,14 @@ public class UserCharInfoDto {
     private int maxExp;
 
 
-    public UserCharInfoDto(UserDtl userDtl) {
+    public UserCharInfoDto(UserDtl userDtl, UserDexStat stat) {
         this.username = userDtl.getUser().getUsername();
         this.characterImage = userDtl.getCharacterImage();
-        this.level = userDtl.getLevel();
-        this.xp = userDtl.getXp();
-        this.maxExp = userDtl.getMaxExp();
+        this.level = stat.getLevel();
+        this.xp = stat.getXp();
+        this.maxExp = stat.getMaxExp();
+        this.title = getTitleByLevel(stat.getLevel());
     }
-
     public String getTitleByLevel(int level) {
         if (level >= 1   && level <= 50)   return "씨앗 감자";           // 막 태어난
         if (level >= 51  && level <= 100)  return "흙속의 감자";         // 세상 구경 시작

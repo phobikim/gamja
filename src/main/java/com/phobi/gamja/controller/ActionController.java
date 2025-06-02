@@ -8,14 +8,12 @@ import com.phobi.gamja.entity.contents.ActionDrop;
 import com.phobi.gamja.entity.contents.ActivityType;
 import com.phobi.gamja.entity.contents.SkillType;
 import com.phobi.gamja.entity.item.Item;
-import com.phobi.gamja.entity.user.UserDtl;
-import com.phobi.gamja.entity.user.UserInventory;
-import com.phobi.gamja.entity.user.UserSkill;
-import com.phobi.gamja.entity.user.UserSkillId;
+import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.contents.ActionDropRepository;
 import com.phobi.gamja.repository.contents.ActionRepository;
 import com.phobi.gamja.repository.item.ItemRepository;
+import com.phobi.gamja.repository.user.UserDexStatRepository;
 import com.phobi.gamja.repository.user.UserDtlRepository;
 import com.phobi.gamja.repository.user.UserInventoryRepository;
 import com.phobi.gamja.repository.user.UserSkillRepository;
@@ -42,6 +40,7 @@ public class ActionController {
     private final UserSkillRepository userSkillRepository;
     private final ActionRepository actionRepository;
     private final UserDtlRepository userDtlRepository;
+    private final UserDexStatRepository userDexStatRepository;
 
     /* action 테이블 조회 및 메타데이터 반환 */
     @GetMapping("/{activityType}")
@@ -111,28 +110,38 @@ public class ActionController {
         if (userId == null ) {
             return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
         }
-        double exp = ((Number) request.getOrDefault("exp", 0)).doubleValue();
         UserDtl userDtl = userDtlRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        Long dexId = userDtl.getCharacterDexId();
+        if (dexId == null) {
+            return ResponseEntity.badRequest().body(GamJaResponse.fail("착용 중인 캐릭터가 없습니다."));
+        }
+
 
         int charMaxExp = 0;
         // 🟠 battle 의 승리는 캐릭터 xp 증가
-        userDtl = userDtlRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
-        int charXp = userDtl.getXp() + (int) exp;
-        int charLevel = userDtl.getLevel();
-        charMaxExp = getRequiredExp(charLevel);
-        while (charXp >= charMaxExp) {
-            charXp -= charMaxExp;
-            charLevel++;
+        // ✅ 해당 캐릭터 stat 조회
+        UserDexStatId statId = new UserDexStatId(userId, dexId);
+        UserDexStat stat = userDexStatRepository.findById(statId)
+                .orElseThrow(() -> new IllegalArgumentException("캐릭터 스탯 정보가 없습니다."));
 
-            commonUtil.levelUp(userDtl);
+        int gainedExp = (int) request.get("exp");
+        int xp = stat.getXp() + gainedExp;
+        int level = stat.getLevel();
+        int maxExp = stat.getMaxExp();
+        while (xp >= maxExp) {
+            xp -= maxExp;
+            level++;
+            commonUtil.levelUp(stat);
+            maxExp = getRequiredExp(level);
         }
-        userDtl.setLevel(charLevel);
-        userDtl.setXp(charXp);
-        userDtl.setMaxExp(charMaxExp);
-        userDtlRepository.save(userDtl);
+
+        stat.setXp(xp);
+        stat.setLevel(level);
+        stat.setMaxExp(maxExp);
+        userDexStatRepository.save(stat);
+
 
         // 아이템 획득 처리
         List<Map<String, Object>> items = (List<Map<String, Object>>) request.get("items");
@@ -157,7 +166,7 @@ public class ActionController {
         String finalImage = commonUtil.resolveCharacterImage(userDtl);
         userDtl.setCharacterImage(finalImage);
 
-        UserCharInfoDto result = new UserCharInfoDto(userDtl);
+        UserCharInfoDto result = new UserCharInfoDto(userDtl,stat);
         return ResponseEntity.ok(GamJaResponse.success("아이템 추가 완료", result));
     }
 
@@ -211,10 +220,6 @@ public class ActionController {
         userSkill.setLevel(level);
         userSkill.setExp((int) totalExp);
         userSkillRepository.save(userSkill);
-        UserDtl userDtl = userDtlRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
-
-
 
         // 아이템 획득 처리
         List<Map<String, Object>> items = (List<Map<String, Object>>) request.get("items");
@@ -236,10 +241,21 @@ public class ActionController {
                 userInventoryRepository.save(newInventory);
             }
         }
-        String finalImage = commonUtil.resolveCharacterImage(userDtl);
-        userDtl.setCharacterImage(finalImage);
 
-        UserCharInfoDto result = new UserCharInfoDto(userDtl);
+        UserDtl userDtl = userDtlRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        userDtl.setCharacterImage(commonUtil.resolveCharacterImage(userDtl));
+
+        Long dexId = userDtl.getCharacterDexId();
+        if (dexId == null) {
+            return ResponseEntity.badRequest().body(GamJaResponse.fail("착용 중인 캐릭터가 없습니다."));
+        }
+        UserDexStatId statId = new UserDexStatId(userId, dexId);
+        UserDexStat stat = userDexStatRepository.findById(statId)
+                .orElseThrow(() -> new IllegalArgumentException("캐릭터 스탯 정보가 없습니다."));
+
+        UserCharInfoDto result = new UserCharInfoDto(userDtl, stat);
+
         return ResponseEntity.ok(GamJaResponse.success("아이템 추가 완료", result));
     }
 

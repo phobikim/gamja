@@ -1,5 +1,6 @@
 package com.phobi.gamja.controller;
 
+import com.phobi.gamja.entity.contents.Dex;
 import com.phobi.gamja.entity.contents.SkillType;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
@@ -23,7 +24,7 @@ public class LoginController {
     private final UserDtlRepository userDtlRepository;
     private final UserSkillRepository userSkillRepository;
     private final UserDexRepository userDexRepository;
-    private final UserStatRepository userStatRepository;
+    private final UserDexStatRepository userDexStatRepository;
 
 
     @Transactional
@@ -75,18 +76,10 @@ public class LoginController {
             UserDtl userDtl = new UserDtl();
             userDtl.setUser(savedUser); // FK 매핑
             userDtl.setCharacterImage("default.png");
-            userDtl.setLevel(1);
-            userDtl.setXp(0);
             userDtl.setCharacterDexId(100L);
             userDtlRepository.save(userDtl);
 
-            // ✅ 기본 stat 생성
-            UserStat userStat = new UserStat();
-            userStat.setUser(savedUser);
-            userStat.setUserPower(1);
-            userStat.setUserHp(1);
-            userStat.setUserSpeed(1);
-            userStatRepository.save(userStat);
+
 
 
             // ✅ 활동/제작 스킬 초기화
@@ -113,12 +106,28 @@ public class LoginController {
                     .toList();
             userDexRepository.saveAll(toSave);
 
-            session.setAttribute("userId", savedUser.getId());
+            // ✅ 기본 stat 생성
+            List<UserDexStat> dexStats = dexIds.stream()
+                    .map(dexId -> UserDexStat.builder()
+                            .id(new UserDexStatId(savedUser.getId(), dexId))
+                            .user(savedUser)
+                            .dex(Dex.builder().id(dexId).build()) // 필요한 경우 실제 Dex entity 조회
+                            .level(1)
+                            .xp(0)
+                            .maxExp(100)
+                            .power(1)
+                            .hp(1)
+                            .speed(1)
+                            .build())
+                    .toList();
+            userDexStatRepository.saveAll(dexStats);
+
+
 
             Map<String, Object> body = new HashMap<>();
-
             body.put("userId", savedUser.getId());
             body.put("username", savedUser.getUsername());
+
             //세션 저장
             session.setAttribute("userId", savedUser.getId());
             session.setAttribute("username", savedUser.getUsername());
