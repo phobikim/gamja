@@ -388,7 +388,7 @@ async function handleAttackClick() {
 
     // 5. 스탯 영역 세팅
     document.querySelector('.user-name').textContent = `${user.dexName}`;
-    document.querySelector('.user-level').textContent = user.lv;
+    document.querySelector('.user-attribute').textContent = user.attribute;
     document.querySelector('.user-power').textContent = user.power;
     document.querySelector('.user-hp').textContent = user.hp;
     document.querySelector('.user-speed').textContent = user.speed;

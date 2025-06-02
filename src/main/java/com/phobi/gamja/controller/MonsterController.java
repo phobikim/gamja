@@ -73,6 +73,7 @@ public class MonsterController {
         userInfo.put("power", result.getTotalPower());
         userInfo.put("hp", result.getTotalHp());
         userInfo.put("speed", result.getTotalSpeed());
+        userInfo.put("attribute", userDexStat.getDex().getAttribute());
 
         return ResponseEntity.ok(GamJaResponse.success("유저 스탯 조회 성공", userInfo));
     }

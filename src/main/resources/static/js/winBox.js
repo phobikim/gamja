@@ -37,8 +37,8 @@ function getCurrentBattleUser() {
 
 const rarityWeights = {
     'COMMON': 80,
-    'UNCOMMON': 10,
-    'RARE': 5,
+    'UNCOMMON': 5,
+    'RARE': 3,
     'EPIC': 1,
     'LEGENDARY': 0.5,
 };

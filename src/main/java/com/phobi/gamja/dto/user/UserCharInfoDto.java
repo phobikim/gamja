@@ -13,6 +13,7 @@ public class UserCharInfoDto {
     private String title;
     private int maxExp;
     private String dexName;
+    private String attribute;
 
 
     public UserCharInfoDto(UserDtl userDtl, UserDexStat stat) {
@@ -23,6 +24,7 @@ public class UserCharInfoDto {
         this.maxExp = stat.getMaxExp();
         this.dexName = stat.getDex().getName();
         this.title = getTitleByLevel(stat.getLevel());
+        this.attribute = stat.getDex().getAttribute();
     }
     public String getTitleByLevel(int level) {
         if (level >= 1   && level <= 50)   return "씨앗 감자";           // 막 태어난

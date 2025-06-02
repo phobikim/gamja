@@ -189,10 +189,11 @@
     background: #61bb11;
 }
 #lootModal .loot-item-card.rarity-rare {
-    background: #ca51f9;
+    background: #2787cd;
 
 }
 #lootModal .loot-item-card.rarity-epic {
+    background: #ca51f9;
 }
 #lootModal .loot-item-card.rarity-legendary {
 }
@@ -284,16 +285,16 @@
 #defeatModal .defeat-modal-content {
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;       /* 🔸 수직 중앙 정렬 */
     text-align: center;
-    border-radius: 20px;
+    border-radius: 16px;
     background: #c88035;
-    padding: 3vw;
-    width: 90%;
-    max-width: 600px;
-    max-height: 90vh;
+    padding: 2vw;
+    width: 70%;
+    max-width: 400px;
+    max-height: 80vh;
     overflow-y: auto;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
     box-sizing: border-box;
     position: relative;
 }
@@ -303,7 +304,7 @@
     display: flex;
     justify-content: center;
     width: 100%;
-    max-width: 400px;
+    max-width: 280px;
 }
 
 

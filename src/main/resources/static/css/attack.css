@@ -72,7 +72,7 @@
     position: relative;
     width: 100%;
     aspect-ratio: 18 / 7;
-    min-height: 120px;
+    min-height: 140px;
     overflow: hidden;
     border: 2px solid #ccc;
     flex: 0 0 auto; /* 고정 크기 유지 */
@@ -114,10 +114,6 @@
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
 }
 
-#battleModal .player-character {
-    transform: scaleX(-1);
-}
-
     /*!* 공통 그림자 *!*/
 #battleModal .char-shadow {
     width: 60%;
@@ -154,7 +150,7 @@
     background-color: #4f4c48;
     flex: 0 0 auto; /* 고정 크기 유지 */
     min-height: 120px; /* 최소 높이 고정 */
-    max-height: 180px; /* 최대 높이 제한 */
+    max-height: 200px; /* 최대 높이 제한 */
     width: 100%;
     display: flex;
     justify-content: center;
@@ -225,7 +221,7 @@
 
 #battleModal .user-stats strong,
 #battleModal .monster-stats strong {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     color: #fff;
 }
 
@@ -237,6 +233,49 @@
     text-align: right;
 }
 
+.stat-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.stat-table td {
+    padding: 6px 8px;
+    font-size: 1rem;
+    color: #fff8dc;
+    vertical-align: middle;
+}
+
+.battle-stat-icon {
+    width: 28px;         /* 기존보다 큼 */
+    height: 28px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.card-head {
+    text-align: center;
+    line-height: 1.2;
+    margin-bottom: 6px;
+}
+
+.user-name,
+.monster-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff8dc;
+}
+
+.user-attribute,
+.monster-rank {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #cfc1a6;
+    display: inline-block;
+    margin-top: 2px;
+}
+
 /* 턴 표시 - 카드 활성화 스타일 */
 #battleModal .stat-card.active-turn {
     transform: scale(1.05) translateY(-0.5vw);
@@ -245,7 +284,7 @@
             0 0.8vw 1.5vw rgba(0, 0, 0, 0.5),
             inset 0 0.1vw 0.2vw rgba(255, 255, 255, 0.2),
             0 0 15px rgba(57, 255, 20, 0.6);
-    animation: turnPulse 2s ease-in-out infinite;
+    /*animation: turnPulse 2s ease-in-out infinite;*/
 }
 
 #battleModal .stat-card.inactive-turn {
@@ -268,52 +307,6 @@
                 inset 0 0.1vw 0.2vw rgba(255, 255, 255, 0.2),
                 0 0 25px rgba(57, 255, 20, 0.8);
     }
-}
-
-/* 🔥 드롭 아이템 - 고정 높이 유지 */
-#battleModal .battle-drops {
-    flex: 0 0 auto; /* 고정 크기 유지 */
-    min-height: 80px; /* 최소 높이 고정 */
-    max-height: 110px; /* 최대 높이 제한 */
-    width: 100%;
-    padding: 0.8vw;
-    border: 2px solid white;
-    border-radius: 2vw;
-    background-color: chocolate;
-    box-shadow: 0 0.4vw 1vw rgba(0, 0, 0, 0.2);
-    box-sizing: border-box;
-    text-align: center;
-    overflow-y: auto; /* 내용이 많으면 스크롤 */
-}
-
-#battleModal .drop-label {
-    display: block;
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    color: #fff;
-}
-
-#battleModal .monster-drops {
-    display: flex;
-    justify-content: center;
-    gap: 0.8vw;
-    flex-wrap: wrap;
-    padding-top: 0.3rem;
-}
-
-#battleModal .drop-icon {
-    width: 48px;
-    height: 48px;
-    image-rendering: pixelated;
-    object-fit: contain;
-    border-radius: 0.3rem;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-#battleModal .drop-icon:hover {
-    transform: scale(1.1);
 }
 
 /* 🔥 액션 버튼 영역 - 고정 높이 유지 */
@@ -398,6 +391,59 @@
     }
 }
 
+
+
+
+
+/* 🔥 드롭 아이템 - 고정 높이 유지 */
+#battleModal .battle-drops {
+    flex: 0 0 auto; /* 고정 크기 유지 */
+    min-height: 80px; /* 최소 높이 고정 */
+    max-height: 110px; /* 최대 높이 제한 */
+    width: 100%;
+    padding: 0.8vw;
+    border: 2px solid white;
+    border-radius: 2vw;
+    background-color: chocolate;
+    box-shadow: 0 0.4vw 1vw rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    text-align: center;
+    overflow-y: auto; /* 내용이 많으면 스크롤 */
+}
+
+#battleModal .drop-label {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+#battleModal .monster-drops {
+    display: flex;
+    justify-content: center;
+    gap: 0.8vw;
+    flex-wrap: wrap;
+    padding-top: 0.3rem;
+}
+
+#battleModal .drop-icon {
+    width: 48px;
+    height: 48px;
+    image-rendering: pixelated;
+    object-fit: contain;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+#battleModal .drop-icon:hover {
+    transform: scale(1.1);
+}
+
+
+
+
 /* 🎮 모바일 최적화 */
 @media (max-width: 480px) {
     #battleModal .battle-modal-content {
@@ -409,8 +455,8 @@
 
     #battleModal .battle-stats {
         min-height: 100px;
-        max-height: 180px;
-        padding: 12px;
+        max-height: 200px;
+        padding: 2.5vw;
         gap: 12px;
     }
 
@@ -443,12 +489,12 @@
     }
 
     #battleModal .battle-scene {
-        min-height: 100px;
+        min-height: 140px;
     }
 
     #battleModal .battle-stats {
         min-height: 90px;
-        max-height: 180px;
+        max-height: 200px;
     }
 
     #battleModal .battle-drops {

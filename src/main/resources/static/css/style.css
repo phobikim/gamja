@@ -111,6 +111,7 @@ button:hover {
 }
 
 .rarity-epic {
+    color: #4aa8ff;
     filter: drop-shadow(0 0 6px rgba(147, 112, 219, 0.8));
 }
 
