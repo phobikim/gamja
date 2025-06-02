@@ -104,6 +104,7 @@ async function applyDexImage(dexId) {
         const result = await res.json();
 
         if (result.code === 'SUCCESS') {
+            setUserInfo(result.data);
             showMessageModal('대표 감자가 변경되었습니다!');
 
             if (result.data?.characterImage) {

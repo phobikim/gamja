@@ -47,42 +47,40 @@ document.addEventListener('DOMContentLoaded', async () => {
             title,
             username,
             xp,
-            characterImage
+            characterImage,
+            dexName
         } = data;
 
         const charNameEl = document.getElementById('charName');
         const charLevelEl = document.getElementById('charLevel');
         const userTitleEl = document.getElementById('userTitle');
-
-        // 이미지 교체: null이 아닌 경우만
+        const dexNameEl = document.getElementById('dexName');
+        // 캐릭터 이미지
         if (characterImage) {
             const imagePath = '/character/';
             mainCharacter.src = basePath_image + imagePath + characterImage;
             mainCharacter.alt = nickname || username || '캐릭터';
         }
 
-        // 닉네임
-        if (nickname || username) {
-            charNameEl.textContent = nickname || username;
-        }
+        // 닉네임 (포비)
+        charNameEl.textContent = nickname || username;
+
+        // 칭호 (씨앗 감자)
+        userTitleEl.textContent = title;
+
+        // 착용 캐릭터 이름 (감풍덩)
+        dexNameEl.textContent = dexName;
 
         // 레벨
-        if (level !== null && level !== undefined) {
+        if (level != null) {
             charLevelEl.textContent = level;
         }
 
-        // 칭호
-        if (title !== null && title !== undefined) {
-            userTitleEl.textContent = title;
-        }
-
+        // 경험치 바 처리
         const maxExp = 100 + (level - 1) * 20;
-        const expPercent = ((xp / maxExp) * 100).toFixed(1); // 퍼센트로 계산
-        // 경험치
-        if (xp !== null && xp !== undefined) {
-            hpBarText.textContent = `${xp} / ${maxExp}`;
-            hpBarFill.style.width = `${expPercent}%`;
-        }
+        const expPercent = ((xp / maxExp) * 100).toFixed(1);
+        hpBarText.textContent = `${xp} / ${maxExp}`;
+        hpBarFill.style.width = `${expPercent}%`;
     }
 
     window.setUserInfo = setUserInfo;

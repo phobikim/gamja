@@ -39,17 +39,17 @@ public class StatCalculator {
         UserDexStat stat = userDexStatRepository.findById(statId)
                 .orElseThrow(() -> new RuntimeException("캐릭터 스탯 정보가 없습니다."));
 
-        int baseHp = stat.getHp();
-        int basePower = stat.getPower();
-        int baseSpeed = stat.getSpeed();
+        int userDexStatHp = stat.getHp();
+        int userDexStatPower = stat.getPower();
+        int userDexStatSpeed = stat.getSpeed();
 
         // 3. 도감 기본값 (dex table)
         Dex dex = dexRepository.findById(equippedDexId).orElse(null);
-        int dexHp = 0, dexPower = 0, dexSpeed = 0;
+        int baseDexHp = 0, baseDexPower = 0, baseDexSpeed = 0;
         if (dex != null) {
-            dexHp = dex.getDexHp();
-            dexPower = dex.getDexPower();
-            dexSpeed = dex.getDexSpeed();
+            baseDexHp = dex.getDexHp();
+            baseDexPower = dex.getDexPower();
+            baseDexSpeed = dex.getDexSpeed();
         }
         // 장비 스탯
         List<UserEquipment> battleEquipments = userEquipmentRepository.findByUserIdAndType(userId, EquipmentType.EQUIP_BATTLE);
@@ -67,9 +67,9 @@ public class StatCalculator {
         }
 
         return new BattleStatDto(
-                baseHp + dexHp + equipHp,
-                basePower + dexPower + equipPower,
-                baseSpeed + dexSpeed + equipSpeed,
+                userDexStatHp + baseDexHp + equipHp,
+                userDexStatPower + baseDexPower + equipPower,
+                userDexStatSpeed + baseDexSpeed + equipSpeed,
                 itemDtoList
         );
     }

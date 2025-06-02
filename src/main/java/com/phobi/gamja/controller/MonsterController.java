@@ -64,6 +64,7 @@ public class MonsterController {
         userDtl.setCharacterImage(commonUtil.resolveCharacterImage(userDtl));
 
         Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("dexName", userDexStat.getDex().getName());
         userInfo.put("name", userDtl.getUser().getUsername());
         userInfo.put("lv", userDexStat.getLevel());
         userInfo.put("xp", userDexStat.getXp());

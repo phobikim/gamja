@@ -11,7 +11,7 @@ const playerImage = document.getElementById('userCharacter');
 
 window.battleState = {
     player: {
-        name: '',
+        dexName: '',
         maxHp: 0,
         currentHp: 0,
         power: 0,
@@ -53,7 +53,7 @@ function startBattle(user, monster) {
     isProcessingTurn = false; // ✅ 턴 처리 상태 초기화
 
     battleState.player = {
-        name: user.name,
+        name: user.dexName,
         maxHp: user.hp,
         currentHp: user.hp,
         power: user.power,
@@ -387,7 +387,7 @@ async function handleAttackClick() {
     };
 
     // 5. 스탯 영역 세팅
-    document.querySelector('.user-name').textContent = `${user.name}`;
+    document.querySelector('.user-name').textContent = `${user.dexName}`;
     document.querySelector('.user-level').textContent = user.lv;
     document.querySelector('.user-power').textContent = user.power;
     document.querySelector('.user-hp').textContent = user.hp;
@@ -411,14 +411,7 @@ async function handleAttackClick() {
     // 해당 rank에 맞는 색상 적용
     rankElement.style.color = rankColorMap[rankText] || '#000'; // 기본은 검정
 
-    // 기존 값
-    const basePower = Number(user.power) || 0;
-    const levelBonus = Number(user.lv) || 0;
-    const totalPower = basePower + levelBonus;
 
-    const powerEl = document.querySelector('.user-power');
-    powerEl.innerHTML = `${totalPower} (<span style="color:#fff8dc;">${basePower}</span> + <span style="color:#39ff14;">${levelBonus}</span>)`;
-    user.power = totalPower;
     startBattle(user, monster);
 }
 

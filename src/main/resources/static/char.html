@@ -31,29 +31,33 @@
 
 <!-- 🎮 메인 게임 카드 -->
 <main class="game-card">
-
     <div class="main-wrapper">
+        <!-- 🔶 유저 정보 카드 -->
+        <div class="info-card user-card">
+            <p class="user-text">
+                <span class="user-title" id="userTitle">씨앗 감자</span>
+                <span class="main-user-name" id="charName">포비</span>
+            </p>
+        </div>
         <!-- 상단 캐릭터 영역 -->
         <section class="character-section" onclick="openInfoModal()">
             <div class="background-area"></div>
             <img id="mainCharacter" src="https://phobi.me/gamja.img/images/character/default.png" alt="캐릭터" class="character-img">
         </section>
-
-        <!-- 캐릭터 정보 영역 -->
-        <section class="info-section">
-            <p id="charInfoText" class="char-text">
-                <span class="char-title" id="userTitle">씨앗</span>
-                <span id="charName">포비</span>
-                <span class="level-text">(LV <span id="charLevel" class="level-num">1</span>)</span>
-            </p>
-
-            <div class="hp-bar">
-                <div id="hpBarFill" class="hp-bar-fill" style="width: 5%;"></div>
-                <span id="hpBarText" class="hp-bar-text">10 / 200</span>
+        <!-- 캐릭터 정보 카드 박스 (이미지 아래에 위치) -->
+        <!-- 🔷 착용 감자 카드 -->
+        <div class="info-card equip-dex-card">
+            <div class="dex-info-line">
+                <p class="char-dex-name" id="dexName">감풍덩</p>
+                <p class="level-text">LV <span id="charLevel" class="level-num">1</span></p>
             </div>
-        </section>
-    </div>
+            <div class="hp-bar">
+                <div id="hpBarFill" class="hp-bar-fill" style="width: 0%;"></div>
+                <span id="hpBarText" class="hp-bar-text">0 / 100</span>
+            </div>
+        </div>
 
+    </div>
     <!-- 하단 인벤토리 그리드 (4x2) -->
     <section class="inventory-grid">
         <div class="inventoryCell" onclick="openMapModal()">
@@ -347,7 +351,7 @@
             <!-- 유저 카드 -->
             <div class="stat-card user-stats">
                 <div class="card-head">
-                    <strong class="user-name">유저이름</strong>
+                    <strong class="user-name">캐릭터이름</strong>
                 </div>
                 <div class="card-body">
                     Lv.<span class="user-level">0</span><br>

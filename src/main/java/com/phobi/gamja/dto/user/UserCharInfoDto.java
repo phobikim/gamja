@@ -12,6 +12,7 @@ public class UserCharInfoDto {
     private int xp;
     private String title;
     private int maxExp;
+    private String dexName;
 
 
     public UserCharInfoDto(UserDtl userDtl, UserDexStat stat) {
@@ -20,6 +21,7 @@ public class UserCharInfoDto {
         this.level = stat.getLevel();
         this.xp = stat.getXp();
         this.maxExp = stat.getMaxExp();
+        this.dexName = stat.getDex().getName();
         this.title = getTitleByLevel(stat.getLevel());
     }
     public String getTitleByLevel(int level) {
