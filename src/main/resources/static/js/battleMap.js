@@ -58,9 +58,9 @@ closeBattleBtn.onclick = () => {
 };
 
 function updateMapDetail(map) {
-    document.querySelector('.map-name').textContent = map.name;
-    document.querySelector('.map-level').textContent = `Level ${map.recommendedLevel || '-'}`;
-    document.querySelector('.map-desc').textContent = map.desc || '-';
+    document.getElementById('battleSelectMapName').textContent = map.name;
+    document.getElementById('battleSelectMapLevel').textContent = `Level ${map.recommendedLevel || '-'}`;
+    document.getElementById('battleSelectMapDesc').textContent = map.desc || '-';
 
     // ENEMIES 영역
     const monsterBox = document.getElementById('mapMonsters');

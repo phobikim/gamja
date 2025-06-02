@@ -8,48 +8,23 @@
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-.spot-button-disabled {
-    position: relative;
-    background-color: #d2a679 !important;
-    color: #999 !important;
-    cursor: not-allowed;
-    opacity: 1;
-    box-shadow: none;
-    pointer-events: none;
-}
-
-.spot-lock-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.6);
-    color: #fff;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: bold;
-    pointer-events: none;
-}
-
-.skill-info {
-    margin: 10px 0 15px;
-    padding: 14px 16px;
-    background-color: #fff1cc;
+.skill-info-box {
+    background: #fff1cc;
     border: 2px solid #d2a679;
     border-radius: 10px;
+    padding: 10px 14px;
+    margin: 10px 0 14px;
     font-size: 14px;
     color: #5e340e;
     font-weight: bold;
-    text-align: left;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.skill-level {
+.user-skill-level {
+    color : var(--green-hignlight);
     font-size: 16px;
-    color: #5e340e;
     margin-bottom: 8px;
 }
+
 
 .skill-exp-bar {
     position: relative;

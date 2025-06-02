@@ -117,13 +117,36 @@
 <!-- 모든 모달들은 기존과 동일 -->
 <!-- 공통 장소 선택 모달 -->
 <div id="spotSelectModal" class="modal hidden">
-    <div class="spot-select-modal-content">
-        <h2 class="common-h2-brown" id="spotSelectTitle">장소 선택</h2>
-        <div id="userSkillInfo" class="skill-info">
-            <!-- JS에서 동적으로 레벨, 경험치 삽입 -->
+    <div class="map-select-modal-content">
+        <!-- 🔹 액션 스팟 썸네일 리스트 -->
+        <div id="spotListScroll" class="map-list-horizontal">
+            <!-- JS로 .map-card 썸네일이 여기에 들어감 -->
         </div>
-        <div class="spot-list" id="spotButtonList">
-            <!-- JS로 버튼이 동적으로 삽입됨 -->
+
+        <!-- 🔸 상세 정보 패널 -->
+        <div id="spotDetailPanel" class="map-detail-box">
+            <div class="map-name" id="spotSelectName">장소 이름</div>
+            <div class="map-meta">
+                <span class="map-desc" id="spotSelectDescription">장소 설명</span>
+            </div>
+            <!-- 🔸 맵 정보 박스 -->
+            <div class="map-info-card">
+                <div class="section-title">필요 레벨</div>
+                <div id="spotRequiredLevel">1</div>
+            </div>
+
+            <!-- 🔸 유저 스킬 정보 박스 -->
+            <div id="userSkillBox" class="map-info-card skill-info-box">
+                <div class="section-title">내 스킬 정보</div>
+                <div class="user-skill-level" id="userSkillLevel">Lv.1</div>
+                <div class="skill-exp-bar">
+                    <div class="skill-exp-fill" id="userSkillExpFill" style="width: 0%;"></div>
+                    <div class="skill-exp-text" id="userSkillExpText">0 / 0 EXP</div>
+                </div>
+            </div>
+
+            <button id="startActionBtn" class="start-battle-button">⛏ 활동 시작</button>
+            <button id="closeActionBtn" class="start-battle-button">❌ 닫기</button>
         </div>
     </div>
 </div>
@@ -335,10 +358,10 @@
 
         <!-- 🔸 상세 정보 패널 -->
         <div id="mapDetailPanel" class="map-detail-box">
-            <div class="map-name">Misty Forest</div>
+            <div class="map-name" id="battleSelectMapName">들판</div>
             <div class="map-meta">
-                <span class="map-level">Level 17</span> ·
-                <span class="map-desc">Chapter 3</span>
+                <span class="map-level" id="battleSelectMapLevel">Level 1</span> ·
+                <span class="map-desc" id="battleSelectMapDesc">설명</span>
             </div>
 
             <div class="map-info-card">
