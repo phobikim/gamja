@@ -86,19 +86,19 @@
     <div class="spot-select-modal-content">
         <h2 class="common-h2-brown">이동할 장소 선택</h2>
         <div class="spot-list map-select-list">
-            <div class="inventoryCell" onclick="actionGather('WOODCUTTING'); closeLifeSelectModal()">
+            <div class="inventoryCell" onclick="actionGather('WOODCUTTING');">
                 <img src="https://phobi.me/gamja.img/images/icons/icon_wood.png" alt="벌목">
                 <span class="itemLabel">벌목</span>
             </div>
-            <div class="inventoryCell" onclick="actionGather('MINING'); closeLifeSelectModal()">
+            <div class="inventoryCell" onclick="actionGather('MINING');">
                 <img src="https://phobi.me/gamja.img/images/icons/icon_mining.png" alt="광산">
                 <span class="itemLabel">광산</span>
             </div>
-            <div class="inventoryCell" onclick="actionGather('GATHERING'); closeLifeSelectModal()">
+            <div class="inventoryCell" onclick="actionGather('GATHERING');">
                 <img src="https://phobi.me/gamja.img/images/icons/icon_field.png" alt="감자밭">
                 <span class="itemLabel">감자밭</span>
             </div>
-            <div class="inventoryCell" onclick="actionGather('FISHING'); closeLifeSelectModal()">
+            <div class="inventoryCell" onclick="actionGather('FISHING');">
                 <img src="https://phobi.me/gamja.img/images/icons/icon_fish.png" alt="낚시">
                 <span class="itemLabel">낚시</span>
             </div>
@@ -352,6 +352,7 @@
             </div>
 
             <button id="startBattleBtn" class="start-battle-button">🔥 PLAY</button>
+            <button id="closeBattleBtn" class="start-battle-button">❌ 닫기</button>
         </div>
 
     </div>
@@ -434,11 +435,11 @@
         </div>
 
         <div class="battle-actions">
-            <button onclick="doAttack()">
-                <img src="https://phobi.me/gamja.img/images/icons/icon_skill_attack.png" alt="공격">
-            </button>
             <button onclick="doHeal()">
                 <img src="https://phobi.me/gamja.img/images/icons/icon_skill_heal.png" alt="도망">
+            </button>
+            <button onclick="doAttack()">
+                <img src="https://phobi.me/gamja.img/images/icons/icon_skill_attack.png" alt="공격">
             </button>
             <button onclick="doDefend()">
                 <div id="effectContainer">
@@ -645,14 +646,14 @@
         </div>
 
         <div class="inventory-grid  hidden" id="lifeEquipment">
-            <div class="inventoryCell" id="lifeSlotHead">머리</div>
-            <div class="inventoryCell" id="lifeSlotTop">상의</div>
-            <div class="inventoryCell" id="lifeSlotBottom">하의</div>
-            <div class="inventoryCell" id="lifeSlotTool">도구</div>
-            <div class="inventoryCell" id="lifeSlotShoes">신발</div>
-            <div class="inventoryCell" id="lifeSlotNeck">목걸이</div>
+            <div class="inventoryCell" id="lifeSlotFishingRod">낚시대</div>
+            <div class="inventoryCell" id="lifeSlotAxe">도끼</div>
+            <div class="inventoryCell" id="lifeSlotPickaxe">곡괭이</div>
+            <div class="inventoryCell" id="lifeSlotGlove">장갑</div>
             <div class="inventoryCell" id="lifeSlotRing">반지</div>
-            <div class="inventoryCell" id="lifeSlotPotion">소비</div>
+            <div class="inventoryCell" id="lifeSlotNecklace">목걸이</div>
+            <div class="inventoryCell" id="lifeSlotBracelet">팔찌</div>
+            <div class="inventoryCell" id="lifeSlotBelt">벨트</div>
         </div>
 
     </div>
@@ -682,6 +683,7 @@
 <script src="js/battleMap.js"></script>
 <script src="js/winBox.js"></script>
 <script src="js/map.js"></script>
+<script src="js/playerInfo.js"></script>
 
 
 </body>

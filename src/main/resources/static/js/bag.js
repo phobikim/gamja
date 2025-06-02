@@ -77,6 +77,11 @@ function setTabActive(type) {
 document.querySelectorAll(".bag-tabs button").forEach(btn => {
     btn.addEventListener("click", () => {
         const type = btn.dataset.type;
+        // 🔥 스크롤 맨 위로 초기화
+        const bagContent = document.querySelector('.bag-modal-content');
+        if (bagContent) {
+            bagContent.scrollTop = 0;
+        }
         setTabActive(type);
         renderItemsByType(type);
     });

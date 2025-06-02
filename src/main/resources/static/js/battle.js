@@ -223,6 +223,7 @@ function monsterTurn() {
         isPlayerTurn = true;
         isProcessingTurn = false;
         updateButtonStates();
+        updateCardTurnStyles()
 
     }, 400);
 }

@@ -2,6 +2,7 @@
 const battleMapSelectModal = document.getElementById('battleMapSelectModal');
 const mapListContainer = document.getElementById('mapListScroll');
 const startBattleBtn = document.getElementById('startBattleBtn');
+const closeBattleBtn = document.getElementById('closeBattleBtn');
 let selectedMap = null;
 let currentMonsterList = [];
 
@@ -52,6 +53,10 @@ function renderMapList(mapList) {
     };
 }
 
+closeBattleBtn.onclick = () => {
+    battleMapSelectModal.classList.add('hidden');
+};
+
 function updateMapDetail(map) {
     document.querySelector('.map-name').textContent = map.name;
     document.querySelector('.map-level').textContent = `Level ${map.recommendedLevel || '-'}`;
@@ -77,10 +82,10 @@ function updateMapDetail(map) {
 
         const tooltip = document.createElement('div');
         tooltip.className = 'custom-tooltip';
-        tooltip.textContent = `[${mon.name}] ${mon.desc}`;
-        wrapper.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
+        // ✅ 이름 + 줄바꿈 + 설명
+        tooltip.innerHTML = `<strong>[${mon.name}]</strong><br>${mon.desc || ''}`;
+
+        wrapper.addEventListener('click', (e) => e.stopPropagation());
         wrapper.appendChild(img);
         wrapper.appendChild(tooltip);
         monsterBox.appendChild(wrapper);
@@ -106,10 +111,9 @@ function updateMapDetail(map) {
         if (rarityClass) img.classList.add(rarityClass);
         const tooltip = document.createElement('div');
         tooltip.className = 'custom-tooltip';
-        tooltip.textContent = `[${item.name}] ${item.description}`;
-        wrapper.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
+        tooltip.innerHTML = `<strong>[${item.name}]</strong><br>${item.description || ''}`;
+
+        wrapper.addEventListener('click', (e) => e.stopPropagation());
         wrapper.appendChild(img);
         wrapper.appendChild(tooltip);
         rewardBox.appendChild(wrapper);

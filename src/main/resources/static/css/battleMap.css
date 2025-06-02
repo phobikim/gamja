@@ -144,8 +144,8 @@
     position: relative;
     display: inline-block;
 }
-
 .tooltip-wrapper .custom-tooltip {
+    visibility: hidden;
     pointer-events: auto;
     white-space: normal;
     position: fixed;         /* ✅ 모달 전체 기준으로 고정 */

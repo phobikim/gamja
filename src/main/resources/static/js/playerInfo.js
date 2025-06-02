@@ -120,15 +120,15 @@ function setCharacterLifeInfo(data) {
 
     // 슬롯 설정
     const slotMap = {
-        WEAPON: 'lifeSlotWeapon',
-        HELMET: 'lifeSlotHead',
-        ARMOR: 'lifeSlotTop',
-        PANTS: 'lifeSlotBottom',
-        SHOES: 'lifeSlotShoes',
+        FISHING_ROD: 'lifeSlotFishingRod',
+        AXE: 'lifeSlotAxe',
+        PICKAXE: 'lifeSlotPickaxe',
+        GLOVE: 'lifeSlotGlove',
         RING: 'lifeSlotRing',
-        NECK: 'lifeSlotNeck',
-        POTION: 'lifeSlotPotion'
-    };
+        NECKLACE: 'lifeSlotNecklace',
+        BRACELET: 'lifeSlotBracelet',
+        BELT: 'lifeSlotBelt'
+    }
     data.equippedItems.forEach(item => {
         const slotId = slotMap[item.equipSlot];
         if (slotId) {
@@ -144,25 +144,6 @@ function setCharacterLifeInfo(data) {
     });
     bindItemTooltipEvents();
 }
-
-function generateStatBar({ containerId, id, label, icon, value, max = 50 }) {
-    const container = document.getElementById(containerId);
-    const template = document.getElementById('statBarTemplate');
-    const clone = template.content.cloneNode(true);
-
-    const iconEl = clone.querySelector('.stat-icon');
-    const labelEl = clone.querySelector('.stat-label');
-    const barEl = clone.querySelector('.stat-bar-fill');
-    const valueEl = clone.querySelector('.stat-bar-value');
-
-    iconEl.src = icon;
-    labelEl.textContent = label;
-    valueEl.textContent = value;
-    barEl.style.width = `${Math.min((value / max) * 100, 100)}%`;
-
-    container.appendChild(clone);
-}
-
 
 // 탭 전환 핸들러
 battleTabBtn.addEventListener('click', () => {

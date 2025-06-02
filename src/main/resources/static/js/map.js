@@ -11,13 +11,3 @@ mapModal.addEventListener('click', (e) => {
 function closeMapModal() {
     document.getElementById('mapSelectModal').classList.add('hidden');
 }
-
-function handleMapActivity(activityType) {
-    closeMapModal();
-    actionGather(activityType);
-}
-
-function handleMapWorkshop() {
-    closeMapModal();
-    handleStationClick();
-}
