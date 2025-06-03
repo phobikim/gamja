@@ -1,0 +1,132 @@
+.spot-select-modal-content {
+    background: #fff8dc;
+    border: 3px solid #5e340e;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    min-width: 250px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.skill-info-box {
+    background: #fff1cc;
+    border: 2px solid #d2a679;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 10px 0 14px;
+    font-size: 14px;
+    color: #5e340e;
+    font-weight: bold;
+}
+
+.user-skill-level {
+    color : var(--green-hignlight);
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+
+.skill-exp-bar {
+    position: relative;
+    width: 100%;
+    height: 18px;
+    background-color: #f3e1ba;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.skill-exp-fill {
+    height: 100%;
+    background-color: #fa6719;
+    transition: width 0.4s ease;
+}
+
+.skill-exp-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    line-height: 18px;
+    font-size: 12px;
+    color: #5e340e;
+    top: 0;
+    left: 0;
+}
+
+.spot-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.spot-list button {
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    background-color: #fa6719;
+    color: #fff8dc;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.spot-list button:hover {
+    background-color: #e25e17;
+}
+
+.action-modal-content {
+    position: relative;
+    background: #3c3f58;
+    border: 0.6vw solid #5e340e;
+    border-radius: 2vw;
+    width: 85vw;
+    max-width: 400px;
+    height: auto;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.3);
+    font-family: 'Press Start 2P', 'DungGeunMo', sans-serif;
+}
+
+.action-card-frame {
+    background: #3c3f58;
+    padding: 2vw;
+    border-radius: 1.5vw;
+}
+
+.activity-location-name {
+    background: #fb762c;
+    color: #feece2;
+    padding: 1.2vw;
+    text-align: center;
+    font-size: 6vw;
+    margin-bottom: 2vw;
+    font-weight: bold;
+    border-radius: 12px;
+}
+.action-info-section {
+    background: #2e3047;
+    padding: 2vw;
+    display: flex;
+    flex-direction: column;
+    gap: 2vw;
+    box-sizing: border-box;
+}
+
+.map-info-row {
+    display: flex;
+    gap: 2vw;
+    justify-content: space-between;
+    margin-top: 1vw;
+}
+
+.map-info-row .map-info-card {
+    flex: 1;
+    border: 3px solid #3c3f58;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 0.3vw 0.5vw rgba(0, 0, 0, 0.1);
+}

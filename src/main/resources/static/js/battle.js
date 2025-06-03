@@ -177,6 +177,8 @@ function doAttack() {
     // ✅ 플레이어 턴 종료, 몬스터 턴으로 변경
     isPlayerTurn = false;
     updateButtonStates();
+    updateCardTurnStyles()
+
 
     // 500ms 후 몬스터 반격
     setTimeout(() => {

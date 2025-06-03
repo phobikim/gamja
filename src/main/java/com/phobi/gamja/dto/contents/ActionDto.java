@@ -18,8 +18,9 @@ public class ActionDto {
     private int requiredLevel;
     private int level; // user_skill.level
     private int exp;   // user_skill.exp
+    private int maxCombo; //user_skill.maxCombo
 
-    public static ActionDto of(Action action, int level, int exp) {
+    public static ActionDto of(Action action, int level, int exp, int maxCombo) {
         return ActionDto.of(
                 action.getId(),
                 action.getCategory().name(),
@@ -28,8 +29,7 @@ public class ActionDto {
                 action.getDescription(),
                 action.getIconPath(),
                 action.getRequiredLevel(),
-                level,
-                exp
+                level, exp, maxCombo
         );
     }
 }

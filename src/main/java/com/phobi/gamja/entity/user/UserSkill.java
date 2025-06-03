@@ -25,4 +25,7 @@ public class UserSkill {
 
     @Column(nullable = false)
     private int exp = 0;
+
+    @Column(name = "max_combo")
+    private Integer maxCombo = 0;
 }

@@ -236,3 +236,15 @@
         height: 40px;
     }
 }
+
+.station-info-bar {
+    border-bottom: 2px solid #d2a679;
+    font-size: 1rem;
+    font-weight: bold;
+    background: var(--dark-orange-color);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 12px;
+    z-index: 2;
+    text-align: center;
+}

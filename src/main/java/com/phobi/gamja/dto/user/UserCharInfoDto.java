@@ -14,9 +14,17 @@ public class UserCharInfoDto {
     private int maxExp;
     private String dexName;
     private String attribute;
+    private int maxCombo;
 
 
+    // 기존 생성자 유지
     public UserCharInfoDto(UserDtl userDtl, UserDexStat stat) {
+        this(userDtl, stat, 0); // default maxCombo = 0
+    }
+
+
+    // 캐릭터 Dex 의 stat 반환
+    public UserCharInfoDto(UserDtl userDtl, UserDexStat stat, int maxCombo) {
         this.username = userDtl.getUser().getUsername();
         this.characterImage = userDtl.getCharacterImage();
         this.level = stat.getLevel();
@@ -25,6 +33,7 @@ public class UserCharInfoDto {
         this.dexName = stat.getDex().getName();
         this.title = getTitleByLevel(stat.getLevel());
         this.attribute = stat.getDex().getAttribute();
+        this.maxCombo = maxCombo;
     }
     public String getTitleByLevel(int level) {
         if (level >= 1   && level <= 50)   return "씨앗 감자";           // 막 태어난

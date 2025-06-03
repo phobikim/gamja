@@ -1,16 +1,13 @@
 const userId = localStorage.getItem('userId');
 const workshopModal = document.getElementById('workshopModal');
 const categoryContainer = document.querySelector('.workshop-left'); // ✅ 정확한 컨테이너
-const materialList = document.getElementById('material-list');
-const resultImg = document.getElementById('result-img');
-const resultName = document.getElementById('result-name');
-const craftBtn = document.getElementById('craftButton');
+const stationScroll = document.getElementById('workShopListScroll');
+const recipeCardList = document.getElementById('recipe-card-list');
+const recipeDetail = document.getElementById('recipe-detail');
+const craftEffectLayer = document.getElementById('craft-effect-layer');
 
-const recipes = {}; // 이후에 채워질 예정
-let selectedRecipe = null; // 현재 선택된 레시피
-let currentStationCategory = null; // ✅ 현재 선택된 station category 저장용
-let matchedRecipe = null;
-let matchedCard = null;
+let selectedRecipe = null;
+let currentStationCategory = null;
 workshopModal.addEventListener('click', (e) => {
     const inside = e.target.closest('.workshop-modal-content');
     if (!inside) workshopModal.classList.add('hidden');
@@ -33,6 +30,15 @@ function setActiveCategory(type) {
     document.querySelectorAll('.category').forEach(c => {
         c.classList.toggle('active', c.dataset.type === type);
     });
+
+    // 공방 정보 바 업데이트
+    const selected = Array.from(document.querySelectorAll('.category'))
+        .find(c => c.dataset.type === type);
+    if (selected) {
+        const name = selected.title;
+        document.getElementById('station-name').textContent = name;
+        document.getElementById('station-info-bar').classList.remove('hidden');
+    }
 }
 
 // 공방 List api 호출
@@ -196,12 +202,14 @@ function renderRecipeDetail(recipe) {
     recipe.ingredients.forEach(ing => {
         const li = document.createElement('li');
         li.innerHTML = `
-            <img src="${basePath}/${ing.itemIcon}" style="width:24px; height:24px; vertical-align:middle;">
+        <img src="${basePath}/${ing.itemIcon}" style="width:24px; height:24px; vertical-align:middle;">
+        <span style="font-weight:bold; color: var(--dark-font-color);">
             ${ing.itemName} x${ing.quantity}
-            <span style="color:${ing.userOwned < ing.quantity ? 'red' : 'green'};">
-              (보유: ${ing.userOwned})
-            </span>
-        `;
+        </span>
+        <span style="font-weight:bold; color:${ing.userOwned < ing.quantity ? 'red' : 'green'};">
+            (보유: ${ing.userOwned})
+        </span>
+    `;
         list.appendChild(li);
     });
 

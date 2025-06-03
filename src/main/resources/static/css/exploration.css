@@ -1,0 +1,125 @@
+#explorationModal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+#explorationModal.show {
+    display: flex;
+}
+
+.action-exploration-modal-content {
+    background: #222;
+    border-radius: 16px;
+    padding: 1.5rem;
+    max-width: 500px;
+    width: 90%;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.exploration-card {
+    background: #3c3f58;
+    border-radius: 12px;
+    color: #fff;
+    padding: 1.2rem 1rem;
+    font-size: 1rem;
+    text-align: center;
+    cursor: pointer;
+    flex: 1;
+    transition: transform 0.2s ease, background 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.exploration-card:hover {
+    background: #4e5274;
+    transform: scale(1.05);
+}
+
+#explorationResultModal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.exploration-modal-content {
+    background: #3c3f58;
+    border-radius: 16px;
+    padding: 1rem;
+    max-width: 500px;
+    width: 90%;
+    box-sizing: border-box;
+    color: #fff8dc;
+    text-align: center;
+}
+
+.result-header {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #9cffb2;
+    margin-bottom: 1rem;
+}
+
+.result-body {
+    margin-bottom: 1rem;
+}
+
+.result-info-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.result-info-card {
+    background: #2e3047;
+    border-radius: 10px;
+    padding: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-title {
+    font-weight: bold;
+    color: #ffd54f;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+}
+
+.highlight-xp {
+    color: var(--green-hignlight);
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.item-list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0 1rem;
+}
+
+.item-list div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.item-list img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    border-radius: 4px;
+}.highlight-xp

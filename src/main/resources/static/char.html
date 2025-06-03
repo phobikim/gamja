@@ -13,12 +13,14 @@
     <link rel="stylesheet" href="css/bag.css">
     <link rel="stylesheet" href="css/station.css">
     <link rel="stylesheet" href="css/action.css">
+    <link rel="stylesheet" href="css/actionMap.css">
     <link rel="stylesheet" href="css/battle.css">
     <link rel="stylesheet" href="css/battleMap.css">
     <link rel="stylesheet" href="css/winBox.css">
     <link rel="stylesheet" href="css/map.css">
     <link rel="stylesheet" href="css/playerInfo.css">
     <link rel="stylesheet" href="css/color.css">
+    <link rel="stylesheet" href="css/exploration.css">
 </head>
 
 <body class="char-page">
@@ -130,9 +132,16 @@
                 <span class="map-desc" id="spotSelectDescription">장소 설명</span>
             </div>
             <!-- 🔸 맵 정보 박스 -->
-            <div class="map-info-card">
-                <div class="section-title">필요 레벨</div>
-                <div id="spotRequiredLevel">1</div>
+            <div class="map-info-row">
+                <div class="map-info-card">
+                    <div class="section-title">필요 레벨</div>
+                    <div id="spotRequiredLevel">1</div>
+                </div>
+
+                <div class="map-info-card combo-record-card">
+                    <div class="section-title">MAX COMBO</div>
+                    <div id="spotComboRecord" class="combo-record-value">[100]</div>
+                </div>
             </div>
 
             <!-- 🔸 유저 스킬 정보 박스 -->
@@ -156,27 +165,17 @@
         <div class="action-card-frame">
             <!-- 장소 이름: 상단 -->
             <div class="activity-location-name" id="activityLocationName">Mystic Pond</div>
-
-            <!-- 가로 분할: 이미지 + 로그 -->
-            <div class="action-card-body">
-                <!-- 이미지 -->
-                <div class="action-image-wrapper">
-                    <img id="activityImage" class="action-image" src="" alt="" onclick="handleActivityClick()">
-                    <div class="activity-click-tooltip">Click to gather!</div>
-                </div>
-
-                <!-- 오른쪽 정보 -->
-                <div class="activity-right-info">
-                    <div class="spot-info-title">Spot Info</div>
-                    <ul class="spot-info-list">
-                        <li>Recommended Lv. 3+</li>
-                        <li>Time Bonus Active</li>
-                        <li>Night Boost Zone</li>
-                    </ul>
-                </div>
+            <!-- 이미지 -->
+            <div class="action-image-wrapper">
+                <img id="activityImage" class="action-image" src="" alt="" onclick="handleActivityClick()">
+                <div class="activity-click-tooltip">Click to gather!</div>
             </div>
         </div>
-
+        <!-- 🔥 콤보 표시 영역 -->
+        <div class="action-combo-area">
+            <div id="maxComboDisplay" class="max-combo-fixed">MAX: 0</div>
+            <div id="comboDisplay" class="combo-display hidden"></div>
+        </div>
         <!-- 하단: 획득한 아이템 + 완료 버튼 -->
         <div class="action-info-section">
             <div class="item-gain-info">
@@ -187,6 +186,50 @@
         </div>
     </div>
 </div>
+
+<!-- 텍스트 기반 로그라이크 (채광) -->
+<div id="explorationModal" class="modal hidden">
+    <div class="action-exploration-modal-content">
+        <!-- 상단: 상태 표시 -->
+        <div id="exploration-status" style="display: flex; justify-content: space-between; font-weight: bold; color: #fff; margin-bottom: 1rem;">
+            <span>❤️ HP: <span id="hp">3</span></span>
+            <span>📍 STAGE: <span id="stage">1</span> / 10</span>
+        </div>
+
+        <!-- 카드 선택 -->
+        <div id="choices" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="exploration-card" onclick="choosePath('left')" id="leftCard"></div>
+            <div class="exploration-card" onclick="choosePath('right')" id="rightCard"></div>
+        </div>
+
+        <!-- 로그 출력 -->
+        <div id="log" style="background:#2e3047; color: white; border-radius: 12px; padding: 1rem; max-height: 150px; overflow-y: auto; font-size: 0.95rem;"></div>
+
+        <!-- 닫기 버튼 -->
+        <button id="closeBtn" onclick="closeExploration()" class="start-battle-button" style="margin-top: 1.5rem; width: 100%;">❌ 탐사 종료</button>
+    </div>
+</div>
+
+<!-- 탐사 결과 모달 -->
+<div id="explorationResultModal" class="modal hidden">
+    <div class="exploration-modal-content">
+        <div id="explorationResultHeader" class="result-header">탐사 결과</div>
+        <div class="result-body">
+            <div class="result-info-wrapper">
+                <div class="result-info-card">
+                    <div class="section-title">획득 경험치</div>
+                    <div id="resultExp" class="highlight-xp">+0 XP</div>
+                </div>
+                <div class="result-info-card">
+                    <div class="section-title">획득 아이템</div>
+                    <div id="resultItemList" class="item-list"></div>
+                </div>
+            </div>
+        </div>
+        <button id="closeResultBtn" class="start-battle-button">확인</button>
+    </div>
+</div>
+
 
 <!-- 감자단 도감 모달 -->
 <div id="dexModal" class="modal hidden">
@@ -329,6 +372,9 @@
             <!-- 좌측 카테고리 목록 -->
         </div>
         <div class="workshop-right">
+            <div id="station-info-bar" class="station-info-bar hidden">
+                <strong id="station-name">공방 이름</strong>
+            </div>
             <!-- 상단: 레시피 카드 리스트 -->
             <div id="recipe-card-list" class="recipe-card-list">
                 <!-- JS로 카드 생성 -->
@@ -702,11 +748,13 @@
 <script src="js/station.js"></script>
 <script src="js/dex.js"></script>
 <script src="js/action.js"></script>
+<script src="js/actionMap.js"></script>
 <script src="js/battle.js"></script>
 <script src="js/battleMap.js"></script>
 <script src="js/winBox.js"></script>
 <script src="js/map.js"></script>
 <script src="js/playerInfo.js"></script>
+<script src="js/exploration.js"></script>
 
 
 </body>
