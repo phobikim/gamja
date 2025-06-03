@@ -89,23 +89,42 @@ function choosePath(direction) {
     }
     document.getElementById('hp').textContent = hp;
 
-    if (Array.isArray(event.drops)) {
-        event.drops.forEach(drop => {
-            const chance = Math.random();
-            if (chance <= drop.dropRate) {
-                const qty = Math.floor(Math.random() * (drop.maxQuantity - drop.minQuantity + 1)) + drop.minQuantity;
-                const existing = gainedItems.find(i => i.itemId === drop.itemId);
-                if (existing) {
-                    existing.count += qty;
-                } else {
-                    gainedItems.push({ itemId: drop.itemId, count: qty, itemName: drop.itemName, itemImg: drop.iconPath });
-                }
-                const dropLog = document.createElement('div');
-                dropLog.textContent = `🎁 ${drop.itemName} x${qty} 획득!`;
-                dropLog.style.color = '#ffd700';
-                log.prepend(dropLog);
+    if (Array.isArray(event.drops) && event.drops.length > 0) {
+        // 1. 가중치 총합 계산
+        const totalWeight = event.drops.reduce((sum, drop) => sum + drop.dropRate, 0);
+        const rand = Math.random() * totalWeight;
+
+        // 2. 가중치 기반으로 하나 선택
+        let cumulative = 0;
+        let selectedDrop = null;
+        for (const drop of event.drops) {
+            cumulative += drop.dropRate;
+            if (rand <= cumulative) {
+                selectedDrop = drop;
+                break;
             }
-        });
+        }
+
+        // 3. 수량 계산 및 획득 처리
+        if (selectedDrop) {
+            const qty = Math.floor(Math.random() * (selectedDrop.maxQuantity - selectedDrop.minQuantity + 1)) + selectedDrop.minQuantity;
+            const existing = gainedItems.find(i => i.itemId === selectedDrop.itemId);
+            if (existing) {
+                existing.count += qty;
+            } else {
+                gainedItems.push({
+                    itemId: selectedDrop.itemId,
+                    count: qty,
+                    itemName: selectedDrop.itemName,
+                    itemImg: selectedDrop.iconPath
+                });
+            }
+
+            const dropLog = document.createElement('div');
+            dropLog.textContent = `🎁 ${selectedDrop.itemName} x${qty} 획득!`;
+            dropLog.style.color = '#ffd700';
+            log.prepend(dropLog);
+        }
     }
 
     // 1. 체력 0일 때
