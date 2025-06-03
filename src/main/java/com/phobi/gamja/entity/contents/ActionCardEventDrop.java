@@ -31,6 +31,4 @@ public class ActionCardEventDrop {
     @Column(name = "max_quantity")
     private int maxQuantity;
 
-    @Column(name = "exp_reward")
-    private float expReward;
 }

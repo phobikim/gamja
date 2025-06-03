@@ -14,7 +14,6 @@ public class CardEventDto {
     private String eventMessage;
     private String eventType;
     private Integer hpChange;
-    private Float expReward;
 
     private List<CardDropDto> drops;
 
@@ -24,7 +23,6 @@ public class CardEventDto {
                 .eventMessage(event.getEventMessage())
                 .eventType(event.getEventType().name())
                 .hpChange(event.getHpChange())
-                .expReward(event.getExpReward())
                 .drops(drops.stream().map(CardDropDto::of).toList())
                 .build();
     }

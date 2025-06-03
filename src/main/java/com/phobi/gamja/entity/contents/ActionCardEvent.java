@@ -40,12 +40,6 @@ public class ActionCardEvent {
     @Column(name = "hp_change")
     private Integer hpChange;
 
-    @Column(name = "exp_reward")
-    private Float expReward;
-
-    @Column
-    private Integer weight;
-
     @Column(name = "is_enabled")
     private Boolean isEnabled;
 

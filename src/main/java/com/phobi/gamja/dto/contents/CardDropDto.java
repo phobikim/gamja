@@ -14,7 +14,6 @@ public class CardDropDto {
     private float dropRate;
     private int minQuantity;
     private int maxQuantity;
-    private float expReward;
 
     public static CardDropDto of(ActionCardEventDrop drop) {
         Item item = drop.getItem();
@@ -25,7 +24,6 @@ public class CardDropDto {
                 .dropRate(drop.getDropRate())
                 .minQuantity(drop.getMinQuantity())
                 .maxQuantity(drop.getMaxQuantity())
-                .expReward(drop.getExpReward())
                 .build();
     }
 }

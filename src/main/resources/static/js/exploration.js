@@ -17,6 +17,12 @@ async function openExploration(activityType, rank) {
     document.getElementById('hp').textContent = hp;
     document.getElementById('stage').textContent = stage;
     document.getElementById('log').innerHTML = '';
+    const logStart = document.createElement('div');
+    logStart.textContent = '🃏 카드를 선택하세요!';
+    logStart.style.color = '#aaa';
+    logStart.style.fontWeight = 'bold';
+    document.getElementById('log').appendChild(logStart);
+
     explorationModal.classList.remove('hidden');
     explorationModal.classList.add('show');
 
@@ -102,20 +108,24 @@ function choosePath(direction) {
         });
     }
 
+    // 1. 체력 0일 때
     if (hp <= 0) {
         totalExp = getStageExp(stage);
         log.prepend(createLogLine('💀 체력을 모두 잃고 쓰러졌습니다...', '#f55'));
-        sendExplorationResult(false);
+        sendExplorationResult(stage);  // ✅ stage는 현재값
         return;
     }
 
+    // 2. 다음 단계 진입
     stage++;
     document.getElementById('stage').textContent = Math.min(stage, maxStage);
 
+    // 3. 클리어 체크
     if (stage > maxStage) {
-        totalExp = getStageExp(stage);
+        const finalStage = maxStage;
+        totalExp = getStageExp(finalStage);
         log.prepend(createLogLine('🎉 10단계 완료!', '#9f9'));
-        sendExplorationResult(true);
+        sendExplorationResult(finalStage);
         return;
     }
 
@@ -129,9 +139,9 @@ function getStageExp(stage) {
     return 40;
 }
 
-function sendExplorationResult(success) {
+function sendExplorationResult(stage) {
     const payload = {
-        activityType: activityType,
+        activityType: currentActivityType,
         exp: totalExp,
         items: gainedItems
     };
@@ -144,14 +154,12 @@ function sendExplorationResult(success) {
                 const skillInfo = res.data;
 
                 // ✅ 탐사 결과 모달 표시
-                showExplorationResultModal(success, totalExp, gainedItems);
+                showExplorationResultModal(stage, totalExp, gainedItems);
 
                 // ✅ 유저 스킬 업데이트 전역 갱신
                 updateUserSkillInfo(skillInfo); // EXP bar 등 업데이트
                 // ✅ spotList도 다시 렌더링
-                if (lastSpotList.length > 0) {
-                    renderSpotList(lastSpotList, skillInfo.level, skillInfo.xp);
-                }
+                actionGather(currentActivityType);
             } else {
                 showMessageModal(res.message || '탐사 보상 저장 실패');
             }
@@ -162,13 +170,14 @@ function sendExplorationResult(success) {
         });
 }
 
-function showExplorationResultModal(success, exp, items) {
+function showExplorationResultModal(stage, exp, items) {
     const explorationResultModal = document.getElementById('explorationResultModal');
     const header = document.getElementById('explorationResultHeader');
     const expEl = document.getElementById('resultExp');
     const itemList = document.getElementById('resultItemList');
 
-    header.textContent = '탐사 완료';
+    const isClear = stage === maxStage;
+    header.textContent = isClear ? '탐사 완료' : `탐사 중단 [STAGE: ${stage}]`;
     expEl.textContent = `+${exp} XP`;
     itemList.innerHTML = '';
 
