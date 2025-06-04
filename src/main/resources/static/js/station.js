@@ -1,4 +1,3 @@
-const userId = localStorage.getItem('userId');
 const workshopModal = document.getElementById('workshopModal');
 const categoryContainer = document.querySelector('.workshop-left'); // ✅ 정확한 컨테이너
 const stationScroll = document.getElementById('workShopListScroll');
@@ -52,7 +51,7 @@ async function getWorkshopStations() {
             if (data.length > 0) {
                 const first = data[0];
                 setActiveCategory(first.category);
-                loadRecipesByStation(first.category, userId);
+                loadRecipesByStation(first.category, selectedRecipe?.recipeId );
             }
         }
     } catch (err) {
@@ -263,7 +262,7 @@ async function handleCraft(recipe) {
             if (btn) showCraftSuccessEffect(btn);
 
             // ✅ 새로고침은 바로 실행
-            loadRecipesByStation(currentStationCategory, userId, selectedRecipe?.recipeId);
+            loadRecipesByStation(currentStationCategory, selectedRecipe?.recipeId);
 
         } else {
             workshopModal.classList.add('hidden')

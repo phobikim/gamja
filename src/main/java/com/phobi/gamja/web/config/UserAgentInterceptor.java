@@ -19,6 +19,14 @@ public class UserAgentInterceptor implements HandlerInterceptor {
             return false;
         }
 
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "접근 권한이 없습니다");
+            return false;
+        }
+        
+        request.setAttribute("userId", userId);
+
         String sessionUserAgent = (String) session.getAttribute("userAgent");
         String currentUserAgent = request.getHeader("User-Agent");
 

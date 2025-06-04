@@ -1,82 +1,93 @@
+// 최초 클릭 시 BGM 재생
 window.addEventListener("click", async () => {
     await toggleBGM("bgm_main");
 }, { once: true });
 
-document.addEventListener('DOMContentLoaded', function () {
-    // logo
+// 로그인/회원가입 초기화 코드
+(function initLoginPage() {
+    // 요소 셀렉터
     const logo = document.getElementById('gamjadanLogo');
-    // BGM
     const toggleBtn = document.getElementById("bgmToggleBtn");
 
-    // 로그인 모달
     const adminModal = document.getElementById('adminModal');
     const adminLoginUserName = document.getElementById('LoginUsernameInput');
     const adminEnterBtn = document.getElementById('adminEnterBtn');
-    const openSignupBtn = document.getElementById('openSignupBtn');
     const adminErrorText = document.getElementById('adminErrorText');
 
-    // 회원가입 모달
     const signupModal = document.getElementById('signupModal');
     const signupUsernameInput = document.getElementById('signupUsernameInput');
     const signupSubmitBtn = document.getElementById('signupSubmitBtn');
-    const closeSignupBtn = document.getElementById('closeSignupBtn');
     const signupErrorText = document.getElementById('signupErrorText');
+    const closeSignupBtn = document.getElementById('closeSignupBtn');
+    const openSignupBtn = document.getElementById('openSignupBtn');
 
-    // ✅ 이름 유효성 검사 함수
-    function isValidUsername(str) {
-        const regex = /^[가-힣a-zA-Z0-9]+$/;
-        return regex.test(str);
-    }
-
-// ✅ 이벤트 리스너: 입력 시 검사 (로그인 + 회원가입)
-    adminLoginUserName.addEventListener('input', () => {
-        const val = adminLoginUserName.value;
-        adminLoginUserName.value = val.replace(/[^가-힣a-zA-Z0-9]/g, '');
-    });
-
-    signupUsernameInput.addEventListener('input', () => {
-        const val = signupUsernameInput.value;
-        signupUsernameInput.value = val.replace(/[^가-힣a-zA-Z0-9]/g, '');
-    });
-
-    // 	모달 내부의 콘텐츠 영역을 지정하기 위해 선언
     const adminModalContent = document.querySelector('#adminModal .pin-modal-content');
     const signupModalContent = document.querySelector('#signupModal .pin-modal-content');
 
-
     const loginPinInputs = document.querySelectorAll('#adminModal .pin-input');
     const signupPinInputs = document.querySelectorAll('#signupModal .pin-input');
-    const loginEnterBtn = document.getElementById('adminEnterBtn');
-    // 로그인용: 자동 로그인 버튼 클릭 포함
-    pinEvent(loginPinInputs, loginEnterBtn);
-    // 회원가입용: 자동 클릭 없음
+
+    // 유효성 검사
+    function isValidUsername(str) {
+        return /^[가-힣a-zA-Z0-9]+$/.test(str);
+    }
+
+    // 한글 조합 대응 유효성 필터 적용
+    function applyUsernameInputFilter(inputEl) {
+        let isComposing = false;
+        inputEl.addEventListener('compositionstart', () => isComposing = true);
+        inputEl.addEventListener('compositionend', () => isComposing = false);
+        inputEl.addEventListener('input', () => {
+            if (!isComposing) {
+                inputEl.value = inputEl.value.replace(/[^가-힣a-zA-Z0-9]/g, '');
+            }
+        });
+    }
+
+    applyUsernameInputFilter(adminLoginUserName);
+    applyUsernameInputFilter(signupUsernameInput);
+
+    // 핀 이벤트 설정 (자동 로그인 버튼 연동 가능)
+    function pinEvent(pinInputs, autoSubmitButton = null) {
+        pinInputs.forEach((input, index) => {
+            input.addEventListener('input', () => {
+                playEffect("se_input");
+                if (input.value.length === 1 && index < pinInputs.length - 1) {
+                    pinInputs[index + 1].focus();
+                }
+                if (autoSubmitButton && Array.from(pinInputs).every(p => p.value.length === 1)) {
+                    setTimeout(() => autoSubmitButton.click(), 150);
+                }
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && input.value === '' && index > 0) {
+                    pinInputs[index - 1].focus();
+                }
+            });
+        });
+    }
+
+    pinEvent(loginPinInputs, adminEnterBtn);
     pinEvent(signupPinInputs);
 
     // BGM Toggle
-    toggleBtn.addEventListener("click", () => {
-        toggleBGM("bgm_main");
-    });
+    toggleBtn.addEventListener("click", () => toggleBGM("bgm_main"));
 
-    // 1. 로고 클릭 > 로그인 모달 열기
-    logo.addEventListener('click', function () {
-        // 사운드 재생
+    // 로그인 모달 열기
+    logo.addEventListener('click', () => {
         playEffect("se_click");
-
         adminModal.classList.remove('hidden');
         adminLoginUserName.value = '';
         loginPinInputs.forEach(input => input.value = '');
-
-        // 사용자 이름에 포커스
         adminLoginUserName.focus();
         adminErrorText.classList.add('hidden');
     });
 
-
-    // 로그인 모달 이벤트
-    adminEnterBtn.addEventListener('click', async function () {
+    // 로그인 처리
+    adminEnterBtn.addEventListener('click', async () => {
         playEffect("se_input");
-        const username = document.getElementById('LoginUsernameInput').value.trim();
-        const pin = Array.from(loginPinInputs).map(input => input.value).join('');
+        const username = adminLoginUserName.value.trim();
+        const pin = Array.from(loginPinInputs).map(i => i.value).join('');
 
         if (!username || pin.length !== 4 || !isValidUsername(username)) {
             adminErrorText.textContent = '이름과 PIN을 모두 입력해주세요.';
@@ -87,65 +98,50 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             const response = await apiRequest('/api/login', 'POST', { username, pin });
-
             if (response.code === 'SUCCESS') {
-                // 가입 완료 -> 본부로 이동
-                const userId = response.data.userId;
-                localStorage.setItem('userId', userId);
                 location.href = './char.html';
             } else {
-                adminErrorText.textContent = response.message || '로그인 실패. 정보를 확인해주세요.';
-                adminErrorText.classList.remove('hidden');
-                loginPinInputs.forEach(input => input.value = '');
-                loginPinInputs[0].focus();
-                // 🔥 흔들림 애니메이션 추가
-                const pinGroup = document.querySelector('.pin-input-group');
-                pinGroup.classList.add('shake');
-
-                // 0.5초 후 흔들림 제거 (1회만 흔들리게)
-                setTimeout(() => {
-                    pinGroup.classList.remove('shake');
-                }, 500);
+                showLoginError(response.message);
             }
         } catch (error) {
             console.error('로그인 오류:', error);
-            adminErrorText.textContent = response.message || '서버 오류가 발생했습니다.';
-            adminErrorText.classList.remove('hidden');
+            showLoginError('서버 오류가 발생했습니다.');
         }
-
     });
 
+    function showLoginError(message) {
+        adminErrorText.textContent = message;
+        adminErrorText.classList.remove('hidden');
+        loginPinInputs.forEach(i => i.value = '');
+        loginPinInputs[0].focus();
+        document.querySelector('.pin-input-group').classList.add('shake');
+        setTimeout(() => document.querySelector('.pin-input-group').classList.remove('shake'), 500);
+    }
+
     // 회원가입 모달 열기
-    openSignupBtn.addEventListener('click', function () {
+    openSignupBtn.addEventListener('click', () => {
         adminModal.classList.add('hidden');
         signupModal.classList.remove('hidden');
-
-        // 입력칸 초기화
         signupUsernameInput.value = '';
         signupPinInputs.forEach(input => input.value = '');
-
         signupUsernameInput.focus();
         signupErrorText.classList.add('hidden');
     });
 
-    // 회원가입 요청
-    signupSubmitBtn.addEventListener('click', async function () {
+    // 회원가입 처리
+    signupSubmitBtn.addEventListener('click', async () => {
         const username = signupUsernameInput.value.trim();
-        const pin = Array.from(signupPinInputs).map(input => input.value).join('');
+        const pin = Array.from(signupPinInputs).map(i => i.value).join('');
 
         if (!username || pin.length !== 4 || !isValidUsername(username)) {
-            adminErrorText.textContent = '이름과 PIN을 모두 입력해주세요.';
-            adminErrorText.classList.remove('hidden');
+            signupErrorText.textContent = '이름과 PIN을 모두 입력해주세요.';
+            signupErrorText.classList.remove('hidden');
             return;
         }
 
         try {
             const response = await apiRequest('/api/signup', 'POST', { username, pin });
-
             if (response.code === 'SUCCESS') {
-                // 가입 완료 -> 본부로 이동
-                const userId = response.data.userId;
-                localStorage.setItem('userId', userId);
                 location.href = './char.html';
             } else {
                 signupErrorText.textContent = response.message || '회원 가입 실패';
@@ -154,51 +150,23 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         } catch (error) {
             console.error('회원가입 실패:', error);
-            signupErrorText.textContent = response.message || '서버 오류가 발생했습니다.';
+            signupErrorText.textContent = '서버 오류가 발생했습니다.';
             signupErrorText.classList.remove('hidden');
         }
     });
 
-    // 모달 닫기
-
-    closeSignupBtn.addEventListener('click', function (e){
-        signupModal.classList.add('hidden');
-    })
-    signupModal.addEventListener('click', function (e) {
+    // 모달 외부 클릭 시 닫기
+    signupModal.addEventListener('click', (e) => {
         if (!signupModalContent.contains(e.target)) {
             signupModal.classList.add('hidden');
         }
     });
 
-    adminModal.addEventListener('click', function (e) {
+    adminModal.addEventListener('click', (e) => {
         if (!adminModalContent.contains(e.target)) {
             adminModal.classList.add('hidden');
         }
     });
 
-    function pinEvent(pinInputs, autoSubmitButton = null) {
-        pinInputs.forEach((input, index) => {
-            input.addEventListener('input', () => {
-                playEffect("se_input");
-
-                if (input.value.length === 1 && index < pinInputs.length - 1) {
-                    pinInputs[index + 1].focus();
-                }
-
-                const allFilled = Array.from(pinInputs).every(pin => pin.value.length === 1);
-                if (allFilled && autoSubmitButton) {
-                    setTimeout(() => {
-                        autoSubmitButton.click();
-                    }, 150);
-                }
-            });
-
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && input.value === '' && index > 0) {
-                    pinInputs[index - 1].focus();
-                }
-            });
-        });
-    }
-
-});
+    closeSignupBtn.addEventListener('click', () => signupModal.classList.add('hidden'));
+})();
