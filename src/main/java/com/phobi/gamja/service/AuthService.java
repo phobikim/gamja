@@ -5,6 +5,7 @@ import com.phobi.gamja.entity.contents.SkillType;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.user.*;
+import com.phobi.gamja.web.config.annotation.SanitizeInput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

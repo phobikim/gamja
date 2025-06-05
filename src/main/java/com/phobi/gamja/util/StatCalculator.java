@@ -75,6 +75,10 @@ public class StatCalculator {
     }
 
     public LifeStatDto calculateLifeSkill(Long userId) {
+        // 1. 유저 상세정보 + 착용 캐릭터 ID
+        UserDtl userDtl = userDtlRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("유저 상세정보가 없습니다."));
+        Long equippedDexId = userDtl.getCharacterDexId();
         // 기본 스킬 레벨
         Map<String, Integer> baseSkillMap = new HashMap<>();
         List<UserSkill> skillList = userSkillRepository.findByUserId(userId);

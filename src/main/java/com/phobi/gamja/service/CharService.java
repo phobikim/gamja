@@ -61,4 +61,54 @@ public class CharService {
 
         return GamJaResponse.success("정상 조회", result);
     }
+
+    @Transactional(readOnly = true)
+    public GamJaResponse getBattleInfo(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        BattleStatDto result = statCalculator.calculateBattleStat(userId);
+        return GamJaResponse.success("정상 조회", result);
+    }
+
+    @Transactional(readOnly = true)
+    public GamJaResponse getLifeInfo(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        LifeStatDto result = statCalculator.calculateLifeSkill(userId);
+        return GamJaResponse.success("정상 조회", result);
+    }
+
+    @Transactional
+    public GamJaResponse setCharacterImage(HttpServletRequest request, Map<String, Long> payload) {
+        Long userId = (Long) request.getAttribute("userId");
+        Long dexId = payload.get("dexId");
+
+        boolean owned = userDexRepository.existsByUserIdAndDexId(userId, dexId);
+        if (!owned) {
+            return GamJaResponse.fail("미획득한 감자는 설정할 수 없습니다.");
+        }
+
+        UserDtl userDtl = userDtlRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        userDtl.setCharacterDexId(dexId);
+        userDtl.setCharacterImage(commonUtil.resolveCharacterImage(userDtl));
+        userDtlRepository.save(userDtl);
+
+        UserDexStatId statId = new UserDexStatId(userId, dexId);
+        UserDexStat stat = userDexStatRepository.findById(statId).orElseGet(() -> {
+            UserDexStat newStat = UserDexStat.builder()
+                    .id(statId)
+                    .user(userDtl.getUser())
+                    .dex(Dex.builder().id(dexId).build())
+                    .level(1)
+                    .xp(0)
+                    .maxExp(100)
+                    .power(1)
+                    .hp(1)
+                    .speed(1)
+                    .build();
+            return userDexStatRepository.save(newStat);
+        });
+
+        UserCharInfoDto dto = new UserCharInfoDto(userDtl, stat);
+        return GamJaResponse.success("대표 감자가 설정되었습니다.", dto);
+    }
 }

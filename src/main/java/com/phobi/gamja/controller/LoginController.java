@@ -2,6 +2,7 @@ package com.phobi.gamja.controller;
 
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.service.AuthService;
+import com.phobi.gamja.web.config.annotation.SanitizeInput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ public class LoginController {
     }
 
     @PostMapping("/login")
+    @SanitizeInput
     public ResponseEntity<GamJaResponse> login(@RequestParam String username,
                                                @RequestParam String pin,
                                                HttpServletRequest request,
@@ -30,6 +32,7 @@ public class LoginController {
     }
 
     @PostMapping("/signup")
+    @SanitizeInput
     public ResponseEntity<GamJaResponse> signup(@RequestParam String username,
                                                 @RequestParam String pin,
                                                 HttpServletRequest request,
@@ -38,6 +41,7 @@ public class LoginController {
     }
 
     @GetMapping("/check-username")
+    @SanitizeInput
     public ResponseEntity<GamJaResponse> checkUsername(@RequestParam String username) {
         return ResponseEntity.ok(authService.checkUsername(username));
     }
