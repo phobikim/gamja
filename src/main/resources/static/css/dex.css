@@ -1,220 +1,255 @@
-
-/* 감자단 도감 모달 전용 스타일 */
-.dex-modal-content {
-    width: 90%;
-    background-color: #814b1a;
-    border-radius: 1rem;
-    padding: 5vw;
-    box-sizing: border-box;
-    text-align: center;
+.dex-modal-container {
+    width: 80vw;
+    max-width: 400px;
+    background: var(--char-border-color);
+    border: 3px solid #654321;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    max-height: 90vh;
     overflow: hidden;
-}
-/*페이징 버전*/
-/*.dex-grid {*/
-/*    display: grid;*/
-/*    grid-template-columns: repeat(5, 1fr);*/
-/*    grid-template-rows: repeat(3, 1fr);*/
-/*    gap: 4vw;*/
-/*    justify-items: center;*/
-/*    align-items: center;*/
-/*    height: auto;*/
-/*}*/
-
-/*스크롤버전*/
-.dex-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4vw;
-    justify-items: center;
-    align-items: start;
-
-    max-height: 40vh; /* ✅ 세로 제한 */
-    overflow-y: auto; /* ✅ 세로 스크롤 */
-    padding-right: 0.5rem; /* 스크롤 여유 */
-}
-
-/* 카드 크기 비율 유지 + 반응형 */
-.dex-card {
-    width: 100%;
-    max-width: 18vw;
-    aspect-ratio: 5 / 7;
     display: flex;
     flex-direction: column;
 }
 
-
-.card-inner {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    transition: transform 0.35s ease;
-    transform-style: preserve-3d;
+/* 상단 탭 영역 */
+.dex-header {
+    background: #CD853F;
+    border: 2px solid #8B4513;
+    border-radius: 15px;
+    padding: 10px;
+    margin-bottom: 15px;
 }
 
-.flipped .card-inner {
-    transform: rotateY(180deg);
+.dex-tab-header {
+    display: flex;
+    gap: 2px;
 }
 
-/* 기본 상태: 도감 카드용 카드에서 뒷면 숨김 */
-.dex-card .card-back {
+.dex-tab-btn {
+    flex: 1;
+    padding: 12px 8px;
+    font-weight: bold;
+    border: 2px solid #CD853F;
+    background: linear-gradient(135deg, #DEB887 0%, #D2B48C 100%);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #654321;
+    transition: all 0.2s ease;
+}
+
+.dex-tab-btn.active {
+    background: var(--orange-color);
+    color: white;
+}
+
+.dex-tab-btn:hover {
+    transform: translateY(-1px);
+}
+
+/* 중간 상세보기 영역 */
+.dex-detail-section {
+    background: #F5E6D3;
+    border: 2px solid #8B4513;
+    border-radius: 15px;
+    padding: 10px;
+    margin-bottom: 15px;
+    min-height: 95px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.dex-detail-section.hidden {
     display: none;
 }
 
+.detail-image {
+    width: 80px;
+    height: 80px;
+    background: var(--white-color);
+    border: 3px solid #8B4513;
+    border-radius: 12px;
+    object-fit: contain;
+    padding: 5px;
+}
 
-/* 💡 앞/뒷면 공통 */
-.card-front, .card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    border-radius: 10px;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+.detail-info {
+    flex: 1;
+    color: #654321;
+}
+
+.detail-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #8B4513;
+}
+
+.detail-desc {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    line-height: 1.3;
+    font-weight: bold;
+}
+
+.detail-extra {
+    font-size: 0.8rem;
+    color: #A0522D;
+    font-weight: bold;
+}
+
+/* 하단 카드 리스트 영역 */
+.dex-content-section {
+    background: #F5E6D3;
+    border: 2px solid #8B4513;
+    border-radius: 15px;
+    padding: 15px;
+    flex: 1;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.dex-tab-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 5px;
+}
+
+.dex-tab-grid.hidden {
+    display: none;
+}
+
+.dex-square-card {
+    background: #8B4513;
+    border: 2px solid #654321;
+    border-radius: 12px;
+    padding: 4px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    aspect-ratio: 1;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+}
+
+.dex-square-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dex-square-card.empty {
+    background: #A0522D;
+    opacity: 0.5;
+    cursor: default;
+}
+
+.card-img {
+    width: 100%;
+    height: calc(100% - 12px);
+    object-fit: contain;
+    border-radius: 8px;
+    background: var(--white-color);
+    border: 1px solid #8B4513;
+}
+
+.card-img.empty {
+    background: #D2B48C;
+    align-items: center;
+    justify-content: center;
+    object-position: center;
+    display: block;
+    margin: 0 auto;
+    font-size: 1.5rem;
+    color: #8B4513;
+}
+
+.rarity-stars {
+    font-size: 0.6rem;
+    color: #FFD700;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    height: 10px;
+    display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* 💡 카드 앞면 배경 - 보유 여부 분기 */
-.card-front {
-    background-color: #f4e2bd;
-}
-/* 카드 리스트에서 소유 안한 감자는 어둡게 처리 */
-.dex-card.unowned .card-front  {
-    background-color: #3e2c1c;
-}
-/* 🔥 소유하지 않은 감자 이미지 스타일 */
-.card-front .dex-img.unowned {
-    filter: grayscale(100%) brightness(25%) !important;
-    opacity: 0.35 !important;
-}
-
-/* 카드 리스트에서 이미지 드래그 방지 */
-.card-front .dex-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    border-radius: 0.7rem;
-    pointer-events: auto;
-    /* 👉 드래그 방지 */
-    user-select: none;
-    -webkit-user-drag: none;
-    pointer-events: auto; /* 클릭은 유지 */
-}
-
-
-
-
-/* 💡 카드 뒷면 */
-
-.card-back {
-    background-color: #000;
-    transform: rotateY(180deg);
-    overflow: hidden;
-    padding: 0;
-    color: white;
-    box-sizing: border-box;
-    flex-direction: column;
-}
-
-.dex-name {
-    margin-bottom: 1px;
-    width: 100%;
-    padding: 4px 6px;
-    font-weight: bold;
-    font-size: clamp(12px, 3vw, 20px);
-    color: #3db935;
-    text-align: center;
-    box-sizing: border-box;
-}
-
-.dex-body {
-    flex: 1;
-    width: 100%;
+/* 하단 닫기 버튼 */
+.dex-footer {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-sizing: border-box;
+    justify-content: center;
 }
 
-/* 텍스트 공통 */
-
-.dex-rank,
-.dex-condition {
-    font-size: clamp(0.5rem, 2vw, 1rem);
-    text-align: center;
-    margin: 0;
-    line-height: 1.2;
-}
-
-.apply-btn {
-    margin-top: 2px;
-    font-weight: bold;
-    font-size: clamp(0.7rem, 2vw, 0.9rem); /* 더 작게 */
-    padding: 0.3rem 0.6rem; /* 최소 패딩 */
-    border: none;
-    border-radius: 0.4rem;
-    background-color: #3db935;
+.close-btn {
+    background: var(--orange-color);
     color: white;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.apply-btn:hover {
-    background-color: #2b8a26;
-}
-
-.apply-btn.disabled {
-    background-color: #555;
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-/*.dex-pagination {*/
-/*    margin-top: 3vh;*/
-/*    display: flex;*/
-/*    justify-content: center;*/
-/*    gap: 2vw;*/
-/*}*/
-
-.dex-page-btn {
-    padding: 1vh 2vw;
-    font-size: clamp(12px, 3vw, 16px);
-    border-radius: 0.5rem;
-}
-
-.dex-page-btn.active {
-    background-color: #a86d3c;
-    color: white;
+    border: 2px solid var(--char-border-color);
+    padding: 12px 40px;
+    border-radius: 15px;
+    font-size: 1rem;
     font-weight: bold;
-}
-
-.card-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 999;
-    background: rgba(0, 0, 0, 0.3);
-    display: none;
-    justify-content: center; /* ✅ 수평 중앙 */
-    align-items: center; /* ✅ 수직 중앙 */
-}
-
-.enlarged-preview,
-.enlarged-preview.flipped {
-    width: clamp(250px, 60vw, 420px); /* 🔥 더 크게 */
-    aspect-ratio: 5 / 7;
-    height: auto;
-    position: relative;
-    z-index: 1000;
     cursor: pointer;
-    transform: scale(1.7); /* 💥 시각적으로 확대 */
-    transition: transform 0.3s ease;
+    transition: all 0.2s ease;
 }
 
+.close-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 20, 60, 0.4);
+}
 
-.enlarged-preview .card-back {
-    display: block;
+/* 스크롤바 스타일링 */
+.dex-tab-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dex-tab-grid::-webkit-scrollbar-track {
+    background: #D2B48C;
+    border-radius: 3px;
+}
+
+.dex-tab-grid::-webkit-scrollbar-thumb {
+    background: #8B4513;
+    border-radius: 3px;
+}
+
+.dex-tab-grid::-webkit-scrollbar-thumb:hover {
+    background: #654321;
+}
+
+/* 모바일 대응 */
+@media (max-width: 480px) {
+    .dex-modal-container {
+        width: 80vw;
+        padding: 15px;
+    }
+
+    .dex-tab-btn {
+        padding: 10px 6px;
+        font-size: 0.8rem;
+    }
+
+    .detail-image {
+        width: 60px;
+        height: 60px;
+    }
+
+    .detail-name {
+        font-size: 1rem;
+    }
+
+    .detail-desc {
+        font-size: 0.8rem;
+    }
+
+    .dex-tab-grid {
+        gap: 2px;
+        max-height: 180px;
+    }
 }

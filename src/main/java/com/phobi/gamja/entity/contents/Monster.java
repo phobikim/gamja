@@ -24,6 +24,7 @@ public class Monster {
 
     private boolean enabled;
     private String rank;
+    private String rarity;
 
     @Column(name = "image_path")
     private String imagePath;

@@ -231,35 +231,60 @@
     </div>
 </div>
 
-
-<!-- 감자단 도감 모달 -->
+<!-- 도감 모달 -->
 <div id="dexModal" class="modal hidden">
-    <div class="dex-modal-content">
-        <!-- 카드 확대 오버레이 -->
-        <div id="cardOverlay" class="card-overlay"></div>
-        <h2 class="common-h2">감자단 도감</h2>
-        <div id="dexList" class="dex-grid"></div>
-        <div id="dexPagination" class="dex-pagination"></div>
+    <div class="dex-modal-container">
+        <!-- 상단 탭 영역 -->
+        <div class="dex-header">
+            <div class="dex-tab-header">
+                <button class="dex-tab-btn active" data-tab="character">캐릭터</button>
+                <button class="dex-tab-btn" data-tab="item">아이템</button>
+                <button class="dex-tab-btn" data-tab="monster">몬스터</button>
+            </div>
+        </div>
+
+        <!-- 중간 상세보기 영역 -->
+        <div id="dexDetailPanel" class="dex-detail-section hidden">
+            <img id="detailImage" src="" class="detail-image" alt="상세 이미지" />
+            <div class="detail-info">
+                <div id="detailName" class="detail-name">이름</div>
+                <div id="detailDesc" class="detail-desc">설명</div>
+                <div id="detailExtra" class="detail-extra">추가정보</div>
+            </div>
+        </div>
+
+        <!-- 하단 카드 리스트 영역 -->
+        <div class="dex-content-section">
+            <div id="dexTabContent">
+                <div id="characterTab" class="dex-tab-grid"></div>
+                <div id="itemTab" class="dex-tab-grid hidden"></div>
+                <div id="monsterTab" class="dex-tab-grid hidden"></div>
+            </div>
+        </div>
+
+        <!-- 하단 닫기 버튼 -->
+        <div class="dex-footer">
+            <button class="close-btn" onclick="closeDexModal()">닫기</button>
+        </div>
     </div>
 </div>
 
-<template id="dexCardTemplate">
-    <div class="dex-card">
-        <div class="card-inner">
-            <div class="card-front">
-                <img src="" alt="" class="dex-img" draggable="false">
-            </div>
-            <div class="card-back">
-                <p class="dex-name"></p>
-                <div class="dex-body">
-                    <p class="dex-rank"></p>
-                    <p class="dex-condition"></p>
-                    <button class="apply-btn" data-dexid="">적용하기</button>
-                </div>
-            </div>
-        </div>
+<!-- 카드 템플릿 -->
+<template id="dexSquareCardTemplate">
+    <div class="dex-square-card">
+        <img class="card-img" src="" alt="">
+        <div class="rarity-stars"></div>
     </div>
 </template>
+
+<!-- 빈 카드 템플릿 -->
+<template id="emptyCardTemplate">
+    <div class="dex-square-card empty">
+        <div class="card-img empty">?</div>
+    </div>
+</template>
+
+
 
 <!-- 📌 메시지 모달 -->
 <div id="messageModal" class="modal hidden">

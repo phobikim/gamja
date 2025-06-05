@@ -1,17 +1,18 @@
 package com.phobi.gamja.controller;
 
-import com.phobi.gamja.dto.contents.DexDto;
+
 import com.phobi.gamja.entity.user.UserDex;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.entity.contents.Dex;
 import com.phobi.gamja.repository.contents.DexRepository;
+import com.phobi.gamja.repository.contents.MonsterRepository;
+import com.phobi.gamja.repository.item.ItemRepository;
 import com.phobi.gamja.repository.user.UserDexRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,53 +20,81 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @RequestMapping("/api/dex")
 public class DexController {
+
     private final DexRepository dexRepository;
     private final UserDexRepository userDexRepository;
+    private final ItemRepository itemRepository;
+    private final MonsterRepository monsterRepository;
 
-    @ResponseBody
     @GetMapping("list")
-    public ResponseEntity<GamJaResponse> getDexList(HttpSession session) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    public ResponseEntity<GamJaResponse> getDexMeta(HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
-
         if (userId == null) {
             return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
         }
-        // 1. 전체 도감 리스트 조회
-//        List<Dex> dexList = dexRepository.findAll();
-        List<Dex> dexList = dexRepository.findAllEnabledForUser();
 
-        // 2. 유저가 가진 도감 ID 목록 조회
+        // 1. dex
+        List<Dex> dexList = dexRepository.findAllEnabledForUser(); // user_flag = true
         List<UserDex> ownedDexList = userDexRepository.findByUserId(userId);
+        Set<Long> ownedDexIds = ownedDexList.stream()
+                .map(ud -> ud.getDex().getId())
+                .collect(Collectors.toSet());
 
-        List<DexDto> result = dexList.stream()
+        List<Map<String, Object>> dexResult = dexList.stream()
                 .map(dex -> {
-                    // ownedDexList 안에서 해당 dexId를 가진 항목 찾기
-                    Optional<UserDex> matched = ownedDexList.stream()
-                            .filter(ud -> ud.getDex().getId().equals(dex.getId()))
-                            .findFirst();
-                    boolean isOwned = matched.isPresent();
-                    String formattedDate = isOwned ? dateFormat.format(matched.get().getAcquiredAt()) : null;
-
-                    return DexDto.builder()
-                            .id(dex.getId())
-                            .name(dex.getName())
-                            .description(dex.getDescription())
-                            .image(dex.getImage())
-                            .rarity(dex.getRarity())
-                            .acquireCondition(dex.getAcquireCondition())
-                            .acquiredCount(dex.getAcquiredCount())
-                            .owned(isOwned)
-                            .acquiredAt(formattedDate)
-                            .build();
-                })
-                .sorted(Comparator
-                        .comparing(DexDto::isOwned).reversed()
-                        .thenComparing(DexDto::getId))
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("id", dex.getId());
+                    m.put("name", dex.getName());
+                    m.put("description", dex.getDescription());
+                    m.put("attribute", dex.getAttribute());
+                    m.put("owned", ownedDexIds.contains(dex.getId()));
+                    m.put("imagePath", dex.getImage());
+                    m.put("rarity", dex.getRarity());
+                    return m;
+                }).sorted(Comparator.comparing(m -> RARITY_ORDER.getOrDefault(String.valueOf(m.get("rarity")), 99)))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(GamJaResponse.success("도감 조회 완료", result));
+        // 2. item
+        List<Map<String, Object>> itemResult = itemRepository.findAll().stream()
+                .map(item -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("id", item.getId());
+                    m.put("name", item.getName());
+                    m.put("description", item.getDescription());
+                    m.put("rank", item.getRank());
+                    m.put("rarity", item.getRarity());
+                    m.put("imagePath", item.getIconPath());
+                    return m;
+                }).sorted(Comparator.comparing(m -> RARITY_ORDER.getOrDefault(String.valueOf(m.get("rarity")), 99)))
+                .collect(Collectors.toList());
 
+        // 3. monster
+        List<Map<String, Object>> monsterResult = monsterRepository.findAll().stream()
+                .map(mon -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("id", mon.getId());
+                    m.put("name", mon.getName());
+                    m.put("desc", mon.getDesc());
+                    m.put("rank", mon.getRank());
+                    m.put("rarity", mon.getRarity());
+                    m.put("imagePath", mon.getImagePath());
+                    return m;
+                }).sorted(Comparator.comparing(m -> RARITY_ORDER.getOrDefault(String.valueOf(m.get("rarity")), 99)))
+                .collect(Collectors.toList());
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("dexList", dexResult);
+        data.put("itemList", itemResult);
+        data.put("monsterList", monsterResult);
+
+        return ResponseEntity.ok(GamJaResponse.success("도감 메타데이터 조회 완료", data));
     }
 
+    private static final Map<String, Integer> RARITY_ORDER = Map.of(
+            "COMMON", 1,
+            "UNCOMMON", 2,
+            "RARE", 3,
+            "EPIC", 4,
+            "LEGENDARY", 5
+    );
 }

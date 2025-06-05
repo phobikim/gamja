@@ -23,12 +23,19 @@
 .rarity-epic        { box-shadow: 0 0 12px #a29bfeaa; border-radius: 6px; }
 .rarity-legendary   { box-shadow: 0 0 14px #fdcb6eaa; border-radius: 6px; }
 
+/*!* 아이템 (인벤토리용) 백그라운드 컬러 *!*/
+/*.rarity-background-common { background: linear-gradient(to bottom, #d2a679, #c79f65); }*/
+/*.rarity-background-uncommon { background: linear-gradient(to bottom, #6ee367, #d2e9d0); }*/
+/*.rarity-background-rare { background: linear-gradient(to bottom, #5492d7, #9cb5d5); }*/
+/*.rarity-background-epic { background: linear-gradient(to bottom, #c5589e, #DFA3CB); }*/
+/*.rarity-background-legendary { background: linear-gradient(to bottom, #fff2b8, #ffe188); }*/
+
 /* 아이템 (인벤토리용) 백그라운드 컬러 */
-.rarity-background-common { background: linear-gradient(to bottom, #d2a679, #c79f65); }
-.rarity-background-uncommon { background: linear-gradient(to bottom, #6ee367, #d2e9d0); }
-.rarity-background-rare { background: linear-gradient(to bottom, #5492d7, #9cb5d5); }
-.rarity-background-epic { background: linear-gradient(to bottom, #c5589e, #DFA3CB); }
-.rarity-background-legendary { background: linear-gradient(to bottom, #fff2b8, #ffe188); }
+.rarity-background-common { background: #d2a679; }
+.rarity-background-uncommon { background: #6ee367; }
+.rarity-background-rare { background: #5492d7; }
+.rarity-background-epic { background:  #c5589e; }
+.rarity-background-legendary { background: #fff2b8; }
 
 
 /* 전투용 오라 배경 효과 */
