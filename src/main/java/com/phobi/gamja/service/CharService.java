@@ -14,6 +14,7 @@ import com.phobi.gamja.repository.item.ItemStatBonusRepository;
 import com.phobi.gamja.repository.user.*;
 import com.phobi.gamja.util.CommonUtil;
 import com.phobi.gamja.util.StatCalculator;
+import com.phobi.gamja.web.config.annotation.SanitizeInput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,6 +78,7 @@ public class CharService {
     }
 
     @Transactional
+    @SanitizeInput
     public GamJaResponse setCharacterImage(HttpServletRequest request, Map<String, Long> payload) {
         Long userId = (Long) request.getAttribute("userId");
         Long dexId = payload.get("dexId");
