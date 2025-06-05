@@ -57,14 +57,13 @@ function startBattle(user, monster) {
     battleEnded = false;
     isPlayerTurn = true; // ✅ 플레이어 턴으로 시작
     isProcessingTurn = false; // ✅ 턴 처리 상태 초기화
-
     battleState.player = {
         dexName: user.dexName,
         attribute : user.attribute,
-        maxHp: user.hp,
-        currentHp: user.hp,
-        power: user.power,
-        speed: user.speed,
+        maxHp: user.hp.total,
+        currentHp: user.hp.total,
+        power: user.power.total,
+        speed: user.speed.total,
         currentXp:user.xp,
         lv:user.lv,
         charImg:user.charImage
@@ -390,9 +389,9 @@ function initializeBattleScene(user, monster) {
     // 스탯 UI 설정
     document.querySelector('.user-name').textContent = user.dexName;
     document.querySelector('.user-attribute').textContent = user.attribute;
-    document.querySelector('.user-power').textContent = user.power;
-    document.querySelector('.user-hp').textContent = user.hp;
-    document.querySelector('.user-speed').textContent = user.speed;
+    document.querySelector('.user-power').textContent = user.power.total;
+    document.querySelector('.user-hp').textContent = user.hp.total;
+    document.querySelector('.user-speed').textContent = user.speed.total;
 
     document.querySelector('.monster-name').textContent = monster.name;
     document.querySelector('.monster-rank').textContent = monster.rank;

@@ -1,5 +1,6 @@
 package com.phobi.gamja.entity.user;
 
+import com.phobi.gamja.entity.contents.Dex;
 import lombok.*;
 
 import javax.persistence.*;
@@ -23,8 +24,9 @@ public class UserDex {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
-    private Long dexId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dex_id", nullable = false)
+    private Dex dex;
 
     @Column(name = "acquired_at")
     private Date acquiredAt;

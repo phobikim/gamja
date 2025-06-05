@@ -107,9 +107,9 @@ public class BattleService {
         userInfo.put("xp", userDexStat.getXp());
         userInfo.put("maxExp", userDexStat.getMaxExp());
         userInfo.put("attribute", userDexStat.getDex().getAttribute());
-        userInfo.put("power", userBattleDto.getTotalPower());
-        userInfo.put("hp", userBattleDto.getTotalHp());
-        userInfo.put("speed", userBattleDto.getTotalSpeed());
+        userInfo.put("power", userBattleDto.getPower());
+        userInfo.put("hp", userBattleDto.getHp());
+        userInfo.put("speed", userBattleDto.getSpeed());
 
         return GamJaResponse.success("유저 스탯 조회 성공", userInfo);
     }

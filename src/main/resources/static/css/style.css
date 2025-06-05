@@ -99,6 +99,9 @@ button:hover {
 
 .tooltip-modal {
     position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -106,7 +109,7 @@ button:hover {
     border: 3px solid #d2a679;
     border-radius: 12px;
     padding: 1rem;
-    width: 260px;
+    width: 200px;
     z-index: 2000;
     box-shadow: 0 6px 16px rgba(0,0,0,0.3);
 }
@@ -136,6 +139,27 @@ button:hover {
     line-height: 1.4;
 }
 
+.item-tooltip-close {
+    margin-top: 1rem;
+    background: #fa6719;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: background 0.2s ease;
+    align-self: center;
+}
+
+.item-tooltip-close:hover {
+    background: #e25c12;
+}
+
+
+
 /* 메세지 모달 스타일 */
 #messageModal {
     position: fixed; /* ⭐ 모달이 위에 떠야 하므로 반드시 필요 */
@@ -152,4 +176,24 @@ button:hover {
 
 #messageModal.hidden {
     display: none;
+}
+
+.modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #ffb323;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 35px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }

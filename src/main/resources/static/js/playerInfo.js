@@ -13,13 +13,27 @@ const lifeEquipment = document.getElementById('lifeEquipment');
 
 
 // 수치 조정
-function updateStatValue(statId, value, max = 100) {
+function updateStatValue(statId, detail, max = 100) {
     const block = document.getElementById(`stat-${statId}`);
     if (!block) return;
-    const bar = block.querySelector('.stat-bar-fill');
+
+
+    const barBg = block.querySelector('.stat-bar-bg');
     const valueSpan = block.querySelector('.stat-bar-value');
-    bar.style.width = `${Math.min((value / max) * 100, 100)}%`;
-    valueSpan.textContent = value;
+    const total = detail.fromUser + detail.fromBase + detail.fromEquip;
+    valueSpan.textContent = total;
+
+    // 색상 순서: base → dex → equip
+    const basePercent = (detail.fromBase / max) * 100;
+    const dexPercent = (detail.fromUser / max) * 100;
+    const equipPercent = (detail.fromEquip / max) * 100;
+
+    barBg.innerHTML = `
+    <div class="stat-bar-fill base" style="width:${basePercent}%"></div>
+    <div class="stat-bar-fill user" style="width:${dexPercent}%"></div>
+    <div class="stat-bar-fill equip" style="width:${equipPercent}%"></div>
+  `;
+
 }
 
 function openInfoModal() {
@@ -70,9 +84,9 @@ function loadCharacterBattleInfo() {
 // ✅ 전투 정보 DOM 세팅
 function setCharacterBattleInfo(data) {
 
-    updateStatValue('combatAtk', data.totalPower);
-    updateStatValue('combatHp', data.totalHp);
-    updateStatValue('combatSpeed', data.totalSpeed);
+    updateStatValue('combatAtk', data.power);
+    updateStatValue('combatHp', data.hp);
+    updateStatValue('combatSpeed', data.speed);
 
     const slotMap = {
         WEAPON: 'combatSlotWeapon',
@@ -191,4 +205,15 @@ document.addEventListener('click', (e) => {
     if (!itemtooltip.classList.contains('hidden') && !itemtooltip.contains(e.target)) {
         hideItemTooltip();
     }
+});
+
+
+document.getElementById('characterModalClose').addEventListener('click', () => {
+    document.getElementById('characterModal').classList.add('hidden');
+});
+
+// 캐릭터 상세 정보로 이동
+document.querySelector('.char-image-area').addEventListener('click', () => {
+    // 여기에 보유 캐릭터 데이터를 넘겨야 함
+    openCharacterSelectModal();
 });

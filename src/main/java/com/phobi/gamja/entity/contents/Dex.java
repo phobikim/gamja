@@ -25,7 +25,7 @@ public class Dex {
     private String image;
 
     @Column(nullable = false, length = 10)
-    private String rank;
+    private String rarity;
 
     @Column(name = "acquire_condition", nullable = false, columnDefinition = "TEXT")
     private String acquireCondition;

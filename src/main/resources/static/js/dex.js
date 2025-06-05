@@ -35,7 +35,7 @@ function renderDexCards(data) {
         const card = clone.querySelector('.dex-card');
         const frontImg = clone.querySelector('.dex-img');
         const name = clone.querySelector('.dex-name');
-        const rank = clone.querySelector('.dex-rank');
+        const rank = clone.querySelector('.dex-rarity');
         const condition = clone.querySelector('.dex-condition');
         const btn = clone.querySelector('.apply-btn');
 

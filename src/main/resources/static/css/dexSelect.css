@@ -1,0 +1,292 @@
+#characterSelectModal.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.character-select-content {
+    position: relative;
+    width: 80%;
+    max-width: 600px;
+    height: 75vh;
+    background: #10131f;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+
+
+/* 캐릭터 카드 그리드 */
+.character-card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    width: 100%;
+    justify-items: center; /* 카드들을 중앙 정렬 */
+    align-content: start; /* 위쪽부터 배치 */
+}
+
+/* 캐릭터 카드 메인 스타일 */
+.character-card {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    border: 3px solid transparent;
+}
+
+/* 카드 호버 효과 */
+.character-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+.character-card.selected {
+    border-color: #FFD700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    transform: translateY(-2px);
+}
+
+/* 레벨 표시 (좌상단) */
+.card-level {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(0,0,0,0.7);
+    color: #FFD700;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    z-index: 2;
+}
+
+.card-attribute {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* 속성별 색상 */
+.card-attribute.fire { background: #FF4444; color: white; }
+.card-attribute.water { background: #4444FF; color: white; }
+.card-attribute.earth { background: #8B4513; color: white; }
+.card-attribute.air { background: #87CEEB; color: #333; }
+.card-attribute.light { background: #FFD700; color: #333; }
+.card-attribute.dark { background: #4B0082; color: white; }
+
+/* 캐릭터 이미지 */
+.char-image {
+    width: 100%;
+    height: 60%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 8px 8px 0 0;
+}
+
+/* 카드 정보 영역 */
+.card-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--brown-color);
+    color: white;
+    padding: 8px;
+    border-radius: 0 0 13px 13px;
+}
+
+/* 캐릭터 이름 */
+.char-name {
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 4px;
+    text-align: center;
+    color: #FFE4B5;
+}
+
+/* XP 바 컨테이너 */
+.xp-bar-container {
+    position: relative;
+    width: 100%;
+    height: 8px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* XP 바 */
+.xp-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+/* XP 텍스트 */
+.xp-text {
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    color: #FFE4B5;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+
+.char-select-modal-header {
+    position: relative;
+    width: 100%;
+    height: 50px; /* 버튼 영역 높이 보장 */
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+/* 적용 버튼 */
+.apply-button {
+    position: static;
+    top: 1rem;
+    left: 1rem;
+    margin-top: 0;
+    background: var(--baige-color);
+    color: var(--dark-font-color);
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(250, 103, 25, 0.3);
+}
+
+.close-button {
+    position: static;
+    top: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    background: #4a557d;
+    border: none;
+    color: #ffeedd;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+}
+
+.close-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.apply-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(250, 103, 25, 0.4);
+}
+
+.apply-button:disabled {
+    background: var(--baige-color);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.character-select-content {
+    display: flex;
+    flex-direction: column;
+    /* 기존 스타일 유지 */
+}
+
+.character-card-grid {
+    flex: 1; /* 중간 영역이 남은 공간 모두 차지 */
+    overflow-y: auto; /* 스크롤은 그리드 영역에서만 */
+    /* 기존 스타일 유지 */
+}
+
+.char-select-modal-footer {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid rgba(255, 238, 221, 0.2);
+    margin-top: 1rem;
+    flex-shrink: 0; /* footer 크기 고정 */
+}
+
+.character-count {
+    color: #ffeedd;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+    .character-select-content {
+        width: 80%;
+        height: 75vh;
+        padding: 1rem;
+    }
+
+    .character-card-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.8rem;
+    }
+
+    .card-level {
+        font-size: 0.6rem;
+        padding: 3px 6px;
+    }
+
+    .card-attribute {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+    }
+
+    .char-name {
+        font-size: 0.7rem;
+    }
+
+    .xp-text {
+        font-size: 0.55rem;
+    }
+}
+
+/* 초소형 화면 */
+@media (max-width: 480px) {
+    .character-card-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.6rem;
+    }
+
+    .character-select-content h2 {
+        font-size: 1.2rem;
+    }
+}

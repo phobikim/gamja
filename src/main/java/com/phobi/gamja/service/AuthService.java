@@ -4,6 +4,7 @@ import com.phobi.gamja.entity.contents.Dex;
 import com.phobi.gamja.entity.contents.SkillType;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
+import com.phobi.gamja.repository.contents.DexRepository;
 import com.phobi.gamja.repository.user.*;
 import com.phobi.gamja.web.config.annotation.SanitizeInput;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class AuthService {
     private final UserSkillRepository userSkillRepository;
     private final UserDexRepository userDexRepository;
     private final UserDexStatRepository userDexStatRepository;
+    private final DexRepository dexRepository;
 
     @Transactional
     public GamJaResponse login(String username, String pin, HttpServletRequest request, HttpSession session) {
@@ -72,13 +74,16 @@ public class AuthService {
 
         // 기본 도감 지급
         List<Long> dexIds = List.of(100L, 101L);
-        List<UserDex> userDexList = dexIds.stream()
-                .map(dexId -> UserDex.builder()
+        List<Dex> dexList = dexRepository.findAllById(dexIds);
+
+        List<UserDex> userDexList = dexList.stream()
+                .map(dex -> UserDex.builder()
                         .user(savedUser)
-                        .dexId(dexId)
+                        .dex(dex)  // ✅ 여기 이제 Dex 객체
                         .acquiredAt(new Date())
                         .build())
                 .toList();
+
         userDexRepository.saveAll(userDexList);
 
         // 기본 스탯 생성

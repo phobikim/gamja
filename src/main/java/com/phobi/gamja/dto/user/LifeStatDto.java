@@ -11,10 +11,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LifeStatDto {
-    private int fishing;
-    private int mining;
-    private int woodcutting;
-    private int gathering;
-    private int making;
+    private LifeStatDetailDto fishing;
+    private LifeStatDetailDto mining;
+    private LifeStatDetailDto woodcutting;
+    private LifeStatDetailDto gathering;
+    private LifeStatDetailDto making;
     private List<ItemDto> equippedItems;
 }

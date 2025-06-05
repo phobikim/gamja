@@ -12,6 +12,7 @@
 }
 
 .character-modal-content {
+    position: relative;
     background: var(--char-border-color);
     padding: 1.5rem;
     border-radius: 16px;
@@ -23,6 +24,11 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+}
+
+
+.character-modal-close:hover {
+    background: #e25c12;
 }
 
 /* 🔷 영역 공통 스타일 */
@@ -149,10 +155,11 @@
 
 .stat-bar-fill {
     height: 100%;
-    background-color: var(--orange-color);
-    width: 0%;
-    transition: width 0.3s ease-in-out;
+    float: left;
 }
+.stat-bar-fill.base   { background-color: #e6c384; } /* base stat: 부드러운 모래빛 */
+.stat-bar-fill.user   { background-color: #f7a072; } /* dex stat: 살구빛 */
+.stat-bar-fill.equip  { background-color: #b3d89c; } /* equip stat: 연한 그린 */
 
 .stat-bar-value {
     text-align: right;

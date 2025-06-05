@@ -13,7 +13,7 @@ async function loadItems() {
         <td>${item.id}</td>
         <td><img src="${basePath}/${item.iconPath}" width="32" /></td>
         <td>${item.name}</td>
-        <td>${item.rank}</td>
+        <td>${item.rarity}</td>
         <td>${item.itemType}</td>
         <td>${item.equipSlot}</td>
         <td><button onclick="editItem(${item.id})">수정</button></td>

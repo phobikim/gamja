@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="css/playerInfo.css">
     <link rel="stylesheet" href="css/color.css">
     <link rel="stylesheet" href="css/exploration.css">
+    <link rel="stylesheet" href="css/dexSelect.css">
 </head>
 
 <body class="char-page">
@@ -349,8 +350,8 @@
                 <button id="bagTooltipEquipBtn" class="equip-btn">장착</button>
             </div>
         </div>
-
     </div>
+    <button id="bagModalClose" class="bag-modal-close">✖</button>
     <div class="bag-modal-content">
         <div class="bag-tabs">
             <button data-type="ALL" class="active">전체</button>
@@ -577,7 +578,7 @@
 <!-- 캐릭터 정보 모달 -->
 <div id="characterModal" class="modal hidden">
     <div class="character-modal-content">
-
+        <button id="characterModalClose" class="modal-close">✖</button>
         <!-- 탭 영역 -->
         <div class="char-tab">
             <button class="tab-btn active" data-tab="battle" id="battleTabBtn">전투</button>
@@ -587,7 +588,7 @@
         <!-- 캐릭터 이미지 + 스탯 -->
         <div class="char-body-row">
             <!-- 이미지 -->
-            <div class="char-image-area">
+            <div class="char-image-area" onclick="openCharacterSelectModal()">
                 <img id="charImage" src="https://phobi.me/gamja.img/images/character/default.png" alt="캐릭터 이미지">
                 <!-- 캐릭터 카드 정보 -->
                 <div class="char-card-info">
@@ -595,6 +596,13 @@
                     <div>LV <span id="combatLevelValue">1</span></div>
                 </div>
             </div>
+<!--            &lt;!&ndash;스탯 모달&ndash;&gt;-->
+<!--            <div id="statTooltipModal" class="stat-tooltip-modal hidden">-->
+<!--                <div class="stat-tooltip-content">-->
+<!--                    <div id="statTooltipText" class="tooltip-content"></div>-->
+<!--                </div>-->
+<!--                <button id="statTooltipClose" class="stat-tooltip-close">닫기</button>-->
+<!--            </div>-->
             <!-- 스탯 -->
             <div class="char-stats-area">
                 <!-- 전투 스탯 -->
@@ -605,7 +613,9 @@
                             <div class="stat-label">공격력</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
-                                    <div class="stat-bar-fill"></div>
+                                    <div class="stat-bar-fill base"></div>
+                                    <div class="stat-bar-fill user"></div>
+                                    <div class="stat-bar-fill equip"></div>
                                 </div>
                                 <span class="stat-bar-value"></span>
                             </div>
@@ -617,7 +627,9 @@
                             <div class="stat-label">체력</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
-                                    <div class="stat-bar-fill"></div>
+                                    <div class="stat-bar-fill base"></div>
+                                    <div class="stat-bar-fill user"></div>
+                                    <div class="stat-bar-fill equip"></div>
                                 </div>
                                 <span class="stat-bar-value"></span>
                             </div>
@@ -626,10 +638,12 @@
                     <div class="stat-block" id="stat-combatSpeed">
                         <img src="https://phobi.me/gamja.img/images/icons/icon_stat_speed.png" class="stat-icon" />
                         <div class="stat-info">
-                            <div class="stat-label">스피드</div>
+                            <div class="stat-label">민첩</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
-                                    <div class="stat-bar-fill"></div>
+                                    <div class="stat-bar-fill base"></div>
+                                    <div class="stat-bar-fill user"></div>
+                                    <div class="stat-bar-fill equip"></div>
                                 </div>
                                 <span class="stat-bar-value"></span>
                             </div>
@@ -728,6 +742,32 @@
     </div>
 </div>
 
+<!-- 캐릭터 선택 모달 -->
+<div id="characterSelectModal" class="modal hidden">
+    <div class="character-select-content">
+        <div class="char-select-modal-header">
+            <button id="applyCharacterBtn" class="apply-button" disabled>적용하기</button>
+            <button id="closeModalBtn" class="close-button">×</button>
+        </div>
+        <div id="characterCardGrid" class="character-card-grid">
+            <!-- JS로 카드들이 여기에 들어감 -->
+        </div>
+        <div class="char-select-modal-footer">
+            <div class="character-count">보유 감자 <span id="ownedCount">0</span>/<span id="totalCount">0</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- 캐릭터 카드 리스트 -->
+<template id="characterCardTemplate">
+    <div class="character-card">
+        <img class="char-image" src="" alt="">
+        <div><strong class="char-name"></strong></div>
+        <div class="char-level"></div>
+        <div class="char-exp"></div>
+    </div>
+</template>
+
 
 
 <!-- 아이템 툴팁 -->
@@ -737,6 +777,7 @@
         <div class="item-rarity" id="tooltipRarity"></div>
         <div class="item-description" id="tooltipDescription"></div>
     </div>
+    <button id="itemTooltipClose" class="item-tooltip-close">닫기</button>
 </div>
 
 <!-- 📌 JS 파일들 로드 -->
@@ -755,6 +796,7 @@
 <script src="js/map.js"></script>
 <script src="js/playerInfo.js"></script>
 <script src="js/exploration.js"></script>
+<script src="js/dexSelect.js"></script>
 
 
 </body>

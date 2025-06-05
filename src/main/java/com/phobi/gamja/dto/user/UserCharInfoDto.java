@@ -15,6 +15,7 @@ public class UserCharInfoDto {
     private String dexName;
     private String attribute;
     private int maxCombo;
+    private Long dexId;
 
 
     // 기존 생성자 유지
@@ -25,6 +26,7 @@ public class UserCharInfoDto {
 
     // 캐릭터 Dex 의 stat 반환
     public UserCharInfoDto(UserDtl userDtl, UserDexStat stat, int maxCombo) {
+        this.dexId = stat.getDex().getId();
         this.username = userDtl.getUser().getUsername();
         this.characterImage = userDtl.getCharacterImage();
         this.level = stat.getLevel();

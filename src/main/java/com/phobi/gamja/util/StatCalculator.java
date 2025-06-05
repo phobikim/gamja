@@ -34,7 +34,7 @@ public class StatCalculator {
                 .orElseThrow(() -> new RuntimeException("유저 상세정보가 없습니다."));
         Long equippedDexId = userDtl.getCharacterDexId();
 
-        // 2. 캐릭터별 스탯 (user_dex_stat)
+        // 2. 착용 캐릭터의 stat (레벨업하면 증가)
         UserDexStatId statId = new UserDexStatId(userId, equippedDexId);
         UserDexStat stat = userDexStatRepository.findById(statId)
                 .orElseThrow(() -> new RuntimeException("캐릭터 스탯 정보가 없습니다."));
@@ -43,7 +43,7 @@ public class StatCalculator {
         int userDexStatPower = stat.getPower();
         int userDexStatSpeed = stat.getSpeed();
 
-        // 3. 도감 기본값 (dex table)
+        // 3. 랭크 별 기본 스탯 (랭크 별로 차이가 있음)
         Dex dex = dexRepository.findById(equippedDexId).orElse(null);
         int baseDexHp = 0, baseDexPower = 0, baseDexSpeed = 0;
         if (dex != null) {
@@ -66,12 +66,12 @@ public class StatCalculator {
             }
         }
 
-        return new BattleStatDto(
-                userDexStatHp + baseDexHp + equipHp,
-                userDexStatPower + baseDexPower + equipPower,
-                userDexStatSpeed + baseDexSpeed + equipSpeed,
-                itemDtoList
-        );
+        BattleStatDetailDto power = new BattleStatDetailDto(userDexStatPower, baseDexPower, equipPower);
+        BattleStatDetailDto hp = new BattleStatDetailDto(userDexStatHp, baseDexHp, equipHp);
+        BattleStatDetailDto speed = new BattleStatDetailDto(userDexStatSpeed, baseDexSpeed, equipSpeed);
+
+
+        return new BattleStatDto(hp, power, speed, itemDtoList);
     }
 
     public LifeStatDto calculateLifeSkill(Long userId) {
@@ -79,7 +79,7 @@ public class StatCalculator {
         UserDtl userDtl = userDtlRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저 상세정보가 없습니다."));
         Long equippedDexId = userDtl.getCharacterDexId();
-        // 기본 스킬 레벨
+        // 유저 스킬 레벨 (활동을 통해 스탯 증가)
         Map<String, Integer> baseSkillMap = new HashMap<>();
         List<UserSkill> skillList = userSkillRepository.findByUserId(userId);
         for (UserSkill skill : skillList) {
@@ -107,13 +107,13 @@ public class StatCalculator {
                 equipMaking += bonus.getMaking();
             }
         }
-
+        LifeStatDetailDto fishing = new LifeStatDetailDto(baseFishing, equipFishing);
+        LifeStatDetailDto mining = new LifeStatDetailDto(baseMining, equipMining);
+        LifeStatDetailDto woodCutting = new LifeStatDetailDto(baseWoodcutting, equipWoodcutting);
+        LifeStatDetailDto gathering = new LifeStatDetailDto(baseGathering, equipGathering);
+        LifeStatDetailDto making = new LifeStatDetailDto(baseMaking, equipMaking);
         return new LifeStatDto(
-                baseFishing + equipFishing,
-                baseMining + equipMining,
-                baseWoodcutting + equipWoodcutting,
-                baseGathering + equipGathering,
-                baseMaking + equipMaking,
+                fishing, mining, woodCutting, gathering, making,
                 itemDtoList);
     }
 

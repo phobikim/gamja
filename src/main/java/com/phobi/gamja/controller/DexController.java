@@ -42,7 +42,7 @@ public class DexController {
                 .map(dex -> {
                     // ownedDexList 안에서 해당 dexId를 가진 항목 찾기
                     Optional<UserDex> matched = ownedDexList.stream()
-                            .filter(ud -> ud.getDexId().equals(dex.getId()))
+                            .filter(ud -> ud.getDex().getId().equals(dex.getId()))
                             .findFirst();
                     boolean isOwned = matched.isPresent();
                     String formattedDate = isOwned ? dateFormat.format(matched.get().getAcquiredAt()) : null;
@@ -52,7 +52,7 @@ public class DexController {
                             .name(dex.getName())
                             .description(dex.getDescription())
                             .image(dex.getImage())
-                            .rank(dex.getRank())
+                            .rarity(dex.getRarity())
                             .acquireCondition(dex.getAcquireCondition())
                             .acquiredCount(dex.getAcquiredCount())
                             .owned(isOwned)

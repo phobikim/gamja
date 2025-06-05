@@ -14,7 +14,7 @@ public class DexDto {
     private String name;
     private String description;
     private String image;
-    private String rank;
+    private String rarity;
     private String acquireCondition;
     private int acquiredCount;
 

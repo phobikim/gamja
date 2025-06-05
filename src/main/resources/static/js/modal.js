@@ -34,3 +34,5 @@ function hideItemTooltip() {
     tooltip.classList.add('hidden');
 }
 
+document.getElementById('itemTooltipClose').addEventListener('click', hideItemTooltip);
+

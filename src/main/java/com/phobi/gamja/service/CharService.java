@@ -1,9 +1,12 @@
 package com.phobi.gamja.service;
+import com.phobi.gamja.dto.contents.DexOwnedDto;
+import com.phobi.gamja.dto.contents.DexOwnedListResponseDto;
 import com.phobi.gamja.dto.user.BattleStatDto;
 import com.phobi.gamja.dto.user.LifeStatDto;
 import com.phobi.gamja.dto.user.UserCharInfoDto;
 import com.phobi.gamja.entity.contents.Dex;
 import com.phobi.gamja.entity.item.Item;
+import com.phobi.gamja.entity.user.UserDex;
 import com.phobi.gamja.entity.user.UserDexStat;
 import com.phobi.gamja.entity.user.UserDexStatId;
 import com.phobi.gamja.entity.user.UserDtl;
@@ -21,7 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -103,14 +108,61 @@ public class CharService {
                     .level(1)
                     .xp(0)
                     .maxExp(100)
-                    .power(1)
-                    .hp(1)
-                    .speed(1)
+                    .power(0)
+                    .hp(0)
+                    .speed(0)
                     .build();
             return userDexStatRepository.save(newStat);
         });
 
         UserCharInfoDto dto = new UserCharInfoDto(userDtl, stat);
         return GamJaResponse.success("대표 감자가 설정되었습니다.", dto);
+    }
+
+    @Transactional(readOnly = true)
+    public GamJaResponse getOwnedDex(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+
+        // 1. 보유 감자 ID 리스트
+        List<UserDex> userDexList = userDexRepository.findByUserId(userId);
+
+        // 2. 대표 감자 ID
+        Long selectedDexId = userDtlRepository.findById(userId)
+                .map(UserDtl::getCharacterDexId)
+                .orElse(null);
+
+        // 3. 각각의 캐릭터에 대해 DTO 생성
+        List<DexOwnedDto> ownedDexList = userDexList.stream().map(userDex -> {
+            Dex dex = userDex.getDex();
+            UserDexStat stat = userDexStatRepository
+                    .findByUserIdAndDexId(userId, dex.getId())
+                    .orElse(null);
+
+            return DexOwnedDto.builder()
+                    .dexId(dex.getId())
+                    .dexImage(dex.getImage())
+                    .dexName(dex.getName())
+                    .attribute(dex.getAttribute())
+                    .rarity(dex.getRarity())
+                    .level(stat != null ? stat.getLevel() : 1)
+                    .xp(stat != null ? stat.getXp() : 0)
+                    .maxExp(stat != null ? stat.getMaxExp() : 100)
+                    .selected(dex.getId().equals(selectedDexId))
+                    .build();
+        }).collect(Collectors.toList());
+
+        // 전체 감자 도감 수
+        int totalDexCount = (int) dexRepository.count();
+        // 보유 감자 수
+        int ownedDexCount = userDexList.size();
+
+        DexOwnedListResponseDto result = DexOwnedListResponseDto.builder()
+                .totalDexCount(totalDexCount)
+                .ownedDexCount(ownedDexCount)
+                .ownedDexList(ownedDexList)
+                .build();
+
+
+        return GamJaResponse.success("보유 감자 리스트 조회 완료", result);
     }
 }

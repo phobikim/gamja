@@ -2,17 +2,26 @@ package com.phobi.gamja.dto.user;
 
 import com.phobi.gamja.dto.item.ItemDto;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class BattleStatDto {
-    private int totalHp;
-    private int totalPower;
-    private int totalSpeed;
+    // stat total
+    private BattleStatDetailDto power;
+    private BattleStatDetailDto hp;
+    private BattleStatDetailDto speed;
     private List<ItemDto> equippedItems;
+
+    public BattleStatDto(BattleStatDetailDto hp, BattleStatDetailDto power, BattleStatDetailDto speed, List<ItemDto> itemDtoList) {
+        this.hp = hp;
+        this.power = power;
+        this.speed = speed;
+        this.equippedItems = itemDtoList;
+    }
 }

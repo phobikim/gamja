@@ -27,12 +27,18 @@ async function openExploration(activityType, rank) {
     explorationModal.classList.add('show');
 
     try {
+        cardEventPool = []; // 이전 카드 데이터 명확히 비우기
         const url = `/api/action/card-event?activity=${activityType}&rank=${rank}`;
         const cardRes = await apiRequest(url, 'GET');
 
         if (cardRes.code !== 'SUCCESS') {
             closeExploration();
             showMessageModal(cardRes.message || '카드 목록을 불러오는 데 실패했습니다.');
+            return;
+        }
+        if (cardRes.data.length < 2) {
+            closeExploration();
+            showMessageModal('카드 데이터가 없습니다.'); // 혹은 탐사 불가능 안내
             return;
         }
 
@@ -48,6 +54,11 @@ async function openExploration(activityType, rank) {
 function renderCards() {
     const leftCard = document.getElementById('leftCard');
     const rightCard = document.getElementById('rightCard');
+    // ✅ 이전 카드 초기화
+    leftCard.textContent = '';
+    rightCard.textContent = '';
+    leftCard.removeAttribute('data-event');
+    rightCard.removeAttribute('data-event');
 
     if (cardEventPool.length < 2) return;
 

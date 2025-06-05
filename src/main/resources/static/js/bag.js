@@ -39,7 +39,8 @@ function renderItemsByType(typeString) {
         slot.innerHTML = '';
 
         const wrapper = document.createElement('div');
-        wrapper.className = 'item-image-wrapper';
+        const rarityClass = item.rarity ? `rarity-background-${item.rarity.toLowerCase()}` : 'rarity-background-common';
+        wrapper.classList.add('item-image-wrapper', rarityClass);
 
         const img = document.createElement('img');
         img.src = basePath + item.iconPath || `/images/items/default.png`;
