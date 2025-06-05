@@ -85,6 +85,19 @@ function restoreCardListeners() {
 }
 
 function choosePath(direction) {
+
+    const leftCard = document.getElementById('leftCard');
+    const rightCard = document.getElementById('rightCard');
+
+    // 클릭 애니메이션
+    const clickedCard = direction === 'left' ? leftCard : rightCard;
+    clickedCard.classList.add('click-animate');
+
+    // 애니메이션 끝나면 자동 제거
+    setTimeout(() => {
+        clickedCard.classList.remove('click-animate');
+    }, 200);
+
     if (hp <= 0 || stage > maxStage) return;
 
     const log = document.getElementById('log');

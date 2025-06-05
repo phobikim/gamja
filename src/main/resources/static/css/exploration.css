@@ -35,10 +35,25 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
-.exploration-card:hover {
-    background: #4e5274;
-    transform: scale(1.05);
+.exploration-card.click-animate {
+    animation: cardClickFlash 0.2s ease;
 }
+
+@keyframes cardClickFlash {
+    0% {
+        transform: scale(1);
+        background: #3c3f58;
+    }
+    50% {
+        transform: scale(1.05);
+        background: #4e5274;
+    }
+    100% {
+        transform: scale(1);
+        background: #3c3f58;
+    }
+}
+
 
 #explorationResultModal {
     position: fixed;
