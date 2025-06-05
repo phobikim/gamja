@@ -49,7 +49,12 @@ function renderMapList(mapList) {
     });
 
     startBattleBtn.onclick = () => {
-        if (selectedMap) selectBattleMap(selectedMap);
+        if (selectedMap) {
+            battleMapSelectModal.classList.add('hidden');
+            document.body.style.overflow = ''; // body 스크롤 복원
+            window.selectedMap = selectedMap;
+            window.startBattleFromMap(selectedMap);
+        }
     };
 }
 
@@ -120,44 +125,6 @@ function updateMapDetail(map) {
     });
 }
 
-async function selectBattleMap(map) {
-    battleMapSelectModal.classList.add('hidden');
-    battleModal.classList.remove('hidden');
-
-    const userRes = await apiRequest('/api/battle/user-stat', 'GET');
-    if (userRes.code !== 'SUCCESS') {
-        battleModal.classList.add('hidden');
-        showMessageModal(userRes.message || "유저 정보를 불러오지 못했습니다.");
-        return;
-    }
-
-    const user = userRes.data;
-
-    // ✅ 몬스터 리스트 요청 후 저장
-    const monsterRes = await apiRequest(`/api/battle/monster_stat?mapId=${map.id}`, 'GET');
-    if (monsterRes.code !== 'SUCCESS') {
-        battleModal.classList.add('hidden');
-        showMessageModal(monsterRes.message || "몬스터 정보를 불러오지 못했습니다.");
-        return;
-    }
-    currentMonsterList = monsterRes.data;
-    if (!currentMonsterList || currentMonsterList.length === 0) {
-        battleModal.classList.add('hidden');
-        showMessageModal("해당 맵에 등장하는 몬스터가 없습니다.");
-        return;
-    }
-
-    // ✅ 랜덤 몬스터 선택 후 전투 시작
-    const selectedMonster = getRandomMonster();
-    initializeBattleScene(user, selectedMonster);
-    startBattle(user, selectedMonster);
-}
-
-function getRandomMonster() {
-    if (!currentMonsterList || currentMonsterList.length === 0) return null;
-    const index = Math.floor(Math.random() * currentMonsterList.length);
-    return currentMonsterList[index];
-}
 
 battleMapSelectModal.addEventListener('click', (e) => {
     // 툴팁 또는 툴팁 부모를 클릭했다면 무시

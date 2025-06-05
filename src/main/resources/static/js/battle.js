@@ -1,97 +1,173 @@
-
-//실제 전투 모달
+// battle.js 파일에서만 유지할 로직들 — 전투 시작 및 처리 관련
 const battleModal = document.getElementById('battleModal');
-// 승리 모달
 const lootModal = document.getElementById('lootModal');
-// 패배 모달
-const defeatModal = document.getElementById('defeatModal')
-
-let battleEnded = false;
-let isPlayerTurn = true; // ✅ 턴 상태 관리
-let isProcessingTurn = false; // ✅ 턴 처리 중 상태 관리
-
+const defeatModal = document.getElementById('defeatModal');
 const monsterImage = document.getElementById('monsterCharacter');
 const playerImage = document.getElementById('userCharacter');
+const logBox = document.getElementById('battleLog');
+
+let battleEnded = false;
+let isPlayerTurn = true;
+let isProcessingTurn = false;
 
 window.battleState = {
-    player: {
-        dexName: '',
-        attribute: '',
-        maxHp: 0,
-        currentHp: 0,
-        power: 0,
-        speed: 0,
-        currentXp: 0,
-        level:0,
-        charImg:''
-    },
-    monster: {
-        name: '',
-        maxHp: 0,
-        currentHp: 0,
-        power: 0,
-        drops: [],
-    }
+    player: {},
+    monster: {}
 };
 
-const logBox = document.getElementById('battleLog');
+window.startBattleFromMap = async function(map) {
+    battleModal.classList.remove('hidden');
+
+    const userRes = await apiRequest('/api/battle/user-stat', 'GET');
+    if (userRes.code !== 'SUCCESS') {
+        showMessageModal(userRes.message || "유저 정보를 불러오지 못했습니다.");
+        return;
+    }
+    const user = userRes.data;
+
+    const monsterRes = await apiRequest(`/api/battle/monster_stat?mapId=${map.id}`, 'GET');
+    if (monsterRes.code !== 'SUCCESS') {
+        showMessageModal(monsterRes.message || "몬스터 정보를 불러오지 못했습니다.");
+        return;
+    }
+    const monsters = monsterRes.data;
+    if (!monsters || monsters.length === 0) {
+        battleModal.classList.add('hidden');
+        showMessageModal("해당 맵에 등장하는 몬스터가 없습니다.");
+        return;
+    }
+    const selectedMonster = monsters[Math.floor(Math.random() * monsters.length)];
+
+    initializeBattleScene(user, selectedMonster);
+    startBattle(user, selectedMonster);
+};
+
+function initializeBattleScene(user, monster) {
+    const background = document.getElementById('battleBackground');
+    if (background && window.selectedMap?.imagePath) {
+        background.src = basePath + window.selectedMap.imagePath;
+    }
+
+    const mapNameBanner = document.getElementById('battleMapName');
+    if (mapNameBanner) {
+        mapNameBanner.textContent = window.selectedMap?.name || '전투 지역';
+    }
+
+    const log = document.getElementById('battleLog');
+    if (log) {
+        const colorMap = {
+            '야생 들판': '#00653f',
+            '감자도둑쥐의 소굴': '#0d072b',
+            '기본': '#f5f5f5'
+        };
+        const color = colorMap[window.selectedMap?.name] || colorMap['기본'];
+        log.style.backgroundColor = color;
+    }
+
+    const userImage = document.getElementById('userCharacter');
+    userImage.src = basePath_image + "/character/" + user.charImage;
+    userImage.alt = user.dexName;
+    playerImage.classList.remove('jump-in', 'fade-out', 'hit-effect');
+    void userImage.offsetWidth;
+    userImage.classList.add('jump-in');
+
+    const monsterImg = document.getElementById('monsterCharacter');
+    monsterImg.src = basePath + monster.imagePath;
+    monsterImg.alt = monster.name;
+    monsterImg.classList.remove('jump-in', 'fade-out', 'hit-effect');
+    void monsterImg.offsetWidth;
+    monsterImg.classList.add('jump-in');
+
+    const effectElement = document.getElementById('monsterEffect');
+    if (effectElement) {
+        effectElement.className = 'monster-effect';
+        const rankMap = {
+            '야생': 'effect-wild',
+            '하급': 'effect-common',
+            '일반': 'effect-normal',
+            '희귀': 'effect-rare',
+            '정예': 'effect-elite',
+            '보스': 'effect-boss'
+        };
+        const rankClass = rankMap[monster.rank];
+        if (rankClass) effectElement.classList.add(rankClass);
+        const container = document.getElementById('monsterEffectContainer');
+        if (container) {
+            container.classList.remove('hidden');
+            effectElement.classList.add('pop');
+            setTimeout(() => {
+                container.classList.add('hidden');
+                effectElement.classList.remove('pop');
+            }, 800);
+        }
+    }
+
+    document.querySelector('.user-name').textContent = user.dexName;
+    document.querySelector('.user-attribute').textContent = user.attribute;
+    document.querySelector('.user-power').textContent = user.power.total;
+    document.querySelector('.user-hp').textContent = user.hp.total;
+    document.querySelector('.user-speed').textContent = user.speed.total;
+
+    document.querySelector('.monster-name').textContent = monster.name;
+    document.querySelector('.monster-rank').textContent = monster.rank;
+    document.querySelector('.monster-hp').textContent = monster.monsterHp;
+    document.querySelector('.monster-power').textContent = monster.monsterPower;
+    document.querySelector('.monster-xp').textContent = monster.monsterXp;
+}
+
+
 function logBattle(message, type = 'player') {
     const line = document.createElement('div');
     line.textContent = message;
     line.style.margin = '0.2rem 0';
-    line.style.wordBreak = 'break-word'; // 줄바꿈 안전하게
+    line.style.wordBreak = 'break-word';
 
     if (type === 'player') {
-        line.style.color = '#39ff14'; // 초록
+        line.style.color = '#39ff14';
         line.style.textAlign = 'left';
-    } else if (type === 'monster') {
-        line.style.color = '#ff4d4d'; // 빨강
+    } else {
+        line.style.color = '#ff4d4d';
         line.style.textAlign = 'right';
     }
 
     logBox.appendChild(line);
     logBox.scrollTop = logBox.scrollHeight;
 }
-function startBattle(user, monster) {
-    logBox.innerHTML = '';
-    battleEnded = false;
-    isPlayerTurn = true; // ✅ 플레이어 턴으로 시작
-    isProcessingTurn = false; // ✅ 턴 처리 상태 초기화
-    console.log("startBattle user", user);
+
+function resetBattleState(user, monster) {
     battleState.player = {
         dexName: user.dexName,
-        attribute : user.attribute,
-        maxHp: user.hp.total,
-        currentHp: user.hp.total,
-        power: user.power.total,
-        speed: user.speed.total,
-        currentXp:user.xp,
-        lv:user.lv,
-        charImg:user.charImage
+        attribute: user.attribute,
+        maxHp: user.hp?.total || 10,
+        currentHp: user.hp?.total || 10,
+        power: user.power?.total || 5,
+        speed: user.speed?.total || 5,
+        currentXp: user.xp,
+        lv: user.lv,
+        charImg: user.charImage
     };
     battleState.monster = {
         name: monster.name,
-        power: monster.monsterPower,
         maxHp: monster.monsterHp,
         currentHp: monster.monsterHp,
+        power: monster.monsterPower,
         drops: monster.dropItems || [],
-        exp: monster.monsterXp
+        exp: monster.monsterXp,
+        rank: monster.rank,
+        imagePath: monster.imagePath
     };
+}
 
+function startBattle(user, monster) {
+    logBox.innerHTML = '';
+    battleEnded = false;
+    isPlayerTurn = true;
+    isProcessingTurn = false;
+    resetBattleState(user, monster);
     updateBattleUI();
-    updateButtonStates(); // ✅ 버튼 상태 업데이트
-    updateCardTurnStyles(); // ✅ 턴 표시 업데이트
-
-    // ✅ 중앙에 Fight !! 문구 삽입
-    const fightLine = document.createElement('div');
-    fightLine.id = 'battleStartLine';
-    fightLine.textContent = '🔥 Fight !!';
-    fightLine.style.textAlign = 'center';
-    fightLine.style.fontSize = '1.2rem';
-    fightLine.style.fontWeight = 'bold';
-    fightLine.style.color = '#39ff14';
-    fightLine.style.margin = '0.5rem 0';
-    logBox.appendChild(fightLine);
+    updateButtonStates();
+    updateCardTurnStyles();
+    logBattle('🔥 Fight !!', 'player');
 }
 
 function updateBattleUI() {
@@ -99,145 +175,341 @@ function updateBattleUI() {
     document.querySelector('.monster-hp').textContent = battleState.monster.currentHp;
 }
 
-// ✅ 카드 턴 스타일 업데이트
 function updateCardTurnStyles() {
     const playerCard = document.querySelector('.user-stats');
     const monsterCard = document.querySelector('.monster-stats');
 
-    // 기존 클래스 제거
     playerCard.classList.remove('active-turn', 'inactive-turn');
     monsterCard.classList.remove('active-turn', 'inactive-turn');
 
-    if (battleEnded) {
-        // 전투 종료 시 모든 효과 제거
-        return;
-    } else if (isProcessingTurn) {
-        // 처리 중일 때는 현재 턴 유지하되 약간 다른 스타일
-        if (isPlayerTurn) {
-            playerCard.classList.add('active-turn');
-            monsterCard.classList.add('inactive-turn');
-        } else {
-            monsterCard.classList.add('active-turn');
-            playerCard.classList.add('inactive-turn');
-        }
-    } else if (isPlayerTurn) {
-        // 플레이어 턴
+    if (battleEnded) return;
+    if (isPlayerTurn) {
         playerCard.classList.add('active-turn');
         monsterCard.classList.add('inactive-turn');
     } else {
-        // 몬스터 턴
         monsterCard.classList.add('active-turn');
         playerCard.classList.add('inactive-turn');
     }
 }
 
-// ✅ 버튼 상태 업데이트 함수
 function updateButtonStates() {
     const attackBtn = document.getElementById('attackBtn');
     const healBtn = document.getElementById('healBtn');
-
-    // 플레이어 턴이고 턴 처리 중이 아닐 때만 버튼 활성화
     const canAct = isPlayerTurn && !isProcessingTurn && !battleEnded;
-
-    if (attackBtn) {
-        attackBtn.disabled = !canAct;
-    }
-    if (healBtn) {
-        healBtn.disabled = !canAct;
-    }
-
+    if (attackBtn) attackBtn.disabled = !canAct;
+    if (healBtn) healBtn.disabled = !canAct;
     updateCardTurnStyles();
 }
 
-
 function doAttack() {
-    if (!isPlayerTurn || isProcessingTurn || battleEnded) {
-        console.log('공격 불가:', { isPlayerTurn, isProcessingTurn, battleEnded });
-        return;
-    }
+    if (!isPlayerTurn || isProcessingTurn || battleEnded) return;
     playEffect("se_attack");
-    // ✅ 턴 처리 시작
     isProcessingTurn = true;
     updateButtonStates();
 
     const damage = battleState.player.power;
     battleState.monster.currentHp -= damage;
-    // 타격 애니메이션: 몬스터
     applyHitEffect('.monster-character');
-    showDamageText('.monster-container', damage);``
-
+    showDamageText('.monster-container', damage);
     logBattle(`플레이어의 공격! ${damage}의 피해`, 'player');
     updateBattleUI();
 
-    if (battleState.monster.currentHp <= 0) {
-        winBattle();
-        return;
-    }
+    if (battleState.monster.currentHp <= 0) return winBattle();
 
-    // ✅ 플레이어 턴 종료, 몬스터 턴으로 변경
     isPlayerTurn = false;
-    updateButtonStates();
-    updateCardTurnStyles()
-
-
-    // 500ms 후 몬스터 반격
-    setTimeout(() => {
-        monsterTurn();
-    }, 500);
+    setTimeout(() => monsterTurn(), 500);
 }
 
 function monsterTurn() {
-    // ✅ 몬스터 턴 검증
-    if (isPlayerTurn || battleEnded) {
-        console.log('몬스터 턴 불가:', { isPlayerTurn, battleEnded });
-        return;
-    }
+    if (isPlayerTurn || battleEnded) return;
     const damage = Math.floor(Math.random() * battleState.monster.power) + 1;
-
-    // 타격 애니메이션: 플레이어
+    battleState.player.currentHp -= damage;
     applyHitEffect('.player-character');
     showDamageText('.player-container', damage);
-
-    battleState.player.currentHp -= damage;
     logBattle(`몬스터의 공격! ${damage}의 피해`, 'monster');
 
     setTimeout(() => {
         updateBattleUI();
-
-        if (battleState.player.currentHp <= 0) {
-            // 0.2초 딜레이 후 fade-out → 0.6초 후 모달
-            setTimeout(() => {
-                playerImage.classList.remove('jump-in', 'hit-effect', 'fade-out');
-                playerImage.style.animation = 'none';
-                void playerImage.offsetWidth;
-                playerImage.style.animation = '';
-                playerImage.classList.add('fade-out');
-            }, 200); // 🕒 fade-out 0.2초 딜레이
-
-            setTimeout(() => {
-                showDefeatModal("여기에 다시 묻히다...");
-            }, 800); // 🕒 모달은 fade-out 이후 0.6초 뒤
-
-            return;
-        }
-
-        // ✅ 몬스터 턴 종료, 플레이어 턴으로 변경
+        if (battleState.player.currentHp <= 0) return showDefeatModal("여기에 다시 묻히다...");
         isPlayerTurn = true;
         isProcessingTurn = false;
         updateButtonStates();
-        updateCardTurnStyles()
-
     }, 400);
 }
 
 function showDefeatModal(text) {
-    document.getElementById('defeatModal').classList.remove('hidden');
+    defeatModal.classList.remove('hidden');
     document.getElementById('defeatSignText').innerText = text || "여기에 다시 묻히다...";
 }
-function hideDefeatModal() {
-    document.getElementById('defeatModal').classList.add('hidden');
+
+function winBattle() {
+    battleEnded = true;
+    isProcessingTurn = false;
+    updateBattleUI();
+    updateButtonStates();
+    monsterImage.classList.remove('jump-in', 'hit-effect', 'fade-out');
+    monsterImage.style.animation = 'none';
+    void monsterImage.offsetWidth;
+    monsterImage.style.animation = '';
+    monsterImage.classList.add('fade-out');
+    updateWinBox();
 }
 
+function getCurrentBattleUser() {
+    const p = battleState.player;
+    return {
+        dexName: p.dexName,
+        attribute: p.attribute,
+        beforeXp: p.currentXp,
+        beforeLevel: p.lv,
+        charImage: p.charImg,
+        power: p.power,
+        speed: p.speed,
+        xp: p.currentXp,
+        lv: p.lv,
+        maxHp: p.maxHp
+    };
+}
+
+function updateWinBox() {
+    lootModal.classList.remove('hidden');
+    const rewardStage = document.getElementById('rewardStage');
+    if (rewardStage) rewardStage.style.display = 'block';
+    showRewardResults();
+}
+
+function showRewardResults() {
+    const currentUser = getCurrentBattleUser();
+    const expReward = battleState.monster.exp || 0;
+    const dropItems = generateLootItems();
+    updateCharacterReward(currentUser, expReward, dropItems);
+    updateLootItemsDisplay(dropItems);
+}
+
+function updateCharacterReward(user, expReward, items) {
+    const payload = {
+        exp: expReward,
+        items: items.map(item => ({ itemId: item.id, count: item.count }))
+    };
+
+    apiRequestJson('/api/action/endBattle', 'POST', payload)
+        .then(res => {
+            if (res.code === 'SUCCESS' && res.data) {
+                const { xp, maxExp, level } = res.data;
+                user.afterXp = xp ?? user.beforeXp;
+                user.maxExp = maxExp ?? 100;
+                user.level = level ?? user.beforeLevel;
+                updateRewardUI(user, expReward);
+                setUserInfo(res.data);
+            } else {
+                showMessageModal("아이템 획득 처리 실패");
+            }
+        });
+}
+
+function generateLootItems() {
+    const dropList = battleState.monster.drops || [];
+    const lootCount = Math.random() < 0.3 ? 2 : 1;
+    const selected = pickWeightedRandomItems(dropList, lootCount);
+    return selected.map(item => {
+        let count = 1;
+        if (item.itemType !== 'EQUIP_BATTLE' && item.itemType !== 'EQUIP_GATHER') {
+            if (item.rarity?.toUpperCase() === 'COMMON') {
+                count = Math.floor(Math.random() * 2) + 2;
+            }
+        }
+        return { ...item, count };
+    });
+}
+
+function pickWeightedRandomItems(items, count) {
+    if (!items || items.length === 0) return [];
+
+    const result = [];
+    const pool = [...items];
+
+    const rarityWeights = {
+        'COMMON': 80, 'UNCOMMON': 15, 'RARE': 5, 'EPIC': 2, 'LEGENDARY': 1
+    };
+
+    for (let i = 0; i < count && pool.length > 0; i++) {
+        // 가중치 계산
+        const weightedItems = pool.map(item => ({
+            item,
+            weight: rarityWeights[item.rarity?.toUpperCase()] || 1
+        }));
+
+        const totalWeight = weightedItems.reduce((sum, wi) => sum + wi.weight, 0);
+        let random = Math.random() * totalWeight;
+
+        // 아이템 선택
+        for (let j = 0; j < weightedItems.length; j++) {
+            random -= weightedItems[j].weight;
+            if (random <= 0) {
+                const selectedItem = weightedItems[j].item;
+                result.push(selectedItem);
+                // 선택된 아이템을 풀에서 제거
+                const poolIndex = pool.indexOf(selectedItem);
+                if (poolIndex > -1) pool.splice(poolIndex, 1);
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
+function updateLootItemsDisplay(items) {
+    const lootItemsList = document.getElementById('lootItemsList');
+    lootItemsList.innerHTML = '';
+    items.forEach((item, index) => {
+        const itemCard = document.createElement('div');
+        itemCard.className = `loot-item-card ${item.rarity ? 'rarity-' + item.rarity.toLowerCase() : 'rarity-common'}`;
+        const imgSrc = (typeof basePath !== 'undefined' && item.iconPath)
+            ? basePath + item.iconPath
+            : `placeholder_${item.iconPath || 'item.png'}`;
+        itemCard.innerHTML = `
+            <img src="${imgSrc}" alt="${item.name}" class="loot-item-image">
+            <div class="loot-item-name">${item.name}</div>
+            <div class="loot-item-count">x${item.count}</div>
+        `;
+        itemCard.style.opacity = '0';
+        itemCard.style.transform = 'translateY(20px)';
+        itemCard.style.transition = 'all 0.5s ease';
+        lootItemsList.appendChild(itemCard);
+        setTimeout(() => {
+            itemCard.style.opacity = '1';
+            itemCard.style.transform = 'translateY(0)';
+        }, 500 + (index * 200));
+    });
+}
+
+
+function applyHitEffect(targetSelector) {
+    const el = document.querySelector(targetSelector);
+    if (!el) return;
+    el.classList.remove('hit-effect');
+    void el.offsetWidth;
+    el.classList.add('hit-effect');
+}
+
+function showDamageText(targetSelector, damage) {
+    const container = document.querySelector(targetSelector);
+    if (!container) return;
+    const dmg = document.createElement('div');
+    dmg.className = 'damage-float';
+    dmg.textContent = `-${damage}`;
+    dmg.style.left = '50%';
+    dmg.style.top = '0';
+    container.appendChild(dmg);
+    setTimeout(() => { dmg.remove(); }, 1000);
+}
+
+function updateRewardUI(user, expReward) {// 캐릭터 이미지 설정
+    const charImg = document.getElementById('rewardCharacterImage');
+    if (charImg) {
+        if (typeof basePath_image !== 'undefined') {
+            charImg.src = basePath_image + "/character/" + user.charImage;
+        } else {
+            charImg.src = `placeholder_${user.charImage}`;
+        }
+    }
+    const levelEl = document.getElementById('rewardCharLevel');
+    const currentXpEl = document.getElementById('currentXp');
+    const maxXpEl = document.getElementById('maxXp');
+    const xpGainEl = document.getElementById('xpGainText');
+    const xpBarFill = document.getElementById('xpBarFill');
+
+    if (levelEl) levelEl.textContent = user.level;
+    if (currentXpEl) currentXpEl.textContent = user.afterXp;
+    if (maxXpEl) maxXpEl.textContent = user.maxExp;
+    if (xpGainEl) xpGainEl.textContent = `+${expReward} XP`;
+
+    if (user.level > user.beforeLevel) {
+        levelEl.textContent = user.level;
+        levelEl.classList.add('level-up-highlight');
+        setTimeout(() => {
+            levelEl.classList.remove('level-up-highlight');
+        }, 500);
+    } else {
+        levelEl.textContent = user.level;
+    }
+
+    if (xpBarFill) {
+        let startXp = (user.level > user.beforeLevel) ? 0 : user.beforeXp;
+        let startPercent = (startXp / user.maxExp) * 100;
+        let endPercent = (user.afterXp / user.maxExp) * 100;
+
+        xpBarFill.style.width = startPercent + '%';
+
+        setTimeout(() => {
+            xpBarFill.style.width = endPercent + '%';
+        }, 300);
+    }
+}
+
+function createRewardInfoElement() {
+    const container = document.createElement('div');
+    container.id = 'rewardInfo';
+    container.className = 'reward-info-container';
+
+    // lootModal 내부에 추가
+    const lootModal = document.getElementById('lootModal');
+    if (lootModal) {
+        const lootItemsList = document.getElementById('lootItemsList');
+        if (lootItemsList) {
+            lootModal.insertBefore(container, lootItemsList);
+        } else {
+            lootModal.appendChild(container);
+        }
+    }
+
+    return container;
+}
+
+function createExpBar() {
+    const expBarContainer = document.createElement('div');
+    expBarContainer.className = 'exp-bar-container';
+    expBarContainer.innerHTML = `
+        <div class="exp-bar">
+            <div class="exp-fill"></div>
+            <div class="exp-text">0 / 100</div>
+        </div>
+    `;
+    return expBarContainer;
+}
+
+function updateExpBar(expBarContainer, currentExp, maxExp) {
+    const expFill = expBarContainer.querySelector('.exp-fill');
+    const expText = expBarContainer.querySelector('.exp-text');
+
+    const percentage = Math.min((currentExp / maxExp) * 100, 100);
+
+    if (expFill) {
+        expFill.style.width = `${percentage}%`;
+        expFill.style.transition = 'width 1s ease-in-out';
+    }
+
+    if (expText) {
+        expText.textContent = `${currentExp} / ${maxExp}`;
+    }
+}
+
+function nextBattle() {
+    // 보상 모달만 닫기
+    lootModal.classList.add('hidden');
+    defeatModal.classList.add('hidden')
+
+    // 같은 맵에서 새로운 전투 시작
+    if (window.selectedMap) {
+        window.startBattleFromMap(window.selectedMap);
+    } else {
+        // selectedMap이 없으면 맵 선택으로 돌아가기
+        battleModal.classList.add('hidden');
+        document.body.style.overflow = '';
+        handleAttackClick();
+    }
+}
 
 function doDefend() {
     const player = document.querySelector(".player-container");
@@ -273,22 +545,6 @@ function doHeal() {
     closeBattleModal();
 }
 
-function winBattle() {
-    battleEnded = true;
-    isProcessingTurn = false;
-    updateBattleUI();
-    updateButtonStates();
-
-    // 전투 승리 시 몬스터 fade-out
-    monsterImage.classList.remove('jump-in', 'hit-effect', 'fade-out');
-    monsterImage.style.animation = 'none';
-
-    void monsterImage.offsetWidth;
-    monsterImage.style.animation = '';
-    monsterImage.classList.add('fade-out');
-    updateWinBox();
-}
-
 function closeBattleModal() {
     document.getElementById('battleModal').classList.add('hidden');
     document.body.style.overflow = '';
@@ -296,151 +552,4 @@ function closeBattleModal() {
     battleEnded = false;
     isPlayerTurn = true;
     isProcessingTurn = false;
-}
-
-battleModal.addEventListener('click', (e) => {
-    const inside = e.target.closest('.battle-modal-content');
-    if (!inside) {
-        // closeBattleModal();
-        document.body.style.overflow = '';
-    }
-});
-
-
-function initializeBattleScene(user, monster) {
-    // ✅ 배경 이미지 설정
-    const background = document.getElementById('battleBackground');
-    if (background && selectedMap?.imagePath) {
-        background.src = basePath + selectedMap.imagePath;
-    }
-    // ✅ 맵 이름 표시
-    const mapNameBanner = document.getElementById('battleMapName');
-    if (mapNameBanner) {
-        mapNameBanner.textContent = selectedMap?.name || '전투 지역';
-    }
-    // ✅ 로그 배경색 설정
-    const log = document.getElementById('battleLog');
-    if (log) {
-        // 맵 이름 or 추천 레벨에 따라 색상 지정
-        const colorMap = {
-            '야생 들판': '#00653f',
-            '감자도둑쥐의 소굴': '#0d072b',
-            '기본': '#f5f5f5'
-        };
-        const color = colorMap[selectedMap?.name] || colorMap['기본'];
-        log.style.backgroundColor = color;
-    }
-
-    const charImage = basePath_image + "/character/";
-    const userImage = document.getElementById('userCharacter');
-    userImage.src = charImage + user.charImage;
-    userImage.alt = user.name;
-
-    playerImage.classList.remove('jump-in', 'fade-out', 'hit-effect');
-    playerImage.style.animation = 'none';
-    void playerImage.offsetWidth;
-    playerImage.style.animation = '';
-    playerImage.classList.add('jump-in');
-
-    const monsterImage = document.getElementById('monsterCharacter');
-    monsterImage.src = basePath + monster.imagePath;
-    monsterImage.alt = monster.name;
-    monsterImage.classList.remove('jump-in', 'fade-out', 'hit-effect');
-    monsterImage.style.animation = 'none';
-
-    const effectContainer = document.getElementById('monsterEffectContainer');
-    const effectElement = document.getElementById('monsterEffect');
-
-    effectElement.classList.remove(
-        'effect-wild', 'effect-common', 'effect-normal',
-        'effect-rare', 'effect-elite', 'effect-boss'
-    );
-    effectElement.classList.add('monster-effect');
-    /* 등급 별 등장 색깔 다르게 */
-    if (monster.rank === '보스') {
-        effectElement.classList.add('effect-boss');
-    } else if (monster.rank === '정예') {
-        effectElement.classList.add('effect-elite');
-    } else if (monster.rank === '희귀') {
-        effectElement.classList.add('effect-rare');
-    } else if (monster.rank === '일반') {
-        effectElement.classList.add('effect-normal');
-    } else if (monster.rank === '하급') {
-        effectElement.classList.add('effect-common');
-    } else if (monster.rank === '야생') {
-        effectElement.classList.add('effect-wild');
-    }
-
-    else effectContainer.classList.add('hidden');
-
-    monsterImage.onload = () => {
-        void monsterImage.offsetWidth;
-        monsterImage.style.animation = '';
-        monsterImage.classList.add('jump-in');
-
-        effectContainer.classList.remove('hidden');
-        effectElement.classList.add('pop');
-
-        setTimeout(() => {
-            effectContainer.classList.add('hidden');
-            effectElement.classList.remove('pop');
-        }, 800);
-    };
-
-    console.log("user.정보" ,user );
-    // 스탯 UI 설정
-    document.querySelector('.user-name').textContent = user.dexName;
-    document.querySelector('.user-attribute').textContent = user.attribute;
-    document.querySelector('.user-power').textContent = user.power;
-    document.querySelector('.user-hp').textContent = user.hp;
-    document.querySelector('.user-speed').textContent = user.speed;
-
-    document.querySelector('.monster-name').textContent = monster.name;
-    document.querySelector('.monster-rank').textContent = monster.rank;
-    document.querySelector('.monster-hp').textContent = monster.monsterHp;
-    document.querySelector('.monster-power').textContent = monster.monsterPower;
-    document.querySelector('.monster-xp').textContent = monster.monsterXp;
-
-    const rankColorClassMap = {
-        '야생': 'rank-color-wild',
-        '하급': 'rank-color-common',
-        '일반': 'rank-color-normal',
-        '희귀': 'rank-color-rare',
-        '정예': 'rank-color-elite',
-        '보스': 'rank-color-boss'
-    };
-
-    const rankElement = document.querySelector('.monster-rank');
-    const rankColorClass = rankColorClassMap[monster.rank?.trim()];
-    if (rankColorClass) rankElement.classList.add(rankColorClass);
-
-}
-
-
-function applyHitEffect(targetSelector) {
-    const el = document.querySelector(targetSelector);
-    if (!el) return;
-    el.classList.remove('hit-effect'); // 기존 animation 제거
-    void el.offsetWidth; // 강제 리플로우 (다시 animation 적용 가능하게)
-    el.classList.add('hit-effect');
-}
-
-function showDamageText(targetSelector, damage) {
-    const container = document.querySelector(targetSelector);
-    if (!container) return;
-
-    const dmg = document.createElement('div');
-    dmg.className = 'damage-float';
-    dmg.textContent = `-${damage}`;
-
-    // 위치 조정 (가운데 위쪽)
-    dmg.style.left = '50%';
-    dmg.style.top = '0';
-
-    container.appendChild(dmg);
-
-    // 1초 뒤 제거
-    setTimeout(() => {
-        dmg.remove();
-    }, 1000);
 }
