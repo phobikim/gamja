@@ -14,5 +14,6 @@ import java.util.List;
 public class DexOwnedListResponseDto {
     private int totalDexCount;       // 전체 도감 수
     private int ownedDexCount;       // 내가 보유한 도감 수
+    private Long representDex;
     private List<DexOwnedDto> ownedDexList;  // 보유 감자 리스트
 }

@@ -149,7 +149,8 @@ public class CharService {
                     .maxExp(stat != null ? stat.getMaxExp() : 100)
                     .selected(dex.getId().equals(selectedDexId))
                     .build();
-        }).collect(Collectors.toList());
+        }).sorted((a, b) -> Boolean.compare(!a.isSelected(), !b.isSelected()))
+                .collect(Collectors.toList());
 
         // 전체 감자 도감 수
         int totalDexCount = (int) dexRepository.count();
@@ -157,6 +158,7 @@ public class CharService {
         int ownedDexCount = userDexList.size();
 
         DexOwnedListResponseDto result = DexOwnedListResponseDto.builder()
+                .representDex(selectedDexId)
                 .totalDexCount(totalDexCount)
                 .ownedDexCount(ownedDexCount)
                 .ownedDexList(ownedDexList)

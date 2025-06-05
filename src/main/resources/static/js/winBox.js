@@ -27,15 +27,16 @@ function showRewardResults() {
 }
 
 function getCurrentBattleUser() {
+    console.log("getCurrentBattleUser:: ", battleState.player)
     return {
         dexName: battleState.player.dexName,
         attribute : battleState.player.attribute,
         beforeXp: battleState.player.currentXp, // 승리 전 경험치
         beforeLevel : battleState.player.lv, // 승리 전 레벨
         charImage: battleState.player.charImg,
-        hp: battleState.player.maxHp,
+        hp: battleState.player.hp,
         power: battleState.player.power,
-        speed: battleState.player.speed || 0,  // 없으면 0 기본값
+        speed: battleState.player.speed,
         xp: battleState.player.currentXp,
         lv: battleState.player.lv
     };

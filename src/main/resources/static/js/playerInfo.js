@@ -50,8 +50,9 @@ function loadCharacterBasicInfo() {
     apiRequest(url, 'GET')
         .then(res => {
             if (res.code === 'SUCCESS') {
-                const data = res.data;
-                setCharacterBasicInfo(res.data);
+                const charRes = res.data;
+                setCharacterBasicInfo(charRes);
+                setUserInfo(charRes);
             } else {
                 console.error('캐릭터 정보 불러오기 실패:', res.message);
             }

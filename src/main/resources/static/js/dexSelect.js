@@ -35,18 +35,21 @@ async function fetchOwnedCharacters() {
         const res = await apiRequest('/api/char/owned', 'GET');
 
         if (res.code !== 'SUCCESS') {
-            showMessageModal(res.message || '캐릭터 목록을 불러오지 못했습니다.');
+            showMessageModal(res.message || '감자 목록을 불러오지 못했습니다.');
             return;
         }
 
-        renderOwnedCharacterCards(res.data.ownedDexList);
+        renderOwnedCharacterCards(res.data.ownedDexList, res.data.representDex);
+
+        document.getElementById('ownedCount').textContent = res.data.ownedDexCount;
+        document.getElementById('totalCount').textContent = res.data.totalDexCount;
     } catch (err) {
         console.error('보유 캐릭터 로딩 실패:', err);
-        showMessageModal('서버 오류로 캐릭터 목록을 불러오지 못했습니다.');
+        showMessageModal('서버 오류로 감자 목록을 불러오지 못했습니다.');
     }
 }
 
-function renderOwnedCharacterCards(charList) {
+function renderOwnedCharacterCards(charList, representDexId) {
     const grid = document.getElementById('characterCardGrid');
     const applyBtn = document.getElementById('applyCharacterBtn');
     const template = document.getElementById('characterCardTemplate');
@@ -54,46 +57,57 @@ function renderOwnedCharacterCards(charList) {
     grid.innerHTML = '';
 
     charList.forEach(char => {
+        // wrapper div 생성
+        const wrapper = document.createElement('div');
+        wrapper.className = 'card-wrapper';
+
+        // 카드 div 생성
         const card = document.createElement('div');
         card.className = `character-card rarity-background-${char.rarity.toLowerCase()}`;
         card.dataset.characterId = char.dexId;
 
         card.innerHTML = `
-                    <div class="card-level">LV.${char.level}</div>
-                    <div class="card-attribute ${char.attribute}">${getAttributeIcon(char.attribute)}</div>
-                    <img class="char-image" src="${basePath_image}/character/${char.dexImage}" alt="${char.dexName}">
-                    <div class="card-info">
-                        <div class="char-name">${char.dexName}</div>
-                        <div class="xp-bar-container">
-                            <div class="xp-bar" style="width: ${(char.xp / char.maxExp) * 100}%;"></div>
-                            <div class="xp-text">${char.xp}/${char.maxExp}</div>
-                        </div>
-                    </div>
-                `;
+            <div class="card-level">LV.${char.level}</div>
+            <div class="card-attribute ${char.attribute}">${getAttributeIcon(char.attribute)}</div>
+            <img class="char-image" src="${basePath_image}/character/${char.dexImage}" alt="${char.dexName}">
+            <div class="card-info">
+                <div class="char-name">${char.dexName}</div>
+                <div class="xp-bar-container">
+                    <div class="xp-bar" style="width: ${(char.xp / char.maxExp) * 100}%;"></div>
+                    <div class="xp-text">${char.xp}/${char.maxExp}</div>
+                </div>
+            </div>
+        `;
 
         card.onclick = () => {
             document.querySelectorAll('.character-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
-            selectedCharacterId = char.dexId; // characterDexId → dexId로 변경
+            selectedCharacterId = char.dexId;
             applyBtn.disabled = false;
         };
 
-
-        grid.appendChild(card);
-        document.getElementById('ownedCount').textContent = charList.length;
-        document.getElementById('totalCount').textContent = '120'; // 또는 서버에서 받은 총 개수
+        // 대표 라벨이 있다면 wrapper에 붙임
+        if (char.dexId === representDexId) {
+            const label = document.createElement('div');
+            label.className = 'represent-label-outside';
+            label.textContent = '대표';
+            wrapper.appendChild(label);
+        }
+        wrapper.appendChild(card);
+        grid.appendChild(wrapper);
     });
+
 }
 
 // 속성 아이콘 반환 함수
 function getAttributeIcon(attribute) {
     const icons = {
-        fire: '🔥',
-        water: '💧',
-        earth: '🌍',
-        air: '💨',
-        light: '✨',
-        dark: '🌙'
+        '튀김': '⚡',
+        '수분': '💧',
+        '구운': '🔥',
+        '생감자': '🌱',
+        '껍질': '🥔',
+        '부패': '☠️'
     };
     return icons[attribute] || '⚡';
 
@@ -111,16 +125,21 @@ document.getElementById('applyCharacterBtn').addEventListener('click', () => {
 
 async function fetchSetCharacters(selectedCharacterId) {
     try {
-        const res = await apiRequestJson('/api/char/setDex', 'POST', selectedCharacterId);
+        const res = await apiRequestJson('/api/char/setDex', 'POST', {
+            dexId: selectedCharacterId
+        });
 
         if (res.code !== 'SUCCESS') {
-            showMessageModal(res.message || '대표 캐릭터 설정에 실패했습니다.');
-            await fetchOwnedCharacters();
+            closeCharacterSelectModal();
+            showMessageModal(res.message || '대표 감자 설정에 실패했습니다.');
         }
+        closeCharacterSelectModal();
+        showMessageModal('대표 감자로 설정 OK!');
+        await loadCharacterBasicInfo();
 
     } catch (err) {
-        console.error('보유 캐릭터 로딩 실패:', err);
-        showMessageModal('서버 오류로 대표 캐릭터 설정에 실패했습니다.');
+        console.error('보유 감자 로딩 실패:', err);
+        showMessageModal('서버 오류로 대표 감자 설정에 실패했습니다.');
     }
 }
 
