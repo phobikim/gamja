@@ -1,12 +1,16 @@
 package com.phobi.gamja.entity.user;
 import com.phobi.gamja.entity.item.Item;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @IdClass(UserInventoryId.class)
 @Table(name = "user_inventory")
 public class UserInventory {
@@ -32,5 +36,11 @@ public class UserInventory {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", insertable = false, updatable = false)
     private Item item;
+
+    public UserInventory(Long userId, Long itemId, int quantity) {
+        this.userId = userId;
+        this.itemId = itemId;
+        this.quantity = quantity;
+    }
 
 }

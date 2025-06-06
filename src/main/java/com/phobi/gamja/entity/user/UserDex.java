@@ -30,4 +30,16 @@ public class UserDex {
 
     @Column(name = "acquired_at")
     private Date acquiredAt;
+
+
+    public static UserDex of(Long userId, Dex dex) {
+        User user = new User();
+        user.setId(userId);
+        return UserDex.builder()
+                .user(user)
+                .dex(dex)
+                .acquiredAt(new Date())
+                .build();
+    }
+
 }

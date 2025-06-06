@@ -1,0 +1,322 @@
+.gacha-modal-content {
+    background-image: url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_enter.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    width: 100vw;
+    height: 55vh;
+    max-width: 500px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    transition: background-image 0.8s ease;
+}
+
+
+/* rarity별 모달 콘텐츠 배경 이미지 */
+.gacha-modal-content.common {
+    background-image: url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_common.png');
+}
+
+.gacha-modal-content.uncommon {
+    background-image: url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_uncommon.png');
+}
+
+.gacha-modal-content.rare {
+    background-image: url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_rare.png');
+}
+
+.gacha-modal-content.epic {
+    background-image: url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_epic.png');
+}
+
+
+
+.gacha-button-row {
+    position: absolute;
+    bottom: 16px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.gacha-button {
+    background-color: #fa6719;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.gacha-button.close {
+    background-color: #999;
+}
+
+.gacha-button.close:hover {
+    background-color: #777;
+}
+
+
+
+/* 결과 카드 오버레이 */
+.result-card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+    border-radius: 20px;
+    gap: 20px;
+}
+
+.result-card-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 결과 카드 */
+.result-card {
+    background: #222;
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    width: 175px;
+    max-width: 80%;
+    position: relative;
+    transform: scale(0.3) rotateY(180deg);
+    animation: cardFlip 0.4s ease-out forwards;
+}
+
+.result-card-reset {
+    background: #222;
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    width: 175px;
+    max-width: 80%;
+    position: relative;
+    transform: scale(0.3) rotateY(180deg);
+    opacity: 0;
+    /* 애니메이션 제거 */
+    animation: none;
+}
+
+/* resultType 라벨 */
+.result-type-label {
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    z-index: 10;
+}
+.result-type-label.new {
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    color: #8B4513;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.result-type-label.duplicate {
+    background: linear-gradient(45deg, #87CEEB, #4169E1);
+}
+
+/* rarity별 카드 테두리 */
+.result-card.common {
+    border: 5px solid #8B4513;
+    box-shadow:
+            0 10px 30px rgba(139, 69, 19, 0.4),
+            0 0 20px rgba(139, 69, 19, 0.3);
+}
+
+.result-card.uncommon {
+    border: 5px solid #228B22;
+    box-shadow:
+            0 10px 30px rgba(34, 139, 34, 0.4),
+            0 0 20px rgba(34, 139, 34, 0.3);
+}
+
+.result-card.rare {
+    border: 5px solid #4169E1;
+    box-shadow:
+            0 10px 30px rgba(65, 105, 225, 0.4),
+            0 0 20px rgba(65, 105, 225, 0.3);
+}
+
+.result-card.epic {
+    border: 5px solid #9400D3;
+    box-shadow:
+            0 10px 30px rgba(148, 0, 211, 0.4),
+            0 0 20px rgba(148, 0, 211, 0.3);
+}
+
+/* 캐릭터 이름 */
+.character-name {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #e4d04f;
+    margin-bottom: 8px;
+}
+
+/* 캐릭터 이미지 */
+.character-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    margin: 0 auto 8px;
+    display: block;
+    object-fit: contain;
+    background: #3c3f58;
+    padding: 8px;
+}
+
+/* 별점 */
+.star-rating {
+    display: flex;
+    justify-content: center;
+    gap: 1px;
+    margin-bottom: 8px;
+}
+
+.star {
+    font-size: 1rem;
+    color: #FFD700;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* 속성 */
+.character-attribute {
+    background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
+    color: #555;
+    font-weight: bold;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    display: inline-block;
+    margin-bottom: 0;
+}
+/* 확인 버튼 */
+.confirm-button {
+    background: var(--orange-color);
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 16px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0;
+}
+
+.confirm-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(65, 105, 225, 0.4);
+}
+
+@keyframes cardFlip {
+    0% {
+        transform: scale(0.3) rotateY(180deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1) rotateY(90deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1) rotateY(0deg);
+        opacity: 1;
+    }
+}
+
+/* flare 효과 */
+.flare-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 5;
+    animation: flarePop 0.5s ease-out forwards;
+}
+
+@keyframes flarePop {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.6;
+        filter: blur(6px);
+    }
+    60% {
+        transform: translate(-50%, -50%) scale(1.3);
+        opacity: 1;
+        filter: blur(2px);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.8);
+        opacity: 0;
+        filter: blur(10px);
+    }
+}
+
+/* 감자 깎는중 라벨 */
+#peelingLabel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: #FFD700;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    z-index: 100;
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+#peelingLabel:not(.hidden) {
+    animation: peelingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes peelingPulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.05);
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    }
+}

@@ -1,5 +1,6 @@
 package com.phobi.gamja.entity.item;
 
+import com.phobi.gamja.dto.item.EquipmentSlot;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -30,7 +31,7 @@ public class Item {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "equip_slot", nullable = false)
-    private EquipSlot equipSlot = EquipSlot.NONE;
+    private EquipmentSlot equipSlot = EquipmentSlot.NONE;
 
     @Column(name = "icon_path", length = 255)
     private String iconPath;
@@ -44,10 +45,6 @@ public class Item {
     public enum ItemType {
         GATHER_MATERIAL, CRAFT_MATERIAL, COMPOSITE,
         EQUIP_GATHER, EQUIP_BATTLE, DROP
-    }
-
-    public enum EquipSlot {
-        NONE, WEAPON, HELMET, ARMOR, PANTS, SHOES, RING, NECK, POTION
     }
 
 }

@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="css/color.css">
     <link rel="stylesheet" href="css/exploration.css">
     <link rel="stylesheet" href="css/dexSelect.css">
+    <link rel="stylesheet" href="css/gacha.css">
 </head>
 
 <body class="char-page">
@@ -109,9 +110,9 @@
                 <img src="https://phobi.me/gamja.img/images/icons/icon_station.png" alt="공방">
                 <span class="itemLabel">감자공방</span>
             </div>
-            <div class="inventoryCell" onclick="handleStationClick()">
-                <img src="https://phobi.me/gamja.img/images/icons/icon_pasture.png" alt="공방">
-                <span class="itemLabel">목장</span>
+            <div class="inventoryCell" onclick="handleLaboratoryClick()">
+                <img src="https://phobi.me/gamja.img/images/icons/icon_laboratory.png" alt="공방">
+                <span class="itemLabel">감자감정소</span>
             </div>
         </div>
     </div>
@@ -726,18 +727,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="stat-block" id="stat-lifeMaking">
-                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_craft.png" class="stat-icon" />
-                        <div class="stat-info">
-                            <div class="stat-label">제작</div>
-                            <div class="stat-bar-wrapper">
-                                <div class="stat-bar-bg">
-                                    <div class="stat-bar-fill"></div>
-                                </div>
-                                <span class="stat-bar-value"></span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -757,15 +746,11 @@
             <div class="inventoryCell" id="lifeSlotFishingRod">낚시대</div>
             <div class="inventoryCell" id="lifeSlotAxe">도끼</div>
             <div class="inventoryCell" id="lifeSlotPickaxe">곡괭이</div>
-            <div class="inventoryCell" id="lifeSlotGlove">장갑</div>
-            <div class="inventoryCell" id="lifeSlotRing">반지</div>
-            <div class="inventoryCell" id="lifeSlotNecklace">목걸이</div>
-            <div class="inventoryCell" id="lifeSlotBracelet">팔찌</div>
-            <div class="inventoryCell" id="lifeSlotBelt">벨트</div>
+            <div class="inventoryCell" id="lifeSlotKnife">채집칼</div>
         </div>
-
     </div>
 </div>
+
 
 <!-- 캐릭터 선택 모달 -->
 <div id="characterSelectModal" class="modal hidden">
@@ -792,6 +777,43 @@
         <div class="char-exp"></div>
     </div>
 </template>
+
+<!-- 감자 감정 모달 -->
+<div id="gachaModal" class="modal hidden">
+    <div class="gacha-modal-content">
+        <div id="peelingLabel" class="gacha-peeling-label hidden">감자 깎는중...</div>
+        <!-- 감정하기 + 닫기 버튼 영역 -->
+        <div class="gacha-button-row">
+            <button id="gachaButton" class="gacha-button" onclick="handleGachaClick()">감정하기</button>
+            <button id="closeGachaButton" class="gacha-button close" onclick="closeGachaModal()">닫기</button>
+        </div>
+
+        <!-- 결과 카드 오버레이 -->
+        <div id="resultCardOverlay" class="result-card-overlay">
+            <div id="resultCard" class="result-card">
+                <!-- ✨빛 효과 추가 -->
+                <div class="flare-effect"></div>
+                <!-- resultType 라벨 -->
+                <div id="resultTypeLabel" class="result-type-label new">NEW</div>
+                <div class="character-attribute" id="characterAttribute">물</div>
+                <!-- 캐릭터 이미지 + 속성 -->
+                <div class="character-image-container">
+                    <img id="characterImage" class="character-image">
+                    <span class="character-name" id="gachaDexName">풀감자</span>
+                </div>
+                <!-- 별점 -->
+                <div class="star-rating" id="starRating">
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                </div>
+                <!-- 확인 버튼 -->
+                <button class="confirm-button" onclick="closeResultCardOnly()">확인</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
@@ -822,6 +844,7 @@
 <script src="js/playerInfo.js"></script>
 <script src="js/exploration.js"></script>
 <script src="js/dexSelect.js"></script>
+<script src="js/gacha.js"></script>
 
 
 </body>

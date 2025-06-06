@@ -6,10 +6,7 @@ import com.phobi.gamja.dto.user.LifeStatDto;
 import com.phobi.gamja.dto.user.UserCharInfoDto;
 import com.phobi.gamja.entity.contents.Dex;
 import com.phobi.gamja.entity.item.Item;
-import com.phobi.gamja.entity.user.UserDex;
-import com.phobi.gamja.entity.user.UserDexStat;
-import com.phobi.gamja.entity.user.UserDexStatId;
-import com.phobi.gamja.entity.user.UserDtl;
+import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.contents.DexRepository;
 import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
@@ -26,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +35,7 @@ public class CharService {
 
     private final UserDtlRepository userDtlRepository;
     private final UserSkillRepository userSkillRepository;
+    private final UserInventoryRepository userInventoryRepository;
     private final DexRepository dexRepository;
     private final UserDexRepository userDexRepository;
     private final UserDexStatRepository userDexStatRepository;
@@ -117,6 +116,64 @@ public class CharService {
 
         UserCharInfoDto dto = new UserCharInfoDto(userDtl, stat);
         return GamJaResponse.success("대표 감자가 설정되었습니다.", dto);
+    }
+
+    @Transactional
+    @SanitizeInput
+    public GamJaResponse getGacha(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        // 1. 인벤토리에서 미감정 감자 확인
+        final Long UNAPPRAISED_POTATO_ID = 53L;
+        final Long POTATO_FRAGMENT_ID = 68L;
+
+        // 1. 미감정 감자 보유 확인 및 수량 차감
+        UserInventory unappraised = userInventoryRepository.findByUserIdAndItemId(userId, UNAPPRAISED_POTATO_ID)
+                .orElse(null);
+        if (unappraised == null || unappraised.getQuantity() <= 0) {
+            return GamJaResponse.fail("미감정 감자가 부족합니다.");
+        }
+        // 수량 차감
+        unappraised.setQuantity(unappraised.getQuantity() - 1);
+        userInventoryRepository.save(unappraised);
+
+        // 2. 확률 추첨
+        Dex.DexRarity selectedRarity = Dex.rollRarity();
+        List<Dex> candidates = dexRepository.findByRarity(selectedRarity);
+        if (candidates.isEmpty()) {
+            return GamJaResponse.fail("해당 등급의 감자가 없습니다.");
+        }
+        // 3. 감자 하나 랜덤 선택
+        Dex selected = candidates.get(new Random().nextInt(candidates.size()));
+
+        // 4. 중복 여부 확인
+        boolean isDuplicate = userDexRepository.existsByUserIdAndDexId(userId, selected.getId());
+        int gainedFragments = 0;
+
+        if (isDuplicate) {
+            // 5. 조각 지급 (중복 시)
+            UserInventory fragment = userInventoryRepository.findByUserIdAndItemId(userId, POTATO_FRAGMENT_ID)
+                    .orElse(new UserInventory(userId, POTATO_FRAGMENT_ID, 0));
+
+            fragment.setQuantity(fragment.getQuantity() + 1);
+            userInventoryRepository.save(fragment);
+            gainedFragments = 1;
+        } else {
+            // 6. 보유 감자에 등록
+            UserDex newDex = UserDex.of(userId, selected);
+            userDexRepository.save(newDex);
+        }
+        // 7. 응답 데이터 구성
+        Map<String, Object> result = new HashMap<>();
+        result.put("resultType", isDuplicate ? "DUPLICATE" : "NEW");
+        result.put("dexId", selected.getId());
+        result.put("name", selected.getName());
+        result.put("rarity", selected.getRarity());
+        result.put("image", selected.getImage());
+        result.put("attribute", selected.getAttribute());
+        result.put("desc", selected.getDescription());
+        result.put("pieceGained", gainedFragments);
+
+        return GamJaResponse.success("감자 뽑기 성공", result);
     }
 
     @Transactional(readOnly = true)

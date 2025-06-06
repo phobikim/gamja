@@ -131,18 +131,18 @@ function setCharacterLifeInfo(data) {
     updateStatValue('lifeWoodcutting', data.woodcutting);
     updateStatValue('lifeGathering', data.gathering);
     updateStatValue('lifeMining', data.mining);
-    updateStatValue('lifeMaking', data.making);
+    // updateStatValue('lifeMaking', data.making);
 
     // 슬롯 설정
     const slotMap = {
         FISHING_ROD: 'lifeSlotFishingRod',
         AXE: 'lifeSlotAxe',
         PICKAXE: 'lifeSlotPickaxe',
-        GLOVE: 'lifeSlotGlove',
-        RING: 'lifeSlotRing',
-        NECKLACE: 'lifeSlotNecklace',
-        BRACELET: 'lifeSlotBracelet',
-        BELT: 'lifeSlotBelt'
+        KNIFE: 'lifeSlotKnife'
+        // RING: 'lifeSlotRing',
+        // NECKLACE: 'lifeSlotNecklace',
+        // BRACELET: 'lifeSlotBracelet',
+        // BELT: 'lifeSlotBelt'
     }
     data.equippedItems.forEach(item => {
         const slotId = slotMap[item.equipSlot];

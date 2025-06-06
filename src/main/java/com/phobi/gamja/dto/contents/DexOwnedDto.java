@@ -1,5 +1,6 @@
 package com.phobi.gamja.dto.contents;
 
+import com.phobi.gamja.entity.contents.Dex;
 import lombok.*;
 
 @Getter
@@ -11,7 +12,7 @@ public class DexOwnedDto {
     private String dexImage;
     private String dexName;
     private String attribute;
-    private String rarity;
+    private Dex.DexRarity rarity;
     private int level;
     private int xp;
     private int maxExp;

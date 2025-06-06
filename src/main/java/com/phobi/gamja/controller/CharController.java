@@ -5,6 +5,7 @@ import com.phobi.gamja.service.CharService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 
@@ -54,6 +55,15 @@ public class CharController {
     public ResponseEntity<GamJaResponse> setCharacterImage(@RequestBody Map<String, Long> payload, HttpServletRequest request) {
         return ResponseEntity.ok(charService.setCharacterImage(request, payload));
     }
+
+    /*
+     * desc : 감자 뽑기
+     * */
+    @GetMapping("/gacha")
+    public ResponseEntity<GamJaResponse> getGacha(HttpServletRequest request) {
+        return ResponseEntity.ok(charService.getGacha(request));
+    }
+
 
 
 }

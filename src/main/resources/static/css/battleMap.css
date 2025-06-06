@@ -98,6 +98,12 @@
     max-width: 100%;
 }
 
+#mapRewards {
+    max-height: 120px; /* 원하는 높이로 조절 가능 */
+    overflow-y: auto;
+    padding-right: 4px; /* 스크롤이 생겨도 레이아웃 유지 */
+}
+
 .map-monsters img,
 .map-rewards img {
     width: 48px;

@@ -22,7 +22,8 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new UserAgentInterceptor())
                 .addPathPatterns("/api/**")
-                .excludePathPatterns("/api/login", "/api/signup"); // 로그인 제외
+                .excludePathPatterns("/api/login", "/api/signup") // 로그인 제외
+                .excludePathPatterns("/api/admin/*" ); // 관리자 제외
     }
 
 }
