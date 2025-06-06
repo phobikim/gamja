@@ -64,6 +64,14 @@ public class CharController {
         return ResponseEntity.ok(charService.getGacha(request));
     }
 
+    /*
+     * desc : 보유 미감정 감자 수
+     * */
+    @GetMapping("/ticketCount")
+    public ResponseEntity<GamJaResponse> ticketCount(HttpServletRequest request) {
+        return ResponseEntity.ok(charService.ticketCount(request));
+    }
+
 
 
 }

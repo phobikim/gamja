@@ -99,13 +99,13 @@
 .result-card {
     background: #222;
     border-radius: 16px;
-    padding: 16px;
+    padding: 8px;
     text-align: center;
     width: 175px;
     max-width: 80%;
     position: relative;
     transform: scale(0.3) rotateY(180deg);
-    animation: cardFlip 0.4s ease-out forwards;
+    animation: cardFlip 0.8s ease-out forwards !important;
 }
 
 .result-card-reset {
@@ -118,8 +118,8 @@
     position: relative;
     transform: scale(0.3) rotateY(180deg);
     opacity: 0;
-    /* 애니메이션 제거 */
-    animation: none;
+    animation: none !important;
+    transition: none !important;
 }
 
 /* resultType 라벨 */
@@ -288,7 +288,7 @@
 }
 
 /* 감자 깎는중 라벨 */
-#peelingLabel {
+.gacha-peeling-label {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -320,3 +320,55 @@
         box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
     }
 }
+
+/* 감자 카운터 - 우상단 배치 */
+.gacha-counter {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    border: 2px solid #00FF00;
+    border-radius: 12px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 10;
+    box-shadow:
+            0 4px 12px rgba(0, 255, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.gacha-counter:hover {
+    transform: translateY(-1px);
+    box-shadow:
+            0 6px 16px rgba(0, 255, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* 감자 이미지 스타일링 */
+.gacha-counter img {
+    width: 20px !important;
+    height: 20px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 4px rgba(0, 255, 0, 0.5));
+    transition: transform 0.2s ease;
+}
+
+.gacha-counter:hover img {
+    transform: scale(1.1);
+}
+
+.gacha-counter span {
+    color: #00FF00;
+    font-weight: bold;
+    font-size: 0.9rem;
+    text-shadow:
+            0 0 8px rgba(0, 255, 0, 0.8),
+            1px 1px 2px rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+}
+

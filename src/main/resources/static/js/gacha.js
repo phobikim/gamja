@@ -1,6 +1,6 @@
 let isGachaInProgress = false;
 
-function handleLaboratoryClick() {
+async function handleLaboratoryClick() {
     const overlay = document.getElementById("resultCardOverlay");
     const modalContent = document.querySelector('.gacha-modal-content');
 
@@ -12,18 +12,82 @@ function handleLaboratoryClick() {
     const modal = document.getElementById("gachaModal");
     modal.classList.remove("hidden");
     document.body.style.overflow = "hidden";
+
+    // 4. 서버에서 최신 감자 개수 조회
+    await checkPotatoCount()
+
+
 }
 
-function getBackgroundByRarity(rarity) {
-    const map = {
-        COMMON: "common",
-        UNCOMMON: "uncommon",
-        RARE: "rare",
-        EPIC: "epic",
-        LEGENDARY: "legendary"
-    };
-    return map[rarity?.toUpperCase()] || "common";
+async function checkPotatoCount() {
+    // 3. API 호출 (비동기)
+    const res = await apiRequest("/api/char/ticketCount", "GET");
+
+    if (res.code !== "SUCCESS") {
+        showMessageModal(res.message || "조회 실패");
+    }
+    const count = res.data.unappraisedCount || 0;
+    // UI 업데이트
+    updatePotatoCountDisplay(count);
+    updateGachaButtonState(count);
 }
+
+// 감자 개수 표시 업데이트
+function updatePotatoCountDisplay(count) {
+    const counterSpan = document.getElementById("unappraisedCountLabel");
+    const counter = document.querySelector('.gacha-counter');
+
+    // 카운트 변경 애니메이션
+    counterSpan.classList.add('count-changed');
+    setTimeout(() => {
+        counterSpan.classList.remove('count-changed');
+    }, 400);
+
+    // 텍스트 업데이트
+    counterSpan.textContent = `x ${count}`;
+
+    // 빈 상태 클래스 관리
+    if (count === 0) {
+        counter.classList.add('empty');
+    } else {
+        counter.classList.remove('empty');
+    }
+}
+
+// 감정하기 버튼 상태 업데이트
+function updateGachaButtonState(count) {
+    const gachaButton = document.getElementById("gachaButton");
+
+    if (count === 0) {
+        // 감자가 없을 때 - 버튼 비활성화
+        gachaButton.disabled = true;
+        gachaButton.textContent = "감자가 없습니다";
+        gachaButton.style.backgroundColor = "#666";
+        gachaButton.style.cursor = "not-allowed";
+        gachaButton.style.opacity = "0.6";
+    } else {
+        // 감자가 있을 때 - 버튼 활성화
+        gachaButton.disabled = false;
+        gachaButton.textContent = "감정하기";
+        gachaButton.style.backgroundColor = "#fa6719";
+        gachaButton.style.cursor = "pointer";
+        gachaButton.style.opacity = "1";
+
+    }
+}
+
+// 클라이언트에서 감자 개수 감소 (즉시 반응을 위해)
+function decreasePotatoCount() {
+    const counterSpan = document.getElementById("unappraisedCountLabel");
+    const currentCount = parseInt(counterSpan.textContent.replace('x ', '')) || 0;
+
+    if (currentCount > 0) {
+        const newCount = currentCount - 1;
+        updatePotatoCountDisplay(newCount);
+        updateGachaButtonState(newCount);
+    }
+}
+
 
 function getBackgroundImageByRarity(rarity) {
     const map = {
@@ -38,6 +102,15 @@ function getBackgroundImageByRarity(rarity) {
 
 async function handleGachaClick() {
     if (isGachaInProgress) return;
+
+    // 감정 시작 전 감자 개수 재확인
+    const counterSpan = document.getElementById("unappraisedCountLabel");
+    const currentCount = parseInt(counterSpan.textContent.replace('x ', '')) || 0;
+    if (currentCount === 0) {
+        showMessageModal("감자가 없습니다!");
+        return;
+    }
+
     isGachaInProgress = true;
 
     const button = document.getElementById("gachaButton");
@@ -61,6 +134,8 @@ async function handleGachaClick() {
             resetGachaButton();
             return;
         }
+        // 보유 감자 개수 감소
+        decreasePotatoCount();
 
         // 4. 3초 후 라벨 숨기고 배경 변경
         setTimeout(() => {
@@ -80,6 +155,10 @@ async function handleGachaClick() {
 
         }, 2000);
 
+        setTimeout(async () => {
+            await checkPotatoCount();
+        }, 4000); // 감정 완료 후 재조회
+
     } catch (e) {
         peelingLabel.classList.add("hidden");
         showMessageModal("서버 오류 발생");
@@ -92,24 +171,33 @@ function showGachaResult(resultData) {
     const card = document.getElementById("resultCard");
     const typeLabel = document.getElementById("resultTypeLabel");
 
-    // 1. 카드 애니메이션 초기화
+    // 1. 완전한 카드 초기화
     card.className = "result-card-reset";
+    card.style.animation = "none";
 
-    // 2. 기존 빛 효과 제거
-    const existingFlare = card.querySelector('.flare-effect');
-    if (existingFlare) existingFlare.remove();
+    // 2. 기존 빛 효과 모두 제거
+    const existingFlares = card.querySelectorAll('.flare-effect');
+    existingFlares.forEach(flare => flare.remove());
 
-    // 3. DOM reflow 강제
+    // 3. 강제 DOM reflow (매우 중요!)
     void card.offsetHeight;
+    void card.offsetWidth;
 
     // 4. rarity 기반 카드 클래스 적용
     const rarityClass = getBackgroundByRarity(resultData.rarity);
     card.className = `result-card ${rarityClass}`;
 
-    // 5. 새로운 빛 효과 추가
-    const flare = document.createElement('div');
-    flare.className = 'flare-effect';
-    card.appendChild(flare);
+    // 5. 애니메이션 강제 재시작
+    setTimeout(() => {
+        card.style.animation = "cardFlip 0.8s ease-out forwards";
+    }, 10);
+
+    // 6. 빛 효과 추가 (카드 애니메이션 시작 후 약간의 딜레이)
+    setTimeout(() => {
+        const flare = document.createElement('div');
+        flare.className = 'flare-effect';
+        card.appendChild(flare);
+    }, 100);
 
     // 6. NEW/DUPLICATE 라벨 설정
     if (resultData.resultType === 'NEW') {
@@ -149,8 +237,14 @@ function showGachaResult(resultData) {
 }
 
 function resetGachaButton() {
+    // 현재 감자 개수를 확인해서 버튼 상태 결정
+    const counterSpan = document.getElementById("unappraisedCountLabel");
+    const currentCount = parseInt(counterSpan.textContent.replace('x ', '')) || 0;
+    updateGachaButtonState(currentCount);
+
     document.getElementById("gachaButton").disabled = false;
     document.getElementById("gachaButton").textContent = "감정하기";
+
     const modalContent = document.querySelector('.gacha-modal-content');
     modalContent.style.backgroundImage = "url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_enter.png')";
     isGachaInProgress = false;
@@ -170,4 +264,21 @@ function closeGachaModal() {
 function closeResultCardOnly() {
     document.getElementById("resultCardOverlay").classList.remove("show");
     resetGachaButton();
+
+    // 결과 확인 후 감자 개수 재조회
+    setTimeout(async () => {
+        await checkPotatoCount();
+    }, 500);
+}
+
+
+function getBackgroundByRarity(rarity) {
+    const map = {
+        COMMON: "common",
+        UNCOMMON: "uncommon",
+        RARE: "rare",
+        EPIC: "epic",
+        LEGENDARY: "legendary"
+    };
+    return map[rarity?.toUpperCase()] || "common";
 }
