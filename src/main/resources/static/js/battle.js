@@ -328,7 +328,7 @@ function pickWeightedRandomItems(items, count) {
     const pool = [...items];
 
     const rarityWeights = {
-        'COMMON': 80, 'UNCOMMON': 15, 'RARE': 5, 'EPIC': 2, 'LEGENDARY': 1
+        'COMMON': 70, 'UNCOMMON': 25, 'RARE': 3.5, 'EPIC': 1, 'LEGENDARY': 0.5
     };
 
     for (let i = 0; i < count && pool.length > 0; i++) {
