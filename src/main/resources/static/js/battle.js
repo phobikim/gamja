@@ -4,7 +4,6 @@ const lootModal = document.getElementById('lootModal');
 const defeatModal = document.getElementById('defeatModal');
 const monsterImage = document.getElementById('monsterCharacter');
 const playerImage = document.getElementById('userCharacter');
-const logBox = document.getElementById('battleLog');
 
 let battleEnded = false;
 let isPlayerTurn = true;
@@ -53,16 +52,6 @@ function initializeBattleScene(user, monster) {
         mapNameBanner.textContent = window.selectedMap?.name || '전투 지역';
     }
 
-    const log = document.getElementById('battleLog');
-    if (log) {
-        const colorMap = {
-            '야생 들판': '#00653f',
-            '감자도둑쥐의 소굴': '#0d072b',
-            '기본': '#f5f5f5'
-        };
-        const color = colorMap[window.selectedMap?.name] || colorMap['기본'];
-        log.style.backgroundColor = color;
-    }
 
     const userImage = document.getElementById('userCharacter');
     userImage.src = basePath_image + "/character/" + user.charImage;
@@ -114,23 +103,13 @@ function initializeBattleScene(user, monster) {
     document.querySelector('.monster-xp').textContent = monster.monsterXp;
 }
 
+function updateHpBar(current, max, barId, textId) {
+    const bar = document.getElementById(barId);
+    const text = document.getElementById(textId);
 
-function logBattle(message, type = 'player') {
-    const line = document.createElement('div');
-    line.textContent = message;
-    line.style.margin = '0.2rem 0';
-    line.style.wordBreak = 'break-word';
-
-    if (type === 'player') {
-        line.style.color = '#39ff14';
-        line.style.textAlign = 'left';
-    } else {
-        line.style.color = '#ff4d4d';
-        line.style.textAlign = 'right';
-    }
-
-    logBox.appendChild(line);
-    logBox.scrollTop = logBox.scrollHeight;
+    const percent = Math.max(0, Math.min(100, (current / max) * 100));
+    bar.style.width = `${percent}%`;
+    text.textContent = `${current} / ${max}`;
 }
 
 function resetBattleState(user, monster) {
@@ -158,7 +137,6 @@ function resetBattleState(user, monster) {
 }
 
 function startBattle(user, monster) {
-    logBox.innerHTML = '';
     battleEnded = false;
     isPlayerTurn = true;
     isProcessingTurn = false;
@@ -166,12 +144,32 @@ function startBattle(user, monster) {
     updateBattleUI();
     updateButtonStates();
     updateCardTurnStyles();
-    logBattle('🔥 Fight !!', 'player');
+
+    // 🔥 HP 바 초기화
+    updateHpBar(
+        battleState.player.currentHp,
+        battleState.player.maxHp,
+        "playerHpBar",
+        "playerHpText"
+    );
+    updateHpBar(
+        battleState.monster.currentHp,
+        battleState.monster.maxHp,
+        "monsterHpBar",
+        "monsterHpText"
+    );
 }
 
 function updateBattleUI() {
-    document.querySelector('.user-hp').textContent = battleState.player.currentHp;
-    document.querySelector('.monster-hp').textContent = battleState.monster.currentHp;
+    const p = battleState.player;
+    const m = battleState.monster;
+
+    document.querySelector('.user-hp').textContent = p.currentHp;
+    document.querySelector('.monster-hp').textContent = m.currentHp;
+
+    // 🔥 HP 바도 갱신
+    updateHpBar(p.currentHp, p.maxHp, "playerHpBar", "playerHpText");
+    updateHpBar(m.currentHp, m.maxHp, "monsterHpBar", "monsterHpText");
 }
 
 function updateCardTurnStyles() {
@@ -210,7 +208,6 @@ function doAttack() {
     battleState.monster.currentHp -= damage;
     applyHitEffect('.monster-character');
     showDamageText('.monster-container', damage);
-    logBattle(`플레이어의 공격! ${damage}의 피해`, 'player');
     updateBattleUI();
 
     if (battleState.monster.currentHp <= 0) return winBattle();
@@ -225,7 +222,6 @@ function monsterTurn() {
     battleState.player.currentHp -= damage;
     applyHitEffect('.player-character');
     showDamageText('.player-container', damage);
-    logBattle(`몬스터의 공격! ${damage}의 피해`, 'monster');
 
     setTimeout(() => {
         updateBattleUI();

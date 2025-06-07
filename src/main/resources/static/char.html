@@ -486,12 +486,24 @@
 
             <!-- 🟢 플레이어 영역 -->
             <div class="player-container">
+                <div class="hp-bar-wrapper">
+                    <div class="hp-bar-bg">
+                        <div id="playerHpBar" class="hp-bar-fill"></div>
+                    </div>
+                    <div id="playerHpText" class="hp-text">12 / 15</div>
+                </div>
                 <div class="char-shadow"></div>
                 <img id="userCharacter" class="player-character" src="" alt="내 캐릭터">
             </div>
 
             <!-- 🔴 몬스터 영역 -->
             <div class="monster-container">
+                <div class="hp-bar-wrapper">
+                    <div class="hp-bar-bg">
+                        <div id="monsterHpBar" class="hp-bar-fill"></div>
+                    </div>
+                    <div id="monsterHpText" class="hp-text">10 / 10</div>
+                </div>
                 <div id="monsterEffectContainer" class="monster-effect-container hidden">
                     <div id="monsterEffect" class="monster-effect"></div>
                 </div>
