@@ -253,7 +253,18 @@ public class CharService {
                             .affinity(stat != null ? stat.getAffinity() : 0)
                             .selected(dex.getId().equals(selectedDexId))
                             .build();
-                }).sorted((a, b) -> Boolean.compare(!a.isSelected(), !b.isSelected()))
+                })
+                .sorted((a, b) -> {
+                    // 1. selected 우선 정렬 (true가 먼저)
+                    int selectedCompare = Boolean.compare(!a.isSelected(), !b.isSelected());
+                    if (selectedCompare != 0) return selectedCompare;
+
+                    // 2. rarity 높은 순 정렬
+                    return Integer.compare(
+                            RARITY_ORDER.getOrDefault(b.getRarity(), 0),
+                            RARITY_ORDER.getOrDefault(a.getRarity(), 0)
+                    );
+                })
                 .collect(Collectors.toList());
 
         // 전체 감자 도감 수
@@ -271,4 +282,12 @@ public class CharService {
 
         return GamJaResponse.success("보유 감자 리스트 조회 완료", result);
     }
+
+    private static final Map<String, Integer> RARITY_ORDER = Map.of(
+            "COMMON", 1,
+            "UNCOMMON", 2,
+            "RARE", 3,
+            "EPIC", 4,
+            "LEGENDARY", 5
+    );
 }
