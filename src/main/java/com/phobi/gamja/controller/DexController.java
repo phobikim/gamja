@@ -2,12 +2,14 @@ package com.phobi.gamja.controller;
 
 
 import com.phobi.gamja.entity.user.UserDex;
+import com.phobi.gamja.entity.user.UserDexStat;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.entity.contents.Dex;
 import com.phobi.gamja.repository.contents.DexRepository;
 import com.phobi.gamja.repository.contents.MonsterRepository;
 import com.phobi.gamja.repository.item.ItemRepository;
 import com.phobi.gamja.repository.user.UserDexRepository;
+import com.phobi.gamja.repository.user.UserDexStatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,10 +25,11 @@ public class DexController {
 
     private final DexRepository dexRepository;
     private final UserDexRepository userDexRepository;
+    private final UserDexStatRepository userDexStatRepository;
     private final ItemRepository itemRepository;
     private final MonsterRepository monsterRepository;
 
-    @GetMapping("list")
+    @GetMapping("/list")
     public ResponseEntity<GamJaResponse> getDexMeta(HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
         if (userId == null) {
@@ -39,19 +42,28 @@ public class DexController {
         Set<Long> ownedDexIds = ownedDexList.stream()
                 .map(ud -> ud.getDex().getId())
                 .collect(Collectors.toSet());
+        List<UserDexStat> statList = userDexStatRepository.findByUser_Id(userId);
+        Map<Long, Integer> affinityMap = statList.stream()
+                .collect(Collectors.toMap(stat -> stat.getDex().getId(), UserDexStat::getAffinity));
 
         List<Map<String, Object>> dexResult = dexList.stream()
                 .map(dex -> {
                     Map<String, Object> m = new HashMap<>();
-                    m.put("id", dex.getId());
+                    Long dexId = dex.getId();
+                    boolean isOwned = ownedDexIds.contains(dexId);
+                    m.put("id", dexId);
                     m.put("name", dex.getName());
                     m.put("description", dex.getDescription());
                     m.put("attribute", dex.getAttribute());
-                    m.put("owned", ownedDexIds.contains(dex.getId()));
+                    m.put("owned", isOwned);
                     m.put("imagePath", dex.getImage());
                     m.put("rarity", dex.getRarity());
+                    if (isOwned) {
+                        m.put("affinity", affinityMap.getOrDefault(dexId, 0));
+                    }
                     return m;
-                }).sorted(Comparator.comparing(m -> RARITY_ORDER.getOrDefault(String.valueOf(m.get("rarity")), 99)))
+                })
+                .sorted(Comparator.comparing(m -> RARITY_ORDER.getOrDefault(String.valueOf(m.get("rarity")), 99)))
                 .collect(Collectors.toList());
 
         // 2. item

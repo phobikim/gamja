@@ -16,6 +16,7 @@ public class UserCharInfoDto {
     private String attribute;
     private int maxCombo;
     private Long dexId;
+    private int affinity;
 
 
     // 기존 생성자 유지
@@ -35,6 +36,7 @@ public class UserCharInfoDto {
         this.dexName = stat.getDex().getName();
         this.title = getTitleByLevel(stat.getLevel());
         this.attribute = stat.getDex().getAttribute();
+        this.affinity = stat.getAffinity();
         this.maxCombo = maxCombo;
     }
     public String getTitleByLevel(int level) {

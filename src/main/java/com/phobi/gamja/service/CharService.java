@@ -34,6 +34,7 @@ public class CharService {
     private final StatCalculator statCalculator;
 
     private final UserDtlRepository userDtlRepository;
+    private final UserRepository userRepository;
     private final UserSkillRepository userSkillRepository;
     private final UserInventoryRepository userInventoryRepository;
     private final DexRepository dexRepository;
@@ -150,13 +151,24 @@ public class CharService {
         int gainedFragments = 0;
 
         if (isDuplicate) {
-            // 5. 조각 지급 (중복 시)
-            UserInventory fragment = userInventoryRepository.findByUserIdAndItemId(userId, POTATO_FRAGMENT_ID)
-                    .orElse(new UserInventory(userId, POTATO_FRAGMENT_ID, 0));
+            // 5. 중복 → 친밀도 +1
+            UserDexStatId statId = new UserDexStatId(userId, selected.getId());
+            UserDexStat stat = userDexStatRepository.findById(statId)
+                    .orElseGet(() -> UserDexStat.builder()
+                            .id(statId)
+                            .user(userRepository.getReferenceById(userId))
+                            .dex(dexRepository.getReferenceById(selected.getId()))
+                            .level(1)
+                            .xp(0)
+                            .maxExp(100)
+                            .power(1)
+                            .hp(1)
+                            .speed(1)
+                            .affinity(0)
+                            .build());
 
-            fragment.setQuantity(fragment.getQuantity() + 1);
-            userInventoryRepository.save(fragment);
-            gainedFragments = 1;
+            stat.setAffinity(stat.getAffinity() + 1);
+            userDexStatRepository.save(stat);
         } else {
             // 6. 보유 감자에 등록
             UserDex newDex = UserDex.of(userId, selected);
@@ -227,6 +239,7 @@ public class CharService {
                     .level(stat != null ? stat.getLevel() : 1)
                     .xp(stat != null ? stat.getXp() : 0)
                     .maxExp(stat != null ? stat.getMaxExp() : 100)
+                    .affinity(stat != null ? stat.getAffinity() : 0)
                     .selected(dex.getId().equals(selectedDexId))
                     .build();
         }).sorted((a, b) -> Boolean.compare(!a.isSelected(), !b.isSelected()))

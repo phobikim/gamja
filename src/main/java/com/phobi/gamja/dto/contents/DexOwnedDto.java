@@ -16,6 +16,7 @@ public class DexOwnedDto {
     private int level;
     private int xp;
     private int maxExp;
+    private int affinity;
 
     private boolean selected; // 대표 감자인지 여부
 }

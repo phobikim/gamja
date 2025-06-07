@@ -76,6 +76,7 @@ function renderOwnedCharacterCards(charList, representDexId) {
                     <div class="xp-bar" style="width: ${(char.xp / char.maxExp) * 100}%;"></div>
                     <div class="xp-text">${char.xp}/${char.maxExp}</div>
                 </div>
+                <div class="affinity-text">💛 ${char.affinity}</div>
             </div>
         `;
 

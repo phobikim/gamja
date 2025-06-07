@@ -46,6 +46,9 @@ public class UserDexStat {
     @Column(name = "speed", nullable = false)
     private int speed;
 
+    @Column(name = "affinity", nullable = false)
+    private int affinity;
+
     @Column(name = "updated_at", insertable = false, updatable = false)
     private LocalDateTime updatedAt;
 }

@@ -115,10 +115,11 @@ function showDexDetail(type, item) {
     document.getElementById("detailDesc").textContent = item.description || item.desc || "";
 
     const extra = {
-        character: `속성: ${item.attribute}`,
+        character: `속성: ${item.attribute}` + (item.owned && item.affinity !== undefined ? ` / 친밀도: 💛 ${item.affinity}` : ""),
         item: `등급: ${item.rank}`,
         monster: `위험도: ${item.rank}`
     }[type];
+
 
     document.getElementById("detailExtra").textContent = extra;
 }
