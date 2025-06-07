@@ -1,6 +1,7 @@
 package com.phobi.gamja.controller;
 
 
+import com.phobi.gamja.entity.dex.DexAttribute;
 import com.phobi.gamja.entity.dex.DexRarityStat;
 import com.phobi.gamja.entity.user.UserDex;
 import com.phobi.gamja.entity.user.UserDexStat;
@@ -44,8 +45,9 @@ public class DexController {
                 .map(ud -> ud.getDex().getId())
                 .collect(Collectors.toSet());
         List<UserDexStat> statList = userDexStatRepository.findByUser_Id(userId);
-        Map<Long, Integer> affinityMap = statList.stream()
-                .collect(Collectors.toMap(stat -> stat.getDex().getId(), UserDexStat::getAffinity));
+
+        Map<Long, UserDexStat> statMap = statList.stream()
+                .collect(Collectors.toMap(stat -> stat.getDex().getId(), stat -> stat));
 
         List<Map<String, Object>> dexResult = dexList.stream()
                 .map(dex -> {
@@ -55,17 +57,26 @@ public class DexController {
                     m.put("id", dexId);
                     m.put("name", dex.getName());
                     m.put("description", dex.getDescription());
-                    m.put("attribute", dex.getAttribute());
                     m.put("owned", isOwned);
                     m.put("imagePath", dex.getImage());
+                    m.put("acquireCondition", dex.getAcquireCondition());
+
+                    DexAttribute attr = dex.getAttribute();
+                    m.put("attribute", attr.getName());
+                    m.put("attributeIconPath", attr.getIconPath());
 
                     DexRarityStat rarityStat = dex.getRarity();
                     m.put("rarity", rarityStat.getRarity().name());
                     m.put("rarityLabel", rarityStat.getBonusDescription());
 
                     if (isOwned) {
-                        m.put("affinity", affinityMap.getOrDefault(dexId, 0));
+                        UserDexStat stat = statMap.get(dexId);
+                        m.put("affinity", stat != null ? stat.getAffinity() : 0);
+                        m.put("level", stat != null ? stat.getLevel() : 1);
+                        m.put("currentXp", stat != null ? stat.getXp() : 0);
+                        m.put("maxXp", stat != null ? stat.getMaxExp() : 100);
                     }
+
                     return m;
                 })
                 .sorted(Comparator.comparing(m -> RARITY_ORDER.getOrDefault(String.valueOf(m.get("rarity")), 99)))
@@ -91,7 +102,7 @@ public class DexController {
                     Map<String, Object> m = new HashMap<>();
                     m.put("id", mon.getId());
                     m.put("name", mon.getName());
-                    m.put("desc", mon.getDesc());
+                    m.put("description", mon.getDesc());
                     m.put("rank", mon.getRank());
                     m.put("rarity", mon.getRarity());
                     m.put("imagePath", mon.getImagePath());

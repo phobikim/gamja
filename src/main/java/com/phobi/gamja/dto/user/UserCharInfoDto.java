@@ -1,5 +1,6 @@
 package com.phobi.gamja.dto.user;
 
+import com.phobi.gamja.entity.dex.DexAttribute;
 import com.phobi.gamja.entity.user.UserDexStat;
 import com.phobi.gamja.entity.user.UserDtl;
 import lombok.Data;
@@ -13,7 +14,10 @@ public class UserCharInfoDto {
     private String title;
     private int maxExp;
     private String dexName;
+
     private String attribute;
+    private String attributeIconPath;
+
     private int maxCombo;
     private Long dexId;
     private int affinity;
@@ -35,9 +39,12 @@ public class UserCharInfoDto {
         this.maxExp = stat.getMaxExp();
         this.dexName = stat.getDex().getName();
         this.title = getTitleByLevel(stat.getLevel());
-        this.attribute = stat.getDex().getAttribute();
         this.affinity = stat.getAffinity();
         this.maxCombo = maxCombo;
+
+        DexAttribute attr = stat.getDex().getAttribute();
+        this.attribute = attr != null ? attr.getName() : null;
+        this.attributeIconPath = attr != null ? attr.getIconPath() : null;
     }
     public String getTitleByLevel(int level) {
         if (level >= 1   && level <= 50)   return "씨앗 감자";           // 막 태어난

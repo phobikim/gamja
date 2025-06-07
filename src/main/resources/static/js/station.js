@@ -202,7 +202,7 @@ function renderRecipeDetail(recipe) {
         const li = document.createElement('li');
         li.innerHTML = `
         <img src="${basePath}/${ing.itemIcon}" style="width:24px; height:24px; vertical-align:middle;">
-        <span style="font-weight:bold; color: var(--dark-font-color);">
+        <span style="font-weight:bold; color: var(--dark-brown-font-color);">
             ${ing.itemName} x${ing.quantity}
         </span>
         <span style="font-weight:bold; color:${ing.userOwned < ing.quantity ? 'red' : 'green'};">

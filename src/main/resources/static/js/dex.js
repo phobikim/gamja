@@ -1,4 +1,3 @@
-
 const dexModal = document.getElementById('dexModal');
 const dexTabBtns = document.querySelectorAll(".dex-tab-btn");
 const dexTabContents = {
@@ -11,15 +10,20 @@ let currentDexData = null;
 async function handleDexClick() {
     playEffect("se_click2");
 
-    const dexData =  await fetchDexMetaData();
-    if (!dexData) return;
-    currentDexData = dexData;
+    currentDexData = await fetchDexMetaData();
+    if (!currentDexData) return;
 
-    renderCardsByType("character", dexData.dexList);
+    // 탭 상태 초기화 (캐릭터 탭 선택)
+    dexTabBtns.forEach(b => b.classList.remove("active"));
+    dexTabBtns[0].classList.add("active");
 
+    Object.keys(dexTabContents).forEach(key => {
+        dexTabContents[key].classList.toggle("hidden", key !== "character");
+    });
+
+    renderCardsByType("character", currentDexData.dexList);
     dexModal.classList.remove("hidden");
-
-    renderDexTabs();
+    renderDexTabs(); // 이벤트 바인딩은 여기에 유지
 }
 
 async function fetchDexMetaData() {
@@ -30,7 +34,6 @@ async function fetchDexMetaData() {
             showMessageModal(dexRes.message || '도감 목록을 불러오지 못했습니다.');
             return null;
         }
-        console.log("도감정보" , dexRes.data);
         return dexRes.data;
     } catch (e) {
         console.error("도감 메타 요청 실패", e);
@@ -49,9 +52,6 @@ function renderDexTabs() {
             Object.keys(dexTabContents).forEach(key => {
                 dexTabContents[key].classList.toggle("hidden", key !== type);
             });
-
-            // 디테일 영역 초기화
-            hideDexDetail();
 
             if (type === "character") renderCardsByType("character", currentDexData.dexList);
             if (type === "item") renderCardsByType("item", currentDexData.itemList);
@@ -102,6 +102,10 @@ function showDexDetail(type, item) {
     document.getElementById("dexDetailPanel").classList.remove("hidden");
 
     const detailImg = document.getElementById("detailImage");
+    const notOwnedOverlay = document.getElementById("notOwnedOverlay");
+    const detailEffects = document.getElementById("detailEffects");
+    const detailLevelInfo = document.querySelector(".detail-level-info");
+    const detailAffinityInfo = document.getElementById("detailAffinityInfo");
 
     if (type === "character") {
         detailImg.src = `${basePath_image}/character/${item.imagePath}`;
@@ -111,17 +115,54 @@ function showDexDetail(type, item) {
         detailImg.src = `${basePath}/${item.imagePath}`;
     }
 
+    // 기본 정보 설정
     document.getElementById("detailName").textContent = item.name;
-    document.getElementById("detailDesc").textContent = item.description || item.desc || "";
+    const rarityClass = `rarity-background-${item.rarity?.toLowerCase()}`;
+    detailImg.className = `detail-image ${rarityClass}`;
+    const characterIcon = document.getElementById("characterIcon");
+    if (type === "character") {
+        characterIcon.style.display = item.attributeIconPath ? "block" : "none";
 
-    const extra = {
-        character: `속성: ${item.attribute}` + (item.owned && item.affinity !== undefined ? ` / 친밀도: 💛 ${item.affinity}` : ""),
-        item: `등급: ${item.rank}`,
-        monster: `위험도: ${item.rank}`
-    }[type];
+        if (item.attributeIconPath) {
+            characterIcon.src = `${basePath}/${item.attributeIconPath}`;
+            characterIcon.style.display = "block";
+        } else {
+            characterIcon.style.display = "none";
+        }
+
+        // 캐릭터: 레벨, XP, 친밀도 표시
+        document.getElementById("detailLevel").textContent = `LV${item.level || 1}`;
+        const xpPercent = item.currentXp && item.maxXp ? (item.currentXp / item.maxXp) * 100 : 0;
+        document.getElementById("detailXpFill").style.width = `${xpPercent}%`;
+        document.getElementById("detailXpText").textContent = `${item.currentXp || 0}/${item.maxXp || 100}`;
+        document.getElementById("detailAffinity").textContent = `${item.affinity || 0}`;
+        detailLevelInfo.style.display = "flex";
+        detailAffinityInfo.style.display = "flex";
 
 
-    document.getElementById("detailExtra").textContent = extra;
+        // detailEffects 영역 표시
+        detailEffects.style.display = "block";
+        document.getElementById("detailDesc").textContent = item.description || "";
+        document.getElementById("detailRarity").textContent = item.rarity || "Common";
+
+        // 미보유 오버레이 설정 (캐릭터 탭에만 적용)
+        if (item.owned === false) {
+            notOwnedOverlay.classList.remove("hidden");
+        } else {
+            notOwnedOverlay.classList.add("hidden");
+        }
+    } else {
+        // ✅ 레벨/친밀도 영역 숨김
+        characterIcon.style.display = "none";
+        detailLevelInfo.style.display = "none";
+        detailAffinityInfo.style.display = "none";
+        // ✅ 미보유 오버레이 숨김
+        notOwnedOverlay.classList.add("hidden");
+        // detailEffects 영역 표시
+        detailEffects.style.display = "block";
+        document.getElementById("detailDesc").textContent = item.description || "";
+        document.getElementById("detailRarity").textContent = item.rarity || "Common";
+    }
 }
 
 function getStars(rarity) {
@@ -135,8 +176,6 @@ function getStars(rarity) {
     return "★".repeat(starMap[rarity] || 0);
 }
 
-
-
 dexModal.addEventListener('click', (e) => {
     const inside = e.target.closest('.dex-modal-container');
     if (!inside) dexModal.classList.add('hidden');
@@ -144,12 +183,4 @@ dexModal.addEventListener('click', (e) => {
 
 function closeDexModal() {
     dexModal.classList.add('hidden');
-}
-
-function hideDexDetail() {
-    document.getElementById("dexDetailPanel").classList.add("hidden");
-    document.getElementById("detailImage").src = "";
-    document.getElementById("detailName").textContent = "";
-    document.getElementById("detailDesc").textContent = "";
-    document.getElementById("detailExtra").textContent = "";
 }

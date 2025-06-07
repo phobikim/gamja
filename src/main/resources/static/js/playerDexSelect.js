@@ -3,20 +3,14 @@ let selectedCharacterId = null;
 // 캐릭터 카드 클릭 이벤트
 document.querySelectorAll('.character-card').forEach(card => {
     card.addEventListener('click', () => {
-        // 기존 선택 해제
         document.querySelectorAll('.character-card').forEach(c => c.classList.remove('selected'));
-
-        // 새로운 선택
         card.classList.add('selected');
         selectedCharacterId = card.dataset.characterId;
-
-        // 적용 버튼 활성화
         document.getElementById('applyCharacterBtn').disabled = false;
     });
 });
 
-
-// 보유 캐릭터를 받아서 카드 렌더링
+// 캐릭터 선택 모달 열기
 function openCharacterSelectModal() {
     const modal = document.getElementById('characterSelectModal');
     const grid = document.getElementById('characterCardGrid');
@@ -29,7 +23,7 @@ function openCharacterSelectModal() {
     fetchOwnedCharacters();
 }
 
-
+// 보유 캐릭터 불러오기
 async function fetchOwnedCharacters() {
     try {
         const res = await apiRequest('/api/char/owned', 'GET');
@@ -49,26 +43,23 @@ async function fetchOwnedCharacters() {
     }
 }
 
+// 캐릭터 카드 렌더링
 function renderOwnedCharacterCards(charList, representDexId) {
     const grid = document.getElementById('characterCardGrid');
     const applyBtn = document.getElementById('applyCharacterBtn');
-    const template = document.getElementById('characterCardTemplate');
-    // 기존 카드 초기화
     grid.innerHTML = '';
 
     charList.forEach(char => {
-        // wrapper div 생성
         const wrapper = document.createElement('div');
         wrapper.className = 'card-wrapper';
 
-        // 카드 div 생성
         const card = document.createElement('div');
         card.className = `character-card rarity-background-${char.rarity.toLowerCase()}`;
         card.dataset.characterId = char.dexId;
 
         card.innerHTML = `
             <div class="card-level">LV.${char.level}</div>
-            <div class="card-attribute ${char.attribute}">${getAttributeIcon(char.attribute)}</div>
+            <div class="card-attribute">${renderAttribute(char.attributeIconPath, char.attribute)}</div>
             <img class="char-image" src="${basePath_image}/character/${char.dexImage}" alt="${char.dexName}">
             <div class="card-info">
                 <div class="char-name">${char.dexName}</div>
@@ -87,43 +78,36 @@ function renderOwnedCharacterCards(charList, representDexId) {
             applyBtn.disabled = false;
         };
 
-        // 대표 라벨이 있다면 wrapper에 붙임
         if (char.dexId === representDexId) {
             const label = document.createElement('div');
             label.className = 'represent-label-outside';
             label.textContent = '대표';
             wrapper.appendChild(label);
         }
+
         wrapper.appendChild(card);
         grid.appendChild(wrapper);
     });
-
 }
 
-// 속성 아이콘 반환 함수
-function getAttributeIcon(attribute) {
-    const icons = {
-        '튀김': '⚡',
-        '수분': '💧',
-        '구운': '🔥',
-        '생감자': '🌱',
-        '껍질': '🥔',
-        '부패': '☠️'
-    };
-    return icons[attribute] || '⚡';
-
+// 속성 아이콘렌더링
+function renderAttribute(iconPath, name) {
+    if (!iconPath) return `<span>${name}</span>`;
+    return `
+        <span class="attr-container" style="display:inline-flex; align-items:center; gap:4px;">
+            <img src="${basePath}/${iconPath}" class="attr-icon" alt="${name}" style="width: 20px; height: 20px;">
+        </span>
+    `;
 }
 
-
-
-
+// 대표 감자 설정 버튼 클릭
 document.getElementById('applyCharacterBtn').addEventListener('click', () => {
     if (!selectedCharacterId) return;
-
     closeCharacterSelectModal();
     fetchSetCharacters(selectedCharacterId);
 });
 
+// 대표 감자 설정 API 호출
 async function fetchSetCharacters(selectedCharacterId) {
     try {
         const res = await apiRequestJson('/api/char/setDex', 'POST', {
@@ -133,19 +117,20 @@ async function fetchSetCharacters(selectedCharacterId) {
         if (res.code !== 'SUCCESS') {
             closeCharacterSelectModal();
             showMessageModal(res.message || '대표 감자 설정에 실패했습니다.');
+        } else {
+            closeCharacterSelectModal();
+            // showMessageModal('대표 감자로 설정 OK!');
+            await loadCharacterBasicInfo(); // 메인 화면 갱신
         }
-        closeCharacterSelectModal();
-        showMessageModal('대표 감자로 설정 OK!');
-        await loadCharacterBasicInfo();
-
     } catch (err) {
-        console.error('보유 감자 로딩 실패:', err);
+        console.error('대표 감자 설정 실패:', err);
         showMessageModal('서버 오류로 대표 감자 설정에 실패했습니다.');
     }
 }
 
+// 모달 닫기
 document.getElementById('closeModalBtn').onclick = () => {
-    document.getElementById('characterSelectModal').classList.add('hidden');
+    closeCharacterSelectModal();
 };
 
 function closeCharacterSelectModal() {

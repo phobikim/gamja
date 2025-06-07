@@ -71,7 +71,7 @@
     text-align: center;
     font-size: clamp(1.6rem, 4vw, 2.2rem);
     font-weight: bold;
-    color: var(--dark-font-color);
+    color: var(--dark-brown-font-color);
 }
 
 #lootModal .xp-bar-container {
@@ -135,7 +135,7 @@
 #lootModal .xp-text {
     font-weight: bold;
     font-size: clamp(0.8rem, 2vw, 1.1rem);
-    color: var(--dark-font-color);
+    color: var(--dark-brown-font-color);
     margin-top: 1vh;
     text-align: center;
 }

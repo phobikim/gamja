@@ -11,5 +11,5 @@ public interface DexRepository extends JpaRepository<Dex, Long> {
     @Query("SELECT d FROM Dex d WHERE d.userFlag = true")
     List<Dex> findAllEnabledForUser();
 
-    List<Dex> findByRarity(DexRarityStat.Rarity rarity);
+    List<Dex> findByRarity_Rarity(DexRarityStat.Rarity rarity);
 }

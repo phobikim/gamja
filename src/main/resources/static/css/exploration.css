@@ -13,7 +13,7 @@
 }
 
 .action-exploration-modal-content {
-    background: #222;
+    background: var(--dark-1-color);
     border-radius: 16px;
     padding: 1.5rem;
     max-width: 500px;
@@ -23,7 +23,7 @@
 }
 
 .exploration-card {
-    background: #3c3f58;
+    background: var(--dark-3-color);
     border-radius: 12px;
     color: #fff;
     padding: 1.2rem 1rem;
@@ -42,7 +42,7 @@
 @keyframes cardClickFlash {
     0% {
         transform: scale(1);
-        background: #3c3f58;
+        background: var(--dark-3-color);
     }
     50% {
         transform: scale(1.05);
@@ -50,7 +50,7 @@
     }
     100% {
         transform: scale(1);
-        background: #3c3f58;
+        background: var(--dark-3-color);
     }
 }
 
@@ -66,7 +66,7 @@
 }
 
 .exploration-modal-content {
-    background: #3c3f58;
+    background: var(--dark-3-color);
     border-radius: 16px;
     padding: 1rem;
     max-width: 500px;
@@ -94,7 +94,7 @@
 }
 
 .result-info-card {
-    background: #2e3047;
+    background: var(--dark-2-color);
     border-radius: 10px;
     padding: 1rem;
     width: 100%;

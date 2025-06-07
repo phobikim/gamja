@@ -34,5 +34,8 @@ public class Dex {
     @Column(name = "user_flag", nullable = false)
     private boolean userFlag;
 
-    private String attribute;
+    // 기존 String attribute → DexAttribute로 변경
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "attribute", referencedColumnName = "name")
+    private DexAttribute attribute;
 }

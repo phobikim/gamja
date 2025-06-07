@@ -5,9 +5,11 @@ import com.phobi.gamja.dto.user.BattleStatDto;
 import com.phobi.gamja.dto.user.LifeStatDto;
 import com.phobi.gamja.dto.user.UserCharInfoDto;
 import com.phobi.gamja.entity.dex.Dex;
+import com.phobi.gamja.entity.dex.DexAttribute;
 import com.phobi.gamja.entity.dex.DexRarityStat;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
+import com.phobi.gamja.repository.contents.DexRarityStatRepository;
 import com.phobi.gamja.repository.contents.DexRepository;
 import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
 import com.phobi.gamja.repository.item.ItemStatBonusRepository;
@@ -38,6 +40,7 @@ public class CharService {
     private final UserSkillRepository userSkillRepository;
     private final UserInventoryRepository userInventoryRepository;
     private final DexRepository dexRepository;
+    private final DexRarityStatRepository dexRarityStatRepository;
     private final UserDexRepository userDexRepository;
     private final UserDexStatRepository userDexStatRepository;
     private final UserEquipmentRepository userEquipmentRepository;
@@ -139,7 +142,11 @@ public class CharService {
 
         // 2. 확률 추첨
         DexRarityStat.Rarity selectedRarity = DexRarityStat.Rarity.roll();
-        List<Dex> candidates = dexRepository.findByRarity(selectedRarity);
+        DexRarityStat selectedRarityStat = dexRarityStatRepository.findById(selectedRarity)
+                .orElseThrow(() -> new IllegalStateException("해당 rarity가 존재하지 않습니다: " + selectedRarity));
+
+
+        List<Dex> candidates = dexRepository.findByRarity_Rarity(selectedRarity);
         if (candidates.isEmpty()) {
             return GamJaResponse.fail("해당 등급의 감자가 없습니다.");
         }
@@ -175,13 +182,15 @@ public class CharService {
             userDexRepository.save(newDex);
         }
         // 7. 응답 데이터 구성
+        DexAttribute attr = selected.getAttribute();
         Map<String, Object> result = new HashMap<>();
         result.put("resultType", isDuplicate ? "DUPLICATE" : "NEW");
         result.put("dexId", selected.getId());
         result.put("name", selected.getName());
         result.put("rarity", selected.getRarity());
         result.put("image", selected.getImage());
-        result.put("attribute", selected.getAttribute());
+        result.put("attribute", attr.getName());
+        result.put("attributeIconPath", attr.getIconPath());
         result.put("desc", selected.getDescription());
         result.put("pieceGained", gainedFragments);
 
@@ -229,13 +238,15 @@ public class CharService {
                     UserDexStat stat = userDexStatRepository
                             .findByUserIdAndDexId(userId, dex.getId())
                             .orElse(null);
-
+                    DexAttribute attr = dex.getAttribute();
+                    DexRarityStat rarityStat = dex.getRarity();
                     return DexOwnedDto.builder()
                             .dexId(dex.getId())
                             .dexImage(dex.getImage())
                             .dexName(dex.getName())
-                            .attribute(dex.getAttribute())
-                            .rarity(dex.getRarity().getRarity().name())
+                            .attribute(attr != null ? attr.getName() : null)
+                            .attributeIconPath(attr != null ? attr.getIconPath() : null)
+                            .rarity(rarityStat.getRarity().name())
                             .level(stat != null ? stat.getLevel() : 1)
                             .xp(stat != null ? stat.getXp() : 0)
                             .maxExp(stat != null ? stat.getMaxExp() : 100)

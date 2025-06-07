@@ -151,7 +151,7 @@
 }
 
 .main-user-name {
-    color: var(--dark-font-color);
+    color: var(--dark-brown-font-color);
     margin-right: 4px;
 }
 
@@ -176,7 +176,7 @@
 .char-dex-name {
     font-size: clamp(14px, 4vw, 18px);
     font-weight: bold;
-    color: var(--dark-font-color);
+    color: var(--dark-brown-font-color);
     margin: 0;
 }
 

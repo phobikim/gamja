@@ -142,8 +142,8 @@ async function handleGachaClick() {
             peelingLabel.classList.add("hidden");
 
             // 배경 이미지 변경 (rarity 기반)
-            const rarityClass = getBackgroundByRarity(res.data.rarity);
-            const backgroundImage = getBackgroundImageByRarity(res.data.rarity);
+            const rarityClass = getBackgroundByRarity(res.data.rarity.rarity);
+            const backgroundImage = getBackgroundImageByRarity(res.data.rarity.rarity);
 
             modalContent.className = `gacha-modal-content ${rarityClass}`;
             modalContent.style.backgroundImage = backgroundImage;
@@ -184,7 +184,7 @@ function showGachaResult(resultData) {
     void card.offsetWidth;
 
     // 4. rarity 기반 카드 클래스 적용
-    const rarityClass = getBackgroundByRarity(resultData.rarity);
+    const rarityClass = getBackgroundByRarity(resultData.rarity.rarity);
     card.className = `result-card ${rarityClass}`;
 
     // 5. 애니메이션 강제 재시작
@@ -216,7 +216,7 @@ function showGachaResult(resultData) {
         epic: 4,
         legendary: 5
     };
-    const starCount = rarityStars[resultData.rarity.toLowerCase()] || 1;
+    const starCount = rarityStars[resultData.rarity.rarity.toLowerCase()] || 1;
     const starRating = document.getElementById('starRating');
     starRating.innerHTML = '';
     for (let i = 0; i < starCount; i++) {
@@ -228,7 +228,14 @@ function showGachaResult(resultData) {
     const characterImage = document.getElementById('characterImage');
     characterImage.src = `${basePath_image}/character/${resultData.image}`;
     characterImage.className = 'character-image';
-    document.getElementById('characterAttribute').textContent = resultData.attribute;
+    const attributeIconImg = document.getElementById('characterAttributeIcon');
+    if (resultData.attributeIconPath) {
+        attributeIconImg.src = `${basePath}/${resultData.attributeIconPath}`;
+        attributeIconImg.alt = resultData.attribute || '';
+        attributeIconImg.style.display = 'block';
+    } else {
+        attributeIconImg.style.display = 'none';
+    }
 
     // 9. 결과 오버레이 표시
     setTimeout(() => {

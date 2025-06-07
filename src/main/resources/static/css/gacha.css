@@ -97,11 +97,11 @@
 
 /* 결과 카드 */
 .result-card {
-    background: #222;
+    background: var(--dark-1-color);
     border-radius: 16px;
     padding: 8px;
     text-align: center;
-    width: 175px;
+    width: 155px;
     max-width: 80%;
     position: relative;
     transform: scale(0.3) rotateY(180deg);
@@ -109,7 +109,7 @@
 }
 
 .result-card-reset {
-    background: #222;
+    background: var(--dark-1-color);
     border-radius: 16px;
     padding: 16px;
     text-align: center;
@@ -147,28 +147,24 @@
 
 /* rarity별 카드 테두리 */
 .result-card.common {
-    border: 5px solid #8B4513;
     box-shadow:
             0 10px 30px rgba(139, 69, 19, 0.4),
             0 0 20px rgba(139, 69, 19, 0.3);
 }
 
 .result-card.uncommon {
-    border: 5px solid #228B22;
     box-shadow:
             0 10px 30px rgba(34, 139, 34, 0.4),
             0 0 20px rgba(34, 139, 34, 0.3);
 }
 
 .result-card.rare {
-    border: 5px solid #4169E1;
     box-shadow:
             0 10px 30px rgba(65, 105, 225, 0.4),
             0 0 20px rgba(65, 105, 225, 0.3);
 }
 
 .result-card.epic {
-    border: 5px solid #9400D3;
     box-shadow:
             0 10px 30px rgba(148, 0, 211, 0.4),
             0 0 20px rgba(148, 0, 211, 0.3);
@@ -186,11 +182,11 @@
 .character-image {
     width: 100px;
     height: 100px;
-    border-radius: 12px;
+    border-radius: 45px;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.25);
     margin: 0 auto 8px;
     display: block;
     object-fit: contain;
-    background: #3c3f58;
     padding: 8px;
 }
 
@@ -221,7 +217,7 @@
 }
 /* 확인 버튼 */
 .confirm-button {
-    background: var(--orange-color);
+    background: var(--dark-2-color);
     color: white;
     font-weight: bold;
     border: none;
@@ -362,3 +358,29 @@
     letter-spacing: 0.5px;
 }
 
+.character-image-container {
+    position: relative;
+    display: inline-block;
+}
+
+.attribute-icon-wrapper {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: var(--dark-3-color);
+    border-radius: 50%;
+    padding: 0;
+    overflow: hidden;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+.attribute-icon {
+    object-fit: cover;
+    width: 16px;
+    height: 16px;
+}

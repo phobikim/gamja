@@ -55,7 +55,7 @@
 .tab-btn.active {
     font-size: 1.1rem;
     background: #ffb323;
-    color: var(--dark-font-color);
+    color: var(--dark-brown-font-color);
     border-color: #fa6719;
 }
 
@@ -172,12 +172,12 @@
 
 #characterModal #combatEquipment .inventoryCell {
     background-color : var(--baige-color);
-    color: var(--dark-font-color);
+    color: var(--dark-brown-font-color);
     font-weight: bold;
 }
 #characterModal #lifeEquipment .inventoryCell {
     background-color : var(--baige-color);
-    color: var(--dark-font-color);
+    color: var(--dark-brown-font-color);
     font-weight: bold;
 }
 #characterModal .inventoryCell img {
