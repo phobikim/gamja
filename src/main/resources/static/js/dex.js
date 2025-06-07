@@ -106,6 +106,7 @@ function showDexDetail(type, item) {
     const detailEffects = document.getElementById("detailEffects");
     const detailLevelInfo = document.querySelector(".detail-level-info");
     const detailAffinityInfo = document.getElementById("detailAffinityInfo");
+    const detailStat = document.getElementById("detailStat");
 
     if (type === "character") {
         detailImg.src = `${basePath_image}/character/${item.imagePath}`;
@@ -145,6 +146,11 @@ function showDexDetail(type, item) {
         document.getElementById("detailDesc").textContent = item.description || "";
         document.getElementById("detailRarity").textContent = item.rarity || "Common";
 
+        // 캐릭터 스탯 표시
+        detailStat.style.display = "flex";
+        document.getElementById("detailAtk").textContent = item.basePower || 0;
+        document.getElementById("detailHp").textContent = item.baseHp || 0;
+
         // 미보유 오버레이 설정 (캐릭터 탭에만 적용)
         if (item.owned === false) {
             notOwnedOverlay.classList.remove("hidden");
@@ -156,6 +162,7 @@ function showDexDetail(type, item) {
         characterIcon.style.display = "none";
         detailLevelInfo.style.display = "none";
         detailAffinityInfo.style.display = "none";
+
         // ✅ 미보유 오버레이 숨김
         notOwnedOverlay.classList.add("hidden");
         // detailEffects 영역 표시
@@ -163,6 +170,13 @@ function showDexDetail(type, item) {
         document.getElementById("detailDesc").textContent = item.description || "";
         document.getElementById("detailRarity").textContent =
             type === "item" ? (item.rarity ?? "Common") : (item.rank ?? "Common");
+        if(type === "item") {
+            detailStat.style.display = "none";
+        } else {
+            detailStat.style.display = "flex";
+            document.getElementById("detailAtk").textContent = item.basePower || 0;
+            document.getElementById("detailHp").textContent = item.baseHp || 0;
+        }
     }
 }
 

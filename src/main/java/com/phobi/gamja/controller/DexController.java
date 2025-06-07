@@ -76,7 +76,6 @@ public class DexController {
                         m.put("level", stat != null ? stat.getLevel() : 1);
                         m.put("currentXp", stat != null ? stat.getXp() : 0);
                         m.put("maxXp", stat != null ? stat.getMaxExp() : 100);
-                    } else {
                         m.put("basePower", rarityStat.getBasePower());
                         m.put("baseHp", rarityStat.getBaseHp());
                         m.put("baseSpeed", rarityStat.getBaseSpeed());
@@ -110,13 +109,14 @@ public class DexController {
                     m.put("description", mon.getDesc());
                     m.put("rank", mon.getRank());
                     m.put("rarity", mon.getRarity());
-                    m.put("power", mon.getMonsterPower());
+                    m.put("basePower", mon.getMonsterPower());
+                    m.put("baseHp", mon.getMonsterHp());
                     m.put("imagePath", mon.getImagePath());
                     return m;
                 })
                 .sorted(Comparator
                         .comparing((Map<String, Object> m) -> RARITY_ORDER.getOrDefault(String.valueOf(m.get("rarity")), 99))
-                        .thenComparing(m -> ((Number) m.get("power")).intValue()) // ✅ power 오름차순 추가
+                        .thenComparing(m -> ((Number) m.get("basePower")).intValue()) // ✅ power 오름차순 추가
                 )
                 .collect(Collectors.toList());
 
