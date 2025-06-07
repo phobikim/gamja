@@ -161,7 +161,8 @@ function showDexDetail(type, item) {
         // detailEffects 영역 표시
         detailEffects.style.display = "block";
         document.getElementById("detailDesc").textContent = item.description || "";
-        document.getElementById("detailRarity").textContent = item.rarity || "Common";
+        document.getElementById("detailRarity").textContent =
+            type === "item" ? (item.rarity ?? "Common") : (item.rank ?? "Common");
     }
 }
 

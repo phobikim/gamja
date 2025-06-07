@@ -69,12 +69,17 @@ public class DexController {
                     m.put("rarity", rarityStat.getRarity().name());
                     m.put("rarityLabel", rarityStat.getBonusDescription());
 
+
                     if (isOwned) {
                         UserDexStat stat = statMap.get(dexId);
                         m.put("affinity", stat != null ? stat.getAffinity() : 0);
                         m.put("level", stat != null ? stat.getLevel() : 1);
                         m.put("currentXp", stat != null ? stat.getXp() : 0);
                         m.put("maxXp", stat != null ? stat.getMaxExp() : 100);
+                    } else {
+                        m.put("basePower", rarityStat.getBasePower());
+                        m.put("baseHp", rarityStat.getBaseHp());
+                        m.put("baseSpeed", rarityStat.getBaseSpeed());
                     }
 
                     return m;
@@ -105,9 +110,14 @@ public class DexController {
                     m.put("description", mon.getDesc());
                     m.put("rank", mon.getRank());
                     m.put("rarity", mon.getRarity());
+                    m.put("power", mon.getMonsterPower());
                     m.put("imagePath", mon.getImagePath());
                     return m;
-                }).sorted(Comparator.comparing(m -> RARITY_ORDER.getOrDefault(String.valueOf(m.get("rarity")), 99)))
+                })
+                .sorted(Comparator
+                        .comparing((Map<String, Object> m) -> RARITY_ORDER.getOrDefault(String.valueOf(m.get("rarity")), 99))
+                        .thenComparing(m -> ((Number) m.get("power")).intValue()) // ✅ power 오름차순 추가
+                )
                 .collect(Collectors.toList());
 
         Map<String, Object> data = new HashMap<>();

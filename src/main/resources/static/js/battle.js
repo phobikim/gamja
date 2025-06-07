@@ -82,12 +82,11 @@ function initializeBattleScene(user, monster) {
     if (effectElement) {
         effectElement.className = 'monster-effect';
         const rankMap = {
-            '야생': 'effect-wild',
-            '하급': 'effect-common',
-            '일반': 'effect-normal',
+            '야생': 'effect-common',
+            '일반': 'effect-uncommon',
             '희귀': 'effect-rare',
-            '정예': 'effect-elite',
-            '보스': 'effect-boss'
+            '정예': 'effect-epic',
+            '보스': 'effect-legendary'
         };
         const rankClass = rankMap[monster.rank];
         if (rankClass) effectElement.classList.add(rankClass);

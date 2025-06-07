@@ -4,6 +4,7 @@ import com.phobi.gamja.dto.contents.MonsterDto;
 import com.phobi.gamja.dto.user.BattleStatDto;
 import com.phobi.gamja.entity.contents.Monster;
 import com.phobi.gamja.entity.contents.MonsterMap;
+import com.phobi.gamja.entity.dex.DexAttribute;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.user.UserDexStat;
 import com.phobi.gamja.entity.user.UserDexStatId;
@@ -106,7 +107,9 @@ public class BattleService {
         userInfo.put("lv", userDexStat.getLevel());
         userInfo.put("xp", userDexStat.getXp());
         userInfo.put("maxExp", userDexStat.getMaxExp());
-        userInfo.put("attribute", userDexStat.getDex().getAttribute());
+        DexAttribute attr = userDexStat.getDex().getAttribute();
+        userInfo.put("attribute", attr != null ? attr.getName() : null);
+        userInfo.put("attributeIconPath", attr != null ? attr.getIconPath() : null);
         userInfo.put("power", userBattleDto.getPower());
         userInfo.put("hp", userBattleDto.getHp());
         userInfo.put("speed", userBattleDto.getSpeed());
