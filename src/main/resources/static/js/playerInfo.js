@@ -1,5 +1,4 @@
 const characterModal = document.getElementById('characterModal');
-const itemtooltip = document.getElementById('itemTooltip');
 
 // 탭 버튼
 const battleTabBtn = document.getElementById('battleTabBtn');
@@ -90,14 +89,14 @@ function setCharacterBattleInfo(data) {
     updateStatValue('combatSpeed', data.speed);
 
     const slotMap = {
-        WEAPON: 'combatSlotWeapon',
-        HELMET: 'combatSlotHead',
-        ARMOR: 'combatSlotTop',
-        PANTS: 'combatSlotBottom',
-        SHOES: 'combatSlotShoes',
-        RING: 'combatSlotRing',
-        NECK: 'combatSlotNeck',
-        POTION: 'combatSlotPotion'
+        WEAPON: 'combatSlotWEAPON',
+        HELMET: 'combatSlotHELMET',
+        ARMOR: 'combatSlotARMOR',
+        PANTS: 'combatSlotPANTS',
+        SHOES: 'combatSlotSHOES',
+        RING: 'combatSlotRING',
+        NECK: 'combatSlotNECK',
+        POTION: 'combatSlotPOTION'
     };
 
     data.equippedItems.forEach(item => {
@@ -113,7 +112,6 @@ function setCharacterBattleInfo(data) {
             slot.appendChild(img);
         }
     });
-    bindItemTooltipEvents();
 }
 function loadCharacterLifeInfo() {
     apiRequest('/api/char/life', 'GET')
@@ -127,10 +125,10 @@ function loadCharacterLifeInfo() {
 // ✅ 생활 정보 DOM 세팅
 function setCharacterLifeInfo(data) {
     // 스탯 설정
-    updateStatValue('lifeFishing', data.fishing);
-    updateStatValue('lifeWoodcutting', data.woodcutting);
-    updateStatValue('lifeGathering', data.gathering);
-    updateStatValue('lifeMining', data.mining);
+    updateStatValue('lifeSlotFISHING_ROD', data.fishing);
+    updateStatValue('lifeSlotAXE', data.woodcutting);
+    updateStatValue('lifeSlotKNIFE', data.gathering);
+    updateStatValue('lifeSlotPICKAXE', data.mining);
     // updateStatValue('lifeMaking', data.making);
 
     // 슬롯 설정
@@ -157,7 +155,6 @@ function setCharacterLifeInfo(data) {
             slot.appendChild(img);
         }
     });
-    bindItemTooltipEvents();
 }
 
 // 탭 전환 핸들러
@@ -189,23 +186,6 @@ lifeTabBtn.addEventListener('click', () => {
 characterModal.addEventListener('click', (e) => {
     const inside = e.target.closest('.character-modal-content');
     if (!inside) characterModal.classList.add('hidden');
-});
-
-
-function bindItemTooltipEvents() {
-    document.querySelectorAll('.inventoryCell img').forEach(img => {
-        img.onclick = (e) => {
-            const item = img.dataset.item ? JSON.parse(img.dataset.item) : null;
-            if (item) showItemTooltip(item, e);
-            e.stopPropagation();
-        };
-    });
-}
-
-document.addEventListener('click', (e) => {
-    if (!itemtooltip.classList.contains('hidden') && !itemtooltip.contains(e.target)) {
-        hideItemTooltip();
-    }
 });
 
 

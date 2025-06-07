@@ -4,7 +4,6 @@ const mapListContainer = document.getElementById('mapListScroll');
 const startBattleBtn = document.getElementById('startBattleBtn');
 const closeBattleBtn = document.getElementById('closeBattleBtn');
 let selectedMap = null;
-let currentMonsterList = [];
 
 async function handleAttackClick() {
     playEffect("se_click2")

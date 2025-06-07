@@ -44,7 +44,16 @@ public class Item {
 
     public enum ItemType {
         GATHER_MATERIAL, CRAFT_MATERIAL, COMPOSITE,
-        EQUIP_GATHER, EQUIP_BATTLE, DROP
+        EQUIP_GATHER, EQUIP_BATTLE, DROP, POTION
     }
+    public enum EquipmentSlot {
+        /* 전투용 */
+        WEAPON, HELMET, ARMOR, PANTS, SHOES, RING, NECK, POTION,
+        /* 생활용 */
+        FISHING_ROD, AXE, PICKAXE, KNIFE,
+        /* 기본값 */
+        NONE
+    }
+
 
 }

@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="css/exploration.css">
     <link rel="stylesheet" href="css/playerDexSelect.css">
     <link rel="stylesheet" href="css/gacha.css">
+    <link rel="stylesheet" href="css/potion.css">
 </head>
 
 <body class="char-page">
@@ -403,10 +404,11 @@
     <div class="bag-modal-content">
         <div class="bag-tabs">
             <button data-type="ALL" class="active">전체</button>
+            <button data-type="EQUIP_GATHER,EQUIP_BATTLE">장비</button>
             <button data-type="GATHER_MATERIAL">채집</button>
             <button data-type="CRAFT_MATERIAL">가공</button>
             <button data-type="COMPOSITE">합성</button>
-            <button data-type="EQUIP_GATHER,EQUIP_BATTLE">장비</button>
+            <button data-type="POTION">포션</button>
         </div>
         <ul id="bagList" class="bag-grid">
             <!-- JS로 아이템 슬롯 채울 예정 -->
@@ -494,6 +496,12 @@
                 </div>
                 <div class="char-shadow"></div>
                 <img id="userCharacter" class="player-character" src="" alt="내 캐릭터">
+
+                <!-- ✅ 캐릭터 이름/속성 -->
+                <div class="char-label">
+                    <strong id="playerNameLabel">감풍덩</strong>
+                    [<span id="playerAttrLabel">생감자</span>]
+                </div>
             </div>
 
             <!-- 🔴 몬스터 영역 -->
@@ -509,72 +517,40 @@
                 </div>
                 <div class="char-shadow"></div>
                 <img id="monsterCharacter" class="monster-character" src="" alt="몬스터">
+
+                <!-- ✅ 몬스터 이름/속성 -->
+                <div class="char-label">
+                    <strong id="monsterNameLabel">도둑쥐</strong>
+                    [<span id="monsterAttrLabel">야생</span>]
+                </div>
             </div>
         </div>
-        <div class="battle-log" id="battleLog">
-        </div>
-
-        <div class="battle-stats" id="battleStats">
-            <!-- 유저 카드 -->
-            <div class="stat-card user-stats">
-                <div class="card-head">
-                    <strong class="user-name">감풍덩</strong>
-                    [<span class="user-attribute">생감자</span>]
-                </div>
-                <div class="card-body">
-                    <table class="stat-table">
-                        <tr>
-                            <td><img src="https://phobi.me/gamja.img/images/icons/icon_stat_power.png" alt="공격력" class="battle-stat-icon"></td>
-                            <td class="user-power">1</td>
-                        </tr>
-                        <tr>
-                            <td><img src="https://phobi.me/gamja.img/images/icons/icon_stat_hp.png" alt="체력" class="battle-stat-icon"></td>
-                            <td class="user-hp">1</td>
-                        </tr>
-                        <tr>
-                            <td><img src="https://phobi.me/gamja.img/images/icons/icon_stat_speed.png" alt="속도" class="battle-stat-icon"></td>
-                            <td class="user-speed">1</td>
-                        </tr>
-                    </table>
-                </div>
+        <div class="battle-cards" id="battleCardOptions">
+            <!-- 카드 1 -->
+            <div class="battle-card" onclick="selectBattleCard(0)">
+                <div class="card-title">🔥 감자의 분노</div>
+                <div class="card-desc">공격력 x2! 실패 시 자해</div>
+                <div class="card-cost">MP 3</div>
             </div>
 
-            <!-- 몬스터 카드 -->
-            <div class="stat-card monster-stats">
-                <div class="card-head">
-                    <strong class="monster-name">도둑쥐</strong>
-                    [<span class="monster-rank">야생</span>]
-                </div>
-                <div class="card-body">
-                    <table class="stat-table">
-                        <tr>
-                            <td><img src="https://phobi.me/gamja.img/images/icons/icon_stat_power.png" alt="공격력" class="battle-stat-icon"></td>
-                            <td class="monster-power">1</td>
-                        </tr>
-                        <tr>
-                            <td><img src="https://phobi.me/gamja.img/images/icons/icon_stat_hp.png" alt="체력" class="battle-stat-icon"></td>
-                            <td class="monster-hp">2</td>
-                        </tr>
-                        <tr>
-                            <td><img src="https://phobi.me/gamja.img/images/icons/icon_stat_xp.png" alt="경험치" class="battle-stat-icon"></td>
-                            <td class="monster-xp">5</td>
-                        </tr>
-                    </table>
-                </div>
+            <!-- 카드 2 -->
+            <div class="battle-card" onclick="selectBattleCard(1)">
+                <div class="card-title">🎲 감자 던지기</div>
+                <div class="card-desc">랜덤 효과 발동</div>
+                <div class="card-cost">MP 2</div>
             </div>
         </div>
 
         <div class="battle-actions">
             <button onclick="doHeal()">
-                <img src="https://phobi.me/gamja.img/images/icons/icon_skill_heal.png" alt="도망">
+                도망
             </button>
             <button onclick="doAttack()">
-                <img src="https://phobi.me/gamja.img/images/icons/icon_skill_attack.png" alt="공격">
+                공격
+<!--                <img src="https://phobi.me/gamja.img/images/icons/icon_skill_attack.png" alt="공격">-->
             </button>
             <button onclick="doDefend()">
-                <div id="effectContainer">
-                    <img id="healFrame" src="./images/effect/1.png" />
-                </div>
+                물약
             </button>
         </div>
     </div>
@@ -766,21 +742,21 @@
         </div>
         <!-- 장비 슬롯 -->
         <div class="inventory-grid " id="combatEquipment">
-            <div class="inventoryCell" id="combatSlotHead">머리</div>
-            <div class="inventoryCell" id="combatSlotTop">상의</div>
-            <div class="inventoryCell" id="combatSlotBottom">하의</div>
-            <div class="inventoryCell" id="combatSlotWeapon">무기</div>
-            <div class="inventoryCell" id="combatSlotShoes">신발</div>
-            <div class="inventoryCell" id="combatSlotNeck">목걸이</div>
-            <div class="inventoryCell" id="combatSlotRing">반지</div>
-            <div class="inventoryCell" id="combatSlotPotion">소비</div>
+            <div class="inventoryCell" id="combatSlotHELMET">머리</div>
+            <div class="inventoryCell" id="combatSlotARMOR">상의</div>
+            <div class="inventoryCell" id="combatSlotPANTS">하의</div>
+            <div class="inventoryCell" id="combatSlotWEAPON">무기</div>
+            <div class="inventoryCell" id="combatSlotSHOES">신발</div>
+            <div class="inventoryCell" id="combatSlotNECK">목걸이</div>
+            <div class="inventoryCell" id="combatSlotRING">반지</div>
+            <div class="inventoryCell" id="combatSlotPOTION">물약<span id="potionCountLabel" class="item-count-label hidden">x0</span></div>
         </div>
 
         <div class="inventory-grid  hidden" id="lifeEquipment">
-            <div class="inventoryCell" id="lifeSlotFishingRod">낚시대</div>
-            <div class="inventoryCell" id="lifeSlotAxe">도끼</div>
-            <div class="inventoryCell" id="lifeSlotPickaxe">곡괭이</div>
-            <div class="inventoryCell" id="lifeSlotKnife">채집칼</div>
+            <div class="inventoryCell" id="lifeSlotFISHING_ROD">낚시대</div>
+            <div class="inventoryCell" id="lifeSlotAXE">도끼</div>
+            <div class="inventoryCell" id="lifeSlotPICKAXE">곡괭이</div>
+            <div class="inventoryCell" id="lifeSlotKNIFE">채집칼</div>
         </div>
     </div>
 </div>
@@ -855,7 +831,27 @@
     </div>
 </div>
 
+<!-- 장착 아이템 선택 모달 -->
+<div id="equipItemModal" class="modal hidden">
+    <div class="equip-modal-content">
+        <h3 class="modal-title">장착할 아이템을 선택하세요</h3>
 
+        <!-- 아이템 목록 (3x2, 스크롤) -->
+        <div id="equipItemList" class="equip-item-list"></div>
+
+        <!-- 선택 효과 설명 -->
+        <div id="equipEffectDetail" class="equip-detail hidden">
+            <div id="equipItemName" class="equip-item-name">아이템 이름</div>
+            <p id="equipEffectText">아이템을 선택하면 효과가 표시됩니다.</p>
+        </div>
+
+        <!-- 버튼 -->
+        <div class="equip-modal-buttons">
+            <button class="modal-btn" onclick="closeEquipModal()">닫기</button>
+            <button class="modal-btn" onclick="equipSelectedItem()">장착하기</button>
+        </div>
+    </div>
+</div>
 
 <!-- 아이템 툴팁 -->
 <div id="itemTooltip" class="tooltip-modal hidden">
@@ -884,6 +880,7 @@
 <script src="js/exploration.js"></script>
 <script src="js/playerDexSelect.js"></script>
 <script src="js/gacha.js"></script>
+<script src="js/potion.js"></script>
 
 
 </body>

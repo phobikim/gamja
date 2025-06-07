@@ -1,5 +1,6 @@
 package com.phobi.gamja.controller;
 
+import com.phobi.gamja.dto.user.UserInventoryDto;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.service.CharService;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +41,16 @@ public class CharController {
         return ResponseEntity.ok(charService.getLifeInfo(request));
     }
 
+    @PostMapping("/get-equip-items")
+    public ResponseEntity<GamJaResponse> getEquipItems(HttpServletRequest request, @RequestBody Map<String, String> payload) {
+        return ResponseEntity.ok(charService.getEquipItems(request, payload));
+    }
+
+    @PostMapping("/set-equip-items")
+    public ResponseEntity<GamJaResponse> setEquipItems(HttpServletRequest request, @RequestBody Map<String, String> payload) {
+        List<UserInventoryDto> responseList = charService.setEquipItems(request, payload);
+        return ResponseEntity.ok(GamJaResponse.success("장착 완료", responseList));
+    }
     /*
     * desc : 보유한 캐릭터 조회
     * */

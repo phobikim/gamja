@@ -14,6 +14,68 @@ window.battleState = {
     monster: {}
 };
 
+const cardPool = [
+    {
+        name: "감자의 분노",
+        desc: "공격력 x2! 실패 시 자해",
+        mp: 3,
+        effect: () => {
+            // 추후 구현
+        }
+    },
+    {
+        name: "감자 던지기",
+        desc: "랜덤 효과 발동",
+        mp: 2,
+        effect: () => {}
+    },
+    {
+        name: "수분 회오리",
+        desc: "체력 회복. 실패 시 MP -3",
+        mp: 4,
+        effect: () => {}
+    },
+    {
+        name: "튀김 부메랑",
+        desc: "두 번 타격. 50% 확률",
+        mp: 3,
+        effect: () => {}
+    }
+];
+
+function drawBattleCards() {
+    const container = document.getElementById('battleCardOptions');
+    container.innerHTML = '';
+
+    const shuffled = [...cardPool].sort(() => 0.5 - Math.random()).slice(0, 2);
+
+    shuffled.forEach((card, index) => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'battle-card';
+        cardDiv.onclick = () => selectBattleCard(index);
+
+        cardDiv.innerHTML = `
+            <div class="card-title">🔥 ${card.name}</div>
+            <div class="card-desc">${card.desc}</div>
+            <div class="card-cost">MP ${card.mp}</div>
+        `;
+
+        container.appendChild(cardDiv);
+    });
+
+    // 저장해놓기
+    window.currentBattleCards = shuffled;
+}
+
+function selectBattleCard(index) {
+    const card = window.currentBattleCards[index];
+    if (!card) return;
+    playEffect("se_select");
+    console.log(`선택된 카드: ${card.name}`);
+    card.effect(); // 추후 구체 효과
+}
+
+
 window.startBattleFromMap = async function(map) {
     battleModal.classList.remove('hidden');
 
@@ -90,17 +152,12 @@ function initializeBattleScene(user, monster) {
         }
     }
 
-    document.querySelector('.user-name').textContent = user.dexName;
-    document.querySelector('.user-attribute').textContent = user.attribute;
-    document.querySelector('.user-power').textContent = user.power.total;
-    document.querySelector('.user-hp').textContent = user.hp.total;
-    document.querySelector('.user-speed').textContent = user.speed.total;
+    document.getElementById('playerNameLabel').textContent = user.dexName;
+    document.getElementById('playerAttrLabel').textContent = user.attribute;
 
-    document.querySelector('.monster-name').textContent = monster.name;
-    document.querySelector('.monster-rank').textContent = monster.rank;
-    document.querySelector('.monster-hp').textContent = monster.monsterHp;
-    document.querySelector('.monster-power').textContent = monster.monsterPower;
-    document.querySelector('.monster-xp').textContent = monster.monsterXp;
+    document.getElementById('monsterNameLabel').textContent = monster.name;
+    document.getElementById('monsterAttrLabel').textContent = monster.rank; // or 속성 이름이 있다면 그걸로!
+
 }
 
 function updateHpBar(current, max, barId, textId) {
@@ -143,7 +200,6 @@ function startBattle(user, monster) {
     resetBattleState(user, monster);
     updateBattleUI();
     updateButtonStates();
-    updateCardTurnStyles();
 
     // 🔥 HP 바 초기화
     updateHpBar(
@@ -163,31 +219,11 @@ function startBattle(user, monster) {
 function updateBattleUI() {
     const p = battleState.player;
     const m = battleState.monster;
-
-    document.querySelector('.user-hp').textContent = p.currentHp;
-    document.querySelector('.monster-hp').textContent = m.currentHp;
-
     // 🔥 HP 바도 갱신
     updateHpBar(p.currentHp, p.maxHp, "playerHpBar", "playerHpText");
     updateHpBar(m.currentHp, m.maxHp, "monsterHpBar", "monsterHpText");
 }
 
-function updateCardTurnStyles() {
-    const playerCard = document.querySelector('.user-stats');
-    const monsterCard = document.querySelector('.monster-stats');
-
-    playerCard.classList.remove('active-turn', 'inactive-turn');
-    monsterCard.classList.remove('active-turn', 'inactive-turn');
-
-    if (battleEnded) return;
-    if (isPlayerTurn) {
-        playerCard.classList.add('active-turn');
-        monsterCard.classList.add('inactive-turn');
-    } else {
-        monsterCard.classList.add('active-turn');
-        playerCard.classList.add('inactive-turn');
-    }
-}
 
 function updateButtonStates() {
     const attackBtn = document.getElementById('attackBtn');
@@ -195,7 +231,6 @@ function updateButtonStates() {
     const canAct = isPlayerTurn && !isProcessingTurn && !battleEnded;
     if (attackBtn) attackBtn.disabled = !canAct;
     if (healBtn) healBtn.disabled = !canAct;
-    updateCardTurnStyles();
 }
 
 function doAttack() {
@@ -507,35 +542,10 @@ function nextBattle() {
 }
 
 function doDefend() {
-    const player = document.querySelector(".player-container");
-    const effect = document.createElement("img");
-    effect.className = "heal-frame-effect";
-    effect.src = "https://phobi.me/gamja.img/images/effect/1.png"; // 초기 프레임
-    player.appendChild(effect);
-    const framePaths = [
-        "https://phobi.me/gamja.img/images/effect/1.png",
-        "https://phobi.me/gamja.img/images/effect/2.png",
-        "https://phobi.me/gamja.img/images/effect/3.png",
-        "https://phobi.me/gamja.img/images/effect/4.png"
-    ];
-    let index = 0;
-    const interval = setInterval(() => {
-        index++;
-        if (index >= framePaths.length) {
-            clearInterval(interval);
-            effect.remove();
-            return;
-        }
-        effect.src = framePaths[index];
-    }, 200);
+    console.log("물약 사용")
 }
 
 function doHeal() {
-    // ✅ 턴 검증
-    if (!isPlayerTurn || isProcessingTurn || battleEnded) {
-        return;
-    }
-
     showMessageModal("도망쳤습니다!");
     closeBattleModal();
 }

@@ -24,7 +24,12 @@
     font-weight: normal;
     font-style: normal;
 }
-
+@font-face {
+    font-family: '2P';
+    src: url('https://fonts.gstatic.com/s/pressstart2p/v12/e3t4euO8T-267oIAQAu6jDQyK1n1AvKHlp8.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
 :root {
     --char-bg-color : #c97a16;
     --char-border-color : #8b4513;

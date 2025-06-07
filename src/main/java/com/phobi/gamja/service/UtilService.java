@@ -63,13 +63,21 @@ public class UtilService {
                 .orElseThrow(() -> new RuntimeException("아이템이 존재하지 않습니다."));
 
         // 2. 장착 가능한 장비인지 확인
-        if (!item.getItemType().name().startsWith("EQUIP")) {
+        String itemTypeName = item.getItemType().name();
+        String slotTypeName = item.getEquipSlot().name();
+        if (!(itemTypeName.startsWith("EQUIP") || slotTypeName.equals("POTION"))) {
             throw new RuntimeException("장착할 수 없는 아이템입니다.");
         }
-
+        EquipmentType type;
+        EquipmentSlot slot;
         // 3. 타입, 슬롯 변환
-        EquipmentType type = EquipmentType.valueOf(item.getItemType().name());
-        EquipmentSlot slot = EquipmentSlot.valueOf(item.getEquipSlot().name());
+        if(slotTypeName.equals("POTION")) {
+            type = EquipmentType.EQUIP_BATTLE;
+            slot = EquipmentSlot.POTION;
+        } else {
+            type = EquipmentType.valueOf(item.getItemType().name());
+            slot = EquipmentSlot.valueOf(item.getEquipSlot().name());
+        }
 
         // 4. 기존 장착 제거 → 동일 (userId + slot + type)
         userEquipmentRepository.deleteByUserIdAndSlotAndType(userId, slot, type);

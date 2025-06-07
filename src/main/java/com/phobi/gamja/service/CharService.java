@@ -1,16 +1,20 @@
 package com.phobi.gamja.service;
 import com.phobi.gamja.dto.contents.DexOwnedDto;
 import com.phobi.gamja.dto.contents.DexOwnedListResponseDto;
-import com.phobi.gamja.dto.user.BattleStatDto;
-import com.phobi.gamja.dto.user.LifeStatDto;
-import com.phobi.gamja.dto.user.UserCharInfoDto;
+import com.phobi.gamja.dto.item.EquipItemDto;
+import com.phobi.gamja.dto.user.*;
 import com.phobi.gamja.entity.dex.Dex;
 import com.phobi.gamja.entity.dex.DexAttribute;
 import com.phobi.gamja.entity.dex.DexRarityStat;
+import com.phobi.gamja.entity.item.Item;
+import com.phobi.gamja.entity.item.ItemPotionEffect;
+import com.phobi.gamja.entity.item.ItemStatBonus;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.contents.DexRarityStatRepository;
 import com.phobi.gamja.repository.contents.DexRepository;
+import com.phobi.gamja.repository.item.ItemPotionEffectRepository;
+import com.phobi.gamja.repository.item.ItemRepository;
 import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
 import com.phobi.gamja.repository.item.ItemStatBonusRepository;
 import com.phobi.gamja.repository.user.*;
@@ -22,10 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 public class CharService {
 
     private final CommonUtil commonUtil;
+    private final UtilService utilService;
     private final StatCalculator statCalculator;
 
     private final UserDtlRepository userDtlRepository;
@@ -46,6 +48,8 @@ public class CharService {
     private final UserEquipmentRepository userEquipmentRepository;
     private final ItemStatBonusRepository itemStatBonusRepository;
     private final ItemSkillBonusRepository itemSkillBonusRepository;
+    private final ItemPotionEffectRepository itemPotionEffectRepository;
+    private final ItemRepository itemRepository;
 
     @Transactional(readOnly = true)
     public GamJaResponse getUserInfo(HttpServletRequest request) {
@@ -83,6 +87,81 @@ public class CharService {
         Long userId = (Long) request.getAttribute("userId");
         LifeStatDto result = statCalculator.calculateLifeSkill(userId);
         return GamJaResponse.success("정상 조회", result);
+    }
+
+    @Transactional(readOnly = true)
+    public GamJaResponse getEquipItems(HttpServletRequest request, Map<String, String> payload) {
+        Long userId = (Long) request.getAttribute("userId");
+
+        // 1. 요청 파라미터 파싱
+        String itemTypeStr = payload.get("itemType");
+        String equipSlotStr = payload.get("equipSlot");
+
+        if (itemTypeStr == null || equipSlotStr == null) {
+            return GamJaResponse.fail("itemType 또는 equipSlot 누락");
+        }
+
+        Item.ItemType itemType;
+        Item.EquipmentSlot equipSlot;
+
+        try {
+            itemType = Item.ItemType.valueOf(itemTypeStr);
+            equipSlot = Item.EquipmentSlot.valueOf(equipSlotStr);
+        } catch (IllegalArgumentException e) {
+            return GamJaResponse.fail("itemType 또는 equipSlot 값이 잘못되었습니다.");
+        }
+
+        // 2. 유저 인벤토리 조회
+        List<UserInventory> inventoryList = userInventoryRepository.findByUserId(userId);
+        List<Long> itemIds = inventoryList.stream()
+                .map(UserInventory::getItemId)
+                .toList();
+
+        // 3. 해당 조건(itemType + equipSlot)에 맞는 아이템만 필터링
+        List<Item> filteredItems;
+        if (equipSlot == Item.EquipmentSlot.POTION) {
+            filteredItems = itemRepository.findByIdInAndEquipSlot(itemIds, equipSlot);
+        } else {
+            filteredItems = itemRepository.findByIdInAndItemTypeAndEquipSlot(itemIds, itemType, equipSlot);
+        }
+        Map<Long, Item> itemMap = filteredItems.stream()
+                .collect(Collectors.toMap(Item::getId, item -> item));
+
+        // 4. 스탯 보너스 정보 로딩
+        List<ItemStatBonus> statBonusList = itemStatBonusRepository.findByItemIdIn(itemMap.keySet());
+        Map<Long, ItemStatBonus> statMap = statBonusList.stream()
+                .collect(Collectors.toMap(ItemStatBonus::getItemId, b -> b));
+
+        // 5. 최종 DTO 조합
+        List<EquipItemDto> result = inventoryList.stream()
+                .filter(inv -> itemMap.containsKey(inv.getItemId()) && inv.getQuantity() > 0)
+                .map(inv -> {
+                    Item item = itemMap.get(inv.getItemId());
+                    ItemStatBonus stat = statMap.getOrDefault(inv.getItemId(), new ItemStatBonus());
+
+                    return EquipItemDto.builder()
+                            .itemId(item.getId())
+                            .itemName(item.getName())
+                            .itemPath(item.getIconPath())
+                            .description(item.getDescription())
+                            .bonusPower(stat.getBonusPower())
+                            .bonusHp(stat.getBonusHp())
+                            .bonusSpeed(stat.getBonusSpeed())
+                            .quantity(inv.getQuantity())
+                            .build();
+                })
+                .toList();
+
+        return GamJaResponse.success("정상 조회", result);
+    }
+
+
+    @Transactional
+    public List<UserInventoryDto> setEquipItems(HttpServletRequest request, Map<String, String> payload) {
+        Long userId = (Long) request.getAttribute("userId");
+        Long itemId = Long.valueOf(payload.get("itemId"));
+
+        return utilService.equipItem(userId,itemId);
     }
 
     @Transactional
