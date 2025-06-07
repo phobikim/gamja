@@ -1,10 +1,11 @@
 package com.phobi.gamja.controller;
 
 
+import com.phobi.gamja.entity.dex.DexRarityStat;
 import com.phobi.gamja.entity.user.UserDex;
 import com.phobi.gamja.entity.user.UserDexStat;
 import com.phobi.gamja.message.GamJaResponse;
-import com.phobi.gamja.entity.contents.Dex;
+import com.phobi.gamja.entity.dex.Dex;
 import com.phobi.gamja.repository.contents.DexRepository;
 import com.phobi.gamja.repository.contents.MonsterRepository;
 import com.phobi.gamja.repository.item.ItemRepository;
@@ -57,7 +58,11 @@ public class DexController {
                     m.put("attribute", dex.getAttribute());
                     m.put("owned", isOwned);
                     m.put("imagePath", dex.getImage());
-                    m.put("rarity", dex.getRarity());
+
+                    DexRarityStat rarityStat = dex.getRarity();
+                    m.put("rarity", rarityStat.getRarity().name());
+                    m.put("rarityLabel", rarityStat.getBonusDescription());
+
                     if (isOwned) {
                         m.put("affinity", affinityMap.getOrDefault(dexId, 0));
                     }

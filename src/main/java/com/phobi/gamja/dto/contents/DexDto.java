@@ -16,7 +16,6 @@ public class DexDto {
     private String image;
     private String rarity;
     private String acquireCondition;
-    private int acquiredCount;
 
     private boolean owned;
     private String acquiredAt;

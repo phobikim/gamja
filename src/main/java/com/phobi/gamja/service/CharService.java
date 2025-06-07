@@ -4,8 +4,8 @@ import com.phobi.gamja.dto.contents.DexOwnedListResponseDto;
 import com.phobi.gamja.dto.user.BattleStatDto;
 import com.phobi.gamja.dto.user.LifeStatDto;
 import com.phobi.gamja.dto.user.UserCharInfoDto;
-import com.phobi.gamja.entity.contents.Dex;
-import com.phobi.gamja.entity.item.Item;
+import com.phobi.gamja.entity.dex.Dex;
+import com.phobi.gamja.entity.dex.DexRarityStat;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.contents.DexRepository;
@@ -138,7 +138,7 @@ public class CharService {
         userInventoryRepository.save(unappraised);
 
         // 2. 확률 추첨
-        Dex.DexRarity selectedRarity = Dex.rollRarity();
+        DexRarityStat.Rarity selectedRarity = DexRarityStat.Rarity.roll();
         List<Dex> candidates = dexRepository.findByRarity(selectedRarity);
         if (candidates.isEmpty()) {
             return GamJaResponse.fail("해당 등급의 감자가 없습니다.");
@@ -225,24 +225,24 @@ public class CharService {
 
         // 3. 각각의 캐릭터에 대해 DTO 생성
         List<DexOwnedDto> ownedDexList = userDexList.stream().map(userDex -> {
-            Dex dex = userDex.getDex();
-            UserDexStat stat = userDexStatRepository
-                    .findByUserIdAndDexId(userId, dex.getId())
-                    .orElse(null);
+                    Dex dex = userDex.getDex();
+                    UserDexStat stat = userDexStatRepository
+                            .findByUserIdAndDexId(userId, dex.getId())
+                            .orElse(null);
 
-            return DexOwnedDto.builder()
-                    .dexId(dex.getId())
-                    .dexImage(dex.getImage())
-                    .dexName(dex.getName())
-                    .attribute(dex.getAttribute())
-                    .rarity(dex.getRarity())
-                    .level(stat != null ? stat.getLevel() : 1)
-                    .xp(stat != null ? stat.getXp() : 0)
-                    .maxExp(stat != null ? stat.getMaxExp() : 100)
-                    .affinity(stat != null ? stat.getAffinity() : 0)
-                    .selected(dex.getId().equals(selectedDexId))
-                    .build();
-        }).sorted((a, b) -> Boolean.compare(!a.isSelected(), !b.isSelected()))
+                    return DexOwnedDto.builder()
+                            .dexId(dex.getId())
+                            .dexImage(dex.getImage())
+                            .dexName(dex.getName())
+                            .attribute(dex.getAttribute())
+                            .rarity(dex.getRarity().getRarity().name())
+                            .level(stat != null ? stat.getLevel() : 1)
+                            .xp(stat != null ? stat.getXp() : 0)
+                            .maxExp(stat != null ? stat.getMaxExp() : 100)
+                            .affinity(stat != null ? stat.getAffinity() : 0)
+                            .selected(dex.getId().equals(selectedDexId))
+                            .build();
+                }).sorted((a, b) -> Boolean.compare(!a.isSelected(), !b.isSelected()))
                 .collect(Collectors.toList());
 
         // 전체 감자 도감 수

@@ -1,6 +1,7 @@
 package com.phobi.gamja.util;
 
 import com.phobi.gamja.dto.item.EquipmentType;
+import com.phobi.gamja.entity.dex.DexRarityStat;
 import com.phobi.gamja.entity.item.ItemSkillBonus;
 import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.phobi.gamja.dto.item.ItemDto;
 import com.phobi.gamja.dto.user.*;
-import com.phobi.gamja.entity.contents.Dex;
+import com.phobi.gamja.entity.dex.Dex;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.item.ItemStatBonus;
 import com.phobi.gamja.entity.user.*;
@@ -46,10 +47,11 @@ public class StatCalculator {
         // 3. 랭크 별 기본 스탯 (랭크 별로 차이가 있음)
         Dex dex = dexRepository.findById(equippedDexId).orElse(null);
         int baseDexHp = 0, baseDexPower = 0, baseDexSpeed = 0;
-        if (dex != null) {
-            baseDexHp = dex.getDexHp();
-            baseDexPower = dex.getDexPower();
-            baseDexSpeed = dex.getDexSpeed();
+        if (dex != null && dex.getRarity() != null) {
+            DexRarityStat rarityStat = dex.getRarity(); // 이미 연관관계로 연결됨
+            baseDexHp = rarityStat.getBaseHp();
+            baseDexPower = rarityStat.getBasePower();
+            baseDexSpeed = rarityStat.getBaseSpeed();
         }
         // 장비 스탯
         List<UserEquipment> battleEquipments = userEquipmentRepository.findByUserIdAndType(userId, EquipmentType.EQUIP_BATTLE);

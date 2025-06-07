@@ -36,7 +36,7 @@
     min-height: 0;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: minmax(120px, auto); /* 카드 최소 높이 보장 */
+    /*grid-auto-rows: minmax(120px, auto); !* 카드 최소 높이 보장 *!*/
     gap: 1rem;
     width: 100%;
     justify-items: center;

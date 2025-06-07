@@ -1,6 +1,6 @@
 package com.phobi.gamja.entity.user;
 
-import com.phobi.gamja.entity.contents.Dex;
+import com.phobi.gamja.entity.dex.Dex;
 import lombok.*;
 
 import javax.persistence.*;
