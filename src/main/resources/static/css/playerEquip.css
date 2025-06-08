@@ -22,7 +22,7 @@
     box-shadow: 0 0 10px rgba(0,0,0,0.4);
 }
 
-.potion-item {
+.equip-item {
     width: 60px;
     height: 60px;
     background-size: cover;
@@ -33,13 +33,19 @@
     position: relative;
 }
 
+.equip-item.selected {
+    outline: 3px solid #fa6719;
+    outline-offset: -3px;
+    box-shadow: 0 0 8px #fa6719;
+}
+
 #equipEffectText {
     font-weight: bold;
     font-size: 1rem;
     color: var(--char-border-color);
 }
 
-.potion-quantity {
+.equip-quantity {
     position: absolute;
     bottom: 2px;
     right: 4px;

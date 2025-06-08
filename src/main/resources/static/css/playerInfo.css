@@ -156,10 +156,11 @@
 .stat-bar-fill {
     height: 100%;
     float: left;
+    background-color: var(--orange-color);
 }
-.stat-bar-fill.base   { background-color: #e6c384; } /* base stat: 부드러운 모래빛 */
-.stat-bar-fill.user   { background-color: #f7a072; } /* dex stat: 살구빛 */
-.stat-bar-fill.equip  { background-color: #b3d89c; } /* equip stat: 연한 그린 */
+/*.stat-bar-fill.base   { background-color: #e6c384; } !* base stat: 부드러운 모래빛 *!*/
+/*.stat-bar-fill.user   { background-color: #f7a072; } !* dex stat: 살구빛 *!*/
+/*.stat-bar-fill.equip  { background-color: #b3d89c; } !* equip stat: 연한 그린 *!*/
 
 .stat-bar-value {
     text-align: right;

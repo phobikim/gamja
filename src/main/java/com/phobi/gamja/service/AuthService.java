@@ -94,9 +94,9 @@ public class AuthService {
                         .level(1)
                         .xp(0)
                         .maxExp(100)
-                        .power(1)
-                        .hp(1)
-                        .speed(1)
+                        .power(0)
+                        .hp(0)
+                        .speed(0)
                         .build())
                 .toList();
         userDexStatRepository.saveAll(dexStats);

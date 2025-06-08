@@ -23,8 +23,8 @@ function updateStatValue(statId, detail, max = 100) {
     valueSpan.textContent = total;
 
     // 색상 순서: base → dex → equip
-    const basePercent = (detail.fromBase / max) * 100;
     const dexPercent = (detail.fromUser / max) * 100;
+    const basePercent = (detail.fromBase / max) * 100;
     const equipPercent = (detail.fromEquip / max) * 100;
 
     barBg.innerHTML = `
@@ -83,7 +83,6 @@ function loadCharacterBattleInfo() {
 
 // ✅ 전투 정보 DOM 세팅
 function setCharacterBattleInfo(data) {
-
     updateStatValue('combatAtk', data.power);
     updateStatValue('combatHp', data.hp);
     updateStatValue('combatSpeed', data.speed);
@@ -125,22 +124,18 @@ function loadCharacterLifeInfo() {
 // ✅ 생활 정보 DOM 세팅
 function setCharacterLifeInfo(data) {
     // 스탯 설정
-    updateStatValue('lifeSlotFISHING_ROD', data.fishing);
-    updateStatValue('lifeSlotAXE', data.woodcutting);
-    updateStatValue('lifeSlotKNIFE', data.gathering);
-    updateStatValue('lifeSlotPICKAXE', data.mining);
+    updateStatValue('lifeFishing', data.fishing);
+    updateStatValue('lifeWoodcutting', data.woodcutting);
+    updateStatValue('lifeGathering', data.gathering);
+    updateStatValue('lifeMining', data.mining);
     // updateStatValue('lifeMaking', data.making);
 
     // 슬롯 설정
     const slotMap = {
-        FISHING_ROD: 'lifeSlotFishingRod',
-        AXE: 'lifeSlotAxe',
-        PICKAXE: 'lifeSlotPickaxe',
-        KNIFE: 'lifeSlotKnife'
-        // RING: 'lifeSlotRing',
-        // NECKLACE: 'lifeSlotNecklace',
-        // BRACELET: 'lifeSlotBracelet',
-        // BELT: 'lifeSlotBelt'
+        FISHING_ROD: 'lifeSlotFISHING_ROD',
+        AXE: 'lifeSlotAXE',
+        PICKAXE: 'lifeSlotPICKAXE',
+        KNIFE: 'lifeSlotKNIFE'
     }
     data.equippedItems.forEach(item => {
         const slotId = slotMap[item.equipSlot];
@@ -180,12 +175,6 @@ lifeTabBtn.addEventListener('click', () => {
 
     combatStats.classList.add('hidden');
     combatEquipment.classList.add('hidden');
-});
-
-
-characterModal.addEventListener('click', (e) => {
-    const inside = e.target.closest('.character-modal-content');
-    if (!inside) characterModal.classList.add('hidden');
 });
 
 

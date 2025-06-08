@@ -6,6 +6,7 @@ const equipItemName = document.getElementById('equipItemName');
 let selectedEquipItem = null;
 let currentEquipSlot = null;
 let currentItemType = null;
+let currentItemList = [];
 
 // 슬롯 클릭 이벤트 공통 연결
 document.querySelectorAll('#combatEquipment .inventoryCell, #lifeEquipment .inventoryCell').forEach(slot => {
@@ -49,19 +50,41 @@ function closeEquipModal() {
 }
 function renderEquipItemList(itemList) {
     equipItemList.innerHTML = '';
+    currentItemList = itemList;
 
-    itemList.forEach(item => {
+    if (itemList.length === 0) {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.textContent = '아이템이 없습니다';
+        emptyMsg.style.gridColumn = '1 / -1'; // 🔥 그리드 전체 너비 차지
+        emptyMsg.style.textAlign = 'center';
+        emptyMsg.style.padding = '16px';
+        emptyMsg.style.color = 'var(--dark-brown-font-color)';
+        emptyMsg.style.fontWeight = 'bold';
+        emptyMsg.style.fontSize = '0.9rem';
+        equipItemList.appendChild(emptyMsg);
+        equipEffectDetail.classList.add('hidden');
+        return;
+    }
+
+    itemList.forEach((item, index) => {
         const div = document.createElement('div');
-        div.className = 'potion-item';
+        div.className = 'equip-item';
         div.style.backgroundImage = `url(${basePath}${item.itemPath})`;
 
-        const qtyLabel = document.createElement('div');
-        qtyLabel.className = 'potion-quantity';
-        qtyLabel.textContent = `x${item.quantity}`;
-        div.appendChild(qtyLabel);
+        if (item.quantity) {
+            const qtyLabel = document.createElement('div');
+            qtyLabel.className = 'equip-quantity';
+            qtyLabel.textContent = `x${item.quantity}`;
+            div.appendChild(qtyLabel);
+        }
 
         div.onclick = () => showEquipEffect(item);
         equipItemList.appendChild(div);
+
+        // ✅ 첫 번째 아이템 자동 선택
+        if (index === 0) {
+            showEquipEffect(item);
+        }
     });
 }
 
@@ -71,15 +94,27 @@ function showEquipEffect(item) {
     equipEffectDetail.classList.remove('hidden');
     equipItemName.textContent = item.itemName;
 
+    // 선택된 아이템 강조
+    document.querySelectorAll('.equip-item').forEach(el => el.classList.remove('selected'));
+    const allItems = Array.from(document.querySelectorAll('.equip-item'));
+    const index = currentItemList.findIndex(i => i.itemId === item.itemId);
+    if (index >= 0) {
+        allItems[index].classList.add('selected');
+    }
+
     const effects = [];
     if (item.bonusPower) effects.push(`🗡️ 공격력 +${item.bonusPower}`);
     if (item.bonusHp) effects.push(`🩸 체력 +${item.bonusHp}`);
     if (item.bonusSpeed) effects.push(`⚡ 민첩 +${item.bonusSpeed}`);
+    if (item.durationTurns) effects.push(`지속 턴수 +${item.durationTurns}`);
+    if (item.bonusSkillFish) effects.push(`낚시 스킬 +${item.bonusSkillFish}`);
+    if (item.bonusSkillMining) effects.push(`채광 스킬 +${item.bonusSkillMining}`);
+    if (item.bonusSkillWoodCutting) effects.push(`벌목 스킬 +${item.bonusSkillWoodCutting}`);
+    if (item.bonusSkillGathering) effects.push(`채집 스킬 +${item.bonusSkillGathering}`);
     if (effects.length === 0) effects.push("효과 없음");
 
     equipEffectText.textContent = effects.join(' / ');
 }
-
 
 async function equipSelectedItem() {
     if (!selectedEquipItem || !currentEquipSlot) {

@@ -14,16 +14,82 @@
 
 .action-exploration-modal-content {
     background: var(--dark-1-color);
-    border-radius: 16px;
+    /*border-radius: 16px;*/
     padding: 1.5rem;
     max-width: 500px;
-    width: 90%;
+    width: 100%;
+    height: 100%;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 위아래 분리 */
+    gap: 1.5rem;
     position: relative;
 }
 
+.exploration-body-wrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+#log {
+    background: var(--dark-2-color);
+    color: white;
+    border-radius: 12px;
+    padding: 1rem;
+    height: 150px; /* 👈 고정 높이 */
+    overflow-y: auto;
+    font-size: 0.95rem;
+}
+
+#exploration-status {
+    background-color: var(--dark-2-color);
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    font-weight: bold;
+    color: #fff8dc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    /* ✨ 아래만 그림자 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+
+/* 공통 로그 박스 */
+.exploration-log-entry {
+    padding: 6px 12px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 자원 획득 */
+.log-resource {
+    background-color: rgba(255, 215, 0, 0.1); /* 연한 금색 */
+    color: #ffd700;
+}
+
+/* 트랩 피해 */
+.log-trap {
+    background-color: rgba(255, 0, 0, 0.1); /* 연한 빨강 */
+    color: #ff5b5b;
+}
+
+/* 일반 이벤트 */
+.log-event {
+    background-color: rgba(135, 206, 250, 0.1); /* 연한 파랑 */
+    color: #80d0ff;
+}
+
 .exploration-card {
-    background: var(--dark-3-color);
+    background: linear-gradient(145deg, #3e4059, #2c2f42); /* 🔥 깊이감 있는 배경 */
+    border: 2px solid transparent;
     border-radius: 12px;
     color: #fff;
     padding: 1.2rem 1rem;
@@ -31,8 +97,18 @@
     text-align: center;
     cursor: pointer;
     flex: 1;
-    transition: transform 0.2s ease, background 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    position: relative;
+}
+@keyframes blink {
+    0%   { opacity: 1; }
+    50%  { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+.blinking-text {
+    animation: blink 1s infinite;
 }
 
 .exploration-card.click-animate {

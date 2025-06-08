@@ -13,4 +13,5 @@ public class UserSkillDto {
     private int level;
     private int xp;
     private int maxExp;
+    private int maxCombo;
 }

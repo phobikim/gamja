@@ -16,6 +16,9 @@ public class DexOwnedDto {
     private int xp;
     private int maxExp;
     private int affinity;
+    private int power;
+    private int hp;
+    private int speed;
     private String attribute;           // 속성 이름
     private String attributeIconPath;   // 속성 아이콘 경로
 

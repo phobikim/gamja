@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="css/exploration.css">
     <link rel="stylesheet" href="css/playerDexSelect.css">
     <link rel="stylesheet" href="css/gacha.css">
-    <link rel="stylesheet" href="css/potion.css">
+    <link rel="stylesheet" href="css/playerEquip.css">
 </head>
 
 <body class="char-page">
@@ -123,93 +123,98 @@
 <!-- 공통 장소 선택 모달 -->
 <div id="spotSelectModal" class="modal hidden">
     <div class="map-select-modal-content">
-        <!-- 🔹 액션 스팟 썸네일 리스트 -->
-        <div id="spotListScroll" class="map-list-horizontal">
-            <!-- JS로 .map-card 썸네일이 여기에 들어감 -->
-        </div>
-
-        <!-- 🔸 상세 정보 패널 -->
-        <div id="spotDetailPanel" class="map-detail-box">
-            <div class="map-name" id="spotSelectName">장소 이름</div>
-            <div class="map-meta">
-                <span class="map-desc" id="spotSelectDescription">장소 설명</span>
-            </div>
-            <!-- 🔸 맵 정보 박스 -->
-            <div class="map-info-row">
-                <div class="map-info-card">
-                    <div class="section-title">필요 레벨</div>
-                    <div id="spotRequiredLevel">1</div>
-                </div>
-
-                <div class="map-info-card combo-record-card">
-                    <div class="section-title">MAX COMBO</div>
-                    <div id="spotComboRecord" class="combo-record-value">[100]</div>
-                </div>
+        <div class="map-content-wrapper">
+            <!-- 🔹 액션 스팟 썸네일 리스트 -->
+            <div id="spotListScroll" class="map-list-horizontal">
+                <!-- JS로 .map-card 썸네일이 여기에 들어감 -->
             </div>
 
-            <!-- 🔸 유저 스킬 정보 박스 -->
-            <div id="userSkillBox" class="map-info-card skill-info-box">
-                <div class="section-title">내 스킬 정보</div>
-                <div class="user-skill-level" id="userSkillLevel">Lv.1</div>
-                <div class="skill-exp-bar">
-                    <div class="skill-exp-fill" id="userSkillExpFill" style="width: 0%;"></div>
-                    <div class="skill-exp-text" id="userSkillExpText">0 / 0 EXP</div>
+            <!-- 🔸 상세 정보 패널 -->
+            <div id="spotDetailPanel" class="map-detail-box">
+                <div class="map-name" id="spotSelectName">장소 이름</div>
+                <div class="map-meta">
+                    <span class="map-desc" id="spotSelectDescription">장소 설명</span>
                 </div>
-            </div>
+                <!-- 🔸 맵 정보 박스 -->
+                <div class="map-info-row">
+                    <div class="map-info-card">
+                        <div class="section-title">필요 레벨</div>
+                        <div id="spotRequiredLevel">1</div>
+                    </div>
 
-            <button id="startActionBtn" class="start-battle-button">⛏ 활동 시작</button>
-            <button id="closeActionBtn" class="start-battle-button">❌ 닫기</button>
+                    <div class="map-info-card combo-record-card">
+                        <div class="section-title">MAX STAGE</div>
+                        <div id="spotComboRecord" class="combo-record-value">[100]</div>
+                    </div>
+                </div>
+
+                <!-- 🔸 유저 스킬 정보 박스 -->
+                <div id="userSkillBox" class="map-info-card skill-info-box">
+                    <div class="section-title">내 스킬 정보</div>
+                    <div class="user-skill-level" id="userSkillLevel">Lv.1</div>
+                    <div class="skill-exp-bar">
+                        <div class="skill-exp-fill" id="userSkillExpFill" style="width: 0%;"></div>
+                        <div class="skill-exp-text" id="userSkillExpText">0 / 0 EXP</div>
+                    </div>
+                </div>
+
+                <button id="startActionBtn" class="start-battle-button">⛏ 활동 시작</button>
+                <button id="closeActionBtn" class="start-battle-button">❌ 닫기</button>
+            </div>
         </div>
     </div>
 </div>
 
-<div id="activityModal" class="modal hidden">
-    <div class="action-modal-content" id="activityModalContent">
-        <div class="action-card-frame">
-            <!-- 장소 이름: 상단 -->
-            <div class="activity-location-name" id="activityLocationName">Mystic Pond</div>
-            <!-- 이미지 -->
-            <div class="action-image-wrapper">
-                <img id="activityImage" class="action-image" src="" alt="" onclick="handleActivityClick()">
-                <div class="activity-click-tooltip">Click to gather!</div>
-            </div>
-        </div>
-        <!-- 🔥 콤보 표시 영역 -->
-        <div class="action-combo-area">
-            <div id="maxComboDisplay" class="max-combo-fixed">MAX: 0</div>
-            <div id="comboDisplay" class="combo-display hidden"></div>
-        </div>
-        <!-- 하단: 획득한 아이템 + 완료 버튼 -->
-        <div class="action-info-section">
-            <div class="item-gain-info">
-                <div class="item-gain-title">Acquired Items</div>
-                <div class="item-gain-list" id="gainedItems"></div>
-            </div>
-            <button class="action-complete-btn" onclick="completeActivity()">Complete</button>
-        </div>
-    </div>
-</div>
+<!--<div id="activityModal" class="modal hidden">-->
+<!--    <div class="action-modal-content" id="activityModalContent">-->
+<!--        <div class="action-card-frame">-->
+<!--            &lt;!&ndash; 장소 이름: 상단 &ndash;&gt;-->
+<!--            <div class="activity-location-name" id="activityLocationName">Mystic Pond</div>-->
+<!--            &lt;!&ndash; 이미지 &ndash;&gt;-->
+<!--            <div class="action-image-wrapper">-->
+<!--                <img id="activityImage" class="action-image" src="" alt="" onclick="handleActivityClick()">-->
+<!--                <div class="activity-click-tooltip">Click to gather!</div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; 🔥 콤보 표시 영역 &ndash;&gt;-->
+<!--        <div class="action-combo-area">-->
+<!--            <div id="maxComboDisplay" class="max-combo-fixed">MAX: 0</div>-->
+<!--            <div id="comboDisplay" class="combo-display hidden"></div>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; 하단: 획득한 아이템 + 완료 버튼 &ndash;&gt;-->
+<!--        <div class="action-info-section">-->
+<!--            <div class="item-gain-info">-->
+<!--                <div class="item-gain-title">Acquired Items</div>-->
+<!--                <div class="item-gain-list" id="gainedItems"></div>-->
+<!--            </div>-->
+<!--            <button class="action-complete-btn" onclick="completeActivity()">Complete</button>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
 
 <!-- 텍스트 기반 로그라이크 (채광) -->
 <div id="explorationModal" class="modal hidden">
     <div class="action-exploration-modal-content">
+        <div class="exploration-body-wrapper">
         <!-- 상단: 상태 표시 -->
-        <div id="exploration-status" style="display: flex; justify-content: space-between; font-weight: bold; color: #fff; margin-bottom: 1rem;">
-            <span>❤️ HP: <span id="hp">3</span></span>
-            <span>📍 STAGE: <span id="stage">1</span> / 10</span>
+            <div id="exploration-status">
+                <span>❤️ HP: <span id="hp">3</span></span>
+                <span>📍 STAGE: <span id="stage">1</span>
+            </div>
+
+            <!-- 카드 선택 -->
+            <div id="choices" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.5rem;">
+                <div class="exploration-card" onclick="choosePath('left')" id="leftCard">
+                </div>
+                <div class="exploration-card" onclick="choosePath('right')" id="rightCard">
+                </div>
+            </div>
+
+            <!-- 로그 출력 -->
+            <div id="log"></div>
+            <button id="closeBtn" onclick="closeExploration()" class="start-battle-button fixed-footer" >❌ 탐사 종료</button>
         </div>
-
-        <!-- 카드 선택 -->
-        <div id="choices" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.5rem;">
-            <div class="exploration-card" onclick="choosePath('left')" id="leftCard"></div>
-            <div class="exploration-card" onclick="choosePath('right')" id="rightCard"></div>
-        </div>
-
-        <!-- 로그 출력 -->
-        <div id="log" style="background:var(--dark-2-color); color: white; border-radius: 12px; padding: 1rem; max-height: 150px; overflow-y: auto; font-size: 0.95rem;"></div>
-
         <!-- 닫기 버튼 -->
-        <button id="closeBtn" onclick="closeExploration()" class="start-battle-button" style="margin-top: 1.5rem; width: 100%;">❌ 탐사 종료</button>
     </div>
 </div>
 
@@ -448,31 +453,33 @@
 <div id="battleMapSelectModal" class="modal hidden">
     <div class="map-select-modal-content">
 
-        <!-- 🔹 가로 스크롤 맵 리스트 영역 -->
-        <div id="mapListScroll" class="map-list-horizontal">
-            <!-- JS로 .map-card 썸네일이 여기에 들어감 -->
-        </div>
-
-        <!-- 🔸 상세 정보 패널 -->
-        <div id="mapDetailPanel" class="map-detail-box">
-            <div class="map-name" id="battleSelectMapName">들판</div>
-            <div class="map-meta">
-                <span class="map-level" id="battleSelectMapLevel">Level 1</span> ·
-                <span class="map-desc" id="battleSelectMapDesc">설명</span>
+        <div class="map-select-body-wrapper">
+            <!-- 🔹 가로 스크롤 맵 리스트 영역 -->
+            <div id="mapListScroll" class="map-list-horizontal">
+                <!-- JS로 .map-card 썸네일이 여기에 들어감 -->
             </div>
 
-            <div class="map-info-card">
-                <div class="section-title">ENEMIES</div>
-                <div class="map-monsters" id="mapMonsters"></div>
-            </div>
+            <!-- 🔸 상세 정보 패널 -->
+            <div id="mapDetailPanel" class="map-detail-box">
+                <div class="map-name" id="battleSelectMapName">들판</div>
+                <div class="map-meta">
+                    <span class="map-level" id="battleSelectMapLevel">Level 1</span> ·
+                    <span class="map-desc" id="battleSelectMapDesc">설명</span>
+                </div>
 
-            <div class="map-info-card">
-                <div class="section-title">REWARD</div>
-                <div class="map-rewards" id="mapRewards"></div>
-            </div>
+                <div class="map-info-card">
+                    <div class="section-title">ENEMIES</div>
+                    <div class="map-monsters" id="mapMonsters"></div>
+                </div>
 
-            <button id="startBattleBtn" class="start-battle-button">🔥 PLAY</button>
-            <button id="closeBattleBtn" class="start-battle-button">❌ 닫기</button>
+                <div class="map-info-card">
+                    <div class="section-title">REWARD</div>
+                    <div class="map-rewards" id="mapRewards"></div>
+                </div>
+
+                <button id="startBattleBtn" class="start-battle-button">🔥 PLAY</button>
+                <button id="closeBattleBtn" class="start-battle-button">❌ 닫기</button>
+            </div>
         </div>
 
     </div>
@@ -695,7 +702,9 @@
                             <div class="stat-label">낚시</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
-                                    <div class="stat-bar-fill"></div>
+                                    <div class="stat-bar-fill base"></div>
+                                    <div class="stat-bar-fill user"></div>
+                                    <div class="stat-bar-fill equip"></div>
                                 </div>
                                 <span class="stat-bar-value"></span>
                             </div>
@@ -707,7 +716,9 @@
                             <div class="stat-label">벌목</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
-                                    <div class="stat-bar-fill"></div>
+                                    <div class="stat-bar-fill base"></div>
+                                    <div class="stat-bar-fill user"></div>
+                                    <div class="stat-bar-fill equip"></div>
                                 </div>
                                 <span class="stat-bar-value"></span>
                             </div>
@@ -719,7 +730,9 @@
                             <div class="stat-label">채집</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
-                                    <div class="stat-bar-fill"></div>
+                                    <div class="stat-bar-fill base"></div>
+                                    <div class="stat-bar-fill user"></div>
+                                    <div class="stat-bar-fill equip"></div>
                                 </div>
                                 <span class="stat-bar-value"></span>
                             </div>
@@ -731,7 +744,9 @@
                             <div class="stat-label">채광</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
-                                    <div class="stat-bar-fill"></div>
+                                    <div class="stat-bar-fill base"></div>
+                                    <div class="stat-bar-fill user"></div>
+                                    <div class="stat-bar-fill equip"></div>
                                 </div>
                                 <span class="stat-bar-value"></span>
                             </div>
@@ -777,6 +792,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- 캐릭터 카드 리스트 -->
 <template id="characterCardTemplate">
@@ -880,8 +896,20 @@
 <script src="js/exploration.js"></script>
 <script src="js/playerDexSelect.js"></script>
 <script src="js/gacha.js"></script>
-<script src="js/potion.js"></script>
+<script src="js/playerEquip.js"></script>
 
+
+<script>
+    // 두 번 연속 클릭 방지
+    let lastTouchTime = 0;
+    document.addEventListener('touchstart', function (e) {
+        const now = Date.now();
+        if (now - lastTouchTime <= 400) {
+            e.preventDefault(); // 더블탭 방지
+        }
+        lastTouchTime = now;
+    }, { passive: false });
+</script>
 
 </body>
 </html>

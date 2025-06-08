@@ -12,22 +12,6 @@ let lastTap = 0;
 let lastTouchX = 0;
 let lastTouchY = 0;
 
-document.getElementById('activityModal').addEventListener('touchend', function (e) {
-    const now = Date.now();
-    const x = e.changedTouches[0].clientX;
-    const y = e.changedTouches[0].clientY;
-
-    const timeDiff = now - lastTap;
-    const distance = Math.hypot(x - lastTouchX, y - lastTouchY);
-
-    if (timeDiff < 300 && distance < 20) {
-        e.preventDefault(); // 👉 더블탭 + 동일 위치일 때만 확대 방지
-    }
-
-    lastTap = now;
-    lastTouchX = x;
-    lastTouchY = y;
-}, { passive: false });
 
 async function actionGather(activityType) {
     playEffect("se_click2");

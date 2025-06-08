@@ -1,7 +1,7 @@
 // 🌟 전역 상태
 let hp = 3;
 let stage = 1;
-const maxStage = 10;
+
 let cardEventPool = [];      // 서버에서 불러온 카드 이벤트
 let gainedItems = [];        // 누적 보상 아이템
 let totalExp = 0;            // 누적 경험치
@@ -18,9 +18,11 @@ async function openExploration(activityType, rank) {
     document.getElementById('stage').textContent = stage;
     document.getElementById('log').innerHTML = '';
     const logStart = document.createElement('div');
-    logStart.textContent = '🃏 카드를 선택하세요!';
-    logStart.style.color = '#aaa';
+    logStart.textContent = '카드를 선택하세요!';
+    logStart.style.color = 'var(--green-hignlight)';
     logStart.style.fontWeight = 'bold';
+    logStart.style.textAlign = 'center';
+    logStart.classList.add('blinking-text');  // 👈 클래스로 효과 부여
     document.getElementById('log').appendChild(logStart);
 
     explorationModal.classList.remove('hidden');
@@ -60,7 +62,10 @@ function renderCards() {
     leftCard.removeAttribute('data-event');
     rightCard.removeAttribute('data-event');
 
-    if (cardEventPool.length < 2) return;
+    if (cardEventPool.length < 2) {
+        fetchNewCards();
+        return;
+    }
 
     let leftIndex = Math.floor(Math.random() * cardEventPool.length);
     let rightIndex;
@@ -71,12 +76,28 @@ function renderCards() {
     const left = cardEventPool[leftIndex];
     const right = cardEventPool[rightIndex];
 
-    leftCard.textContent = '⬅️ ' + left.cardText;
-    rightCard.textContent = '➡️ ' + right.cardText;
+    leftCard.textContent = left.cardText;
+    rightCard.textContent = right.cardText;
     leftCard.dataset.event = JSON.stringify(left);
     rightCard.dataset.event = JSON.stringify(right);
 
     restoreCardListeners();
+}
+
+async function fetchNewCards() {
+    try {
+        const url = `/api/action/card-event?activity=${currentActivityType}&rank=${currentRank}`;
+        const res = await apiRequest(url, 'GET');
+        if (res.code === 'SUCCESS' && res.data.length >= 2) {
+            cardEventPool = res.data;
+            renderCards(); // 다시 시도
+        } else {
+            showMessageModal('카드를 더 이상 불러올 수 없습니다.');
+        }
+    } catch (e) {
+        console.error(e);
+        showMessageModal('카드 로딩 실패');
+    }
 }
 
 function restoreCardListeners() {
@@ -98,20 +119,39 @@ function choosePath(direction) {
         clickedCard.classList.remove('click-animate');
     }, 200);
 
-    if (hp <= 0 || stage > maxStage) return;
+
 
     const log = document.getElementById('log');
     const selectedCard = document.getElementById(direction === 'left' ? 'leftCard' : 'rightCard');
     const event = JSON.parse(selectedCard.dataset.event);
-
+    // ✅ 이벤트 메시지 로그 (1회만)
     const logEntry = document.createElement('div');
-    logEntry.textContent = (direction === 'left' ? '⬅️' : '➡️') + ' ' + event.eventMessage;
-    log.prepend(logEntry);
+    logEntry.textContent = event.eventMessage;
+    logEntry.classList.add('exploration-log-entry');
 
     if (event.eventType === 'TRAP') {
+        logEntry.classList.add('log-trap');
         hp += event.hpChange || 0;
+    } else if (event.eventType === 'RESOURCE') {
+        logEntry.classList.add('log-resource');
+    } else {
+        // logEntry.classList.add('log-event');
     }
+
+    log.prepend(logEntry);
     document.getElementById('hp').textContent = hp;
+
+
+    if (stage === 10) {
+        const burnLog = document.createElement('div');
+        burnLog.textContent = '🔥 버닝 모드 진입! 획득량 증가!';
+        burnLog.style.border = '2px solid orange';
+        burnLog.style.padding = '4px';
+        burnLog.style.fontWeight = 'bold';
+        burnLog.style.textAlign = 'center';
+        burnLog.style.animation = 'burn-flash 1s infinite alternate';
+        log.prepend(burnLog);
+    }
 
     if (Array.isArray(event.drops) && event.drops.length > 0) {
         // 1. 가중치 총합 계산
@@ -131,8 +171,12 @@ function choosePath(direction) {
 
         // 3. 수량 계산 및 획득 처리
         if (selectedDrop) {
-            const qty = Math.floor(Math.random() * (selectedDrop.maxQuantity - selectedDrop.minQuantity + 1)) + selectedDrop.minQuantity;
+            let qty = Math.floor(Math.random() * (selectedDrop.maxQuantity - selectedDrop.minQuantity + 1)) + selectedDrop.minQuantity;
             const existing = gainedItems.find(i => i.itemId === selectedDrop.itemId);
+            // 💥 버닝일 경우 2배
+            if (stage > 10) {
+                qty *= 2;
+            }
             if (existing) {
                 existing.count += qty;
             } else {
@@ -143,11 +187,11 @@ function choosePath(direction) {
                     itemImg: selectedDrop.iconPath
                 });
             }
-
             const dropLog = document.createElement('div');
             dropLog.textContent = `🎁 ${selectedDrop.itemName} x${qty} 획득!`;
-            dropLog.style.color = '#ffd700';
+            dropLog.classList.add('exploration-log-entry', 'log-resource');
             log.prepend(dropLog);
+
         }
     }
 
@@ -161,32 +205,35 @@ function choosePath(direction) {
 
     // 2. 다음 단계 진입
     stage++;
-    document.getElementById('stage').textContent = Math.min(stage, maxStage);
+    document.getElementById('stage').textContent = stage;
 
-    // 3. 클리어 체크
-    if (stage > maxStage) {
-        const finalStage = maxStage;
-        totalExp = getStageExp(finalStage);
-        log.prepend(createLogLine('🎉 10단계 완료!', '#9f9'));
-        sendExplorationResult(finalStage);
-        return;
-    }
+    // // 3. 클리어 체크
+    // if (stage > maxStage) {
+    //     const finalStage = maxStage;
+    //     totalExp = getStageExp(finalStage);
+    //     log.prepend(createLogLine('🎉 10단계 완료!', '#9f9'));
+    //     sendExplorationResult(finalStage);
+    //     return;
+    // }
 
     renderCards();
 }
 
 function getStageExp(stage) {
-    if (stage <= 3) return 10;
-    if (stage <= 7) return 20;
-    if (stage <= 9) return 30;
-    return 40;
+    if (stage <= 3) return 5;
+    if (stage <= 7) return 10;
+    if (stage <= 9) return 20;
+    if (stage <= 20) return 30;
+    if (stage <= 30) return 40;
+    return 50;
 }
 
 function sendExplorationResult(stage) {
     const payload = {
         activityType: currentActivityType,
         exp: totalExp,
-        items: gainedItems
+        items: gainedItems,
+        maxCombo :stage
     };
 
     closeExploration();
@@ -219,8 +266,9 @@ function showExplorationResultModal(stage, exp, items) {
     const expEl = document.getElementById('resultExp');
     const itemList = document.getElementById('resultItemList');
 
-    const isClear = stage === maxStage;
-    header.textContent = isClear ? '탐사 완료' : `탐사 중단 [STAGE: ${stage}]`;
+    // const isClear = stage === maxStage;
+    // header.textContent = isClear ? '탐사 완료' : `탐사 중단 [STAGE: ${stage}]`;
+    header.textContent = `탐사 완료 [STAGE: ${stage}]`;
     expEl.textContent = `+${exp} XP`;
     itemList.innerHTML = '';
 
@@ -262,3 +310,4 @@ function createLogLine(text, color) {
     div.style.fontWeight = 'bold';
     return div;
 }
+

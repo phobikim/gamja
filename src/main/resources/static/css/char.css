@@ -1,4 +1,7 @@
-
+html, body {
+    overflow: hidden;
+    height: 100%;
+}
 .char-page {
     background-color: #5e340e;
     margin: 0;

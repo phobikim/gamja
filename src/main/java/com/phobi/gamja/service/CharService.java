@@ -8,6 +8,7 @@ import com.phobi.gamja.entity.dex.DexAttribute;
 import com.phobi.gamja.entity.dex.DexRarityStat;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.item.ItemPotionEffect;
+import com.phobi.gamja.entity.item.ItemSkillBonus;
 import com.phobi.gamja.entity.item.ItemStatBonus;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
@@ -127,32 +128,89 @@ public class CharService {
         Map<Long, Item> itemMap = filteredItems.stream()
                 .collect(Collectors.toMap(Item::getId, item -> item));
 
-        // 4. 스탯 보너스 정보 로딩
-        List<ItemStatBonus> statBonusList = itemStatBonusRepository.findByItemIdIn(itemMap.keySet());
-        Map<Long, ItemStatBonus> statMap = statBonusList.stream()
-                .collect(Collectors.toMap(ItemStatBonus::getItemId, b -> b));
 
-        // 5. 최종 DTO 조합
-        List<EquipItemDto> result = inventoryList.stream()
-                .filter(inv -> itemMap.containsKey(inv.getItemId()) && inv.getQuantity() > 0)
-                .map(inv -> {
-                    Item item = itemMap.get(inv.getItemId());
-                    ItemStatBonus stat = statMap.getOrDefault(inv.getItemId(), new ItemStatBonus());
+        List<ItemPotionEffect> potionEffectList;
+        List<ItemStatBonus> statBonusList;
+        List<ItemSkillBonus> skillBonuses;
+        List<EquipItemDto> result = null;
+        //5. 포션 보너스 정보 로딩
+        if (equipSlot == Item.EquipmentSlot.POTION) {
+            potionEffectList = itemPotionEffectRepository.findByItemIdIn(itemMap.keySet());
+            Map<Long, ItemPotionEffect> statMap = potionEffectList.stream()
+                    .collect(Collectors.toMap(ItemPotionEffect::getItemId, b -> b));
+            // 5. 최종 DTO 조합
+            result = inventoryList.stream()
+                    .filter(inv -> itemMap.containsKey(inv.getItemId()) && inv.getQuantity() > 0)
+                    .map(inv -> {
+                        Item item = itemMap.get(inv.getItemId());
+                        ItemPotionEffect stat = statMap.getOrDefault(inv.getItemId(), new ItemPotionEffect());
 
-                    return EquipItemDto.builder()
-                            .itemId(item.getId())
-                            .itemName(item.getName())
-                            .itemPath(item.getIconPath())
-                            .description(item.getDescription())
-                            .bonusPower(stat.getBonusPower())
-                            .bonusHp(stat.getBonusHp())
-                            .bonusSpeed(stat.getBonusSpeed())
-                            .quantity(inv.getQuantity())
-                            .build();
-                })
-                .toList();
+                        return EquipItemDto.builder()
+                                .itemId(item.getId())
+                                .itemName(item.getName())
+                                .itemPath(item.getIconPath())
+                                .description(item.getDescription())
+                                .bonusPower(stat.getBonusPower())
+                                .bonusHp(stat.getHealHp())
+                                .durationTurns(stat.getDurationTurns())
+                                .quantity(inv.getQuantity())
+                                .build();
+                    })
+                    .toList();
+            return GamJaResponse.success("정상 조회", result);
+        } else if(itemType == Item.ItemType.EQUIP_BATTLE){
+            // 4. 스탯 보너스 정보 로딩
+            statBonusList = itemStatBonusRepository.findByItemIdIn(itemMap.keySet());
+            Map<Long, ItemStatBonus> statMap = statBonusList.stream()
+                    .collect(Collectors.toMap(ItemStatBonus::getItemId, b -> b));
+            // 5. 최종 DTO 조합
+            result = inventoryList.stream()
+                    .filter(inv -> itemMap.containsKey(inv.getItemId()) && inv.getQuantity() > 0)
+                    .map(inv -> {
+                        Item item = itemMap.get(inv.getItemId());
+                        ItemStatBonus stat = statMap.getOrDefault(inv.getItemId(), new ItemStatBonus());
 
-        return GamJaResponse.success("정상 조회", result);
+                        return EquipItemDto.builder()
+                                .itemId(item.getId())
+                                .itemName(item.getName())
+                                .itemPath(item.getIconPath())
+                                .description(item.getDescription())
+                                .bonusPower(stat.getBonusPower())
+                                .bonusHp(stat.getBonusHp())
+                                .bonusSpeed(stat.getBonusSpeed())
+                                .build();
+                    })
+                    .toList();
+            return GamJaResponse.success("정상 조회", result);
+        }
+        else if(itemType == Item.ItemType.EQUIP_GATHER) {
+            // 4. 스탯 보너스 정보 로딩
+            skillBonuses = itemSkillBonusRepository.findByItemIdIn(itemMap.keySet());
+            Map<Long, ItemSkillBonus> statMap = skillBonuses.stream()
+                    .collect(Collectors.toMap(ItemSkillBonus::getItemId, b -> b));
+            // 5. 최종 DTO 조합
+            result = inventoryList.stream()
+                    .filter(inv -> itemMap.containsKey(inv.getItemId()) && inv.getQuantity() > 0)
+                    .map(inv -> {
+                        Item item = itemMap.get(inv.getItemId());
+                        ItemSkillBonus skill = statMap.getOrDefault(inv.getItemId(), new ItemSkillBonus());
+
+                        return EquipItemDto.builder()
+                                .itemId(item.getId())
+                                .itemName(item.getName())
+                                .itemPath(item.getIconPath())
+                                .description(item.getDescription())
+                                .bonusSkillFish(skill.getFishing())
+                                .bonusSkillGathering(skill.getGathering())
+                                .bonusSkillWoodCutting(skill.getWoodcutting())
+                                .bonusSkillMining(skill.getMining())
+                                .bonusSkillMaking(skill.getMaking())
+                                .build();
+                    })
+                    .toList();
+            return GamJaResponse.success("정상 조회", result);
+        }
+        return GamJaResponse.success("정상 조회", null);
     }
 
 
@@ -330,6 +388,9 @@ public class CharService {
                             .xp(stat != null ? stat.getXp() : 0)
                             .maxExp(stat != null ? stat.getMaxExp() : 100)
                             .affinity(stat != null ? stat.getAffinity() : 0)
+                            .power(stat != null ? stat.getPower() : 0)
+                            .hp(stat != null ? stat.getHp() : 0)
+                            .speed(stat != null ? stat.getSpeed() : 0)
                             .selected(dex.getId().equals(selectedDexId))
                             .build();
                 })

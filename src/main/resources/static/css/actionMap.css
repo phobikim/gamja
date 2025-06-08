@@ -79,7 +79,7 @@
     position: relative;
     background: var(--dark-3-color);
     border: 0.6vw solid #5e340e;
-    border-radius: 2vw;
+    /*border-radius: 2vw;*/
     width: 85vw;
     max-width: 400px;
     height: auto;

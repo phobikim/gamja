@@ -224,6 +224,12 @@ public class ActionController {
                     s.setExp(0);
                     return s;
                 });
+        // maxCombo
+        int newMaxCombo = ((Number) request.getOrDefault("maxCombo", 0)).intValue();
+        // 기존 maxCombo가 더 낮으면 갱신
+        if (userSkill.getMaxCombo() == null || userSkill.getMaxCombo() < newMaxCombo) {
+            userSkill.setMaxCombo(newMaxCombo);
+        }
         int baseExp = userSkill.getExp();
         double totalExp = baseExp + exp;
 
@@ -261,12 +267,12 @@ public class ActionController {
         }
 
         int maxExpAfter = getRequiredExp(level);
-
         UserSkillDto result = new UserSkillDto();
         result.setSkillType(skillType);
         result.setLevel(level);
         result.setXp((int) totalExp);
         result.setMaxExp(maxExpAfter);
+        result.setMaxCombo(userSkill.getMaxCombo());
 
         return ResponseEntity.ok(GamJaResponse.success("아이템 추가 완료", result));
     }

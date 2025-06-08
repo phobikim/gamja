@@ -123,12 +123,3 @@ function updateMapDetail(map) {
         rewardBox.appendChild(wrapper);
     });
 }
-
-
-battleMapSelectModal.addEventListener('click', (e) => {
-    // 툴팁 또는 툴팁 부모를 클릭했다면 무시
-    if (e.target.closest('.custom-tooltip') || e.target.closest('.tooltip-wrapper')) return;
-
-    const inside = e.target.closest('.map-select-modal-content');
-    if (!inside) battleMapSelectModal.classList.add('hidden');
-});

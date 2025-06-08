@@ -76,6 +76,7 @@ function renderOwnedCharacterCards(charList, representDexId) {
             card.classList.add('selected');
             selectedCharacterId = char.dexId;
             applyBtn.disabled = false;
+            flipCardToShowStats(card, char); // 🔄 flip 동작 추가
         };
 
         if (char.dexId === representDexId) {
@@ -127,6 +128,52 @@ async function fetchSetCharacters(selectedCharacterId) {
         showMessageModal('서버 오류로 대표 감자 설정에 실패했습니다.');
     }
 }
+
+// ✅ 캐릭터 카드 클릭 시 뒤집기 & 스탯 보기
+function flipCardToShowStats(cardElement, char) {
+    const isFlipped = cardElement.classList.contains('flipped');
+
+    if (isFlipped) {
+        cardElement.classList.remove('flipped');
+        cardElement.innerHTML = `
+            <div class="card-level">LV.${char.level}</div>
+            <div class="card-attribute">${renderAttribute(char.attributeIconPath, char.attribute)}</div>
+            <img class="char-image" src="${basePath_image}/character/${char.dexImage}" alt="${char.dexName}">
+            <div class="card-info">
+                <div class="char-name">${char.dexName}</div>
+                <div class="xp-bar-container">
+                    <div class="xp-bar" style="width: ${(char.xp / char.maxExp) * 100}%;"></div>
+                    <div class="xp-text">${char.xp}/${char.maxExp}</div>
+                </div>
+                <div class="affinity-text">💛 ${char.affinity}</div>
+            </div>
+        `;
+    } else {
+        // 뒤집기: 카드 구조는 그대로 두고 .card-info 내용만 교체
+        cardElement.classList.add('flipped');
+        const info = cardElement.querySelector('.card-info');
+        if (info) {
+            info.innerHTML = `
+            <div class="card-back-name-area">${char.dexName}</div>
+            <div class="card-back-stats-area">
+                ATK ${char.power}<br>
+                HP ${char.hp}<br>
+                SPEED ${char.speed}
+            </div>
+        `;
+            info.style.fontWeight = 'bold'
+            info.style.backgroundColor = '#222';
+            info.style.display = 'flex';
+            info.style.flexDirection = 'column';
+            info.style.justifyContent = 'center';
+            info.style.alignItems = 'center';
+            info.style.height = '100%';
+            info.style.gap = '8px';
+            info.style.paddingTop = '20px'; // 상단 여백 추가
+        }
+    }
+}
+
 
 // 모달 닫기
 document.getElementById('closeModalBtn').onclick = () => {
