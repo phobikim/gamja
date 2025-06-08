@@ -191,8 +191,9 @@ function showDexDetail(type, item) {
         detailEffects.style.display = "block";
         document.getElementById("detailDesc").textContent = item.description || "";
         document.getElementById("detailCondition").textContent = item.condition || "";
-        document.getElementById("detailRarity").textContent =
-            type === "item" ? (item.rarity ?? "Common") : (item.rank ?? "Common");
+        document.getElementById("detailRarity").textContent = item.rarity || "Common";
+        // document.getElementById("detailRarity").textContent =
+        //     type === "item" ? (item.rarity ?? "Common") : (item.rank ?? "Common");
         if(type === "item") {
             detailStat.style.display = "none";
         } else {

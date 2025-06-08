@@ -15,6 +15,8 @@
     flex-direction: column;
     justify-content: center;
     gap: 1.5rem;
+    position: relative;
+    padding-bottom: 80px;
 }
 
 .map-select-modal-content {
@@ -75,6 +77,11 @@
 }
 
 .map-detail-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 내용 위, 버튼 아래 배치 */
+    /*height: 100%; !* 높이 채우기 *!*/
+    height: 360px;
     margin-top: 1rem;
     background: var(--dark-3-color);
     border-radius: 12px;
@@ -197,4 +204,17 @@
 .tooltip-wrapper:hover .custom-tooltip {
     visibility: visible;
     opacity: 1;
+}
+
+
+
+.map-button-box {
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 0.5rem;
+    position: sticky; /* 또는 absolute 사용 가능 */
+    bottom: 0;
 }

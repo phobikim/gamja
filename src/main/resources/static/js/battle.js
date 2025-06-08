@@ -251,7 +251,7 @@ function doAttack() {
     if (battleState.monster.currentHp <= 0) {
         setTimeout(() => {
             winBattle();
-        }, 2000); // 2초 후 승리 처리
+        }, 1000); // 1초 후 승리 처리
         return;
     }
 
@@ -266,13 +266,15 @@ function monsterTurn() {
     applyHitEffect('.player-character');
     showDamageText('.player-container', damage);
 
-    setTimeout(() => {
-        updateBattleUI();
-        if (battleState.player.currentHp <= 0) return showDefeatModal("여기에 다시 묻히다...");
-        isPlayerTurn = true;
-        isProcessingTurn = false;
-        updateButtonStates();
-    }, 400);
+    updateBattleUI();
+    updateButtonStates();
+    if (battleState.player.currentHp <= 0) {
+        setTimeout(() => {
+            showDefeatModal("여기에 다시 묻히다...");
+        }, 1000); // 1초 후 승리 처리
+    }
+    isPlayerTurn = true;
+    isProcessingTurn = false;
 }
 
 function showDefeatModal(text) {

@@ -69,19 +69,19 @@
     <section class="inventory-grid">
         <div class="inventoryCell" onclick="openMapModal()">
             <img src="https://phobi.me/gamja.img/images/icons/icon_map.png" alt="지도">
-<!--            <span class="itemLabel">생활</span>-->
+            <span class="itemLabel">생활</span>
         </div>
-        <div class="inventoryCell" onclick="handleBagClick()">
-            <img src="https://phobi.me/gamja.img/images/icons/icon_bag.png" alt="배낭">
-<!--            <span class="itemLabel">인벤토리</span>-->
+        <div class="inventoryCell" onclick="handleStationClick()">
+            <img src="https://phobi.me/gamja.img/images/icons/icon_station.png" alt="공방">
+            <span class="itemLabel">감자공방</span>
         </div>
         <div class="inventoryCell" onclick="handleDexClick()">
             <img src="https://phobi.me/gamja.img/images/icons/icon_book.png" alt="도감">
-<!--            <span class="itemLabel">도감</span>-->
+            <span class="itemLabel">도감</span>
         </div>
         <div class="inventoryCell" onclick="handleAttackClick()">
             <img src="https://phobi.me/gamja.img/images/icons/icon_skill_attack.png" alt="전투">
-<!--            <span class="itemLabel">전투</span>-->
+            <span class="itemLabel">전투</span>
         </div>
     </section>
 </main>
@@ -107,9 +107,9 @@
                 <img src="https://phobi.me/gamja.img/images/icons/icon_fish.png" alt="낚시">
                 <span class="itemLabel">낚시</span>
             </div>
-            <div class="inventoryCell" onclick="handleStationClick()">
-                <img src="https://phobi.me/gamja.img/images/icons/icon_station.png" alt="공방">
-                <span class="itemLabel">감자공방</span>
+            <div class="inventoryCell" onclick="handleBagClick()">
+                <img src="https://phobi.me/gamja.img/images/icons/icon_bag.png" alt="배낭">
+                <span class="itemLabel">인벤토리</span>
             </div>
             <div class="inventoryCell" onclick="handleLaboratoryClick()">
                 <img src="https://phobi.me/gamja.img/images/icons/icon_laboratory.png" alt="공방">
@@ -466,9 +466,11 @@
                     <div class="section-title">REWARD</div>
                     <div class="map-rewards" id="mapRewards"></div>
                 </div>
+            </div>
 
-                <button id="startBattleBtn" class="start-battle-button">🔥 PLAY</button>
-                <button id="closeBattleBtn" class="start-battle-button">❌ 닫기</button>
+            <div class="map-button-box">
+                <button id="startBattleBtn" class="start-battle-button">PLAY</button>
+                <button id="closeBattleBtn" class="start-battle-button">닫기</button>
             </div>
         </div>
 
