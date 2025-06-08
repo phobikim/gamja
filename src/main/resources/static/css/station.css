@@ -201,41 +201,6 @@
     background: transparent;
 }
 
-/* 🎮 모바일 최적화 */
-@media (max-width: 768px) {
-    .recipe-card {
-        padding: 1.2vw 1vw 2vw 1vw; /* 모바일에서 하단 패딩 더 증가 */
-    }
-
-    .recipe-card span {
-        font-size: clamp(0.6rem, 2.7vw, 0.8rem);
-        margin-top: 0.3vw;
-    }
-
-    .recipe-name {
-        margin-bottom: 0.5vw; /* 모바일에서 하단 여백 더 증가 */
-    }
-}
-
-@media (max-width: 480px) {
-    .recipe-card {
-        padding: 1.5vw 1vw 2.5vw 1vw; /* 초소형 화면에서 하단 패딩 최대 */
-    }
-
-    .recipe-card span {
-        font-size: clamp(0.5rem, 3.4vw, 0.9rem);
-        line-height: 1.1;
-    }
-
-    .recipe-name {
-        margin-bottom: 0.8vw; /* 초소형 화면에서 하단 여백 최대 */
-    }
-
-    .recipe-card img {
-        width: 40px; /* 작은 화면에서 이미지 크기 축소 */
-        height: 40px;
-    }
-}
 
 .station-info-bar {
     border-bottom: 2px solid #d2a679;

@@ -165,33 +165,6 @@
     </div>
 </div>
 
-<!--<div id="activityModal" class="modal hidden">-->
-<!--    <div class="action-modal-content" id="activityModalContent">-->
-<!--        <div class="action-card-frame">-->
-<!--            &lt;!&ndash; 장소 이름: 상단 &ndash;&gt;-->
-<!--            <div class="activity-location-name" id="activityLocationName">Mystic Pond</div>-->
-<!--            &lt;!&ndash; 이미지 &ndash;&gt;-->
-<!--            <div class="action-image-wrapper">-->
-<!--                <img id="activityImage" class="action-image" src="" alt="" onclick="handleActivityClick()">-->
-<!--                <div class="activity-click-tooltip">Click to gather!</div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--        &lt;!&ndash; 🔥 콤보 표시 영역 &ndash;&gt;-->
-<!--        <div class="action-combo-area">-->
-<!--            <div id="maxComboDisplay" class="max-combo-fixed">MAX: 0</div>-->
-<!--            <div id="comboDisplay" class="combo-display hidden"></div>-->
-<!--        </div>-->
-<!--        &lt;!&ndash; 하단: 획득한 아이템 + 완료 버튼 &ndash;&gt;-->
-<!--        <div class="action-info-section">-->
-<!--            <div class="item-gain-info">-->
-<!--                <div class="item-gain-title">Acquired Items</div>-->
-<!--                <div class="item-gain-list" id="gainedItems"></div>-->
-<!--            </div>-->
-<!--            <button class="action-complete-btn" onclick="completeActivity()">Complete</button>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</div>-->
-
 <!-- 텍스트 기반 로그라이크 (채광) -->
 <div id="explorationModal" class="modal hidden">
     <div class="action-exploration-modal-content">
@@ -199,7 +172,7 @@
         <!-- 상단: 상태 표시 -->
             <div id="exploration-status">
                 <span>❤️ HP: <span id="hp">3</span></span>
-                <span>📍 STAGE: <span id="stage">1</span>
+                <span>📍 STAGE: <span id="stage">1</span></span>
             </div>
 
             <!-- 카드 선택 -->
@@ -209,11 +182,18 @@
                 <div class="exploration-card" onclick="choosePath('right')" id="rightCard">
                 </div>
             </div>
-
             <!-- 로그 출력 -->
-            <div id="log"></div>
+            <div id="log" style="position: relative; max-height: 200px; overflow-y: auto;">
+                <div id="logPrompt"
+                     class="blinking-text"
+                     style="position: sticky; top: 0; background: var(--dark-2-color); text-align: center; font-weight: bold; color: var(--green-hignlight); padding: 4px 0; font-size: 0.85rem; z-index: 1;">
+                    카드를 선택하세요!
+                </div>
+                <div id="logMessages"></div>
+            </div>
             <button id="closeBtn" onclick="closeExploration()" class="start-battle-button fixed-footer" >❌ 탐사 종료</button>
         </div>
+
         <!-- 닫기 버튼 -->
     </div>
 </div>
@@ -241,68 +221,78 @@
 <!-- 도감 모달 -->
 <div id="dexModal" class="modal hidden">
     <div class="dex-modal-container">
-        <!-- 상단 탭 영역 -->
-        <div class="dex-header">
-            <div class="dex-tab-header">
-                <button class="dex-tab-btn active" data-tab="character">캐릭터</button>
-                <button class="dex-tab-btn" data-tab="item">아이템</button>
-                <button class="dex-tab-btn" data-tab="monster">몬스터</button>
+        <div class="dex-body-wrapper">
+            <!-- 상단 탭 영역 -->
+            <div class="dex-header">
+                <div class="dex-tab-header">
+                    <button class="dex-tab-btn active" data-tab="character">캐릭터</button>
+                    <button class="dex-tab-btn" data-tab="battle">전투템</button>
+                    <button class="dex-tab-btn" data-tab="life">생활템</button>
+                    <button class="dex-tab-btn" data-tab="item">아이템</button>
+                    <button class="dex-tab-btn" data-tab="monster">몬스터</button>
+                </div>
             </div>
-        </div>
 
-        <!-- 중간 상세보기 영역 -->
-        <div id="dexDetailPanel" class="dex-detail-section hidden">
-            <div class="detail-top">
-                <img id="detailImage" src="" class="detail-image" alt="상세 이미지" />
-                <div class="detail-basic-info">
-                    <div class="detail-name-section">
-                        <div id="detailName" class="detail-name">아이템 이름</div>
-                        <img id="characterIcon" class="character-icon" alt="속성 아이콘" />
-                        <div id="detailStat" class="stat-inline">
-                            <span class="dex-stat-label">ATK</span><span id="detailAtk" class="stat-value">0</span>
-                            <span class="dex-stat-label">HP</span><span id="detailHp" class="stat-value">0</span>
+            <!-- 중간 상세보기 영역 -->
+            <div id="dexDetailPanel" class="dex-detail-section hidden">
+                <div class="detail-top">
+                    <img id="detailImage" src="" class="detail-image" alt="상세 이미지" />
+                    <div class="detail-basic-info">
+                        <div class="detail-name-section">
+                            <div id="detailName" class="detail-name">아이템 이름</div>
+                            <img id="characterIcon" class="character-icon" alt="속성 아이콘" />
+                            <div id="detailStat" class="stat-inline">
+                                <span class="dex-stat-label">ATK</span><span id="detailAtk" class="stat-value">0</span>
+                                <span class="dex-stat-label">HP</span><span id="detailHp" class="stat-value">0</span>
+                            </div>
+                        </div>
+                        <div class="detail-level-info">
+                            <span id="detailLevel" class="level-badge">LV1</span>
+                            <div class="xp-bar">
+                                <div id="detailXpFill" class="xp-fill" style="width: 0%"></div>
+                            </div>
+                            <span id="detailXpText">0/100</span>
+                        </div>
+                        <div id="detailAffinityInfo" class="affinity-info">
+                            <span>친밀도:</span>
+                            <span id="detailAffinity">💛 0</span>
                         </div>
                     </div>
-                    <div class="detail-level-info">
-                        <span id="detailLevel" class="level-badge">LV1</span>
-                        <div class="xp-bar">
-                            <div id="detailXpFill" class="xp-fill" style="width: 0%"></div>
-                        </div>
-                        <span id="detailXpText">0/100</span>
-                    </div>
-                    <div id="detailAffinityInfo" class="affinity-info">
-                        <span>친밀도:</span>
-                        <span id="detailAffinity">💛 0</span>
+                    <div id="notOwnedOverlay" class="not-owned-overlay hidden">
+                        미보유
                     </div>
                 </div>
-                <div id="notOwnedOverlay" class="not-owned-overlay hidden">
-                    미보유
+                <div id="detailEffects" class="detail-effects">
+                    <div id="effectDesc" class="effect-row">
+                        <div class="effect-label">설명</div>
+                        <div id="detailDesc" class="effect-value">아이템 설명</div>
+                    </div>
+                    <div id="effectCondition" class="effect-row">
+                        <div class="effect-label">획득처</div>
+                        <div id="detailCondition" class="effect-value">획득처</div>
+                    </div>
+                    <div id="effectRarity" class="effect-row">
+                        <div class="effect-label">등급</div>
+                        <div id="detailRarity" class="effect-value">등급</div>
+                    </div>
                 </div>
             </div>
-            <div id="detailEffects" class="detail-effects">
-                <div id="effectDesc" class="effect-row">
-                    <div class="effect-label">설명</div>
-                    <div id="detailDesc" class="effect-value">아이템 설명</div>
-                </div>
-                <div id="effectRarity" class="effect-row">
-                    <div class="effect-label">등급</div>
-                    <div id="detailRarity" class="effect-value">Common</div>
-                </div>
-            </div>
-        </div>
 
-        <!-- 하단 카드 리스트 영역 -->
-        <div class="dex-content-section">
-            <div id="dexTabContent">
-                <div id="characterTab" class="dex-tab-grid"></div>
-                <div id="itemTab" class="dex-tab-grid hidden"></div>
-                <div id="monsterTab" class="dex-tab-grid hidden"></div>
+            <!-- 하단 카드 리스트 영역 -->
+            <div class="dex-content-section">
+                <div id="dexTabContent">
+                    <div id="characterTab" class="dex-tab-grid"></div>
+                    <div id="battleEquipTab" class="dex-tab-grid hidden"></div>
+                    <div id="lifeEquipTab" class="dex-tab-grid hidden"></div>
+                    <div id="itemTab" class="dex-tab-grid hidden"></div>
+                    <div id="monsterTab" class="dex-tab-grid hidden"></div>
+                </div>
             </div>
-        </div>
 
-        <!-- 하단 닫기 버튼 -->
-        <div class="dex-footer">
-            <button class="close-btn" onclick="closeDexModal()">닫기</button>
+            <!-- 하단 닫기 버튼 -->
+            <div class="dex-footer">
+                <button class="dex-close-btn" onclick="closeDexModal()">닫기</button>
+            </div>
         </div>
     </div>
 </div>

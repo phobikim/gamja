@@ -18,6 +18,9 @@ public class Item {
     @Column(columnDefinition = "text")
     private String description;
 
+    @Column(columnDefinition = "text")
+    private String condition;
+
     @Column(nullable = false)
     private int rank;
 
@@ -35,6 +38,8 @@ public class Item {
 
     @Column(name = "icon_path", length = 255)
     private String iconPath;
+
+
 
     // enum 선언
     public enum Rarity {

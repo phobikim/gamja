@@ -18,6 +18,7 @@ public class Monster {
 
     private String name;
     private String desc;
+    private String condition;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "map_id")
     private MonsterMap map;

@@ -16,14 +16,12 @@ async function openExploration(activityType, rank) {
 
     document.getElementById('hp').textContent = hp;
     document.getElementById('stage').textContent = stage;
-    document.getElementById('log').innerHTML = '';
-    const logStart = document.createElement('div');
-    logStart.textContent = '카드를 선택하세요!';
-    logStart.style.color = 'var(--green-hignlight)';
-    logStart.style.fontWeight = 'bold';
-    logStart.style.textAlign = 'center';
-    logStart.classList.add('blinking-text');  // 👈 클래스로 효과 부여
-    document.getElementById('log').appendChild(logStart);
+    document.getElementById('logMessages').innerHTML = '';
+    const logPrompt = document.getElementById('logPrompt');
+    if (logPrompt) {
+        logPrompt.textContent = '카드를 선택하세요!';
+    }
+
 
     explorationModal.classList.remove('hidden');
     explorationModal.classList.add('show');
@@ -138,20 +136,32 @@ function choosePath(direction) {
         // logEntry.classList.add('log-event');
     }
 
-    log.prepend(logEntry);
+    const logBox = document.getElementById('logMessages');
+    logBox.prepend(logEntry);
     document.getElementById('hp').textContent = hp;
 
 
     if (stage === 10) {
-        const burnLog = document.createElement('div');
-        burnLog.textContent = '🔥 버닝 모드 진입! 획득량 증가!';
-        burnLog.style.border = '2px solid orange';
-        burnLog.style.padding = '4px';
-        burnLog.style.fontWeight = 'bold';
-        burnLog.style.textAlign = 'center';
-        burnLog.style.animation = 'burn-flash 1s infinite alternate';
-        log.prepend(burnLog);
+        const logPrompt = document.getElementById('logPrompt');
+        if (logPrompt) {
+            logPrompt.innerHTML = `
+            <div style="color: orange; font-weight: bold; animation: burn-flash 1s infinite alternate;">
+                🔥 버닝 모드 진입! 획득량 2배!
+            </div>
+        `;
+        }
     }
+    if (stage === 20) {
+        const logPrompt = document.getElementById('logPrompt');
+        if (logPrompt) {
+            logPrompt.innerHTML = `
+            <div style="color: red; font-weight: bold; animation: burn-flash-strong 0.8s infinite;">
+                🔥🔥 궁극의 버닝 모드! 획득량 3배!!
+            </div>
+        `;
+        }
+    }
+
 
     if (Array.isArray(event.drops) && event.drops.length > 0) {
         // 1. 가중치 총합 계산
@@ -177,6 +187,10 @@ function choosePath(direction) {
             if (stage > 10) {
                 qty *= 2;
             }
+            // 💥 버닝일 경우 3배
+            if (stage > 20) {
+                qty *= 3;
+            }
             if (existing) {
                 existing.count += qty;
             } else {
@@ -190,7 +204,7 @@ function choosePath(direction) {
             const dropLog = document.createElement('div');
             dropLog.textContent = `🎁 ${selectedDrop.itemName} x${qty} 획득!`;
             dropLog.classList.add('exploration-log-entry', 'log-resource');
-            log.prepend(dropLog);
+            logBox.prepend(dropLog);
 
         }
     }
@@ -198,7 +212,7 @@ function choosePath(direction) {
     // 1. 체력 0일 때
     if (hp <= 0) {
         totalExp = getStageExp(stage);
-        log.prepend(createLogLine('💀 체력을 모두 잃고 쓰러졌습니다...', '#f55'));
+        logBox.prepend(createLogLine('💀 체력을 모두 잃고 쓰러졌습니다...', '#f55'));
         sendExplorationResult(stage);  // ✅ stage는 현재값
         return;
     }
@@ -206,15 +220,6 @@ function choosePath(direction) {
     // 2. 다음 단계 진입
     stage++;
     document.getElementById('stage').textContent = stage;
-
-    // // 3. 클리어 체크
-    // if (stage > maxStage) {
-    //     const finalStage = maxStage;
-    //     totalExp = getStageExp(finalStage);
-    //     log.prepend(createLogLine('🎉 10단계 완료!', '#9f9'));
-    //     sendExplorationResult(finalStage);
-    //     return;
-    // }
 
     renderCards();
 }

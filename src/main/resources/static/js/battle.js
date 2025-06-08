@@ -9,6 +9,8 @@ let battleEnded = false;
 let isPlayerTurn = true;
 let isProcessingTurn = false;
 
+const skillEffectImage = `${basePath_image}/effect/attack_slash5.png`;
+
 window.battleState = {
     player: {},
     monster: {}
@@ -242,10 +244,16 @@ function doAttack() {
     const damage = battleState.player.power;
     battleState.monster.currentHp -= damage;
     applyHitEffect('.monster-character');
+    showSkillEffect();
     showDamageText('.monster-container', damage);
     updateBattleUI();
 
-    if (battleState.monster.currentHp <= 0) return winBattle();
+    if (battleState.monster.currentHp <= 0) {
+        setTimeout(() => {
+            winBattle();
+        }, 2000); // 2초 후 승리 처리
+        return;
+    }
 
     isPlayerTurn = false;
     setTimeout(() => monsterTurn(), 500);
@@ -557,4 +565,20 @@ function closeBattleModal() {
     battleEnded = false;
     isPlayerTurn = true;
     isProcessingTurn = false;
+}
+
+function showSkillEffect() {
+    const monster = document.getElementById('monsterCharacter');
+    const container = monster.parentElement;
+
+    const effectImg = document.createElement('img');
+    effectImg.src = skillEffectImage;
+    effectImg.alt = 'Skill Effect';
+    effectImg.className = 'skill-effect-image';
+
+    container.appendChild(effectImg);
+
+    setTimeout(() => {
+        effectImg.remove();
+    }, 1000);
 }

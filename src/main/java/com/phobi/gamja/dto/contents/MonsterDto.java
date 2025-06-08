@@ -10,6 +10,7 @@ public class MonsterDto {
     private Long id;
     private String name;
     private String desc;
+    private String condition;
     private String rank;
     private String imagePath;
     private int monsterPower;

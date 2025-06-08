@@ -2,6 +2,8 @@ const dexModal = document.getElementById('dexModal');
 const dexTabBtns = document.querySelectorAll(".dex-tab-btn");
 const dexTabContents = {
     character: document.getElementById("characterTab"),
+    battle: document.getElementById("battleEquipTab"),
+    life: document.getElementById("lifeEquipTab"),
     item: document.getElementById("itemTab"),
     monster: document.getElementById("monsterTab"),
 };
@@ -54,6 +56,8 @@ function renderDexTabs() {
             });
 
             if (type === "character") renderCardsByType("character", currentDexData.dexList);
+            if (type === "battle") renderCardsByType("battle", currentDexData.battleEquipItemList);
+            if (type === "life") renderCardsByType("life", currentDexData.lifeEquipItemsList);
             if (type === "item") renderCardsByType("item", currentDexData.itemList);
             if (type === "monster") renderCardsByType("monster", currentDexData.monsterList);
         });
@@ -72,9 +76,7 @@ function renderCardsByType(type, list) {
         // 이미지 경로 설정
         if (type === "character") {
             img.src = `${basePath_image}/character/${item.imagePath}`;
-        } else if (type === "item") {
-            img.src = `${basePath}/${item.imagePath}`;
-        } else if (type === "monster") {
+        } else {
             img.src = `${basePath}/${item.imagePath}`;
         }
 
@@ -110,9 +112,7 @@ function showDexDetail(type, item) {
 
     if (type === "character") {
         detailImg.src = `${basePath_image}/character/${item.imagePath}`;
-    } else if (type === "item") {
-        detailImg.src = `${basePath}/${item.imagePath}`;
-    } else if (type === "monster") {
+    } else {
         detailImg.src = `${basePath}/${item.imagePath}`;
     }
 
@@ -122,6 +122,7 @@ function showDexDetail(type, item) {
     detailImg.className = `detail-image ${rarityClass}`;
     const characterIcon = document.getElementById("characterIcon");
     if (type === "character") {
+        document.querySelector("#effectCondition .effect-label").textContent = "획득처";
         characterIcon.style.display = item.attributeIconPath ? "block" : "none";
 
         if (item.attributeIconPath) {
@@ -144,6 +145,7 @@ function showDexDetail(type, item) {
         // detailEffects 영역 표시
         detailEffects.style.display = "block";
         document.getElementById("detailDesc").textContent = item.description || "";
+        document.getElementById("detailCondition").textContent = item.condition || "";
         document.getElementById("detailRarity").textContent = item.rarity || "Common";
 
         // 캐릭터 스탯 표시
@@ -157,7 +159,27 @@ function showDexDetail(type, item) {
         } else {
             notOwnedOverlay.classList.add("hidden");
         }
+
+    } else if (type === "monster") {
+    characterIcon.style.display = "none";
+    detailLevelInfo.style.display = "none";
+    detailAffinityInfo.style.display = "none";
+    notOwnedOverlay.classList.add("hidden");
+
+    detailEffects.style.display = "block";
+    document.getElementById("detailDesc").textContent = item.description || "";
+
+    // ⭐ 드랍 아이템 이름 나열
+    document.querySelector("#effectCondition .effect-label").textContent = "드랍템";
+    const dropNames = (item.dropItemList || []).map(it => it.name).join(", ");
+    document.getElementById("detailCondition").textContent = dropNames || "없음";
+    document.getElementById("detailRarity").textContent = item.rarity || "Common";
+
+    detailStat.style.display = "flex";
+    document.getElementById("detailAtk").textContent = item.basePower || 0;
+    document.getElementById("detailHp").textContent = item.baseHp || 0;
     } else {
+        document.querySelector("#effectCondition .effect-label").textContent = "획득처";
         // ✅ 레벨/친밀도 영역 숨김
         characterIcon.style.display = "none";
         detailLevelInfo.style.display = "none";
@@ -168,6 +190,7 @@ function showDexDetail(type, item) {
         // detailEffects 영역 표시
         detailEffects.style.display = "block";
         document.getElementById("detailDesc").textContent = item.description || "";
+        document.getElementById("detailCondition").textContent = item.condition || "";
         document.getElementById("detailRarity").textContent =
             type === "item" ? (item.rarity ?? "Common") : (item.rank ?? "Common");
         if(type === "item") {
@@ -190,11 +213,6 @@ function getStars(rarity) {
     };
     return "★".repeat(starMap[rarity] || 0);
 }
-
-dexModal.addEventListener('click', (e) => {
-    const inside = e.target.closest('.dex-modal-container');
-    if (!inside) dexModal.classList.add('hidden');
-});
 
 function closeDexModal() {
     dexModal.classList.add('hidden');

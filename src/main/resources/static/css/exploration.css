@@ -213,4 +213,31 @@
     height: 24px;
     object-fit: contain;
     border-radius: 4px;
-}.highlight-xp
+}
+
+@keyframes burn-flash {
+    0% {
+        background-color: rgba(255, 140, 0, 0.15); /* 연한 주황 */
+        color: #fff;
+        box-shadow: 0 0 4px rgba(255, 165, 0, 0.5);
+    }
+    100% {
+        background-color: rgba(255, 69, 0, 0.3);   /* 진한 빨강-주황 */
+        color: #ffe4b5;
+        box-shadow: 0 0 8px rgba(255, 100, 0, 0.9);
+    }
+}
+
+.burning-log {
+    animation: burn-flash 1s infinite alternate;
+    border: 2px solid orange;
+    padding: 4px;
+    font-weight: bold;
+    text-align: center;
+}
+
+@keyframes burn-flash-strong {
+    0%   { color: orange; transform: scale(1); }
+    50%  { color: red; transform: scale(1.15); }
+    100% { color: orange; transform: scale(1); }
+}

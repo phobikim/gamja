@@ -28,8 +28,8 @@ public class Dex {
     @JoinColumn(name = "rarity", referencedColumnName = "rarity")
     private DexRarityStat rarity;
 
-    @Column(name = "acquire_condition", nullable = false, columnDefinition = "TEXT")
-    private String acquireCondition;
+    @Column(name = "condition", nullable = false, columnDefinition = "TEXT")
+    private String condition;
 
     @Column(name = "user_flag", nullable = false)
     private boolean userFlag;

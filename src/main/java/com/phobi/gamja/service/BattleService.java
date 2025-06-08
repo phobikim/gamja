@@ -140,7 +140,7 @@ public class BattleService {
                 ));
     }
 
-    private MonsterDto toMonsterDtoWithDropItems(Monster monster) {
+    public MonsterDto toMonsterDtoWithDropItems(Monster monster) {
         MonsterDto dto = new MonsterDto();
         dto.setId(monster.getId());
         dto.setName(monster.getName());
