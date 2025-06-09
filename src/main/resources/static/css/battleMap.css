@@ -81,7 +81,7 @@
     flex-direction: column;
     justify-content: space-between; /* 내용 위, 버튼 아래 배치 */
     /*height: 100%; !* 높이 채우기 *!*/
-    height: 360px;
+    /*height: 360px;*/
     margin-top: 1rem;
     background: var(--dark-3-color);
     border-radius: 12px;
@@ -144,8 +144,8 @@
 }
 
 .start-battle-button {
-    margin-top: 1.2rem;
-    padding: 0.6rem 2rem;
+    /*margin-top: 1.2rem;*/
+    /*padding: 0.6rem 2rem;*/
     font-size: 1rem;
     background-color: #fa6719;
     color: white;
@@ -216,5 +216,5 @@
     padding-top: 1rem;
     padding-bottom: 0.5rem;
     position: sticky; /* 또는 absolute 사용 가능 */
-    bottom: 0;
+    bottom: 5px;
 }
