@@ -41,10 +41,6 @@ public class StationController {
     public ResponseEntity<GamJaResponse> getStationList (HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
 
-        if (userId == null) {
-            return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
-        }
-
         List<Station> stationList = stationRepository.findAll();
 
         List<StationDto> responseList = stationList.stream().map(s -> {
@@ -65,9 +61,6 @@ public class StationController {
             @PathVariable String stationCategory,
             HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
-        if (userId == null ) {
-            return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
-        }
 
         ItemRecipe.StationCategory categoryEnum = ItemRecipe.StationCategory.valueOf(stationCategory);
         List<ItemRecipe> recipes = itemRecipeRepository.findByStationCategory(categoryEnum);

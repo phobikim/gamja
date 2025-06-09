@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/rank.css">
     <link rel="stylesheet" href="css/quest.css">
     <link rel="stylesheet" href="css/bag.css">
+    <link rel="stylesheet" href="css/stationMap.css">
     <link rel="stylesheet" href="css/station.css">
     <link rel="stylesheet" href="css/action.css">
     <link rel="stylesheet" href="css/actionMap.css">
@@ -412,33 +413,54 @@
     </div>
 </div>
 
-<!-- 공방 모달 구조 -->
-<div id="workshopModal" class="modal hidden">
-    <div class="workshop-modal-content">
-        <div class="workshop-left" id="workshop-category-list">
-            <!-- 좌측 카테고리 목록 -->
+<!-- 공방 선택 모달 -->
+<div id="workshopSelectModal" class="modal hidden">
+    <div class="workshop-map-select-modal-content">
+        <div class="workshop-map-content-wrapper">
+
+            <!-- 🔹 상단 제목 -->
+            <div class="workshop-select-header">
+                <span class="map-name">공방 선택</span>
+            </div>
+
+            <!-- 🔸 중앙 공방 아이콘 리스트 -->
+            <div id="workshopDetailPanel" class="map-detail-box">
+
+            </div>
+
+            <div class="workshop-button-box">
+                <button id="closeWorkshopSelect" class="start-battle-button">닫기</button>
+                <button id="goToWorkshop" class="start-battle-button">이동하기</button>
+            </div>
+
         </div>
-        <div class="workshop-right">
-            <div id="station-info-bar" class="station-info-bar hidden">
-                <strong id="station-name">공방 이름</strong>
-            </div>
-            <!-- 상단: 레시피 카드 리스트 -->
-            <div id="recipe-card-list" class="recipe-card-list">
-                <!-- JS로 카드 생성 -->
-            </div>
+    </div>
+</div>
 
-            <!-- 하단: 상세 정보 + CRAFT 버튼 -->
-            <div id="recipe-detail" class="recipe-detail">
-                <div class="ingredient-scroll">
-                    <!-- 여기에 재료 리스트 들어감 -->
+<!-- 제작 모달 -->
+<div id="craftModal" class="modal hidden">
+    <div class="craft-modal-container">
+
+        <!-- 상단: 제목 + 공방선택 버튼 -->
+        <div class="craft-header-row">
+            <div class="craft-title">제작</div>
+            <button id="changeWorkshopBtn" class="workshop-change-btn">공방선택</button>
+        </div>
+
+        <!-- 본문: 리스트 + 상세 -->
+        <div class="craft-body">
+            <div class="craft-recipe-list" id="craftRecipeList"></div>
+            <div class="craft-detail-panel" id="craftDetailPanel">
+                <div class="craft-detail-content">
+                    <!-- 상세 내용: JS로 채워짐 -->
                 </div>
-
                 <button class="craft-button">CRAFT</button>
             </div>
         </div>
     </div>
-    <div id="craft-effect-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
 </div>
+
+
 
 <!-- 전투맵 선택 모달 -->
 <div id="battleMapSelectModal" class="modal hidden">
