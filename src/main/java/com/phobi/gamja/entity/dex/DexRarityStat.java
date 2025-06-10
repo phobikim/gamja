@@ -36,9 +36,9 @@ public class DexRarityStat {
         private static final Map<Rarity, Double> rateTable = Map.of(
                 COMMON, 75.0,
                 UNCOMMON, 23.0,
-                RARE, 1.0,
-                EPIC, 0.7,
-                LEGENDARY, 0.3
+                RARE, 1.4,
+                EPIC, 0.59,
+                LEGENDARY, 0.01
         );
 
         public static Rarity roll() {

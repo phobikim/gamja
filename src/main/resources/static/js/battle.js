@@ -16,6 +16,26 @@ window.battleState = {
     monster: {}
 };
 
+/**
+ * 몬스터 드랍 아이템 생성 로직
+ *
+ * [1] COMMON 아이템 (확정 드랍)
+ *  - rarity가 'COMMON'인 아이템 중 1개 무조건 드랍
+ *  - 수량: 랜덤 2~3개
+ *
+ * [2] 보너스 아이템 (확률 드랍)
+ *  - rarity가 'COMMON'이 아닌 아이템 중, item.dropRate 기반으로 드랍 시도
+ *  - dropRate 통과한 아이템이 있을 경우, 가중치(rarity)에 따라 1개 선택
+ *
+ * [3] 보너스 아이템 수량 규칙
+ *  - itemType이 'EQUIP_'로 시작하는 장비 아이템: 무조건 1개
+ *  - UNCOMMON 등급: 1~2개 랜덤
+ *  - RARE 이상: 1개 고정
+ *
+ * ※ rarity 가중치는 서버 기준과 통일 (COMMON: 75.0 ~ LEGENDARY: 0.01)
+ * ※ pickWeightedByRarity 함수에서 rarity 기반 비율로 선택함
+ */
+
 const cardPool = [
     {
         name: "감자의 분노",
@@ -168,7 +188,9 @@ function updateHpBar(current, max, barId, textId) {
 
     const percent = Math.max(0, Math.min(100, (current / max) * 100));
     bar.style.width = `${percent}%`;
-    text.textContent = `${current} / ${max}`;
+
+    const displayCurrent = Math.max(0, current); // 0 이하일 땐 그냥 0으로
+    text.textContent = `${displayCurrent} / ${max}`;
 }
 
 function resetBattleState(user, monster) {
@@ -260,21 +282,27 @@ function doAttack() {
 }
 
 function monsterTurn() {
-    if (isPlayerTurn || battleEnded) return;
+    if (isPlayerTurn || battleEnded) return; // 먼저 체크
+
+    isProcessingTurn = true;
+
     const damage = Math.floor(Math.random() * battleState.monster.power) + 1;
     battleState.player.currentHp -= damage;
     applyHitEffect('.player-character');
     showDamageText('.player-container', damage);
 
     updateBattleUI();
+
+    // 플레이어 턴 시작 전 버튼 상태 갱신 → 공격/힐 비활성화 유지됨
+    isPlayerTurn = true;
+    isProcessingTurn = false;
     updateButtonStates();
+
     if (battleState.player.currentHp <= 0) {
         setTimeout(() => {
             showDefeatModal("여기에 다시 묻히다...");
-        }, 1000); // 1초 후 승리 처리
+        }, 1000);
     }
-    isPlayerTurn = true;
-    isProcessingTurn = false;
 }
 
 function showDefeatModal(text) {
@@ -349,54 +377,73 @@ function updateCharacterReward(user, expReward, items) {
 
 function generateLootItems() {
     const dropList = battleState.monster.drops || [];
-    const lootCount = Math.random() < 0.3 ? 2 : 1;
-    const selected = pickWeightedRandomItems(dropList, lootCount);
-    return selected.map(item => {
+
+    const commonList = dropList.filter(item => item.rarity?.toUpperCase() === 'COMMON');
+    const bonusList = dropList.filter(item => item.rarity?.toUpperCase() !== 'COMMON');
+
+    const loot = [];
+
+    // 1. COMMON 확정 1개
+    if (commonList.length > 0) {
+        const guaranteed = commonList[Math.floor(Math.random() * commonList.length)];
+        loot.push({
+            ...guaranteed,
+            count: Math.floor(Math.random() * 2) + 2 // 2~3개
+        });
+    }
+
+    // 2. 희귀템 드랍 시도 → dropRate 통과한 후보들 필터링
+    const bonusCandidates = bonusList.filter(item => {
+        const chance = item.dropRate ?? 0;
+        return Math.random() * 100 < chance;
+    });
+
+    // 3. 가중치 기반으로 후보 중 1개 선택
+    if (bonusCandidates.length > 0) {
+        const picked = pickWeightedByRarity(bonusCandidates);
+        const rarity = picked.rarity?.toUpperCase();
+        const isEquip = picked.itemType?.startsWith('EQUIP');
+
         let count = 1;
-        if (item.itemType !== 'EQUIP_BATTLE' && item.itemType !== 'EQUIP_GATHER') {
-            if (item.rarity?.toUpperCase() === 'COMMON') {
-                count = Math.floor(Math.random() * 2) + 2;
+        if (!isEquip) {
+            if (rarity === 'UNCOMMON') {
+                count = Math.floor(Math.random() * 2) + 1; // 1~2개
             }
         }
-        return { ...item, count };
-    });
+
+        loot.push({ ...picked, count });
+    }
+
+    return loot;
 }
 
-function pickWeightedRandomItems(items, count) {
-    if (!items || items.length === 0) return [];
 
-    const result = [];
-    const pool = [...items];
-
+function pickWeightedByRarity(items) {
     const rarityWeights = {
-        'COMMON': 70, 'UNCOMMON': 25, 'RARE': 3.5, 'EPIC': 1, 'LEGENDARY': 0.5
+        COMMON: 75.0,
+        UNCOMMON: 23.0,
+        RARE: 1.4,
+        EPIC: 0.59,
+        LEGENDARY: 0.01
     };
 
-    for (let i = 0; i < count && pool.length > 0; i++) {
-        // 가중치 계산
-        const weightedItems = pool.map(item => ({
-            item,
-            weight: rarityWeights[item.rarity?.toUpperCase()] || 1
-        }));
+    const weightedItems = items.map(item => {
+        const rarity = item.rarity?.toUpperCase() || 'COMMON';
+        const weight = rarityWeights[rarity] || 1;
+        return { item, weight };
+    });
 
-        const totalWeight = weightedItems.reduce((sum, wi) => sum + wi.weight, 0);
-        let random = Math.random() * totalWeight;
+    const total = weightedItems.reduce((sum, wi) => sum + wi.weight, 0);
+    let random = Math.random() * total;
 
-        // 아이템 선택
-        for (let j = 0; j < weightedItems.length; j++) {
-            random -= weightedItems[j].weight;
-            if (random <= 0) {
-                const selectedItem = weightedItems[j].item;
-                result.push(selectedItem);
-                // 선택된 아이템을 풀에서 제거
-                const poolIndex = pool.indexOf(selectedItem);
-                if (poolIndex > -1) pool.splice(poolIndex, 1);
-                break;
-            }
+    for (const wi of weightedItems) {
+        random -= wi.weight;
+        if (random <= 0) {
+            return wi.item;
         }
     }
 
-    return result;
+    return weightedItems[0].item; // fallback
 }
 
 function updateLootItemsDisplay(items) {
