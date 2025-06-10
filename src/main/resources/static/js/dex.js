@@ -109,6 +109,7 @@ function showDexDetail(type, item) {
     const detailLevelInfo = document.querySelector(".detail-level-info");
     const detailAffinityInfo = document.getElementById("detailAffinityInfo");
     const detailStat = document.getElementById("detailStat");
+    const detailEquip = document.getElementById("detailEquip");
 
     if (type === "character") {
         detailImg.src = `${basePath_image}/character/${item.imagePath}`;
@@ -121,6 +122,7 @@ function showDexDetail(type, item) {
     const rarityClass = `rarity-background-${item.rarity?.toLowerCase()}`;
     detailImg.className = `detail-image ${rarityClass}`;
     const characterIcon = document.getElementById("characterIcon");
+
     if (type === "character") {
         document.querySelector("#effectCondition .effect-label").textContent = "획득처";
         characterIcon.style.display = item.attributeIconPath ? "block" : "none";
@@ -153,6 +155,9 @@ function showDexDetail(type, item) {
         document.getElementById("detailAtk").textContent = item.basePower || 0;
         document.getElementById("detailHp").textContent = item.baseHp || 0;
 
+        // 캐릭터 장착, 강화 버튼 표시
+        detailEquip.style.display = "flex";
+
         // 미보유 오버레이 설정 (캐릭터 탭에만 적용)
         if (item.owned === false) {
             notOwnedOverlay.classList.remove("hidden");
@@ -161,23 +166,24 @@ function showDexDetail(type, item) {
         }
 
     } else if (type === "monster") {
-    characterIcon.style.display = "none";
-    detailLevelInfo.style.display = "none";
-    detailAffinityInfo.style.display = "none";
-    notOwnedOverlay.classList.add("hidden");
+        detailEquip.style.display = "none";
+        characterIcon.style.display = "none";
+        detailLevelInfo.style.display = "none";
+        detailAffinityInfo.style.display = "none";
+        notOwnedOverlay.classList.add("hidden");
 
-    detailEffects.style.display = "block";
-    document.getElementById("detailDesc").textContent = item.description || "";
+        detailEffects.style.display = "block";
+        document.getElementById("detailDesc").textContent = item.description || "";
 
-    // ⭐ 드랍 아이템 이름 나열
-    document.querySelector("#effectCondition .effect-label").textContent = "드랍템";
-    const dropNames = (item.dropItemList || []).map(it => it.name).join(", ");
-    document.getElementById("detailCondition").textContent = dropNames || "없음";
-    document.getElementById("detailRarity").textContent = item.rarity || "Common";
+        // ⭐ 드랍 아이템 이름 나열
+        document.querySelector("#effectCondition .effect-label").textContent = "드랍템";
+        const dropNames = (item.dropItemList || []).map(it => it.name).join(", ");
+        document.getElementById("detailCondition").textContent = dropNames || "없음";
+        document.getElementById("detailRarity").textContent = item.rarity || "Common";
 
-    detailStat.style.display = "flex";
-    document.getElementById("detailAtk").textContent = item.basePower || 0;
-    document.getElementById("detailHp").textContent = item.baseHp || 0;
+        detailStat.style.display = "flex";
+        document.getElementById("detailAtk").textContent = item.basePower || 0;
+        document.getElementById("detailHp").textContent = item.baseHp || 0;
     } else {
         document.querySelector("#effectCondition .effect-label").textContent = "획득처";
         // ✅ 레벨/친밀도 영역 숨김
@@ -195,8 +201,10 @@ function showDexDetail(type, item) {
         // document.getElementById("detailRarity").textContent =
         //     type === "item" ? (item.rarity ?? "Common") : (item.rank ?? "Common");
         if(type === "item") {
+            detailEquip.style.display = "none";
             detailStat.style.display = "none";
         } else {
+            detailEquip.style.display = "flex";
             detailStat.style.display = "flex";
             document.getElementById("detailAtk").textContent = item.basePower || 0;
             document.getElementById("detailHp").textContent = item.baseHp || 0;

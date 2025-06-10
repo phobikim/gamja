@@ -1,7 +1,7 @@
 const workshopSelectModal = document.getElementById('workshopSelectModal');
 const workshopDetailPanel = document.getElementById('workshopDetailPanel');
 const goToWorkshopBtn = document.getElementById('goToWorkshop');
-const closeWorkshopSelectBtn = document.getElementById('closeWorkshopSelect');
+const closeWorkshopSelect = document.getElementById('closeWorkshopSelect');
 let selectedStation = null;
 async function handleStationClick() {
     playEffect("se_click2");
@@ -12,6 +12,9 @@ async function handleStationClick() {
     await getWorkshopStations();
 }
 
+document.getElementById('closeWorkshopSelect').addEventListener('click', () => {
+    document.getElementById('workshopSelectModal').classList.add('hidden');
+});
 document.getElementById('changeWorkshopBtn').addEventListener('click', () => {
     document.getElementById('craftModal').classList.add('hidden');
     document.getElementById('workshopSelectModal').classList.remove('hidden');
