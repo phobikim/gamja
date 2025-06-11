@@ -1,12 +1,16 @@
 const workshopSelectModal = document.getElementById('workshopSelectModal');
+const craftModal = document.getElementById("craftModal");
 const workshopDetailPanel = document.getElementById('workshopDetailPanel');
 const goToWorkshopBtn = document.getElementById('goToWorkshop');
 const closeWorkshopSelect = document.getElementById('closeWorkshopSelect');
 let selectedStation = null;
+let selectedRecipe = null;
+let currentWorkshopType = null;
 async function handleStationClick() {
     playEffect("se_click2");
     workshopSelectModal.classList.remove('hidden');
     selectedStation = null;
+    selectedRecipe = null;
     goToWorkshopBtn.disabled = true;
     goToWorkshopBtn.classList.add('disabled');
     await getWorkshopStations();
@@ -57,6 +61,7 @@ function renderWorkshopCards(stations) {
 
 // 선택 처리
 function selectWorkshopCard(cardEl, category) {
+    currentWorkshopType = category;
     // 모든 카드에서 선택 해제
     document.querySelectorAll('.workshop-card').forEach(card => {
         card.classList.remove('selected');
@@ -76,32 +81,32 @@ goToWorkshopBtn.addEventListener('click', () => {
 
 });
 
-function openCraftModal(stationCategory) {
+function openCraftModal(stationCategory, preselectedRecipe = null) {
     document.getElementById('craftModal').classList.remove('hidden');
-
-    // 해당 공방의 제작 리스트 로드
-    fetchRecipes(stationCategory);
+    fetchRecipes(stationCategory, preselectedRecipe);
 }
 
-async function fetchRecipes(stationCategory) {
+async function fetchRecipes(stationCategory, preselectedRecipe = null) {
     try {
-        const res = await apiRequest(`/api/station/recipe/${stationCategory}`, 'GET');
+        const res = await apiRequest(`/api/station/${stationCategory}/recipe`, 'POST');
         if (res.code === 'SUCCESS') {
-            renderRecipeList(res.data);
+            renderRecipeList(res.data, preselectedRecipe);
         }
     } catch (err) {
         console.error("제작 리스트 불러오기 실패:", err);
     }
 }
 
-function renderRecipeList(recipeList) {
+function renderRecipeList(recipeList, preselectedRecipe = null) {
     const container = document.getElementById('craftRecipeList');
     container.innerHTML = '';
 
+    let firstCard = null;
+    let selectedCard = null;
+
     recipeList.forEach(recipe => {
         const card = document.createElement('div');
-        card.className = `recipe-card ${getRarityBackgroundClass(recipe.grade)}`; // 💡 클래스 추가
-
+        card.className = `recipe-card ${getRarityBackgroundClass(recipe.grade)}`;
         card.innerHTML = `
             <img src="${basePath}${recipe.resultItemIcon}" class="recipe-icon" />
             <div class="recipe-name">${recipe.resultItemName}</div>
@@ -110,20 +115,34 @@ function renderRecipeList(recipeList) {
         card.addEventListener('click', () => {
             document.querySelectorAll('.recipe-card').forEach(c => c.classList.remove('active'));
             card.classList.add('active');
+            selectedRecipe = recipe;
             renderRecipeDetail(recipe);
         });
 
         container.appendChild(card);
+
+        if (!firstCard) firstCard = card;
+
+        // ID 기반으로 방금 제작한 recipe인지 체크
+        if (preselectedRecipe && recipe.recipeId === preselectedRecipe.recipeId) {
+            selectedCard = card;
+            selectedRecipe = recipe;
+        }
     });
 
-    if (recipeList.length > 0) {
-        container.firstChild.classList.add('active');
+    if (selectedCard) {
+        selectedCard.classList.add('active');
+        renderRecipeDetail(selectedRecipe);
+    } else if (firstCard) {
+        firstCard.classList.add('active');
+        selectedRecipe = recipeList[0];
         renderRecipeDetail(recipeList[0]);
     }
 }
 
 
-function renderRecipeDetail(recipe) {
+
+function renderRecipeDetail(selectedRecipe) {
     const container = document.getElementById('craftDetailPanel');
     container.innerHTML = '';
 
@@ -135,8 +154,8 @@ function renderRecipeDetail(recipe) {
     infoBox.className = 'detail-info-box'; // 이 안에 아이콘, 이름, 설명
 
     const icon = document.createElement('img');
-    icon.src = basePath + recipe.resultItemIcon;
-    icon.alt = recipe.resultItemName;
+    icon.src = basePath + selectedRecipe.resultItemIcon;
+    icon.alt = selectedRecipe.resultItemName;
     icon.className = 'detail-icon';
     icon.style.width = '48px';
     icon.style.height = '48px';
@@ -149,7 +168,28 @@ function renderRecipeDetail(recipe) {
     name.style.fontWeight = 'bold';
     name.style.textAlign = 'center';
     name.style.fontSize = '1rem';
-    name.innerHTML = `${recipe.resultItemName} <span style="font-size: 0.85rem; color: #ccc;">(보유: ${recipe.resultItemUserOwned})</span>`;
+    name.innerHTML = `${selectedRecipe.resultItemName} <span style="font-size: 0.85rem; color: #ccc;">(보유: ${selectedRecipe.resultItemUserOwned})</span>`;
+
+    // 📌 스탯 영역 (이 부분을 이름 아래, 설명 위에 넣는다)
+    const statRow = document.createElement('div');
+    statRow.className = 'recipe-stat-row';
+
+    const atk = selectedRecipe.basePower ?? 0;
+    const hp = selectedRecipe.baseHp ?? 0;
+    const spd = selectedRecipe.baseSpeed ?? 0;
+
+    if (atk !== 0 || hp !== 0 || spd !== 0) {
+        if (atk !== 0) {
+            statRow.innerHTML += `<span class="recipe-stat-label">ATK</span><span class="recipe-stat-value">${atk}</span>`;
+        }
+        if (hp !== 0) {
+            statRow.innerHTML += `<span class="recipe-stat-label">HP</span><span class="recipe-stat-value">${hp}</span>`;
+        }
+        if (spd !== 0) {
+            statRow.innerHTML += `<span class="recipe-stat-label">SPD</span><span class="recipe-stat-value">${spd}</span>`;
+        }
+        infoBox.appendChild(statRow);
+    }
 
     const desc = document.createElement('div');
     desc.className = 'detail-desc';
@@ -158,17 +198,21 @@ function renderRecipeDetail(recipe) {
     desc.style.textAlign = 'center';
     desc.style.marginTop = '0.5rem';
     desc.style.fontWeight = 'bold';
-    desc.textContent = recipe.recipeDescription;
+    desc.textContent = selectedRecipe.recipeDescription;
+
 
     infoBox.appendChild(icon);
     infoBox.appendChild(name);
+    if (statRow.innerHTML) infoBox.appendChild(statRow);
     infoBox.appendChild(desc);
+
+
 
     // ▶ 재료 리스트
     const materialBox = document.createElement('div');
     materialBox.className = 'ingredient-list'; // ✅ 이름 변경
 
-    recipe.ingredients.forEach(ing => {
+    selectedRecipe.ingredients.forEach(ing => {
         const row = document.createElement('div');
         row.style.display = 'flex';
         row.style.alignItems = 'center';
@@ -220,10 +264,10 @@ function renderRecipeDetail(recipe) {
     const craftBtn = document.createElement('button');
     craftBtn.className = 'craft-button';
     craftBtn.textContent = 'CRAFT';
-    const canCraft = recipe.ingredients.every(ing => ing.userOwned >= ing.quantity);
+    const canCraft = selectedRecipe.ingredients.every(ing => ing.userOwned >= ing.quantity);
     craftBtn.disabled = !canCraft;
     craftBtn.addEventListener('click', () => {
-        if (canCraft) handleCraft(recipe);
+        if (canCraft) handleCraft(selectedRecipe);
     });
 
     const closeBtn = document.createElement('button');
@@ -253,93 +297,59 @@ function getRarityBackgroundClass(grade) {
     }
 }
 
-// 공방 리스트 렌더 영역
-function renderStationCategories(stations) {
-    categoryContainer.innerHTML = '';
-
-    stations.forEach(st => {
-        const categoryDiv = document.createElement('div');
-        categoryDiv.className = 'category';
-        categoryDiv.dataset.type = st.category;
-        categoryDiv.dataset.stationId = st.id;
-        categoryDiv.title = st.name; // ✅ 마우스 올리면 툴팁
-
-        const img = document.createElement('img');
-        img.src = basePath + st.imagePath || '/images/items/default.png';
-        img.alt = st.name;
-        img.onerror = () => {
-            img.src = '/images/character/default.png';
-        };
-
-        categoryDiv.appendChild(img);
-
-        categoryDiv.addEventListener('click', () => {
-            playEffect("se_click2");
-            setActiveCategory(st.category);
-            loadRecipesByStation(st.category,selectedRecipe?.recipeId || null);
-        });
-
-        categoryContainer.appendChild(categoryDiv);
-    });
-}
-
-
 
 // 제작 api 호출
-async function handleCraft(recipe) {
-    playEffect("se_craft")
-    if (!currentStationCategory) {
-        console.error('station category가 설정되지 않았습니다.');
+async function handleCraft(selectedRecipe) {
+    if (!selectedRecipe || !selectedStation) {
+        console.error('station category 또는 recipe가 설정되지 않았습니다.');
         return;
     }
 
+    playEffect("se_craft")
+
     const payload = {
-        resultItemId: recipe.resultItemId,
-        resultQuantity: 1, // 현재는 고정 1개
-        ingredients: recipe.ingredients.map(ing => ({
+        resultItemId: selectedRecipe.resultItemId,
+        resultQuantity: 1,
+        ingredients: selectedRecipe.ingredients.map(ing => ({
             itemId: ing.itemId,
             quantity: ing.quantity
         }))
     };
 
     try {
-        const url = '/api/station/craft'
+        const url = `/api/station/${selectedStation}/craft`;
         const res = await apiRequestJson(url, 'POST', payload);
 
         if (res.code === 'SUCCESS') {
-            // ✅ 애니메이션은 즉시 실행 (DOM 조작 없음)
-            const btn = document.querySelector('.craft-button');
-            if (btn) showCraftSuccessEffect(btn);
+            showCraftSuccessEffect();
 
-            // ✅ 새로고침은 바로 실행
-            loadRecipesByStation(currentStationCategory, selectedRecipe?.recipeId);
+
 
         } else {
-            workshopModal.classList.add('hidden')
             showMessageModal(`제작 실패: ${res.message}`);
         }
     } catch (err) {
-        workshopModal.classList.add('hidden')
         showMessageModal('제작 중 오류 발생');
     }
 }
 
-function showCraftSuccessEffect(buttonElement, message = '제작 성공!') {
+function showCraftSuccessEffect(message = '제작 성공!') {
+    const container = document.getElementById('craftDetailPanel');
+    if (!container) return;
+
     const floatText = document.createElement('div');
     floatText.className = 'craft-float-text';
     floatText.textContent = message;
 
-    const rect = buttonElement.getBoundingClientRect();
-    const modalRect = workshopModal.getBoundingClientRect();
+    floatText.style.position = 'absolute';
+    floatText.style.left = '50%';
+    floatText.style.top = '50%';
+    floatText.style.transform = 'translate(-50%, -50%)';
 
-    floatText.style.left = `${rect.left + rect.width / 2 - modalRect.left}px`;
-    floatText.style.top = `${rect.top - modalRect.top}px`;
-    floatText.style.transform = 'translateX(-50%)'; // 이거 유지!
-
-    const effectLayer = document.getElementById('craft-effect-layer');
-    effectLayer.appendChild(floatText);
+    container.appendChild(floatText);
 
     setTimeout(() => {
         floatText.remove();
+        openCraftModal(selectedStation, selectedRecipe);
     }, 1000);
 }

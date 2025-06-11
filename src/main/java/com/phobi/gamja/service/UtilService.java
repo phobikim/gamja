@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -95,5 +96,13 @@ public class UtilService {
         // 6. 변경된 인벤토리 전체 반환
         return getUserInventoryWithEquipStatus(userId);
     }
+
+    public static final Map<String, Integer> RARITY_ORDER = Map.of(
+            "COMMON", 1,
+            "UNCOMMON", 2,
+            "RARE", 3,
+            "EPIC", 4,
+            "LEGENDARY", 5
+    );
 
 }

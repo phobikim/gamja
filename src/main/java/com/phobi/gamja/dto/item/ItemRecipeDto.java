@@ -20,6 +20,18 @@ public class ItemRecipeDto {
     private int resultItemUserOwned; // 결과아이템 user 보유 수량
     private List<IngredientDto> ingredients;
 
+    // 전투 장비 전용
+    private Integer baseHp;
+    private Integer basePower;
+    private Integer baseSpeed;
+
+    // 생활 장비 전용
+    private Integer fishing;
+    private Integer mining;
+    private Integer woodcutting;
+    private Integer gathering;
+    private Integer making;
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
