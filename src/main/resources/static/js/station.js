@@ -350,6 +350,6 @@ function showCraftSuccessEffect(message = '제작 성공!') {
 
     setTimeout(() => {
         floatText.remove();
-        openCraftModal(selectedStation, selectedRecipe);
+        fetchRecipes(selectedStation, selectedRecipe);
     }, 1000);
 }

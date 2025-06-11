@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.phobi.gamja.service.UtilService.RARITY_ORDER;
+
 @Service
 @RequiredArgsConstructor
 public class StationService {
@@ -125,9 +127,11 @@ public class StationService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        dtoList.sort(Comparator.comparing(dto -> UtilService.RARITY_ORDER.getOrDefault(dto.getGrade(), 99)));
+        dtoList.sort(Comparator
+                .comparing((ItemRecipeDto dto) -> RARITY_ORDER.getOrDefault(dto.getGrade(), 99))
+                .thenComparing(dto -> dto.getBasePower() != null ? dto.getBasePower() : Integer.MAX_VALUE)
+        );
         return dtoList;
-
     }
 
     private void addIng(Long itemId, Integer qty,
