@@ -8,6 +8,7 @@ const dexTabContents = {
     monster: document.getElementById("monsterTab"),
 };
 let currentDexData = null;
+let selectedCharacterInDetail = null;
 
 async function handleDexClick() {
     playEffect("se_click2");
@@ -62,11 +63,33 @@ function renderDexTabs() {
             if (type === "monster") renderCardsByType("monster", currentDexData.monsterList);
         });
     });
+
+    document.getElementById("dexEquipBtn").addEventListener("click", async () => {
+        if (!selectedCharacterInDetail || !selectedCharacterInDetail.id) {
+            showMessageModal("선택된 캐릭터 정보가 없습니다.");
+            return;
+        }
+
+        await setCharacters(selectedCharacterInDetail.id);
+
+        // 🔄 도감 데이터 새로고침
+        currentDexData = await fetchDexMetaData();
+        renderCardsByType("character", currentDexData.dexList); // 다시 렌더링
+    });
 }
 // 카드 + 상세정보 렌더링
 function renderCardsByType(type, list) {
     const container = dexTabContents[type];
     container.innerHTML = "";
+    // ✅ 장착 캐릭터 우선 정렬
+    if (type === "character" && currentDexData.equippedDexId) {
+        const equippedId = currentDexData.equippedDexId;
+        list.sort((a, b) => {
+            if (a.id === equippedId) return -1;
+            if (b.id === equippedId) return 1;
+            return 0;
+        });
+    }
 
     list.forEach((item, index) => {
         const card = document.getElementById("dexSquareCardTemplate").content.cloneNode(true);
@@ -86,6 +109,28 @@ function renderCardsByType(type, list) {
         const cardEl = card.querySelector(".dex-square-card");
         const rarityClass = `rarity-background-${item.rarity?.toLowerCase()}`;
         img.classList.add(rarityClass);
+        // 이미지 경로 설정
+        img.src = type === "character"
+            ? `${basePath_image}/character/${item.imagePath}`
+            : `${basePath}/${item.imagePath}`;
+        img.alt = item.name;
+        stars.innerHTML = getStars(item.rarity);
+
+        // ✅ 미보유 오버레이 추가
+        if (type === "character" && item.owned === false) {
+            const overlay = document.createElement("div");
+            overlay.className = "not-owned-overlay";
+            overlay.textContent = "미보유";
+            cardEl.appendChild(overlay);
+        }
+
+        // ✅ 장착중 뱃지
+        if (type === "character" && item.id === currentDexData.equippedDexId) {
+            const equipBadge = document.createElement("div");
+            equipBadge.className = "equip-badge";
+            equipBadge.textContent = "장착중";
+            cardEl.appendChild(equipBadge);
+        }
 
         cardEl.addEventListener("click", () => {
             showDexDetail(type, item);
@@ -121,9 +166,11 @@ function showDexDetail(type, item) {
     document.getElementById("detailName").textContent = item.name;
     const rarityClass = `rarity-background-${item.rarity?.toLowerCase()}`;
     detailImg.className = `detail-image ${rarityClass}`;
+
     const characterIcon = document.getElementById("characterIcon");
 
     if (type === "character") {
+        selectedCharacterInDetail = item;
         document.querySelector("#effectCondition .effect-label").textContent = "획득처";
         characterIcon.style.display = item.attributeIconPath ? "block" : "none";
 
@@ -190,7 +237,7 @@ function showDexDetail(type, item) {
         characterIcon.style.display = "none";
         detailLevelInfo.style.display = "none";
         detailAffinityInfo.style.display = "none";
-
+        detailEquip.style.display = "none";
         // ✅ 미보유 오버레이 숨김
         notOwnedOverlay.classList.add("hidden");
         // detailEffects 영역 표시
@@ -201,14 +248,29 @@ function showDexDetail(type, item) {
         // document.getElementById("detailRarity").textContent =
         //     type === "item" ? (item.rarity ?? "Common") : (item.rank ?? "Common");
         if(type === "item") {
-            detailEquip.style.display = "none";
             detailStat.style.display = "none";
         } else {
-            detailEquip.style.display = "flex";
             detailStat.style.display = "flex";
             document.getElementById("detailAtk").textContent = item.basePower || 0;
             document.getElementById("detailHp").textContent = item.baseHp || 0;
         }
+    }
+}
+
+async function setCharacters(selectedCharacterId) {
+    try {
+        const res = await apiRequestJson('/api/char/setDex', 'POST', {
+            dexId: selectedCharacterId
+        });
+
+        if (res.code !== 'SUCCESS') {
+            showMessageModal(res.message || '대표 감자 설정에 실패했습니다.');
+        } else {
+            await loadCharacterBasicInfo(); // 메인 화면 갱신
+        }
+    } catch (err) {
+        console.error('대표 감자 설정 실패:', err);
+        showMessageModal('서버 오류로 대표 감자 설정에 실패했습니다.');
     }
 }
 

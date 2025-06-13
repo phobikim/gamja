@@ -1,7 +1,7 @@
 const workshopSelectModal = document.getElementById('workshopSelectModal');
 const craftModal = document.getElementById("craftModal");
 const workshopDetailPanel = document.getElementById('workshopDetailPanel');
-const goToWorkshopBtn = document.getElementById('goToWorkshop');
+// const goToWorkshopBtn = document.getElementById('goToWorkshop');
 const closeWorkshopSelect = document.getElementById('closeWorkshopSelect');
 let selectedStation = null;
 let selectedRecipe = null;
@@ -11,8 +11,8 @@ async function handleStationClick() {
     workshopSelectModal.classList.remove('hidden');
     selectedStation = null;
     selectedRecipe = null;
-    goToWorkshopBtn.disabled = true;
-    goToWorkshopBtn.classList.add('disabled');
+    // goToWorkshopBtn.disabled = true;
+    // goToWorkshopBtn.classList.add('disabled');
     await getWorkshopStations();
 }
 
@@ -40,22 +40,21 @@ async function getWorkshopStations() {
 
 // 카드 렌더링
 function renderWorkshopCards(stations) {
-    workshopDetailPanel.innerHTML = '';
+    const panel = document.getElementById('workshopDetailPanel');
+    panel.innerHTML = '';
     stations.forEach(station => {
         const card = document.createElement('div');
         card.className = 'workshop-card';
-        card.dataset.category = station.category;
-
         card.innerHTML = `
-            <img src="${basePath}/${station.imagePath}" class="workshop-thumb" alt="${station.name}" />
-            <div class="workshop-name">${station.name}</div>
-        `;
-
+      <img src="${basePath}/${station.imagePath}" class="workshop-thumb" alt="${station.name}" />
+      <div class="workshop-name">${station.name}</div>
+    `;
         card.addEventListener('click', () => {
-            selectWorkshopCard(card, station.category);
+            playEffect("se_click2");
+            document.getElementById('workshopSelectModal').classList.add('hidden');
+            openCraftModal(station.category);
         });
-
-        workshopDetailPanel.appendChild(card);
+        panel.appendChild(card);
     });
 }
 
@@ -69,17 +68,17 @@ function selectWorkshopCard(cardEl, category) {
 
     cardEl.classList.add('selected');
     selectedStation = category;
-    goToWorkshopBtn.disabled = false;
-    goToWorkshopBtn.classList.remove('disabled');
+    // goToWorkshopBtn.disabled = false;
+    // goToWorkshopBtn.classList.remove('disabled');
 }
 // 이동 버튼 클릭
-goToWorkshopBtn.addEventListener('click', () => {
-    if (!selectedStation) return;
-    workshopSelectModal.classList.add('hidden');
-
-    openCraftModal(selectedStation);
-
-});
+// goToWorkshopBtn.addEventListener('click', () => {
+//     if (!selectedStation) return;
+//     workshopSelectModal.classList.add('hidden');
+//
+//     openCraftModal(selectedStation);
+//
+// });
 
 function openCraftModal(stationCategory, preselectedRecipe = null) {
     document.getElementById('craftModal').classList.remove('hidden');

@@ -10,6 +10,7 @@ import com.phobi.gamja.entity.item.ItemSkillBonus;
 import com.phobi.gamja.entity.item.ItemStatBonus;
 import com.phobi.gamja.entity.user.UserDex;
 import com.phobi.gamja.entity.user.UserDexStat;
+import com.phobi.gamja.entity.user.UserDtl;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.entity.dex.Dex;
 import com.phobi.gamja.repository.contents.DexRepository;
@@ -19,6 +20,7 @@ import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
 import com.phobi.gamja.repository.item.ItemStatBonusRepository;
 import com.phobi.gamja.repository.user.UserDexRepository;
 import com.phobi.gamja.repository.user.UserDexStatRepository;
+import com.phobi.gamja.repository.user.UserDtlRepository;
 import com.phobi.gamja.service.BattleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,7 @@ public class DexController {
     private final BattleService battleService;
     private final DexRepository dexRepository;
     private final UserDexRepository userDexRepository;
+    private final UserDtlRepository userDtlRepository;
     private final UserDexStatRepository userDexStatRepository;
     private final ItemRepository itemRepository;
     private final MonsterRepository monsterRepository;
@@ -54,6 +57,12 @@ public class DexController {
         Set<Long> ownedDexIds = ownedDexList.stream()
                 .map(ud -> ud.getDex().getId())
                 .collect(Collectors.toSet());
+
+        // 대표 DEX
+        Long selectedDexId = userDtlRepository.findById(userId)
+                .map(UserDtl::getCharacterDexId)
+                .orElse(null);
+
         List<UserDexStat> statList = userDexStatRepository.findByUser_Id(userId);
 
         Map<Long, UserDexStat> statMap = statList.stream()
@@ -70,7 +79,6 @@ public class DexController {
                     m.put("owned", isOwned);
                     m.put("imagePath", dex.getImage());
                     m.put("condition", dex.getCondition());
-
                     DexAttribute attr = dex.getAttribute();
                     m.put("attribute", attr.getName());
                     m.put("attributeIconPath", attr.getIconPath());
@@ -224,6 +232,7 @@ public class DexController {
         data.put("lifeEquipItemsList", lifeEquipItems);
         data.put("itemList", nonEquipItems);
         data.put("monsterList", monsterResult);
+        data.put("equippedDexId", selectedDexId);
 
         return ResponseEntity.ok(GamJaResponse.success("도감 메타데이터 조회 완료", data));
     }

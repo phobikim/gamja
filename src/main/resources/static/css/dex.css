@@ -181,6 +181,7 @@
     font-weight: bold;
     color: white;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    pointer-events: none; /* 클릭 막지 않게 */
 }
 
 .not-owned-overlay.hidden {
@@ -376,4 +377,18 @@
     cursor: pointer;
     font-weight: bold;
     transition: background 0.2s ease;
+}
+
+.equip-badge {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    background: #fa6719;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 6px;
+    z-index: 2;
+    pointer-events: none;
 }
