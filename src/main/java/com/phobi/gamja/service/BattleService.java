@@ -1,27 +1,33 @@
 package com.phobi.gamja.service;
 
 import com.phobi.gamja.dto.contents.MonsterDto;
+import com.phobi.gamja.dto.item.EquipmentSlot;
 import com.phobi.gamja.dto.user.BattleStatDto;
+import com.phobi.gamja.dto.item.ItemDto;
+import com.phobi.gamja.dto.user.UserEquipment;
 import com.phobi.gamja.entity.contents.Monster;
 import com.phobi.gamja.entity.contents.MonsterMap;
 import com.phobi.gamja.entity.dex.DexAttribute;
 import com.phobi.gamja.entity.item.Item;
-import com.phobi.gamja.entity.user.UserDexStat;
-import com.phobi.gamja.entity.user.UserDexStatId;
-import com.phobi.gamja.entity.user.UserDtl;
+import com.phobi.gamja.entity.item.ItemPotionEffect;
+import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.contents.DexRepository;
 import com.phobi.gamja.repository.contents.MonsterMapRepository;
 import com.phobi.gamja.repository.contents.MonsterRepository;
+import com.phobi.gamja.repository.item.ItemPotionEffectRepository;
 import com.phobi.gamja.repository.item.ItemRepository;
 import com.phobi.gamja.repository.user.UserDexStatRepository;
 import com.phobi.gamja.repository.user.UserDtlRepository;
+import com.phobi.gamja.repository.user.UserEquipmentRepository;
+import com.phobi.gamja.repository.user.UserInventoryRepository;
 import com.phobi.gamja.util.CommonUtil;
 import com.phobi.gamja.util.StatCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -38,6 +44,9 @@ public class BattleService {
     private final MonsterMapRepository monsterMapRepository;
     private final ItemRepository itemRepository;
     private final UserDexStatRepository userDexStatRepository;
+    private final UserInventoryRepository userInventoryRepository;
+    private final ItemPotionEffectRepository itemPotionEffectRepository;
+    private final UserEquipmentRepository userEquipmentRepository;
 
     public GamJaResponse getMapList(HttpServletRequest request) {
         List<MonsterMap> maps = monsterMapRepository.findAll().stream()
@@ -114,6 +123,50 @@ public class BattleService {
         userInfo.put("hp", userBattleDto.getHp());
         userInfo.put("speed", userBattleDto.getSpeed());
 
+        // 포션 아이템 정보
+        ItemDto potionItem = null;
+        int potionCount = 0;
+        int bonusPower = 0;
+        int bonusHp = 0;
+        int durationTurns = 0;
+
+        if (userBattleDto.getEquippedItems() != null) {
+            potionItem = userBattleDto.getEquippedItems().stream()
+                    .filter(item -> "POTION".equals(item.getEquipSlot()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (potionItem != null) {
+                // 수량 조회
+                potionCount = userInventoryRepository.findByUserIdAndItemId(userId, potionItem.getId())
+                        .map(UserInventory::getQuantity)
+                        .orElse(0);
+
+                // 효과 조회
+                ItemPotionEffect effect = itemPotionEffectRepository.findById(potionItem.getId())
+                        .orElse(null);
+                if (effect != null) {
+                    bonusPower = effect.getBonusPower();
+                    bonusHp = effect.getHealHp();
+                    durationTurns = effect.getDurationTurns();
+                }
+            }
+        }
+
+        Map<String, Object> potionInfo = new HashMap<>();
+        if (potionItem != null) {
+            potionInfo.put("itemName", potionItem.getName());
+            potionInfo.put("itemPath", potionItem.getIconPath());
+            potionInfo.put("quantity", potionCount);
+            potionInfo.put("bonusPower", bonusPower);
+            potionInfo.put("bonusHp", bonusHp);
+            potionInfo.put("durationTurns", durationTurns);
+        } else {
+            potionInfo.put("quantity", 0); // 없으면 기본값
+        }
+
+        userInfo.put("potion", potionInfo);
+
         return GamJaResponse.success("유저 스탯 조회 성공", userInfo);
     }
 
@@ -160,5 +213,36 @@ public class BattleService {
 
         dto.setDropItems(dropItems);
         return dto;
+    }
+
+    @Transactional
+    public GamJaResponse usePotion(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+
+        // 현재 장착중인 POTION 아이템 ID 가져오기
+        Optional<Long> potionItemIdOpt = userEquipmentRepository
+                .findByUserIdAndSlot(userId, EquipmentSlot.POTION)
+                .map(UserEquipment::getItemId);
+
+        if (potionItemIdOpt.isEmpty()) {
+            return GamJaResponse.fail("장착된 물약이 없습니다.");
+        }
+
+        Long potionItemId = potionItemIdOpt.get();
+
+        // 인벤토리 수량 가져오기
+        Optional<UserInventory> inventoryOpt = userInventoryRepository.findByUserIdAndItemId(userId, potionItemId);
+        if (inventoryOpt.isEmpty() || inventoryOpt.get().getQuantity() <= 0) {
+            return GamJaResponse.fail("보유한 물약이 없습니다.");
+        }
+
+        // 수량 감소 처리
+        UserInventory inventory = inventoryOpt.get();
+        inventory.setQuantity(inventory.getQuantity() - 1);
+        userInventoryRepository.save(inventory);
+
+        int remaining = Math.max(0, inventory.getQuantity());
+
+        return GamJaResponse.success("물약 사용 완료", Map.of("quantity", remaining));
     }
 }

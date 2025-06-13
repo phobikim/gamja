@@ -9,6 +9,9 @@ let battleEnded = false;
 let isPlayerTurn = true;
 let isProcessingTurn = false;
 
+let potionUsed = false;
+let tempPowerBoost = 0;
+
 const skillEffectImage = `${basePath_image}/effect/attack_slash5.png`;
 
 window.battleState = {
@@ -189,8 +192,24 @@ function updateHpBar(current, max, barId, textId) {
     const percent = Math.max(0, Math.min(100, (current / max) * 100));
     bar.style.width = `${percent}%`;
 
-    const displayCurrent = Math.max(0, current); // 0 이하일 땐 그냥 0으로
+    const displayCurrent = Math.max(0, current);
     text.textContent = `${displayCurrent} / ${max}`;
+
+    // ✅ 초록색 회복 이펙트 (물약 사용 시만)
+    if (barId === 'playerHpBar' && potionUsed) {
+        bar.classList.remove('hp-heal-effect');
+        void bar.offsetWidth;
+        bar.classList.add('hp-heal-effect');
+
+        // 한 번만 적용되게 potionUsed 초기화 여기서!
+        potionUsed = false;
+
+        bar.addEventListener('animationend', function handleAnimEnd() {
+            bar.classList.remove('hp-heal-effect');
+            bar.removeEventListener('animationend', handleAnimEnd);
+        });
+    }
+
 }
 
 function resetBattleState(user, monster) {
@@ -203,7 +222,15 @@ function resetBattleState(user, monster) {
         speed: user.speed?.total || 5,
         currentXp: user.xp,
         lv: user.lv,
-        charImg: user.charImage
+        charImg: user.charImage,
+
+        //포션 정보 저장
+        potion: user.potion || {
+            itemPath: '',
+            quantity: 0,
+            bonusHp: 0,
+            bonusPower: 0
+        }
     };
     battleState.monster = {
         name: monster.name,
@@ -238,6 +265,18 @@ function startBattle(user, monster) {
         "monsterHpBar",
         "monsterHpText"
     );
+    const defendBtn = document.getElementById('defendBtn');
+    const potion = battleState.player.potion;
+
+    if (defendBtn && potion?.itemPath) {
+        defendBtn.innerHTML = `
+        <div class="potion-btn-wrapper">
+            <img src="${basePath}${potion.itemPath}" alt="물약" class="potion-btn-image">
+            <div class="potion-count-label">x${potion.quantity}</div>
+        </div>
+    `;
+        defendBtn.disabled = potion.quantity <= 0;
+    }
 }
 
 function updateBattleUI() {
@@ -246,6 +285,16 @@ function updateBattleUI() {
     // 🔥 HP 바도 갱신
     updateHpBar(p.currentHp, p.maxHp, "playerHpBar", "playerHpText");
     updateHpBar(m.currentHp, m.maxHp, "monsterHpBar", "monsterHpText");
+
+    const atkBase = battleState.player?.power ?? 0;
+    const boost = tempPowerBoost || 0;
+    const atkDisplay = document.getElementById('attackPowerDisplay');
+
+    if (atkDisplay) {
+        atkDisplay.textContent = boost > 0
+            ? `ATK: ${atkBase - boost} +${boost}`
+            : `ATK: ${atkBase}`;
+    }
 }
 
 
@@ -253,13 +302,14 @@ function updateButtonStates() {
     const attackBtn = document.getElementById('attackBtn');
     const healBtn = document.getElementById('healBtn');
     const canAct = isPlayerTurn && !isProcessingTurn && !battleEnded;
-    if (attackBtn) attackBtn.disabled = !canAct;
-    if (healBtn) healBtn.disabled = !canAct;
+    disableBattleButtons(!canAct);
 }
 
 function doAttack() {
     if (!isPlayerTurn || isProcessingTurn || battleEnded) return;
     playEffect("se_attack");
+    const attackBtn = document.getElementById('attackBtn');
+    animateButton(attackBtn);
     isProcessingTurn = true;
     updateButtonStates();
 
@@ -271,9 +321,12 @@ function doAttack() {
     updateBattleUI();
 
     if (battleState.monster.currentHp <= 0) {
+        // ✅ 버튼 전부 비활성화
+        disableBattleButtons(true);
+
         setTimeout(() => {
             winBattle();
-        }, 1000); // 1초 후 승리 처리
+        }, 1000);
         return;
     }
 
@@ -283,6 +336,12 @@ function doAttack() {
 
 function monsterTurn() {
     if (isPlayerTurn || battleEnded) return; // 먼저 체크
+
+    // ✅ 물약 효과 원상복구
+    if (tempPowerBoost > 0) {
+        battleState.player.power -= tempPowerBoost;
+        tempPowerBoost = 0;
+    }
 
     isProcessingTurn = true;
 
@@ -296,11 +355,18 @@ function monsterTurn() {
     // 플레이어 턴 시작 전 버튼 상태 갱신 → 공격/힐 비활성화 유지됨
     isPlayerTurn = true;
     isProcessingTurn = false;
-    updateButtonStates();
-
+    // ✅ 먼저 체력 확인
     if (battleState.player.currentHp <= 0) {
+        // 죽었으면 버튼 비활성화
+        disableBattleButtons(true);
+
         setTimeout(() => {
             showDefeatModal("여기에 다시 묻히다...");
+        }, 800);
+    } else {
+        // 살아있으면 1초 후 버튼 활성화
+        setTimeout(() => {
+            updateButtonStates();
         }, 1000);
     }
 }
@@ -480,14 +546,15 @@ function applyHitEffect(targetSelector) {
     el.classList.add('hit-effect');
 }
 
-function showDamageText(targetSelector, damage) {
+function showDamageText(targetSelector, value, isHeal = false) {
     const container = document.querySelector(targetSelector);
     if (!container) return;
     const dmg = document.createElement('div');
     dmg.className = 'damage-float';
-    dmg.textContent = `-${damage}`;
+    dmg.textContent = `${isHeal ? '+' : '-'}${value}`;
     dmg.style.left = '50%';
     dmg.style.top = '0';
+    dmg.style.color = isHeal ? '#2aff73' : 'red';
     container.appendChild(dmg);
     setTimeout(() => { dmg.remove(); }, 1000);
 }
@@ -598,11 +665,60 @@ function nextBattle() {
     }
 }
 
-function doDefend() {
-    console.log("물약 사용")
+async function doDefend() {
+    const player = battleState.player;
+
+    // 조건: 턴 중 & 패배 아님 & 아직 안 쓴 경우 & 살아있는 경우만 가능
+    if (!isPlayerTurn || isProcessingTurn || battleEnded || potionUsed || player.currentHp <= 0) return;
+    const defendBtn = document.getElementById('defendBtn');
+    animateButton(defendBtn);
+
+    const {bonusHp, bonusPower, quantity} = player.potion;
+
+    // 수량 없으면 차단 (정상 UI에선 실행 안 됨)
+    if (quantity <= 0) {
+        showMessageModal("물약이 없습니다!");
+        return;
+    }
+    // ✅ 서버에 수량 감소 요청
+    try {
+        const res = await apiRequestJson('/api/battle/use-potion', 'POST', {});
+        if (res.code !== 'SUCCESS' || typeof res.data?.quantity !== 'number') {
+            showMessageModal("물약 사용 실패");
+            return;
+        }
+
+        // 수량 반영
+        const newQuantity = res.data.quantity;
+        player.potion.quantity = newQuantity;
+        potionUsed = true;
+
+        // UI 업데이트
+        const label = defendBtn.querySelector('.potion-count-label');
+        if (label) label.textContent = `x${newQuantity}`;
+        if (newQuantity <= 0) defendBtn.disabled = true;
+
+        // ✅ 회복
+        if (bonusHp > 0) {
+            player.currentHp = Math.min(player.maxHp, player.currentHp + bonusHp);
+            showDamageText('.player-container', bonusHp, true);
+        }
+
+        // ✅ 공격력 버프
+        if (bonusPower > 0) {
+            tempPowerBoost = bonusPower;
+            player.power += bonusPower;
+        }
+
+        updateBattleUI();
+    } catch (err) {
+        console.error("물약 사용 오류:", err);
+        showMessageModal("서버 오류로 물약을 사용할 수 없습니다.");
+    }
 }
 
 function doHeal() {
+    if (!isPlayerTurn || isProcessingTurn || battleEnded) return;
     showMessageModal("도망쳤습니다!");
     closeBattleModal();
 }
@@ -630,4 +746,24 @@ function showSkillEffect() {
     setTimeout(() => {
         effectImg.remove();
     }, 1000);
+}
+
+function animateButton(buttonEl) {
+    if (!buttonEl) return;
+    buttonEl.classList.remove('battle-button-clicked'); // 중복 방지
+    void buttonEl.offsetWidth; // 리플로우 강제
+    buttonEl.classList.add('battle-button-clicked');
+}
+
+function disableBattleButtons(disabled) {
+    const attackBtn = document.getElementById('attackBtn');
+    const healBtn = document.getElementById('healBtn');
+    const defendBtn = document.getElementById('defendBtn');
+
+    if (attackBtn) attackBtn.disabled = disabled;
+    if (healBtn) healBtn.disabled = disabled;
+    if (defendBtn) {
+        const quantity = battleState.player.potion?.quantity ?? 0;
+        defendBtn.disabled = disabled || quantity <= 0 || potionUsed;
+    }
 }

@@ -2,6 +2,7 @@ package com.phobi.gamja.service;
 import com.phobi.gamja.dto.contents.DexOwnedDto;
 import com.phobi.gamja.dto.contents.DexOwnedListResponseDto;
 import com.phobi.gamja.dto.item.EquipItemDto;
+import com.phobi.gamja.dto.item.EquipmentSlot;
 import com.phobi.gamja.dto.user.*;
 import com.phobi.gamja.entity.dex.Dex;
 import com.phobi.gamja.entity.dex.DexAttribute;
@@ -103,11 +104,11 @@ public class CharService {
         }
 
         Item.ItemType itemType;
-        Item.EquipmentSlot equipSlot;
+        EquipmentSlot equipSlot;
 
         try {
             itemType = Item.ItemType.valueOf(itemTypeStr);
-            equipSlot = Item.EquipmentSlot.valueOf(equipSlotStr);
+            equipSlot = EquipmentSlot.valueOf(equipSlotStr);
         } catch (IllegalArgumentException e) {
             return GamJaResponse.fail("itemType 또는 equipSlot 값이 잘못되었습니다.");
         }
@@ -120,7 +121,7 @@ public class CharService {
 
         // 3. 해당 조건(itemType + equipSlot)에 맞는 아이템만 필터링
         List<Item> filteredItems;
-        if (equipSlot == Item.EquipmentSlot.POTION) {
+        if (equipSlot == EquipmentSlot.POTION) {
             filteredItems = itemRepository.findByIdInAndEquipSlot(itemIds, equipSlot);
         } else {
             filteredItems = itemRepository.findByIdInAndItemTypeAndEquipSlot(itemIds, itemType, equipSlot);
@@ -134,7 +135,7 @@ public class CharService {
         List<ItemSkillBonus> skillBonuses;
         List<EquipItemDto> result = null;
         //5. 포션 보너스 정보 로딩
-        if (equipSlot == Item.EquipmentSlot.POTION) {
+        if (equipSlot == EquipmentSlot.POTION) {
             potionEffectList = itemPotionEffectRepository.findByItemIdIn(itemMap.keySet());
             Map<Long, ItemPotionEffect> statMap = potionEffectList.stream()
                     .collect(Collectors.toMap(ItemPotionEffect::getItemId, b -> b));

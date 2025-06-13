@@ -568,16 +568,12 @@
         </div>
 
         <div class="battle-actions">
-            <button onclick="doHeal()">
-                도망
+            <button id="healBtn" onclick="doHeal()">도망</button>
+            <button id="attackBtn" onclick="doAttack()">
+                <div class="attack-btn-top">공격</div>
+                <div class="attack-btn-bottom" id="attackPowerDisplay">공격력: 17</div>
             </button>
-            <button onclick="doAttack()">
-                공격
-<!--                <img src="https://phobi.me/gamja.img/images/icons/icon_skill_attack.png" alt="공격">-->
-            </button>
-            <button onclick="doDefend()">
-                물약
-            </button>
+            <button id="defendBtn" onclick="doDefend()">물약</button>
         </div>
     </div>
 </div>

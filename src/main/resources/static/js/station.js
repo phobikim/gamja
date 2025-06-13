@@ -45,6 +45,7 @@ function renderWorkshopCards(stations) {
     stations.forEach(station => {
         const card = document.createElement('div');
         card.className = 'workshop-card';
+        card.dataset.category = station.category;
         card.innerHTML = `
       <img src="${basePath}/${station.imagePath}" class="workshop-thumb" alt="${station.name}" />
       <div class="workshop-name">${station.name}</div>
@@ -81,6 +82,7 @@ function selectWorkshopCard(cardEl, category) {
 // });
 
 function openCraftModal(stationCategory, preselectedRecipe = null) {
+    selectedStation = stationCategory;
     document.getElementById('craftModal').classList.remove('hidden');
     fetchRecipes(stationCategory, preselectedRecipe);
 }

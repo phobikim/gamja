@@ -37,4 +37,11 @@ public class MonsterController {
         GamJaResponse response = battleService.getMonstersByMap(mapId);
         return ResponseEntity.ok(response);
     }
+
+    /** 물약 사용 처리 **/
+    @PostMapping("/use-potion")
+    public ResponseEntity<GamJaResponse> usePotion(HttpServletRequest request) {
+        GamJaResponse response = battleService.usePotion(request);
+        return ResponseEntity.ok(response);
+    }
 }
