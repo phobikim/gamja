@@ -233,6 +233,7 @@ function resetBattleState(user, monster) {
         }
     };
     battleState.monster = {
+        id: monster.id,
         name: monster.name,
         maxHp: monster.monsterHp,
         currentHp: monster.monsterHp,
@@ -425,10 +426,11 @@ function showRewardResults() {
 function updateCharacterReward(user, expReward, items) {
     const payload = {
         exp: expReward,
+        monsterId: battleState.monster.id,
         items: items.map(item => ({ itemId: item.id, count: item.count }))
     };
 
-    apiRequestJson('/api/action/endBattle', 'POST', payload)
+    apiRequestJson('/api/action/end-battle', 'POST', payload)
         .then(res => {
             if (res.code === 'SUCCESS' && res.data) {
                 const { xp, maxExp, level } = res.data;

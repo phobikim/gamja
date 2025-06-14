@@ -183,17 +183,25 @@ function renderCardsByType(type, list) {
             // 버튼
             const btn = document.createElement("button");
             btn.className = "title-btn";
+
             if (!item.owned) {
                 btn.textContent = "획득";
-                btn.disabled = true;
+                btn.disabled = !item.achieved;
+                if (item.achieved) {
+                    btn.addEventListener("click", async () => {
+                        await claimTitle(item.id);
+                    });
+                }
             } else if (item.equipped) {
                 btn.textContent = "착용중";
+                btn.classList.add("equipped"); // ✅ 클래스 추가!
                 btn.disabled = true;
             } else {
                 btn.textContent = "착용";
-                btn.onclick = () => equipTitle(item.id);
+                btn.addEventListener("click", async () => {
+                    await equipTitle(item.id);
+                });
             }
-
             right.appendChild(btn);
             row.appendChild(left);
             row.appendChild(right);
@@ -431,4 +439,40 @@ function getStars(rarity) {
 
 function closeDexModal() {
     dexModal.classList.add('hidden');
+}
+
+async function claimTitle(titleId) {
+    try {
+        const res = await apiRequestJson('/api/action/title/claim', 'POST', { titleId });
+        if (res.code === 'SUCCESS') {
+            showMessageModal("칭호를 획득했습니다!");
+            // 데이터 새로고침
+            currentDexData = await fetchDexMetaData();
+            renderCardsByType("title", currentDexData.titleList);
+        } else {
+            showMessageModal(res.message || '획득 실패');
+        }
+    } catch (err) {
+        console.error("칭호 획득 실패", err);
+        showMessageModal("서버 오류로 칭호를 획득하지 못했습니다.");
+    }
+}
+
+async function equipTitle(titleId) {
+    try {
+        const res = await apiRequestJson('/api/action/title/equip', 'POST', { titleId });
+        if (res.code === 'SUCCESS') {
+            showMessageModal("칭호를 착용했습니다!");
+            currentDexData = await fetchDexMetaData();
+            renderCardsByType("title", currentDexData.titleList);
+            if (res.data) {
+                setUserInfo(res.data); // ✅ 최신 유저 정보로 메인 갱신
+            }
+        } else {
+            showMessageModal(res.message || '착용 실패');
+        }
+    } catch (err) {
+        console.error("칭호 착용 실패", err);
+        showMessageModal("서버 오류로 칭호를 착용하지 못했습니다.");
+    }
 }

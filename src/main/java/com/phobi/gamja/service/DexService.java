@@ -37,6 +37,7 @@ public class DexService {
     private final TitleRepository titleRepository;
     private final TitleEffectRepository titleEffectRepository;
     private final UserTitleRepository userTitleRepository;
+    private final UserCounterDetailRepository userCounterDetailRepository;
 
     private static final Map<String, Integer> RARITY_ORDER = Map.of(
             "COMMON", 1,
@@ -230,7 +231,8 @@ public class DexService {
 
     private List<Map<String, Object>> buildTitleList(Long userId) {
         List<Title> titles = titleRepository.findAll();
-        List<UserTitle> userTitles = userTitleRepository.findByUserId(userId);
+        List<UserTitle> userTitles = userTitleRepository.findByIdUserId(userId);
+        List<UserCounterDetail> counterDetails = userCounterDetailRepository.findByUserId(userId);
 
         Set<Long> ownedTitleIds = userTitles.stream()
                 .map(ut -> ut.getTitle().getId())
@@ -242,9 +244,17 @@ public class DexService {
                 .findFirst()
                 .orElse(null);
 
+        Map<String, Integer> counterMap = counterDetails.stream()
+                .collect(Collectors.toMap(
+                        c -> c.getCounterType() + "_" + c.getTargetId(),
+                        UserCounterDetail::getCounterValue
+                ));
+
         return titles.stream().map(title -> {
             Map<String, Object> m = new HashMap<>();
             Long titleId = title.getId();
+            String key = title.getCounterType().name() + "_" + title.getTargetId();
+            int currentCount = counterMap.getOrDefault(key, 0);
 
             m.put("id", titleId);
             m.put("name", title.getName());
@@ -253,7 +263,8 @@ public class DexService {
             m.put("counterType", title.getCounterType().name());
             m.put("targetId", title.getTargetId());
             m.put("requiredCount", title.getRequiredCount());
-
+            m.put("currentCount", currentCount);
+            m.put("achieved", currentCount >= title.getRequiredCount());
             m.put("owned", ownedTitleIds.contains(titleId));
             m.put("equipped", titleId.equals(equippedTitleId));
 

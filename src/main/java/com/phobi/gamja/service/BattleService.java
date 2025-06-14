@@ -245,4 +245,5 @@ public class BattleService {
 
         return GamJaResponse.success("물약 사용 완료", Map.of("quantity", remaining));
     }
+
 }

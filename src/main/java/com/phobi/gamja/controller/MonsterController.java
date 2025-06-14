@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/battle")
@@ -44,4 +46,5 @@ public class MonsterController {
         GamJaResponse response = battleService.usePotion(request);
         return ResponseEntity.ok(response);
     }
+
 }

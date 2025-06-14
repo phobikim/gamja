@@ -6,6 +6,7 @@ import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.item.ItemRecipe;
 import com.phobi.gamja.entity.item.ItemSkillBonus;
 import com.phobi.gamja.entity.item.ItemStatBonus;
+import com.phobi.gamja.entity.user.CounterType;
 import com.phobi.gamja.entity.user.UserInventory;
 import com.phobi.gamja.message.CraftRequest;
 import com.phobi.gamja.repository.contents.StationRepository;
@@ -32,6 +33,7 @@ public class StationService {
     private final UserInventoryRepository userInventoryRepository;
     private final ItemStatBonusRepository itemStatBonusRepository;
     private final ItemSkillBonusRepository itemSkillBonusRepository;
+    private final LogService logService;
 
     public List<StationDto> getStationList() {
         return stationRepository.findAll().stream()
@@ -79,7 +81,7 @@ public class StationService {
 
         result.setQuantity(result.getQuantity() + request.getResultQuantity());
         userInventoryRepository.save(result);
-
+        logService.recordCounter(userId, CounterType.ITEM_CRAFT, request.getResultItemId());
         return getRecipeList(userId, stationCategory);
     }
 

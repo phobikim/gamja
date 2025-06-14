@@ -11,21 +11,22 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@IdClass(UserTitleId.class)
 public class UserTitle {
 
-    @Id
-    @Column(name = "user_id")
-    private Long userId;
+    @EmbeddedId
+    private UserTitleId id;
 
-    @Id
+    @MapsId("titleId") // 복합키 내부 titleId 필드를 연동
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "title_id", referencedColumnName = "id")
+    @JoinColumn(name = "title_id")
     private Title title;
+
+    @Column(name = "is_owned", nullable = false)
+    private boolean isOwned = true;
 
     @Column(name = "is_equipped", nullable = false)
     private boolean isEquipped = false;
 
-    @Column(name = "acquired_at")
-    private LocalDateTime acquiredAt = LocalDateTime.now();
+    @Column(name = "acquired_at", insertable = false, updatable = false)
+    private LocalDateTime acquiredAt;
 }

@@ -19,6 +19,7 @@ import com.phobi.gamja.repository.item.ItemPotionEffectRepository;
 import com.phobi.gamja.repository.item.ItemRepository;
 import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
 import com.phobi.gamja.repository.item.ItemStatBonusRepository;
+import com.phobi.gamja.repository.title.UserTitleRepository;
 import com.phobi.gamja.repository.user.*;
 import com.phobi.gamja.util.CommonUtil;
 import com.phobi.gamja.util.StatCalculator;
@@ -39,6 +40,7 @@ public class CharService {
     private final CommonUtil commonUtil;
     private final UtilService utilService;
     private final StatCalculator statCalculator;
+    private final LogService logService;
 
     private final UserDtlRepository userDtlRepository;
     private final UserRepository userRepository;
@@ -53,6 +55,7 @@ public class CharService {
     private final ItemSkillBonusRepository itemSkillBonusRepository;
     private final ItemPotionEffectRepository itemPotionEffectRepository;
     private final ItemRepository itemRepository;
+    private final UserTitleRepository userTitleRepository;
 
     @Transactional(readOnly = true)
     public GamJaResponse getUserInfo(HttpServletRequest request) {
@@ -71,9 +74,12 @@ public class CharService {
 
         String finalImage = commonUtil.resolveCharacterImage(userDtl);
         userDtl.setCharacterImage(finalImage);
+        // ✅ 착용 중인 칭호 이름 조회
+        String equippedTitleName = userTitleRepository.findByIdUserIdAndIsEquippedTrue(userId)
+                .map(ut -> ut.getTitle().getName())
+                .orElse(null);
 
-        UserCharInfoDto result = new UserCharInfoDto(userDtl, stat);
-        result.setTitle(result.getTitleByLevel(stat.getLevel()));
+        UserCharInfoDto result = new UserCharInfoDto(userDtl, stat, 0, equippedTitleName);
 
         return GamJaResponse.success("정상 조회", result);
     }
@@ -230,43 +236,52 @@ public class CharService {
         Long userId = (Long) request.getAttribute("userId");
         Long dexId = payload.get("dexId");
 
+        // 1. 감자 도감 보유 여부 확인
         boolean owned = userDexRepository.existsByUserIdAndDexId(userId, dexId);
         if (!owned) {
             return GamJaResponse.fail("미획득한 감자는 설정할 수 없습니다.");
         }
 
+        // 2. 유저 정보 조회 및 대표 감자 설정
         UserDtl userDtl = userDtlRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
         userDtl.setCharacterDexId(dexId);
         userDtl.setCharacterImage(commonUtil.resolveCharacterImage(userDtl));
         userDtlRepository.save(userDtl);
 
+        // 3. user_dex_stat 존재 여부 확인 및 없으면 안전하게 생성
         UserDexStatId statId = new UserDexStatId(userId, dexId);
         UserDexStat stat;
-        try {
-            stat = userDexStatRepository.findById(statId).orElseGet(() -> {
-                UserDexStat newStat = UserDexStat.builder()
-                        .id(statId)
-                        .user(userDtl.getUser())
-                        .dex(Dex.builder().id(dexId).build())
-                        .level(1)
-                        .xp(0)
-                        .maxExp(100)
-                        .power(0)
-                        .hp(0)
-                        .speed(0)
-                        .build();
-                return userDexStatRepository.save(newStat);
-            });
-        } catch (DataIntegrityViolationException e) {
-            // 누군가 이미 넣었을 수도 있음 → 다시 조회
-            stat = userDexStatRepository.findById(statId).orElseThrow();
+
+        Optional<UserDexStat> existing = userDexStatRepository.findById(statId);
+        if (existing.isPresent()) {
+            stat = existing.get();
+        } else {
+            try {
+                stat = userDexStatRepository.save(
+                        UserDexStat.builder()
+                                .id(statId)
+                                .user(userDtl.getUser())
+                                .dex(Dex.builder().id(dexId).build())
+                                .level(1)
+                                .xp(0)
+                                .maxExp(100)
+                                .power(0)
+                                .hp(0)
+                                .speed(0)
+                                .build()
+                );
+            } catch (DataIntegrityViolationException e) {
+                // 동시 insert 방어: 다른 트랜잭션에서 먼저 insert한 경우
+                stat = userDexStatRepository.findById(statId)
+                        .orElseThrow(() -> new IllegalStateException("스탯 정보를 저장하는 중 오류가 발생했습니다."));
+            }
         }
 
+        // 4. 최종 결과 반환
         UserCharInfoDto dto = new UserCharInfoDto(userDtl, stat);
         return GamJaResponse.success("대표 감자가 설정되었습니다.", dto);
     }
-
     @Transactional
     @SanitizeInput
     public GamJaResponse getGacha(HttpServletRequest request) {
@@ -302,6 +317,7 @@ public class CharService {
         boolean isDuplicate = userDexRepository.existsByUserIdAndDexId(userId, selected.getId());
         int gainedFragments = 0;
 
+        logService.recordCounter(userId, CounterType.CHARACTER_DRAW, selected.getId());
         if (isDuplicate) {
             // 5. 중복 → 친밀도 +1
             UserDexStatId statId = new UserDexStatId(userId, selected.getId());
@@ -338,6 +354,7 @@ public class CharService {
         result.put("attributeIconPath", attr.getIconPath());
         result.put("desc", selected.getDescription());
         result.put("pieceGained", gainedFragments);
+
 
         return GamJaResponse.success("감자 뽑기 성공", result);
     }
@@ -426,7 +443,6 @@ public class CharService {
                 .ownedDexCount(ownedDexCount)
                 .ownedDexList(ownedDexList)
                 .build();
-
 
         return GamJaResponse.success("보유 감자 리스트 조회 완료", result);
     }

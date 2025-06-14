@@ -1,7 +1,9 @@
 package com.phobi.gamja.entity.user;
 
 import com.phobi.gamja.entity.contents.SkillType;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -9,6 +11,7 @@ import javax.persistence.*;
 @Data
 @IdClass(UserSkillId.class)
 @Table(name = "user_skill")
+@NoArgsConstructor
 public class UserSkill {
 
     @Id
@@ -28,4 +31,13 @@ public class UserSkill {
 
     @Column(name = "max_combo")
     private Integer maxCombo = 0;
+
+    public UserSkill(Long userId, SkillType skillType, int level, int exp) {
+        this.userId = userId;
+        this.skillType = skillType;
+        this.level = level;
+        this.exp = exp;
+        this.maxCombo = 0; // 필요시 초기화
+    }
+
 }

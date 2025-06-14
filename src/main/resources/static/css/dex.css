@@ -446,24 +446,8 @@
     justify-content: center;
 }
 
-.title-action {
-    flex: 3;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-}
 
-.title-action .title-btn {
-    width: 100%;
-    max-width: 100px;
-    padding: 0.4rem 1rem;
-    font-size: 0.9rem;
-    background: #fa6719;
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
-    cursor: pointer;
-}
+
 .title-name {
     font-size: 1.2rem;
     font-weight: bold;
@@ -477,19 +461,36 @@
     font-weight: bold;
 }
 
+.title-action {
+    flex: 3;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+
 .title-action .title-btn {
     padding: 0.4rem 1rem;
     font-size: 0.9rem;
-    background: #fa6719;
+    background: var(--orange-color);
     color: white;
     border: none;
     border-radius: 0.5rem;
     cursor: pointer;
 }
 
-.title-action .title-btn:disabled {
-    background: #ccc;
+.title-btn:disabled:not(.equipped) {
+    background: #666;
     cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* 착용 중인 버튼은 따로 */
+.title-btn.equipped {
+    background-color: var(--dark-1-color);
+    color: white;
+    opacity: 1;
+    cursor: default;
 }
 
 #titleTab {

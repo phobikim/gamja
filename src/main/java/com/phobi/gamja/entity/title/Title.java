@@ -1,9 +1,11 @@
 package com.phobi.gamja.entity.title;
 
+import com.phobi.gamja.entity.item.Item;
 import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.phobi.gamja.entity.user.CounterType;
 
 @Entity
 @Table(name = "title")
@@ -33,7 +35,7 @@ public class Title {
     private int requiredCount;
 
     @Enumerated(EnumType.STRING)
-    private Rarity rarity;
+    private Item.Rarity rarity;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -41,11 +43,4 @@ public class Title {
     @OneToMany(mappedBy = "title", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TitleEffect> effects;
 
-    public enum CounterType {
-        MONSTER_KILL, ITEM_CRAFT, CHARACTER_DRAW, LIFE_ACTION
-    }
-
-    public enum Rarity {
-        COMMON, UNCOMMON, RARE, LEGENDARY
-    }
 }
