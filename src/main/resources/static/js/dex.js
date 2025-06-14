@@ -141,20 +141,44 @@ function renderCardsByType(type, list) {
             const right = document.createElement("div");
             right.className = "title-action";
 
-            // 이름
+            // 이름 + 효과 요약
             const titleName = document.createElement("div");
             titleName.className = "title-name";
-            titleName.textContent = item.name;
 
-            // 설명 (두 줄 분리)
-            const desc = document.createElement("div");
-            desc.className = "title-desc";
-            const condition = item.description;
-            const effects = item.effects.map(e => {
+            const effectsSummary = item.effects.map(e => {
                 const label = e.effectType === 'BONUS_ATTACK' ? '공격력 +' : '체력 +';
                 return `${label}${e.effectValue}`;
-            }).join(', ');
-            desc.innerHTML = `<div>${condition}</div><div>${effects || '보너스 없음'}</div>`;
+            }).join(', ') || '효과 없음';
+
+            titleName.innerHTML = `${item.name} <span style="font-size: 0.7rem; color: #ffb347; margin-left: 8px;">(${effectsSummary})</span>`;
+
+            // 설명
+            const desc = document.createElement("div");
+            desc.className = "title-desc";
+            desc.textContent = item.description || '';
+
+            // 진행도 바
+            const current = item.currentCount || 0;
+            const required = item.requiredCount || 1;
+            const percentage = Math.min((current / required) * 100, 100);
+
+            const progressWrap = document.createElement("div");
+            progressWrap.className = "progress-bar"; // 너비 + 배경
+
+            const progressFill = document.createElement("div");
+            progressFill.className = "progress-fill";
+            progressFill.style.width = `${percentage}%`;
+
+            const progressText = document.createElement("div");
+            progressText.className = "progress-text";
+            progressText.textContent = `${current}/${required}`;
+
+            progressWrap.appendChild(progressFill);
+            progressWrap.appendChild(progressText);
+
+            left.appendChild(titleName);
+            left.appendChild(desc);
+            left.appendChild(progressWrap);
 
             // 버튼
             const btn = document.createElement("button");
@@ -169,8 +193,7 @@ function renderCardsByType(type, list) {
                 btn.textContent = "착용";
                 btn.onclick = () => equipTitle(item.id);
             }
-            left.appendChild(titleName);
-            left.appendChild(desc);
+
             right.appendChild(btn);
             row.appendChild(left);
             row.appendChild(right);
@@ -190,11 +213,13 @@ function renderCardsByType(type, list) {
     }
 
     if (type === "item" && !list[0]?._category) {
-        list = [
+        const fullList = [
             ...(currentDexData.battleEquipItemList || []).map(i => ({ ...i, _category: '전투템' })),
             ...(currentDexData.lifeEquipItemsList || []).map(i => ({ ...i, _category: '생활템' })),
             ...(currentDexData.itemList || []).map(i => ({ ...i, _category: '기타' }))
         ];
+        // 전투템만 필터링해서 list 에 할당
+        list = fullList.filter(i => i._category === '전투템');
     }
 
 

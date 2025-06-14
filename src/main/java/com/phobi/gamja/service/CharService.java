@@ -24,6 +24,7 @@ import com.phobi.gamja.util.CommonUtil;
 import com.phobi.gamja.util.StatCalculator;
 import com.phobi.gamja.web.config.annotation.SanitizeInput;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -241,20 +242,26 @@ public class CharService {
         userDtlRepository.save(userDtl);
 
         UserDexStatId statId = new UserDexStatId(userId, dexId);
-        UserDexStat stat = userDexStatRepository.findById(statId).orElseGet(() -> {
-            UserDexStat newStat = UserDexStat.builder()
-                    .id(statId)
-                    .user(userDtl.getUser())
-                    .dex(Dex.builder().id(dexId).build())
-                    .level(1)
-                    .xp(0)
-                    .maxExp(100)
-                    .power(0)
-                    .hp(0)
-                    .speed(0)
-                    .build();
-            return userDexStatRepository.save(newStat);
-        });
+        UserDexStat stat;
+        try {
+            stat = userDexStatRepository.findById(statId).orElseGet(() -> {
+                UserDexStat newStat = UserDexStat.builder()
+                        .id(statId)
+                        .user(userDtl.getUser())
+                        .dex(Dex.builder().id(dexId).build())
+                        .level(1)
+                        .xp(0)
+                        .maxExp(100)
+                        .power(0)
+                        .hp(0)
+                        .speed(0)
+                        .build();
+                return userDexStatRepository.save(newStat);
+            });
+        } catch (DataIntegrityViolationException e) {
+            // 누군가 이미 넣었을 수도 있음 → 다시 조회
+            stat = userDexStatRepository.findById(statId).orElseThrow();
+        }
 
         UserCharInfoDto dto = new UserCharInfoDto(userDtl, stat);
         return GamJaResponse.success("대표 감자가 설정되었습니다.", dto);

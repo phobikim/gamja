@@ -471,7 +471,7 @@
 }
 
 .title-desc {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     color: var(--white-color);
     margin-top: 0.3rem;
     font-weight: bold;
@@ -496,7 +496,7 @@
     min-height: 455px;
     max-height: 455px;
     overflow-y: auto;
-    padding: 15px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -507,4 +507,36 @@
 .title-tab-active .dex-content-section {
     min-height: 455px; /* 상세패널(240px) + 여백(15px) + 기존 높이(200px) */
     max-height: 455px;
+}
+
+.progress-bar {
+    position: relative;
+    background: linear-gradient(to bottom, #e0e0e0, #c8c8c8);
+    border: 1px solid #aaa;
+    border-radius: 10px;
+    height: 15px;
+    overflow: hidden;
+    margin-top: 8px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3); /* 안쪽 명암 */
+}
+
+.progress-fill {
+    background: linear-gradient(to right, #4CAF50, #2e7d32); /* 연녹 → 진녹 */
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 10px;
+    box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.2); /* 안쪽 어두운 깊이 */
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: #333;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.6); /* 텍스트 살짝 부각 */
+    pointer-events: none;
 }
