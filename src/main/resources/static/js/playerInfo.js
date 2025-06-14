@@ -111,6 +111,7 @@ function setCharacterBattleInfo(data) {
             slot.appendChild(img);
         }
     });
+    applyRarityToEachSlot(slotMap, data.equippedItems);
 }
 function loadCharacterLifeInfo() {
     apiRequest('/api/char/life', 'GET')
@@ -187,3 +188,31 @@ document.querySelector('.char-image-area').addEventListener('click', () => {
     // 여기에 보유 캐릭터 데이터를 넘겨야 함
     openCharacterSelectModal();
 });
+function applyRarityToEachSlot(slotMap, equippedItems) {
+    const rarityColors = {
+        'COMMON':'var(--baige-color)',
+        'UNCOMMON': '#6ee367',
+        'RARE': '#5492d7',
+        'EPIC': '#c5589e',
+        'LEGENDARY': '#fff2b8'
+    };
+
+    // 모든 슬롯 초기화 (기본 배경색으로)
+    Object.values(slotMap).forEach(slotId => {
+        const slotEl = document.getElementById(slotId);
+        if (slotEl) {
+            slotEl.style.backgroundColor = 'var(--baige-color)'; // 기본값
+        }
+    });
+
+    // 장착된 아이템에 rarity 색상 적용
+    equippedItems.forEach(item => {
+        const slotId = slotMap[item.equipSlot];
+        if (slotId && item.rarity && rarityColors[item.rarity]) {
+            const slotEl = document.getElementById(slotId);
+            if (slotEl) {
+                slotEl.style.backgroundColor = rarityColors[item.rarity];
+            }
+        }
+    });
+}

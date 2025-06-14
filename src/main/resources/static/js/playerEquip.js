@@ -103,9 +103,9 @@ function showEquipEffect(item) {
     }
 
     const effects = [];
-    if (item.bonusPower) effects.push(`🗡️ 공격력 +${item.bonusPower}`);
-    if (item.bonusHp) effects.push(`🩸 체력 +${item.bonusHp}`);
-    if (item.bonusSpeed) effects.push(`⚡ 민첩 +${item.bonusSpeed}`);
+    if (item.bonusPower) effects.push(`공격력 +${item.bonusPower}`);
+    if (item.bonusHp) effects.push(`체력 +${item.bonusHp}`);
+    if (item.bonusSpeed) effects.push(`민첩 +${item.bonusSpeed}`);
     if (item.durationTurns) effects.push(`지속 턴수 +${item.durationTurns}`);
     if (item.bonusSkillFish) effects.push(`낚시 스킬 +${item.bonusSkillFish}`);
     if (item.bonusSkillMining) effects.push(`채광 스킬 +${item.bonusSkillMining}`);

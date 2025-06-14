@@ -245,6 +245,8 @@ function resetBattleState(user, monster) {
 }
 
 function startBattle(user, monster) {
+    tempPowerBoost = 0;
+    updateBattleUI();
     battleEnded = false;
     isPlayerTurn = true;
     isProcessingTurn = false;
@@ -286,14 +288,14 @@ function updateBattleUI() {
     updateHpBar(p.currentHp, p.maxHp, "playerHpBar", "playerHpText");
     updateHpBar(m.currentHp, m.maxHp, "monsterHpBar", "monsterHpText");
 
-    const atkBase = battleState.player?.power ?? 0;
-    const boost = tempPowerBoost || 0;
+    const atkBase = p.power - tempPowerBoost;
     const atkDisplay = document.getElementById('attackPowerDisplay');
-
     if (atkDisplay) {
-        atkDisplay.textContent = boost > 0
-            ? `ATK: ${atkBase - boost} +${boost}`
-            : `ATK: ${atkBase}`;
+        if (tempPowerBoost > 0) {
+            atkDisplay.textContent = `ATK: ${atkBase} +${tempPowerBoost}`;
+        } else {
+            atkDisplay.textContent = `ATK: ${p.power}`;
+        }
     }
 }
 
@@ -765,5 +767,21 @@ function disableBattleButtons(disabled) {
     if (defendBtn) {
         const quantity = battleState.player.potion?.quantity ?? 0;
         defendBtn.disabled = disabled || quantity <= 0 || potionUsed;
+    }
+}
+
+function useFood(foodItem) {
+    const powerBuff = foodItem.bonusPower || 0;
+
+    if (powerBuff > 0) {
+        // 기존 버프가 있다면 제거 (한 번에 하나만 허용)
+        if (tempPowerBoost > 0) {
+            battleState.player.power -= tempPowerBoost;
+        }
+
+        tempPowerBoost = powerBuff;
+        battleState.player.power += powerBuff;
+
+        updateBattleUI();
     }
 }

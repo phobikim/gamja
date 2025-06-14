@@ -181,6 +181,11 @@
     color: var(--dark-brown-font-color);
     font-weight: bold;
 }
+/* rarity 클래스가 있을 때만 배경색 변경 */
+#characterModal .inventoryCell[class*="rarity-background-"] {
+    background-color: inherit; /* 아래 rarity 색상들이 적용되도록 */
+}
+
 #characterModal .inventoryCell img {
     pointer-events: auto;
     cursor: pointer;
