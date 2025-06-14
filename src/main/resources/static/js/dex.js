@@ -6,16 +6,20 @@ const dexTabContents = {
     life: document.getElementById("lifeEquipTab"),
     item: document.getElementById("itemTab"),
     monster: document.getElementById("monsterTab"),
+    title : document.getElementById("titleTab"),
 };
 let currentDexData = null;
 let selectedCharacterInDetail = null;
 
 async function handleDexClick() {
     playEffect("se_click2");
-
     currentDexData = await fetchDexMetaData();
     if (!currentDexData) return;
-
+    if (currentDexData && currentDexData.dexList) {
+        document.getElementById("dexDetailPanel").classList.remove("hidden");
+    } else {
+        document.getElementById("dexDetailPanel").classList.add("hidden");
+    }
     // 탭 상태 초기화 (캐릭터 탭 선택)
     dexTabBtns.forEach(b => b.classList.remove("active"));
     dexTabBtns[0].classList.add("active");
@@ -27,6 +31,8 @@ async function handleDexClick() {
     renderCardsByType("character", currentDexData.dexList);
     dexModal.classList.remove("hidden");
     renderDexTabs(); // 이벤트 바인딩은 여기에 유지
+
+
 }
 
 async function fetchDexMetaData() {
@@ -49,6 +55,7 @@ function renderDexTabs() {
     dexTabBtns.forEach(btn => {
         btn.addEventListener("click", () => {
             const type = btn.dataset.tab;
+
             dexTabBtns.forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
 
@@ -56,11 +63,19 @@ function renderDexTabs() {
                 dexTabContents[key].classList.toggle("hidden", key !== type);
             });
 
+            if (type === "title") {
+                document.getElementById("dexDetailPanel").classList.add("hidden");
+                document.querySelector(".dex-modal-container").classList.add("title-tab-active");
+            } else {
+                document.getElementById("dexDetailPanel").classList.remove("hidden");
+                document.querySelector(".dex-modal-container").classList.remove("title-tab-active");
+            }
             if (type === "character") renderCardsByType("character", currentDexData.dexList);
             if (type === "battle") renderCardsByType("battle", currentDexData.battleEquipItemList);
             if (type === "life") renderCardsByType("life", currentDexData.lifeEquipItemsList);
             if (type === "item") renderCardsByType("item", currentDexData.itemList);
             if (type === "monster") renderCardsByType("monster", currentDexData.monsterList);
+            if (type === "title") renderCardsByType("title", currentDexData.titleList);
         });
     });
 
@@ -89,6 +104,59 @@ function renderCardsByType(type, list) {
             if (b.id === equippedId) return 1;
             return 0;
         });
+    }
+
+    if (type === "title") {
+        list.forEach(item => {
+            const row = document.createElement("div");
+            row.className = "title-row";
+
+            // 왼쪽: 텍스트 정보
+            const left = document.createElement("div");
+            left.className = "title-text";
+
+            // 오른쪽: 버튼 영역
+            const right = document.createElement("div");
+            right.className = "title-action";
+
+            // 이름
+            const titleName = document.createElement("div");
+            titleName.className = "title-name";
+            titleName.textContent = item.name;
+
+            // 설명 (두 줄 분리)
+            const desc = document.createElement("div");
+            desc.className = "title-desc";
+            const condition = item.description;
+            const effects = item.effects.map(e => {
+                const label = e.effectType === 'BONUS_ATTACK' ? '공격력 +' : '체력 +';
+                return `${label}${e.effectValue}`;
+            }).join(', ');
+            desc.innerHTML = `<div>${condition}</div><div>${effects || '보너스 없음'}</div>`;
+
+            // 버튼
+            const btn = document.createElement("button");
+            btn.className = "title-btn";
+            if (!item.owned) {
+                btn.textContent = "획득";
+                btn.disabled = true;
+            } else if (item.equipped) {
+                btn.textContent = "착용중";
+                btn.disabled = true;
+            } else {
+                btn.textContent = "착용";
+                btn.onclick = () => equipTitle(item.id);
+            }
+
+            left.appendChild(titleName);
+            left.appendChild(desc);
+            right.appendChild(btn);
+            row.appendChild(left);
+            row.appendChild(right);
+            container.appendChild(row);
+        });
+
+        return; // 칭호는 렌더링 방식이 다르므로 여기서 끝냄
     }
 
     list.forEach((item, index) => {

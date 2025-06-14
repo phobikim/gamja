@@ -76,13 +76,13 @@
             <img src="https://phobi.me/gamja.img/images/icons/icon_station.png" alt="공방">
             <span class="itemLabel">감자공방</span>
         </div>
-        <div class="inventoryCell" onclick="handleDexClick()">
-            <img src="https://phobi.me/gamja.img/images/icons/icon_book.png" alt="도감">
-            <span class="itemLabel">도감</span>
-        </div>
         <div class="inventoryCell" onclick="handleAttackClick()">
             <img src="https://phobi.me/gamja.img/images/icons/icon_skill_attack.png" alt="전투">
             <span class="itemLabel">전투</span>
+        </div>
+        <div class="inventoryCell" onclick="handleDexClick()">
+            <img src="https://phobi.me/gamja.img/images/icons/icon_book.png" alt="도감">
+            <span class="itemLabel">도감</span>
         </div>
     </section>
 </main>
@@ -228,6 +228,7 @@
             <div class="dex-header">
                 <div class="dex-tab-header">
                     <button class="dex-tab-btn active" data-tab="character">캐릭터</button>
+                    <button class="dex-tab-btn" data-tab="title">칭호</button>
                     <button class="dex-tab-btn" data-tab="battle">전투템</button>
                     <button class="dex-tab-btn" data-tab="life">생활템</button>
                     <button class="dex-tab-btn" data-tab="item">아이템</button>
@@ -292,6 +293,7 @@
                     <div id="lifeEquipTab" class="dex-tab-grid hidden"></div>
                     <div id="itemTab" class="dex-tab-grid hidden"></div>
                     <div id="monsterTab" class="dex-tab-grid hidden"></div>
+                    <div id="titleTab" class="dex-tab-grid hidden"></div>
                 </div>
             </div>
 
