@@ -229,8 +229,6 @@
                 <div class="dex-tab-header">
                     <button class="dex-tab-btn active" data-tab="character">캐릭터</button>
                     <button class="dex-tab-btn" data-tab="title">칭호</button>
-                    <button class="dex-tab-btn" data-tab="battle">전투템</button>
-                    <button class="dex-tab-btn" data-tab="life">생활템</button>
                     <button class="dex-tab-btn" data-tab="item">아이템</button>
                     <button class="dex-tab-btn" data-tab="monster">몬스터</button>
                 </div>
@@ -238,6 +236,11 @@
 
             <!-- 중간 상세보기 영역 -->
             <div id="dexDetailPanel" class="dex-detail-section hidden">
+                <div class="item-type-tabs" id="itemTypeTabs">
+                    <button data-category="전투템">전투템</button>
+                    <button data-category="생활템">생활템</button>
+                    <button data-category="기타">기타</button>
+                </div>
                 <div class="detail-top">
                     <img id="detailImage" src="" class="detail-image" alt="상세 이미지" />
                     <div class="detail-basic-info">

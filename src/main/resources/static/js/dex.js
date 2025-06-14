@@ -2,8 +2,6 @@ const dexModal = document.getElementById('dexModal');
 const dexTabBtns = document.querySelectorAll(".dex-tab-btn");
 const dexTabContents = {
     character: document.getElementById("characterTab"),
-    battle: document.getElementById("battleEquipTab"),
-    life: document.getElementById("lifeEquipTab"),
     item: document.getElementById("itemTab"),
     monster: document.getElementById("monsterTab"),
     title : document.getElementById("titleTab"),
@@ -91,21 +89,45 @@ function renderDexTabs() {
         currentDexData = await fetchDexMetaData();
         renderCardsByType("character", currentDexData.dexList); // 다시 렌더링
     });
+
+    // 세부 아이템 카테고리 탭 클릭 이벤트
+// renderDexTabs 내부
+    const itemTypeTabs = document.getElementById("itemTypeTabs");
+    [...itemTypeTabs.querySelectorAll("button")].forEach(btn => {
+        btn.addEventListener("click", () => {
+            const category = btn.dataset.category;
+
+            // 버튼 active 상태 갱신
+            [...itemTypeTabs.querySelectorAll("button")].forEach(b =>
+                b.classList.remove("active")
+            );
+            btn.classList.add("active");
+
+            // 전체 아이템 목록 구성 (항상 _category 포함해서)
+            const fullList = [
+                ...(currentDexData.battleEquipItemList || []).map(i => ({ ...i, _category: '전투템' })),
+                ...(currentDexData.lifeEquipItemsList || []).map(i => ({ ...i, _category: '생활템' })),
+                ...(currentDexData.itemList || []).map(i => ({ ...i, _category: '기타' }))
+            ];
+
+            // 필터링 후 렌더링
+            const filtered = fullList.filter(i => i._category === category);
+            renderCardsByType("item", filtered);
+
+            // 👉 첫 번째 아이템 자동 클릭
+            if (filtered.length > 0) {
+                showDexDetail("item", filtered[0]);
+            }
+        });
+    });
 }
 // 카드 + 상세정보 렌더링
 function renderCardsByType(type, list) {
     const container = dexTabContents[type];
-    container.innerHTML = "";
-    // ✅ 장착 캐릭터 우선 정렬
-    if (type === "character" && currentDexData.equippedDexId) {
-        const equippedId = currentDexData.equippedDexId;
-        list.sort((a, b) => {
-            if (a.id === equippedId) return -1;
-            if (b.id === equippedId) return 1;
-            return 0;
-        });
-    }
 
+    container.innerHTML = "";
+
+    // 칭호 탭
     if (type === "title") {
         list.forEach(item => {
             const row = document.createElement("div");
@@ -147,7 +169,6 @@ function renderCardsByType(type, list) {
                 btn.textContent = "착용";
                 btn.onclick = () => equipTitle(item.id);
             }
-
             left.appendChild(titleName);
             left.appendChild(desc);
             right.appendChild(btn);
@@ -155,9 +176,28 @@ function renderCardsByType(type, list) {
             row.appendChild(right);
             container.appendChild(row);
         });
-
-        return; // 칭호는 렌더링 방식이 다르므로 여기서 끝냄
+        return;
     }
+
+    // ✅ 장착 캐릭터 우선 정렬
+    if (type === "character" && currentDexData.equippedDexId) {
+        const equippedId = currentDexData.equippedDexId;
+        list.sort((a, b) => {
+            if (a.id === equippedId) return -1;
+            if (b.id === equippedId) return 1;
+            return 0;
+        });
+    }
+
+    if (type === "item" && !list[0]?._category) {
+        list = [
+            ...(currentDexData.battleEquipItemList || []).map(i => ({ ...i, _category: '전투템' })),
+            ...(currentDexData.lifeEquipItemsList || []).map(i => ({ ...i, _category: '생활템' })),
+            ...(currentDexData.itemList || []).map(i => ({ ...i, _category: '기타' }))
+        ];
+    }
+
+
 
     list.forEach((item, index) => {
         const card = document.getElementById("dexSquareCardTemplate").content.cloneNode(true);
@@ -228,6 +268,17 @@ function showDexDetail(type, item) {
         detailImg.src = `${basePath_image}/character/${item.imagePath}`;
     } else {
         detailImg.src = `${basePath}/${item.imagePath}`;
+    }
+
+    const itemTypeTabs = document.getElementById("itemTypeTabs");
+    if (type === "item") {
+        itemTypeTabs.classList.remove("hidden");
+
+        [...itemTypeTabs.querySelectorAll("button")].forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.category === item._category);
+        });
+    } else {
+        itemTypeTabs.classList.add("hidden");
     }
 
     // 기본 정보 설정

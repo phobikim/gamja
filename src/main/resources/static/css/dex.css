@@ -325,18 +325,15 @@
 }
 
 .dex-tab-grid::-webkit-scrollbar-track {
-    background: #D2B48C;
-    border-radius: 3px;
-}
-
-.dex-tab-grid::-webkit-scrollbar-thumb {
     background: var(--dark-1-color);
     border-radius: 3px;
 }
 
-.dex-tab-grid::-webkit-scrollbar-thumb:hover {
-    background: #654321;
+.dex-tab-grid::-webkit-scrollbar-thumb {
+    background: var(--baige-color);
+    border-radius: 3px;
 }
+
 
 .stat-inline {
     display: flex;
@@ -392,6 +389,37 @@
     z-index: 2;
     pointer-events: none;
 }
+/* 아이템 탭 세부 영역 */
+
+.item-type-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.item-type-tabs button {
+    flex: 1;
+    font-size: 0.75rem;
+    font-weight: bold;
+    background: #333;
+    color: white;
+    border-radius: 10px;
+    border: none;
+    padding: 6px 10px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* 하단 그림자 */
+}
+
+.item-type-tabs button.active {
+    background: #fa6719;
+    opacity: 1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* 더 강한 하이라이트 */
+}
+/* 칭호 css */
 
 .dex-title-list {
     display: flex;
@@ -436,7 +464,6 @@
     border-radius: 0.5rem;
     cursor: pointer;
 }
-
 .title-name {
     font-size: 1.2rem;
     font-weight: bold;
