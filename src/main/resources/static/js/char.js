@@ -30,6 +30,7 @@
             level,
             nickname,
             title,
+            titleIconPath,
             xp,
             characterImage,
             dexName
@@ -37,7 +38,8 @@
 
         const charNameEl = document.getElementById('charName');
         const charLevelEl = document.getElementById('charLevel');
-        const userTitleEl = document.getElementById('userTitle');
+        const userTitleEl = document.getElementById('userTitleText');
+        const userTitleIconEl = document.getElementById('userTitleIcon');
         const dexNameEl = document.getElementById('dexName');
 
         if (characterImage) {
@@ -47,8 +49,15 @@
         }
 
         charNameEl.textContent = nickname || username;
-        userTitleEl.textContent = title;
         dexNameEl.textContent = dexName;
+        // 칭호 텍스트 + 아이콘
+        userTitleEl.textContent = title || '';
+        if (titleIconPath) {
+            userTitleIconEl.src = basePath + '/' + titleIconPath;
+            userTitleIconEl.classList.remove('hidden');
+        } else {
+            userTitleIconEl.classList.add('hidden');
+        }
 
         if (level != null) {
             charLevelEl.textContent = level;

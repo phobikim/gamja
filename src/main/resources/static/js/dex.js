@@ -129,7 +129,13 @@ function renderCardsByType(type, list) {
 
     // 칭호 탭
     if (type === "title") {
+        list.sort((a, b) => {
+            const sumA = (a.effects || []).reduce((acc, cur) => acc + (cur.effectValue || 0), 0);
+            const sumB = (b.effects || []).reduce((acc, cur) => acc + (cur.effectValue || 0), 0);
+            return sumA - sumB;
+        });
         list.forEach(item => {
+
             const row = document.createElement("div");
             row.className = "title-row";
 
@@ -145,47 +151,82 @@ function renderCardsByType(type, list) {
             const titleName = document.createElement("div");
             titleName.className = "title-name";
 
+            // ✅ 이미지 있을 경우 아이콘 추가
+            if (item.iconPath) {
+                const icon = document.createElement("img");
+                icon.src = `${basePath}/${item.iconPath}`;
+                icon.alt = "칭호 아이콘";
+                icon.className = "title-icon"; // CSS에서 사이즈 조정 필요
+                titleName.appendChild(icon);
+            }
+
             const effectsSummary = item.effects.map(e => {
                 const label = e.effectType === 'BONUS_ATTACK' ? '공격력 +' : '체력 +';
                 return `${label}${e.effectValue}`;
             }).join(', ') || '효과 없음';
 
-            titleName.innerHTML = `${item.name} <span style="font-size: 0.7rem; color: #ffb347; margin-left: 8px;">(${effectsSummary})</span>`;
+            const nameSpan = document.createElement("span");
+            nameSpan.innerHTML = `${item.name} <span style="font-size: 0.7rem; color: #ffb347; margin-left: 8px;">(${effectsSummary})</span>`;
+            titleName.appendChild(nameSpan);
 
             // 설명
             const desc = document.createElement("div");
             desc.className = "title-desc";
             desc.textContent = item.description || '';
 
-            // 진행도 바
-            const current = item.currentCount || 0;
-            const required = item.requiredCount || 1;
-            const percentage = Math.min((current / required) * 100, 100);
+            // 조건별 진행도 리스트
+            const conditionList = document.createElement("div");
+            conditionList.className = "title-conditions";
+            const conditionGroup = document.createElement("div");
+            conditionGroup.className = "progress-wrapper-group";
+            // 조건이 없거나 NONE 타입일 경우
+            if (item.counterType === 'NONE' || (item.conditions || []).length === 0) {
+                const noneLabel = document.createElement("div");
+                noneLabel.className = "no-condition-text"; // 필요 시 스타일링
+                noneLabel.textContent = "조건 없음";
+                conditionList.appendChild(noneLabel);
+            } else {
+                (item.conditions || []).forEach(c => {
+                    const row = document.createElement("div");
+                    row.className = "progress-row";
 
-            const progressWrap = document.createElement("div");
-            progressWrap.className = "progress-bar"; // 너비 + 배경
+                    const label = document.createElement("span");
+                    label.className = "progress-label";
+                    label.textContent = c.targetName || `조건 ${c.targetId}`;
 
-            const progressFill = document.createElement("div");
-            progressFill.className = "progress-fill";
-            progressFill.style.width = `${percentage}%`;
+                    const bar = document.createElement("div");
+                    bar.className = "progress-bar";
 
-            const progressText = document.createElement("div");
-            progressText.className = "progress-text";
-            progressText.textContent = `${current}/${required}`;
+                    const fill = document.createElement("div");
+                    fill.className = "progress-fill";
+                    const percentage = Math.min((c.currentCount / c.requiredCount) * 100, 100);
+                    fill.style.width = `${percentage}%`;
 
-            progressWrap.appendChild(progressFill);
-            progressWrap.appendChild(progressText);
+                    const text = document.createElement("div");
+                    text.className = "progress-text";
+                    text.textContent = `${c.currentCount}/${c.requiredCount}`;
+
+                    bar.appendChild(fill);
+                    bar.appendChild(text);
+
+                    row.appendChild(label);
+                    row.appendChild(bar);
+                    conditionGroup.appendChild(row);
+                });
+
+                conditionList.appendChild(conditionGroup);
+            }
 
             left.appendChild(titleName);
             left.appendChild(desc);
-            left.appendChild(progressWrap);
+            left.appendChild(conditionList);
 
             // 버튼
             const btn = document.createElement("button");
             btn.className = "title-btn";
 
             if (!item.owned) {
-                btn.textContent = "획득";
+                btn.textContent = "미획득";
                 btn.disabled = !item.achieved;
                 if (item.achieved) {
                     btn.addEventListener("click", async () => {

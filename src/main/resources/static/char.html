@@ -43,7 +43,10 @@
         <!-- 🔶 유저 정보 카드 -->
         <div class="info-card user-card">
             <p class="user-text">
-                <span class="user-title" id="userTitle">씨앗 감자</span>
+                <span class="user-title" id="userTitle">
+                  <img id="userTitleIcon" class="user-title-icon hidden" src="" alt="칭호 아이콘">
+                  <span id="userTitleText"></span>
+                </span>
                 <span class="main-user-name" id="charName">포비</span>
             </p>
         </div>
@@ -315,6 +318,7 @@
         <div class="rarity-stars"></div>
     </div>
 </template>
+
 
 <!-- 📌 메시지 모달 -->
 <div id="messageModal" class="modal hidden">
@@ -920,15 +924,15 @@
 
 
 <script>
-    // 두 번 연속 클릭 방지
-    let lastTouchTime = 0;
-    document.addEventListener('touchstart', function (e) {
-        const now = Date.now();
-        if (now - lastTouchTime <= 400) {
-            e.preventDefault(); // 더블탭 방지
+    let lastTouchEnd = 0;
+
+    document.addEventListener('touchend', function (event) {
+        const now = new Date().getTime();
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault(); // 더블탭 줌 방지
         }
-        lastTouchTime = now;
-    }, { passive: false });
+        lastTouchEnd = now;
+    }, false);
 </script>
 
 </body>

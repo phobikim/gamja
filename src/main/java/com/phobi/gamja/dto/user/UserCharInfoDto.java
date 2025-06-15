@@ -11,7 +11,10 @@ public class UserCharInfoDto {
     private String characterImage;
     private int level;
     private int xp;
+
     private String title;
+    private String titleIconPath;
+
     private int maxExp;
     private String dexName;
 
@@ -25,16 +28,17 @@ public class UserCharInfoDto {
 
     // 기본값(maxCombo = 0), 칭호 없음
     public UserCharInfoDto(UserDtl userDtl, UserDexStat stat) {
-        this(userDtl, stat, 0, null);
+        this(userDtl, stat, 0, null, null);
     }
 
     // maxCombo만 지정, 칭호 없음
     public UserCharInfoDto(UserDtl userDtl, UserDexStat stat, int maxCombo) {
-        this(userDtl, stat, maxCombo, null);
+
+        this(userDtl, stat, maxCombo, null, null);
     }
 
     // 착용 칭호명까지 받는 메인 생성자
-    public UserCharInfoDto(UserDtl userDtl, UserDexStat stat, int maxCombo, String equippedTitleName) {
+    public UserCharInfoDto(UserDtl userDtl, UserDexStat stat, int maxCombo, String equippedTitleName, String equippedTitleIcon) {
         this.dexId = stat.getDex().getId();
         this.username = userDtl.getUser().getUsername();
         this.characterImage = userDtl.getCharacterImage();
@@ -43,6 +47,7 @@ public class UserCharInfoDto {
         this.maxExp = stat.getMaxExp();
         this.dexName = stat.getDex().getName();
         this.title = equippedTitleName;
+        this.titleIconPath = equippedTitleIcon;
         this.affinity = stat.getAffinity();
         this.maxCombo = maxCombo;
 

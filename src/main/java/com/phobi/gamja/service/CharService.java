@@ -11,6 +11,8 @@ import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.item.ItemPotionEffect;
 import com.phobi.gamja.entity.item.ItemSkillBonus;
 import com.phobi.gamja.entity.item.ItemStatBonus;
+import com.phobi.gamja.entity.title.Title;
+import com.phobi.gamja.entity.title.UserTitle;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.contents.DexRarityStatRepository;
@@ -74,12 +76,14 @@ public class CharService {
 
         String finalImage = commonUtil.resolveCharacterImage(userDtl);
         userDtl.setCharacterImage(finalImage);
-        // ✅ 착용 중인 칭호 이름 조회
-        String equippedTitleName = userTitleRepository.findByIdUserIdAndIsEquippedTrue(userId)
-                .map(ut -> ut.getTitle().getName())
-                .orElse(null);
+        // ✅ 착용 중인 칭호 조회
+        UserTitle equipped = userTitleRepository.findByIdUserId(userId).stream()
+                .filter(UserTitle::isEquipped)
+                .findFirst().orElse(null);
+        String equippedTitleName = equipped != null ? equipped.getTitle().getName() : null;
+        String equippedTitleIcon = equipped != null ? equipped.getTitle().getIconPath() : null;
 
-        UserCharInfoDto result = new UserCharInfoDto(userDtl, stat, 0, equippedTitleName);
+        UserCharInfoDto result = new UserCharInfoDto(userDtl, stat, 0, equippedTitleName,equippedTitleIcon);
 
         return GamJaResponse.success("정상 조회", result);
     }

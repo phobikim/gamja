@@ -28,14 +28,11 @@ public class Title {
     @Column(name = "counter_type", nullable = false)
     private CounterType counterType;
 
-    @Column(name = "target_id", nullable = false)
-    private Long targetId;
-
-    @Column(name = "required_count", nullable = false)
-    private int requiredCount;
-
     @Enumerated(EnumType.STRING)
     private Item.Rarity rarity;
+
+    @Column(name = "icon_path")
+    private String iconPath;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -43,4 +40,7 @@ public class Title {
     @OneToMany(mappedBy = "title", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TitleEffect> effects;
 
+    @OneToMany(mappedBy = "title", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TitleCondition> conditions;
 }
+

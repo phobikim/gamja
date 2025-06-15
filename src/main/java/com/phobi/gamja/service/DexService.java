@@ -1,10 +1,12 @@
 package com.phobi.gamja.service;
 
 import com.phobi.gamja.dto.contents.MonsterDto;
+import com.phobi.gamja.dto.user.LifeStatDto;
 import com.phobi.gamja.entity.contents.Monster;
 import com.phobi.gamja.entity.dex.*;
 import com.phobi.gamja.entity.item.*;
 import com.phobi.gamja.entity.title.Title;
+import com.phobi.gamja.entity.title.TitleCondition;
 import com.phobi.gamja.entity.title.UserTitle;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
@@ -14,6 +16,7 @@ import com.phobi.gamja.repository.title.TitleEffectRepository;
 import com.phobi.gamja.repository.title.TitleRepository;
 import com.phobi.gamja.repository.title.UserTitleRepository;
 import com.phobi.gamja.repository.user.*;
+import com.phobi.gamja.util.StatCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 public class DexService {
 
     private final BattleService battleService;
+    private final StatCalculator statCalculator;
     private final DexRepository dexRepository;
     private final UserDexRepository userDexRepository;
     private final UserDtlRepository userDtlRepository;
@@ -246,28 +250,112 @@ public class DexService {
 
         Map<String, Integer> counterMap = counterDetails.stream()
                 .collect(Collectors.toMap(
-                        c -> c.getCounterType() + "_" + c.getTargetId(),
+                        c -> c.getCounterType().name() + "_" + c.getTargetId(),
                         UserCounterDetail::getCounterValue
                 ));
 
+        // 생활 스탯 미리 계산 (모든 타이틀에 대해 한 번만)
+        LifeStatDto lifeStat = statCalculator.calculateLifeSkill(userId);
+
         return titles.stream().map(title -> {
-            Map<String, Object> m = new HashMap<>();
+            Map<String, Object> t = new HashMap<>();
             Long titleId = title.getId();
-            String key = title.getCounterType().name() + "_" + title.getTargetId();
-            int currentCount = counterMap.getOrDefault(key, 0);
 
-            m.put("id", titleId);
-            m.put("name", title.getName());
-            m.put("description", title.getDescription());
-            m.put("rarity", title.getRarity().name());
-            m.put("counterType", title.getCounterType().name());
-            m.put("targetId", title.getTargetId());
-            m.put("requiredCount", title.getRequiredCount());
-            m.put("currentCount", currentCount);
-            m.put("achieved", currentCount >= title.getRequiredCount());
-            m.put("owned", ownedTitleIds.contains(titleId));
-            m.put("equipped", titleId.equals(equippedTitleId));
+            List<Map<String, Object>> conditionList = new ArrayList<>();
+            boolean achieved = true;
+            int minProgress = 100;
 
+            if (title.getCounterType() != CounterType.NONE) {
+                List<TitleCondition> conditions = title.getConditions();
+                achieved = true;
+                minProgress = Integer.MAX_VALUE;
+
+                for (TitleCondition cond : conditions) {
+                    int current;
+                    boolean pass;
+                    String targetName;
+
+                    if (title.getCounterType() == CounterType.LIFE_ACTION) {
+                        // ✅ 생활 레벨 기반 조건
+                        current = switch (cond.getLifeType()) {
+                            case FISHING -> lifeStat.getFishing().getTotal();
+                            case MINING -> lifeStat.getMining().getTotal();
+                            case WOODCUTTING -> lifeStat.getWoodcutting().getTotal();
+                            case GATHERING -> lifeStat.getGathering().getTotal();
+                            case MAKING -> lifeStat.getMaking().getTotal();
+                            default -> 0;
+                        };
+                        pass = current >= cond.getRequiredCount();
+                        targetName = switch (cond.getLifeType()) {
+                            case FISHING -> "낚시 레벨";
+                            case MINING -> "채광 레벨";
+                            case WOODCUTTING -> "벌목 레벨";
+                            case GATHERING -> "채집 레벨";
+                            case MAKING -> "제작 레벨";
+                            default -> "???";
+                        };
+                    } else {
+                        // ✅ 일반 카운터 기반 조건
+                        String key = title.getCounterType().name() + "_" + cond.getTargetId();
+                        current = counterMap.getOrDefault(key, 0);
+                        pass = current >= cond.getRequiredCount();
+
+                        targetName = switch (title.getCounterType()) {
+                            case MONSTER_KILL -> {
+                                Monster m = monsterRepository.findById(cond.getTargetId()).orElse(null);
+                                yield m != null ? m.getName() : "???";
+                            }
+                            case ITEM_CRAFT -> {
+                                Item item = itemRepository.findById(cond.getTargetId()).orElse(null);
+                                yield item != null ? item.getName() : "???";
+                            }
+                            case CHARACTER_DRAW -> {
+                                Dex dex = dexRepository.findById(cond.getTargetId()).orElse(null);
+                                yield dex != null ? dex.getName() : "???";
+                            }
+                            default -> "???";
+                        };
+                    }
+
+                    achieved &= pass;
+                    int progress = current * 100 / Math.max(cond.getRequiredCount(), 1);
+                    minProgress = Math.min(minProgress, progress);
+
+                    Map<String, Object> condMap = new HashMap<>();
+                    condMap.put("targetId", cond.getTargetId());
+                    condMap.put("targetName", targetName);
+                    condMap.put("requiredCount", cond.getRequiredCount());
+                    condMap.put("currentCount", current);
+                    condMap.put("achieved", pass);
+                    conditionList.add(condMap);
+                }
+            } else {
+                // ✅ 조건 없음
+                achieved = true;
+                minProgress = 100;
+
+                Map<String, Object> condMap = new HashMap<>();
+                condMap.put("targetId", null);
+                condMap.put("targetName", "조건 없음");
+                condMap.put("requiredCount", 0);
+                condMap.put("currentCount", 0);
+                condMap.put("achieved", true);
+                conditionList.add(condMap);
+            }
+
+            t.put("id", titleId);
+            t.put("name", title.getName());
+            t.put("description", title.getDescription());
+            t.put("rarity", title.getRarity().name());
+            t.put("iconPath", title.getIconPath());
+            t.put("counterType", title.getCounterType().name());
+            t.put("owned", ownedTitleIds.contains(titleId));
+            t.put("equipped", titleId.equals(equippedTitleId));
+            t.put("achieved", achieved);
+            t.put("progress", minProgress);
+            t.put("conditions", conditionList);
+
+            // 효과 정보
             List<Map<String, Object>> effectList = titleEffectRepository.findByTitleId(titleId).stream()
                     .map(effect -> {
                         Map<String, Object> e = new HashMap<>();
@@ -275,12 +363,9 @@ public class DexService {
                         e.put("effectValue", effect.getEffectValue());
                         return e;
                     }).collect(Collectors.toList());
+            t.put("effects", effectList);
 
-            m.put("effects", effectList);
-
-            return m;
+            return t;
         }).collect(Collectors.toList());
     }
-
-
 }

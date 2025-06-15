@@ -161,6 +161,25 @@ html, body {
     color: var(--orange-color);
     margin-right: 6px;
 }
+.user-title-icon {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    vertical-align: middle;
+    margin-right: 4px;
+    background-color : var(--dark-1-font-color);
+    border-radius: 15px;
+    /* ✨ 빛나는 테두리 + 입체감 */
+    box-shadow:
+            0 0 6px rgba(255, 240, 150, 0.9),         /* 금빛 외곽광 */
+            0 0 10px rgba(255, 215, 0, 0.5),          /* 더 강한 빛 확산 */
+            inset 0 2px 2px rgba(255, 255, 255, 0.3), /* 내부 하이라이트 */
+            0 2px 4px rgba(0, 0, 0, 0.6);             /* 입체감용 그림자 */
+
+    /* 반투명 유리 느낌 */
+    backdrop-filter: blur(2px);
+}
+
 
 
 .equip-dex-card {

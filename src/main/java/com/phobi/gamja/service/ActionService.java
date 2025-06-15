@@ -4,11 +4,13 @@ package com.phobi.gamja.service;
 import com.phobi.gamja.dto.contents.ActionDto;
 import com.phobi.gamja.dto.contents.CardEventDto;
 import com.phobi.gamja.dto.contents.DropTableEntryDto;
+import com.phobi.gamja.dto.user.LifeStatDto;
 import com.phobi.gamja.dto.user.UserCharInfoDto;
 import com.phobi.gamja.dto.user.UserSkillDto;
 import com.phobi.gamja.entity.contents.*;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.title.Title;
+import com.phobi.gamja.entity.title.TitleCondition;
 import com.phobi.gamja.entity.title.UserTitle;
 import com.phobi.gamja.entity.title.UserTitleId;
 import com.phobi.gamja.entity.user.*;
@@ -20,6 +22,7 @@ import com.phobi.gamja.repository.title.TitleRepository;
 import com.phobi.gamja.repository.title.UserTitleRepository;
 import com.phobi.gamja.repository.user.*;
 import com.phobi.gamja.util.CommonUtil;
+import com.phobi.gamja.util.StatCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -48,6 +51,7 @@ public class ActionService {
 
     private final LogService logService;
     private final CommonUtil commonUtil;
+    private final StatCalculator statCalculator;
 
     public ResponseEntity<GamJaResponse> getActionsByCategory(String activityType, HttpSession session) {
         Long userId = getUserId(session);
@@ -137,31 +141,62 @@ public class ActionService {
         Title title = titleRepository.findById(titleId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 칭호입니다."));
 
-        String key = title.getCounterType().name() + ":" + title.getTargetId();
-        int current = userCounterDetailRepository.findByUserId(userId).stream()
-                .filter(c -> key.equals(c.getCounterType().name() + ":" + c.getTargetId()))
-                .mapToInt(UserCounterDetail::getCounterValue)
-                .sum();
+        List<TitleCondition> conditions = title.getConditions();
 
-        if (current < title.getRequiredCount()) {
-            return ResponseEntity.badRequest().body(GamJaResponse.fail("칭호 획득 조건을 만족하지 않습니다."));
+        if (title.getCounterType() == CounterType.LIFE_ACTION) {
+            // ✅ 생활 스킬 레벨 기반 확인
+            LifeStatDto stat = statCalculator.calculateLifeSkill(userId);
+
+            for (TitleCondition cond : conditions) {
+                int level = switch (cond.getLifeType()) {
+                    case FISHING -> stat.getFishing().getTotal();
+                    case MINING -> stat.getMining().getTotal();
+                    case WOODCUTTING -> stat.getWoodcutting().getTotal();
+                    case GATHERING -> stat.getGathering().getTotal();
+                    case MAKING -> stat.getMaking().getTotal();
+                    default -> 0;
+                };
+
+                if (level < cond.getRequiredCount()) {
+                    return ResponseEntity.badRequest().body(GamJaResponse.fail("칭호 획득 조건을 만족하지 않습니다."));
+                }
+            }
+        } else {
+            // ✅ 일반 카운터 기반 확인
+            List<UserCounterDetail> counters = userCounterDetailRepository.findByUserId(userId);
+
+            for (TitleCondition condition : conditions) {
+                CounterType type = title.getCounterType(); // title 자체의 공통 counter_type
+                Long targetId = condition.getTargetId();
+                int required = condition.getRequiredCount();
+
+                int current = counters.stream()
+                        .filter(c -> c.getCounterType() == type && c.getTargetId().equals(targetId))
+                        .mapToInt(UserCounterDetail::getCounterValue)
+                        .sum();
+
+                if (current < required) {
+                    return ResponseEntity.badRequest().body(GamJaResponse.fail("칭호 획득 조건을 만족하지 않습니다."));
+                }
+            }
         }
 
+        // 이미 보유 중인지 체크
         boolean alreadyOwned = userTitleRepository.existsById(new UserTitleId(userId, titleId));
         if (alreadyOwned) {
-            return ResponseEntity.ok(GamJaResponse.success("이미 보유한 칭호입니다.", null));
+            return ResponseEntity.badRequest().body(GamJaResponse.fail("이미 보유 중인 칭호입니다."));
         }
 
-        UserTitle ut = UserTitle.builder()
-                .id(new UserTitleId(userId, titleId))
-                .title(title)
+        // 저장
+        UserTitle newTitle = UserTitle.builder()
+                .id(new UserTitleId(userId, titleId))  // 복합키
+                .title(title)                   // 반드시 넣어줘야 함!
                 .isOwned(true)
                 .isEquipped(false)
                 .build();
+        userTitleRepository.save(newTitle);
 
-        userTitleRepository.save(ut);
-
-        return ResponseEntity.ok(GamJaResponse.success("칭호를 획득했습니다.", null));
+        return ResponseEntity.ok(GamJaResponse.success("칭호를 획득했습니다.",null));
     }
 
     // ✅ 칭호 착용
@@ -191,10 +226,17 @@ public class ActionService {
         if (dexId != null) {
             UserDexStat stat = userDexStatRepository.findById(new UserDexStatId(userId, dexId))
                     .orElseThrow(() -> new IllegalArgumentException("캐릭터 스탯이 없습니다."));
-            String equippedTitleName = userTitleRepository.findByIdUserIdAndIsEquippedTrue(userId)
-                    .map(t -> t.getTitle().getName())
+            Title equippedTitle = userTitleRepository.findByIdUserIdAndIsEquippedTrue(userId)
+                    .map(UserTitle::getTitle)
                     .orElse(null);
-            dto = new UserCharInfoDto(userDtl, stat, 0, equippedTitleName);
+
+            dto = new UserCharInfoDto(
+                    userDtl,
+                    stat,
+                    0,
+                    equippedTitle != null ? equippedTitle.getName() : null,
+                    equippedTitle != null ? equippedTitle.getIconPath() : null
+            );
         }
 
         return ResponseEntity.ok(GamJaResponse.success("칭호를 착용했습니다.", dto));

@@ -16,9 +16,9 @@ public class UserTitle {
     @EmbeddedId
     private UserTitleId id;
 
-    @MapsId("titleId") // 복합키 내부 titleId 필드를 연동
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "title_id")
+    @MapsId("titleId")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "title_id", nullable = false)
     private Title title;
 
     @Column(name = "is_owned", nullable = false)

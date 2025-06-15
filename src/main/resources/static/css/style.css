@@ -54,6 +54,8 @@
     font-family: 'jua', cursive;
 }
 html, body {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
     height: 100%;
     margin: 0;
     padding: 0;

@@ -3,7 +3,11 @@ package com.phobi.gamja.util;
 import com.phobi.gamja.dto.item.EquipmentType;
 import com.phobi.gamja.entity.dex.DexRarityStat;
 import com.phobi.gamja.entity.item.ItemSkillBonus;
+import com.phobi.gamja.entity.title.TitleEffect;
+import com.phobi.gamja.entity.title.UserTitle;
 import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
+import com.phobi.gamja.repository.title.TitleEffectRepository;
+import com.phobi.gamja.repository.title.UserTitleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +32,8 @@ public class StatCalculator {
     private final UserEquipmentRepository userEquipmentRepository;
     private final ItemStatBonusRepository itemStatBonusRepository;
     private final ItemSkillBonusRepository itemSkillBonusRepository;
-
+    private final UserTitleRepository userTitleRepository;
+    private final TitleEffectRepository titleEffectRepository;
     public BattleStatDto calculateBattleStat(Long userId) {
         // 1. 유저 상세정보 + 착용 캐릭터 ID
         UserDtl userDtl = userDtlRepository.findById(userId)
@@ -53,6 +58,8 @@ public class StatCalculator {
             baseDexPower = rarityStat.getBasePower();
             baseDexSpeed = rarityStat.getBaseSpeed();
         }
+
+
         // 장비 스탯
         List<UserEquipment> battleEquipments = userEquipmentRepository.findByUserIdAndType(userId, EquipmentType.EQUIP_BATTLE);
         int equipHp = 0, equipPower = 0, equipSpeed = 0;
@@ -65,6 +72,21 @@ public class StatCalculator {
                 equipHp += bonus.getBonusHp();
                 equipPower += bonus.getBonusPower();
                 equipSpeed += bonus.getBonusSpeed();
+            }
+        }
+
+        // 4. 착용 칭호 스탯 추가
+        UserTitle equippedTitle = userTitleRepository.findByIdUserId(userId).stream()
+                .filter(UserTitle::isEquipped)
+                .findFirst()
+                .orElse(null);
+        if (equippedTitle != null) {
+            List<TitleEffect> effects = titleEffectRepository.findByTitleId(equippedTitle.getTitle().getId());
+            for (TitleEffect effect : effects) {
+                switch (effect.getEffectType()) {
+                    case BONUS_ATTACK -> equipPower += effect.getEffectValue();
+                    case BONUS_HP -> equipHp += effect.getEffectValue();
+                }
             }
         }
 
