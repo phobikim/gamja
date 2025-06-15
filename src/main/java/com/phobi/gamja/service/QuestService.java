@@ -105,11 +105,20 @@ public class QuestService {
                         .build());
             }
 
-            List<QuestRewardDto> rewardDtos = rewards.stream().map(r -> QuestRewardDto.builder()
-                    .rewardType(r.getRewardType())
-                    .itemId(r.getItemId())
-                    .amount(r.getAmount())
-                    .build()).toList();
+            List<QuestRewardDto> rewardDtos = rewards.stream().map(r -> {
+                String itemName = null;
+                if (r.getRewardType() == QuestReward.RewardType.ITEM && r.getItemId() != null) {
+                    Item item = itemRepository.findById(r.getItemId()).orElse(null);
+                    itemName = item != null ? item.getName() : "???";
+                }
+
+                return QuestRewardDto.builder()
+                        .rewardType(r.getRewardType())
+                        .itemId(r.getItemId())
+                        .itemName(itemName) // 추가된 필드
+                        .amount(r.getAmount())
+                        .build();
+            }).toList();
 
             return QuestDto.builder()
                     .id(q.getId())

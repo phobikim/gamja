@@ -13,5 +13,6 @@ import lombok.NoArgsConstructor;
 public class QuestRewardDto {
     private RewardType rewardType;
     private Long itemId;
+    private String itemName; // <- 새로 추가
     private int amount;
 }

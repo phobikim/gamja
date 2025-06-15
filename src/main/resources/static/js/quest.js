@@ -57,7 +57,10 @@ function renderQuestList(list, type) {
     const filtered = list.filter(q => q.type === type);
 
     if (filtered.length === 0) {
-        questListContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #8b6f47;">해당 타입의 퀘스트가 없습니다.</div>';
+        questListContainer.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #8b6f47;">
+                해당 타입의 퀘스트가 없습니다.
+            </div>`;
         return;
     }
 
@@ -65,6 +68,7 @@ function renderQuestList(list, type) {
         const wrapper = document.createElement('div');
         wrapper.className = 'quest-entry';
 
+        // 제목 & 설명
         const title = document.createElement('div');
         title.className = 'quest-title';
         title.textContent = quest.name;
@@ -73,6 +77,7 @@ function renderQuestList(list, type) {
         desc.className = 'quest-desc';
         desc.textContent = quest.description;
 
+        // 조건 표시 영역
         const conditionGroup = document.createElement('div');
         conditionGroup.className = 'quest-conditions';
 
@@ -103,27 +108,55 @@ function renderQuestList(list, type) {
             conditionGroup.appendChild(row);
         });
 
+        // 보상 + 버튼
         const actionArea = document.createElement('div');
         actionArea.className = 'quest-action';
 
         const statusArea = document.createElement('div');
         statusArea.className = 'quest-status';
+        statusArea.style.flexGrow = 1;
 
+        const rewardsArea = document.createElement('div');
+        rewardsArea.className = 'quest-rewards';
+
+        (quest.rewards || []).forEach(r => {
+            const rewardEl = document.createElement('span');
+            rewardEl.className = 'quest-reward-item';
+
+            switch (r.rewardType) {
+                case 'ITEM':
+                    rewardEl.textContent = `${r.itemName || '아이템'} x${r.amount}`;
+                    break;
+                case 'EXP':
+                    rewardEl.textContent = `경험치 +${r.amount}`;
+                    break;
+                default:
+                    rewardEl.textContent = `보상 +${r.amount}`;
+            }
+
+            rewardsArea.appendChild(rewardEl);
+        });
+
+        statusArea.appendChild(rewardsArea);
+
+        const buttonWrapper = document.createElement('div');
         if (quest.achieved) {
             const btn = document.createElement('button');
             btn.className = 'quest-claim-btn';
             btn.textContent = '보상 받기';
             btn.onclick = () => completeQuest(quest.id);
-            statusArea.appendChild(btn);
+            buttonWrapper.appendChild(btn);
         } else {
             const progress = document.createElement('span');
             progress.className = 'quest-in-progress';
             progress.textContent = '진행중';
-            statusArea.appendChild(progress);
+            buttonWrapper.appendChild(progress);
         }
 
         actionArea.appendChild(statusArea);
+        actionArea.appendChild(buttonWrapper);
 
+        // 전체 조립
         wrapper.appendChild(title);
         wrapper.appendChild(desc);
         wrapper.appendChild(conditionGroup);
@@ -175,3 +208,11 @@ function updateQuestResetTime() {
 setInterval(updateQuestResetTime, 60000);
 updateQuestResetTime();
 
+function getRewardText(reward) {
+    switch (reward.rewardType) {
+        case 'ITEM': return `아이템 x${reward.amount}`;
+        case 'EXP': return `경험치 +${reward.amount}`;
+        case 'COIN': return `코인 +${reward.amount}`;
+        default: return `보상 +${reward.amount}`;
+    }
+}
