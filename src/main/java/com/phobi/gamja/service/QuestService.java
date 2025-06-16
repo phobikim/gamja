@@ -54,7 +54,7 @@ public class QuestService {
 
         List<QuestDto> mainQuests = getQuestListByType(userId, Quest.QuestType.MAIN, 5);
         List<QuestDto> huntQuests = getQuestListByType(userId, Quest.QuestType.HUNT, 5);
-        List<QuestDto> deliveryQuests = getQuestListByType(userId, Quest.QuestType.DELIVERY, 5);
+        List<QuestDto> deliveryQuests = getQuestListByType(userId, Quest.QuestType.REQUEST, 5);
 
         List<QuestDto> combined = new ArrayList<>();
         combined.addAll(mainQuests);
