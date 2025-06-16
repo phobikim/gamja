@@ -14,8 +14,7 @@ public class Quest {
 
     public enum QuestType {
         MAIN,      // 메인 퀘스트
-        DAILY,     // 일일 퀘스트
-        WEEKLY,    // 주간 퀘스트
+        HUNT,     // 토벌 퀘스트
         DELIVERY   // 아이템 납품 퀘스트
     }
     public enum QuestDifficulty {
