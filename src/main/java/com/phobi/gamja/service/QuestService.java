@@ -4,96 +4,146 @@ import com.phobi.gamja.dto.quest.*;
 import com.phobi.gamja.entity.contents.Monster;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.quest.*;
+import com.phobi.gamja.entity.title.*;
 import com.phobi.gamja.entity.user.CounterType;
 import com.phobi.gamja.entity.user.UserCounterDetail;
+import com.phobi.gamja.entity.user.UserDexStat;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.contents.DexRepository;
 import com.phobi.gamja.repository.contents.MonsterRepository;
 import com.phobi.gamja.repository.item.ItemRepository;
 import com.phobi.gamja.repository.quest.*;
-import com.phobi.gamja.repository.user.UserCounterDetailRepository;
+import com.phobi.gamja.repository.title.TitleRepository;
+import com.phobi.gamja.repository.title.UserTitleRepository;
+import com.phobi.gamja.repository.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class QuestService {
+    private final ActionService actionService;
     private final QuestRepository questRepository;
     private final QuestConditionRepository questConditionRepository;
     private final QuestRewardRepository questRewardRepository;
     private final UserCounterDetailRepository userCounterDetailRepository;
+    private final UserQuestRepository userQuestRepository;
 
     private final MonsterRepository monsterRepository;
     private final ItemRepository itemRepository;
     private final DexRepository dexRepository;
+
+    private final UserDtlRepository userDtlRepository;
+    private final UserInventoryRepository userInventoryRepository;
+    private final UserDexStatRepository userDexStatRepository;
+    private final UserEquipmentRepository userEquipmentRepository;
+    private final UserTitleRepository userTitleRepository;
+    private final TitleRepository titleRepository;
+
+
+    @Transactional(readOnly = true)
     public ResponseEntity<GamJaResponse> getQuestList(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
 
-        List<Quest> quests = questRepository.findAll();
-        List<Long> questIds = quests.stream().map(Quest::getId).toList();
+        List<QuestDto> mainQuests = getQuestListByType(userId, Quest.QuestType.MAIN, 5);
+        List<QuestDto> huntQuests = getQuestListByType(userId, Quest.QuestType.HUNT, 5);
+        List<QuestDto> deliveryQuests = getQuestListByType(userId, Quest.QuestType.DELIVERY, 5);
 
-        List<QuestCondition> allConditions = questConditionRepository.findByQuestIdIn(questIds);
-        List<QuestReward> allRewards = questRewardRepository.findByQuestIdIn(questIds);
-        List<UserCounterDetail> counters = userCounterDetailRepository.findByUserId(userId);
+        List<QuestDto> combined = new ArrayList<>();
+        combined.addAll(mainQuests);
+        combined.addAll(huntQuests);
+        combined.addAll(deliveryQuests);
 
-        Map<Long, List<QuestCondition>> conditionMap = allConditions.stream()
-                .collect(Collectors.groupingBy(q -> q.getQuest().getId()));
-        Map<Long, List<QuestReward>> rewardMap = allRewards.stream()
-                .collect(Collectors.groupingBy(r -> r.getQuest().getId()));
+        return ResponseEntity.ok(GamJaResponse.success("퀘스트 조회 성공", combined));
+    }
 
-        Map<String, Integer> counterMap = counters.stream()
-                .collect(Collectors.toMap(
-                        c -> c.getCounterType().name() + ":" + c.getTargetId(),
-                        UserCounterDetail::getCounterValue,
-                        Integer::sum
-                ));
+    private List<QuestDto> getQuestListByType(Long userId, Quest.QuestType type, int limit) {
+        Set<Long> completedIds = new HashSet<>(userQuestRepository.findCompletedQuestIds(userId));
+        List<Quest> allQuests = (type == Quest.QuestType.MAIN)
+                ? questRepository.findByTypeAndEnabledIsTrueOrderByMainOrderAsc(type)
+                : questRepository.findByTypeAndEnabledIsTrue(type);
 
-        int totalDrawCount = counters.stream()
-                .filter(c -> c.getCounterType() == CounterType.CHARACTER_DRAW)
-                .mapToInt(UserCounterDetail::getCounterValue)
+        List<Quest> filtered = allQuests.stream()
+                .filter(q -> !(completedIds.contains(q.getId()) && !q.isRepeatable()))
+                .limit(limit)
+                .toList();
+        List<Long> questIds = filtered.stream().map(Quest::getId).toList();
+        // 조건 맵: questId → List<QuestCondition>
+        Map<Long, List<QuestCondition>> conditionMap =
+                questConditionRepository.findByQuestIdIn(questIds).stream()
+                        .collect(Collectors.groupingBy(q -> q.getQuest().getId()));
+
+        // 보상 맵: questId → List<QuestReward>
+        Map<Long, List<QuestReward>> rewardMap =
+                questRewardRepository.findByQuestIdIn(questIds).stream()
+                        .collect(Collectors.groupingBy(r -> r.getQuest().getId()));
+
+        // 카운터 맵: "MONSTER_KILL:12" → 현재 수치
+        Map<String, Integer> counterMap =
+                userCounterDetailRepository.findByUserId(userId).stream()
+                        .collect(Collectors.toMap(
+                                c -> c.getCounterType().name() + ":" + c.getTargetId(),
+                                UserCounterDetail::getCounterValue,
+                                Integer::sum
+                        ));
+
+        int totalDrawCount = counterMap.entrySet().stream()
+                .filter(e -> e.getKey().startsWith("CHARACTER_DRAW:"))
+                .mapToInt(Map.Entry::getValue)
                 .sum();
 
-        List<QuestDto> result = quests.stream().map(q -> {
-            List<QuestCondition> conds = conditionMap.getOrDefault(q.getId(), List.of());
-            List<QuestReward> rewards = rewardMap.getOrDefault(q.getId(), List.of());
-
-            boolean achieved = true;
+        return filtered.stream().map(q -> {
             List<QuestConditionDto> conditionDtos = new ArrayList<>();
+            boolean achieved = true;
 
-            for (QuestCondition cond : conds) {
-                int current = switch (cond.getCounterType()) {
-                    case CHARACTER_DRAW -> totalDrawCount;
-                    default -> counterMap.getOrDefault(cond.getCounterType().name() + ":" + cond.getTargetId(), 0);
-                };
+            for (QuestCondition cond : conditionMap.getOrDefault(q.getId(), List.of())) {
+                int current;
+                String targetName;
 
-                boolean pass = current >= cond.getRequiredCount();
-                achieved &= pass;
-
-                String targetName = switch (cond.getCounterType()) {
-                    case NONE, CHARACTER_DRAW -> null;
-                    case MONSTER_KILL -> {
-                        Monster m = monsterRepository.findById(cond.getTargetId()).orElse(null);
-                        yield m != null ? m.getName() : "???";
+                switch (cond.getCounterType()) {
+                    case CHARACTER_DRAW -> {
+                        // 🔥 target_id를 무시하고 null 키로 접근
+                        current = totalDrawCount;
+                        targetName = null;
                     }
-                    case ITEM_CRAFT -> {
-                        Item item = itemRepository.findById(cond.getTargetId()).orElse(null);
-                        yield item != null ? item.getName() : "???";
+                    case MONSTER_KILL, ITEM_CRAFT -> {
+                        current = counterMap.getOrDefault(cond.getCounterType().name() + ":" + cond.getTargetId(), 0);
+                        targetName = itemRepository.findById(cond.getTargetId()).map(Item::getName).orElse("???");
+                        if (cond.getCounterType() == CounterType.MONSTER_KILL)
+                            targetName = monsterRepository.findById(cond.getTargetId()).map(Monster::getName).orElse("???");
                     }
                     case LIFE_ACTION -> {
-                        yield switch (cond.getTargetId().intValue()) {
-                            case 1 -> "벌목";
-                            case 2 -> "낚시";
-                            case 3 -> "채광";
-                            case 4 -> "채집";
+                        current = counterMap.getOrDefault("LIFE_ACTION:" + cond.getTargetId(), 0);
+                        targetName = switch (cond.getTargetId().intValue()) {
+                            case 1 -> "벌목"; case 2 -> "낚시"; case 3 -> "채광"; case 4 -> "채집";
                             default -> "알 수 없음";
                         };
                     }
-                };
+                    case EQUIP_ITEM -> {
+                        boolean equipped = userEquipmentRepository.existsByUserIdAndItemId(userId, cond.getTargetId());
+                        current = equipped ? 1 : 0;
+                        targetName = itemRepository.findById(cond.getTargetId()).map(Item::getName).orElse("???");
+                    }
+                    case EQUIP_TITLE -> {
+                        boolean equipped = userTitleRepository.existsEquippedTitle(userId, cond.getTargetId());
+                        current = equipped ? 1 : 0;
+                        targetName = titleRepository.findById(cond.getTargetId()).map(Title::getName).orElse("???");
+                    }
+                    default -> {
+                        current = 0;
+                        targetName = null;
+                    }
+                }
+
+                boolean pass = current >= cond.getRequiredCount();
+                achieved &= pass;
 
                 conditionDtos.add(QuestConditionDto.builder()
                         .counterType(cond.getCounterType())
@@ -105,20 +155,16 @@ public class QuestService {
                         .build());
             }
 
-            List<QuestRewardDto> rewardDtos = rewards.stream().map(r -> {
-                String itemName = null;
-                if (r.getRewardType() == QuestReward.RewardType.ITEM && r.getItemId() != null) {
-                    Item item = itemRepository.findById(r.getItemId()).orElse(null);
-                    itemName = item != null ? item.getName() : "???";
-                }
-
-                return QuestRewardDto.builder()
-                        .rewardType(r.getRewardType())
-                        .itemId(r.getItemId())
-                        .itemName(itemName) // 추가된 필드
-                        .amount(r.getAmount())
-                        .build();
-            }).toList();
+            List<QuestRewardDto> rewardDtos = rewardMap.getOrDefault(q.getId(), List.of()).stream()
+                    .map(r -> QuestRewardDto.builder()
+                            .rewardType(r.getRewardType())
+                            .itemId(r.getItemId())
+                            .itemName(r.getItemId() != null
+                                    ? itemRepository.findById(r.getItemId()).map(Item::getName).orElse("???")
+                                    : null)
+                            .amount(r.getAmount())
+                            .build())
+                    .toList();
 
             return QuestDto.builder()
                     .id(q.getId())
@@ -130,8 +176,40 @@ public class QuestService {
                     .rewards(rewardDtos)
                     .achieved(achieved)
                     .build();
-        }).toList();
+        }).limit(limit).toList();
+    }
 
-        return ResponseEntity.ok(GamJaResponse.success("퀘스트 조회 성공", result));
+
+    @Transactional
+    public ResponseEntity<GamJaResponse> completeQuest(HttpServletRequest request, Map<String, Object> payload) {
+        Long userId = (Long) request.getAttribute("userId");
+        Long questId = ((Number) payload.get("questId")).longValue();
+        // 1. 보상 목록 조회
+        List<QuestReward> rewards = questRewardRepository.findByQuestId(questId);
+        // 2. 보상 적용
+        for (QuestReward reward : rewards) {
+            if (reward.getRewardType() == QuestReward.RewardType.ITEM) {
+                userInventoryRepository.upsertItem(userId, reward.getItemId(), reward.getAmount());
+            } else if (reward.getRewardType() == QuestReward.RewardType.EXP) {
+                // 착용한 감자 → user_dtl.character_dex_id
+                Long dexId = userDtlRepository.findCharacterDexIdByUserId(userId);
+                if (dexId != null) {
+                    UserDexStat stat = actionService.updateCharacterExp(userId, dexId, (int) reward.getAmount());
+                }
+            }
+        }
+
+        // 3. 퀘스트 완료 기록
+        Quest quest = questRepository.findById(questId).orElseThrow(() -> new RuntimeException("존재하지 않는 퀘스트"));
+        UserQuestId uqId = new UserQuestId(userId, questId);
+
+        UserQuest userQuest = UserQuest.builder()
+                .id(uqId)
+                .quest(quest)
+                .completed(true)
+                .updatedAt(LocalDateTime.now())
+                .build();
+        userQuestRepository.save(userQuest);
+        return ResponseEntity.ok(GamJaResponse.success("보상 처리 완료", null));
     }
 }

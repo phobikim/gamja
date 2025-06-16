@@ -5,5 +5,7 @@ public enum CounterType {
     MONSTER_KILL,
     ITEM_CRAFT,
     CHARACTER_DRAW,
-    LIFE_ACTION
+    LIFE_ACTION,
+    EQUIP_ITEM,
+    EQUIP_TITLE
 }

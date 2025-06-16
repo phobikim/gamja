@@ -129,8 +129,22 @@ public class ActionService {
         processItemRewards(userId, request);
 
         UserSkillDto result = new UserSkillDto(skillType, userSkill.getLevel(), userSkill.getExp(), getRequiredExp(userSkill.getLevel()), userSkill.getMaxCombo());
-//        logService.recordCounter(userId, CounterType.LIFE_ACTION, actionId);
+        // ✅ 활동 로그 및 카운팅 처리
+        if (EnumSet.of(SkillType.WOODCUTTING, SkillType.FISHING, SkillType.MINING, SkillType.GATHERING).contains(skillType)) {
+            Long actionId = getLifeActionTargetId(skillType);
+            logService.recordCounter(userId, CounterType.LIFE_ACTION, actionId);
+        }
         return ResponseEntity.ok(GamJaResponse.success("아이템 추가 완료", result));
+    }
+
+    private Long getLifeActionTargetId(SkillType skillType) {
+        return switch (skillType) {
+            case WOODCUTTING -> 1L;
+            case FISHING    -> 2L;
+            case MINING     -> 3L;
+            case GATHERING  -> 4L;
+            default -> throw new IllegalArgumentException("LIFE_ACTION에 해당하지 않는 스킬입니다: " + skillType);
+        };
     }
 
     // ✅ 칭호 수동 획득
@@ -288,7 +302,7 @@ public class ActionService {
         return userSkillRepository.save(skill);
     }
 
-    private UserDexStat updateCharacterExp(Long userId, Long dexId, int gainedExp) {
+    public UserDexStat updateCharacterExp(Long userId, Long dexId, int gainedExp) {
         UserDexStatId statId = new UserDexStatId(userId, dexId);
         UserDexStat stat = userDexStatRepository.findById(statId)
                 .orElseThrow(() -> new IllegalArgumentException("캐릭터 스탯 정보가 없습니다."));

@@ -24,9 +24,6 @@ public class UserQuest {
     @Column(name = "is_completed", nullable = false)
     private boolean completed;
 
-    @Column(name = "reward_claimed", nullable = false)
-    private boolean rewardClaimed;
-
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }

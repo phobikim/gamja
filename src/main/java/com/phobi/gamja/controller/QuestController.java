@@ -5,11 +5,10 @@ import com.phobi.gamja.service.BattleService;
 import com.phobi.gamja.service.QuestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/quest")
@@ -20,5 +19,10 @@ public class QuestController {
     @GetMapping("/list")
     public ResponseEntity<GamJaResponse> getQuestList(HttpServletRequest request) {
         return questService.getQuestList(request);
+    }
+
+    @PostMapping("/complete-quest")
+    public ResponseEntity<GamJaResponse> completeQuest(HttpServletRequest request, @RequestBody Map<String, Object> payload) {
+        return questService.completeQuest(request, payload);
     }
 }

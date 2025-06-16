@@ -11,15 +11,13 @@ function handleQuestClick() {
 }
 
 questModal.addEventListener('click', (e) => {
-    const inside = e.target.closest('.quest-modal-content');
+    const inside = e.target.closest('.quest-modal-container');
     if (!inside) questModal.classList.add('hidden');
 });
 
 function closeQuestModal() {
     questModal?.classList.add('hidden');
 }
-
-
 
 async function getQuestList() {
     try {
@@ -28,10 +26,8 @@ async function getQuestList() {
             showMessageModal('퀘스트 리스트를 불러오지 못했습니다.');
             return;
         }
-
         renderQuestTabs(res.data);
         renderQuestList(res.data, 'MAIN');
-
     } catch (err) {
         console.error(err);
         closeQuestModal();
@@ -41,7 +37,7 @@ async function getQuestList() {
 
 function renderQuestTabs(questList) {
     questTabBtns.forEach(btn => {
-        btn.removeEventListener('click', btn.clickHandler); // 기존 이벤트 제거
+        btn.removeEventListener('click', btn.clickHandler);
         btn.clickHandler = () => {
             questTabBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -55,20 +51,14 @@ function renderQuestTabs(questList) {
 function renderQuestList(list, type) {
     questListContainer.innerHTML = '';
     const filtered = list.filter(q => q.type === type);
-
     if (filtered.length === 0) {
-        questListContainer.innerHTML = `
-            <div style="text-align: center; padding: 40px; color: #8b6f47;">
-                해당 타입의 퀘스트가 없습니다.
-            </div>`;
+        questListContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #ccc;">해당 타입의 퀘스트가 없습니다.</div>';
         return;
     }
-
     filtered.forEach(quest => {
         const wrapper = document.createElement('div');
         wrapper.className = 'quest-entry';
 
-        // 제목 & 설명
         const title = document.createElement('div');
         title.className = 'quest-title';
         title.textContent = quest.name;
@@ -77,7 +67,6 @@ function renderQuestList(list, type) {
         desc.className = 'quest-desc';
         desc.textContent = quest.description;
 
-        // 조건 표시 영역
         const conditionGroup = document.createElement('div');
         conditionGroup.className = 'quest-conditions';
 
@@ -108,7 +97,6 @@ function renderQuestList(list, type) {
             conditionGroup.appendChild(row);
         });
 
-        // 보상 + 버튼
         const actionArea = document.createElement('div');
         actionArea.className = 'quest-action';
 
@@ -122,23 +110,11 @@ function renderQuestList(list, type) {
         (quest.rewards || []).forEach(r => {
             const rewardEl = document.createElement('span');
             rewardEl.className = 'quest-reward-item';
-
-            switch (r.rewardType) {
-                case 'ITEM':
-                    rewardEl.textContent = `${r.itemName || '아이템'} x${r.amount}`;
-                    break;
-                case 'EXP':
-                    rewardEl.textContent = `경험치 +${r.amount}`;
-                    break;
-                default:
-                    rewardEl.textContent = `보상 +${r.amount}`;
-            }
-
+            rewardEl.textContent = getRewardText(r);
             rewardsArea.appendChild(rewardEl);
         });
 
         statusArea.appendChild(rewardsArea);
-
         const buttonWrapper = document.createElement('div');
         if (quest.achieved) {
             const btn = document.createElement('button');
@@ -152,11 +128,9 @@ function renderQuestList(list, type) {
             progress.textContent = '진행중';
             buttonWrapper.appendChild(progress);
         }
-
         actionArea.appendChild(statusArea);
         actionArea.appendChild(buttonWrapper);
 
-        // 전체 조립
         wrapper.appendChild(title);
         wrapper.appendChild(desc);
         wrapper.appendChild(conditionGroup);
@@ -171,46 +145,32 @@ function getConditionLabel(cond) {
         case 'CHARACTER_DRAW': return '동료 모집';
         case 'MONSTER_KILL': return `몬스터 처치 (${cond.targetName})`;
         case 'ITEM_CRAFT': return `아이템 제작 (${cond.targetName})`;
-        case 'LIFE_ACTION': return `생활 스킬 (${cond.targetName})`;
+        case 'LIFE_ACTION': return `${cond.targetName}`;
+        case 'EQUIP_ITEM' : return `아이템 장착 (${cond.targetName})`;
+        case 'EQUIP_TITLE' : return `칭호 장착 (${cond.targetName})`;
         default: return '기타 조건';
     }
 }
 
-
 async function completeQuest(questId) {
     try {
-        const res = await apiRequest(`/api/util/quest/complete?id=${questId}`, 'POST');
-        if (res.code === 200) {
-            getQuestList(); // 완료 후 목록 새로고침
+        const res = await apiRequestJson('/api/quest/complete-quest', 'POST', { questId });
+        if (res.code === 'SUCCESS') {
+            showMessageModal('보상을 받았습니다!');
+            getQuestList();
+            await loadCharacterBasicInfo?.(); // 메인 상태 갱신
         } else {
-            closeQuestModal();
-            showMessageModal(res.message || '완료 처리 실패');
+            showMessageModal(res.message || '보상 처리 실패');
         }
     } catch (err) {
         console.error(err);
-        closeQuestModal();
-        showMessageModal('퀘스트 완료 처리 중 오류가 발생했습니다.');
+        showMessageModal('서버 오류로 보상을 받지 못했습니다.');
     }
 }
 
-function updateQuestResetTime() {
-    const now = new Date();
-    const tomorrow = new Date();
-    tomorrow.setHours(0, 0, 0, 0);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const diff = tomorrow - now;
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-    document.getElementById('questResetTime').textContent = `${hours}시간 ${minutes}분`;
-}
-setInterval(updateQuestResetTime, 60000);
-updateQuestResetTime();
-
 function getRewardText(reward) {
     switch (reward.rewardType) {
-        case 'ITEM': return `아이템 x${reward.amount}`;
+        case 'ITEM': return `${reward.itemName} x ${reward.amount} `;
         case 'EXP': return `경험치 +${reward.amount}`;
         case 'COIN': return `코인 +${reward.amount}`;
         default: return `보상 +${reward.amount}`;

@@ -45,6 +45,9 @@ public class Quest {
     @Column(name = "enabled", nullable = false)
     private boolean enabled;
 
+    @Column(name = "main_order")
+    private Integer mainOrder;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

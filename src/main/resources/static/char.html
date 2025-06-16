@@ -359,23 +359,25 @@
 
 <!-- 퀘스트 모달 -->
 <div id="questModal" class="modal hidden">
-    <div class="quest-modal-content">
-        <div class="quest-header">
-            <img src="https://phobi.me/gamja.img/images/backgrounds/bg_quest_banner.png" alt="퀘스트 일러스트" class="quest-illust" />
+    <div class="quest-modal-container">
+        <div class="quest-banner">
+            <img src="https://phobi.me/gamja.img/images/backgrounds/bg_quest_banner.png" alt="퀘스트 일러스트" class="quest-banner-image" />
         </div>
-        <div class="quest-tabs-container">
-            <div class="quest-tabs">
-                <button class="quest-tab-btn active" data-type="MAIN">메인</button>
-                <button class="quest-tab-btn" data-type="HUNT">토벌</button>
-                <button class="quest-tab-btn" data-type="REQUEST">납품</button>
-            </div>
+
+        <!-- 탭 버튼 -->
+        <div class="quest-tab-header">
+            <button class="quest-tab-btn active" data-type="MAIN">메인</button>
+            <button class="quest-tab-btn" data-type="HUNT">토벌</button>
+            <button class="quest-tab-btn" data-type="REQUEST">납품</button>
         </div>
-        <div id="questList" class="quest-scroll-area"></div>
+
+        <!-- 리스트 + 세부 영역 -->
+        <div class="quest-content-section">
+            <div id="questList" class="quest-scroll-list"></div>
+        </div>
+
         <div class="quest-footer">
-            초기화까지 남은 시간: <span id="questResetTime">5시간 00분</span>
-            <div class="quest-close-btn-area">
-                <button class="quest-close-btn" onclick="closeQuestModal()">닫기</button>
-            </div>
+            <button class="quest-close-btn" onclick="closeQuestModal()">닫기</button>
         </div>
     </div>
 </div>
