@@ -175,7 +175,7 @@ public class ActionService {
         // 저장
         UserTitle newTitle = UserTitle.builder()
                 .id(new UserTitleId(userId, titleId))  // 복합키
-                .title(title)                   // 반드시 넣어줘야 함!
+                .title(title)
                 .isOwned(true)
                 .isEquipped(false)
                 .build();

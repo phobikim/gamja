@@ -313,6 +313,7 @@ public class DexService {
                                 Dex dex = dexRepository.findById(cond.getTargetId()).orElse(null);
                                 yield dex != null ? dex.getName() : "???";
                             }
+                            case QUEST_COMPLETE -> "퀘스트 수행";
                             default -> "???";
                         };
                     }
