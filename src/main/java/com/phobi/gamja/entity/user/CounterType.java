@@ -7,5 +7,6 @@ public enum CounterType {
     CHARACTER_DRAW,
     LIFE_ACTION,
     EQUIP_ITEM,
-    EQUIP_TITLE
+    EQUIP_TITLE,
+    DELIVER_ITEM
 }

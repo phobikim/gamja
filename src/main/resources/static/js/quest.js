@@ -148,6 +148,7 @@ function getConditionLabel(cond) {
         case 'LIFE_ACTION': return `${cond.targetName}`;
         case 'EQUIP_ITEM' : return `아이템 장착 (${cond.targetName})`;
         case 'EQUIP_TITLE' : return `칭호 장착 (${cond.targetName})`;
+        case 'DELIVER_ITEM' : return `아이템 배달 (${cond.targetName})`;
         default: return '기타 조건';
     }
 }

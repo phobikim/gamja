@@ -20,4 +20,15 @@ public interface UserInventoryRepository extends JpaRepository<UserInventory, Us
             "ON DUPLICATE KEY UPDATE quantity = quantity + :qty", nativeQuery = true)
     void upsertItem(@Param("userId") Long userId, @Param("itemId") Long itemId, @Param("qty") int qty);
 
+    // ✅ 현재 보유 수량 조회
+    @Query("SELECT COALESCE(ui.quantity, 0) FROM UserInventory ui WHERE ui.userId = :userId AND ui.itemId = :itemId")
+    int getQuantity(@Param("userId") Long userId, @Param("itemId") Long itemId);
+
+    // ✅ 수량 차감 (보유 수량보다 작을 때만 반영됨)
+    @Modifying
+    @Query("UPDATE UserInventory ui SET ui.quantity = ui.quantity - :amount " +
+            "WHERE ui.userId = :userId AND ui.itemId = :itemId AND ui.quantity >= :amount")
+    int consumeItem(@Param("userId") Long userId,
+                    @Param("itemId") Long itemId,
+                    @Param("amount") int amount);
 }

@@ -136,6 +136,11 @@ public class QuestService {
                         current = equipped ? 1 : 0;
                         targetName = titleRepository.findById(cond.getTargetId()).map(Title::getName).orElse("???");
                     }
+                    case DELIVER_ITEM -> {
+                        int owned = userInventoryRepository.getQuantity(userId, cond.getTargetId());
+                        current = owned;
+                        targetName = itemRepository.findById(cond.getTargetId()).map(Item::getName).orElse("???");
+                    }
                     default -> {
                         current = 0;
                         targetName = null;
@@ -184,25 +189,42 @@ public class QuestService {
     public ResponseEntity<GamJaResponse> completeQuest(HttpServletRequest request, Map<String, Object> payload) {
         Long userId = (Long) request.getAttribute("userId");
         Long questId = ((Number) payload.get("questId")).longValue();
-        // 1. 보상 목록 조회
-        List<QuestReward> rewards = questRewardRepository.findByQuestId(questId);
-        // 2. 보상 적용
-        for (QuestReward reward : rewards) {
-            if (reward.getRewardType() == QuestReward.RewardType.ITEM) {
-                userInventoryRepository.upsertItem(userId, reward.getItemId(), reward.getAmount());
-            } else if (reward.getRewardType() == QuestReward.RewardType.EXP) {
-                // 착용한 감자 → user_dtl.character_dex_id
-                Long dexId = userDtlRepository.findCharacterDexIdByUserId(userId);
-                if (dexId != null) {
-                    UserDexStat stat = actionService.updateCharacterExp(userId, dexId, (int) reward.getAmount());
+        // 0. 퀘스트 및 조건 조회
+        Quest quest = questRepository.findById(questId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 퀘스트입니다."));
+        List<QuestCondition> conditions = questConditionRepository.findByQuestId(questId);
+
+        // 1. 납품 퀘스트일 경우, 아이템 수량 차감
+        for (QuestCondition cond : conditions) {
+            if (cond.getCounterType() == CounterType.DELIVER_ITEM) {
+                int owned = userInventoryRepository.getQuantity(userId, cond.getTargetId());
+                if (owned < cond.getRequiredCount()) {
+                    throw new IllegalStateException("납품에 필요한 아이템이 부족합니다.");
+                }
+
+                int result = userInventoryRepository.consumeItem(userId, cond.getTargetId(), cond.getRequiredCount());
+                if (result == 0) {
+                    throw new IllegalStateException("아이템 차감 실패: 수량 부족");
                 }
             }
         }
 
-        // 3. 퀘스트 완료 기록
-        Quest quest = questRepository.findById(questId).orElseThrow(() -> new RuntimeException("존재하지 않는 퀘스트"));
-        UserQuestId uqId = new UserQuestId(userId, questId);
+        // 2. 보상 처리
+        List<QuestReward> rewards = questRewardRepository.findByQuestId(questId);
+        for (QuestReward reward : rewards) {
+            if (reward.getRewardType() == QuestReward.RewardType.ITEM) {
+                userInventoryRepository.upsertItem(userId, reward.getItemId(), reward.getAmount());
+            } else if (reward.getRewardType() == QuestReward.RewardType.EXP) {
+                Long dexId = userDtlRepository.findCharacterDexIdByUserId(userId);
+                if (dexId != null) {
+                    actionService.updateCharacterExp(userId, dexId, reward.getAmount());
+                }
+            }
+        }
 
+
+        // 3. 완료 기록
+        UserQuestId uqId = new UserQuestId(userId, questId);
         UserQuest userQuest = UserQuest.builder()
                 .id(uqId)
                 .quest(quest)
@@ -210,6 +232,7 @@ public class QuestService {
                 .updatedAt(LocalDateTime.now())
                 .build();
         userQuestRepository.save(userQuest);
+
         return ResponseEntity.ok(GamJaResponse.success("보상 처리 완료", null));
     }
 }
