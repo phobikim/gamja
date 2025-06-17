@@ -26,6 +26,7 @@
     <link rel="stylesheet" href="css/gacha.css">
     <link rel="stylesheet" href="css/playerEquip.css">
     <link rel="stylesheet" href="css/quest.css">
+    <link rel="stylesheet" href="css/dexParty.css">
 </head>
 
 <body class="char-page">
@@ -90,7 +91,11 @@
         </div>
         <div class="inventoryCell" onclick="handleQuestClick()">
             <img src="https://phobi.me/gamja.img/images/icons/icon_quest.png" alt="퀘스트">
-            <span class="itemLabel">임무<span>
+            <span class="itemLabel">임무</span>
+        </div>
+        <div class="inventoryCell" onclick="handlePartyClick()">
+            <img src="https://phobi.me/gamja.img/images/icons/icon_quest.png" alt="파티">
+            <span class="itemLabel">파티</span>
         </div>
     </section>
 </main>
@@ -894,6 +899,28 @@
     </div>
 </div>
 
+<!-- 감자 파티 구성 모달 -->
+<div id="partyModal" class="hidden">
+    <div class="party-modal-content">
+        <div class="party-modal-header">
+            <h2>감자 파티</h2>
+            <button class="party-close-button" id="closePartyModal">X</button>
+        </div>
+
+        <div class="party-slot-area">
+            <div class="party-slot" data-index="0"><span class="plus">+</span></div>
+            <div class="party-slot" data-index="1"><span class="plus">+</span></div>
+            <div class="party-slot" data-index="2"><span class="plus">+</span></div>
+        </div>
+
+        <div class="party-list-title">보유 감자</div>
+
+        <div class="potato-list-grid" id="potatoList">
+            <!-- 감자 카드들 JS로 렌더링 -->
+        </div>
+    </div>
+</div>
+
 <!-- 아이템 툴팁 -->
 <div id="itemTooltip" class="tooltip-modal hidden">
     <div class="tooltip-content">
@@ -923,6 +950,7 @@
 <script src="js/gacha.js"></script>
 <script src="js/playerEquip.js"></script>
 <script src="js/quest.js"></script>
+<script src="js/dexParty.js"></script>
 
 
 <script>

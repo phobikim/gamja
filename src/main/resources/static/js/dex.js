@@ -29,8 +29,6 @@ async function handleDexClick() {
     renderCardsByType("character", currentDexData.dexList);
     dexModal.classList.remove("hidden");
     renderDexTabs(); // 이벤트 바인딩은 여기에 유지
-
-
 }
 
 async function fetchDexMetaData() {
