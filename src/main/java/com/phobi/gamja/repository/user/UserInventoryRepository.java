@@ -22,7 +22,7 @@ public interface UserInventoryRepository extends JpaRepository<UserInventory, Us
 
     // ✅ 현재 보유 수량 조회
     @Query("SELECT COALESCE(ui.quantity, 0) FROM UserInventory ui WHERE ui.userId = :userId AND ui.itemId = :itemId")
-    int getQuantity(@Param("userId") Long userId, @Param("itemId") Long itemId);
+    Integer getQuantity(@Param("userId") Long userId, @Param("itemId") Long itemId);
 
     // ✅ 수량 차감 (보유 수량보다 작을 때만 반영됨)
     @Modifying

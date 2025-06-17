@@ -18,11 +18,17 @@ public class UserQuest {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("questId")
-    @JoinColumn(name = "quest_id")
+    @JoinColumn(name = "quest_id", insertable = false, updatable = false)
     private Quest quest;
 
     @Column(name = "is_completed", nullable = false)
     private boolean completed;
+
+    @Column(name = "accepted_at")
+    private LocalDateTime acceptedAt;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;

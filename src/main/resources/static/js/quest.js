@@ -3,7 +3,7 @@
 const questModal = document.getElementById('questModal');
 const questTabBtns = document.querySelectorAll('.quest-tab-btn');
 const questListContainer = document.getElementById('questList');
-
+let currentQuestType = 'MAIN';
 function handleQuestClick() {
     playEffect("se_click2");
     questModal.classList.remove('hidden');
@@ -27,7 +27,7 @@ async function getQuestList() {
             return;
         }
         renderQuestTabs(res.data);
-        renderQuestList(res.data, 'MAIN');
+        renderQuestList(res.data, currentQuestType);
     } catch (err) {
         console.error(err);
         closeQuestModal();
@@ -41,8 +41,8 @@ function renderQuestTabs(questList) {
         btn.clickHandler = () => {
             questTabBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            const selectedType = btn.dataset.type;
-            renderQuestList(questList, selectedType);
+            currentQuestType = btn.dataset.type;
+            renderQuestList(questList, currentQuestType);
         };
         btn.addEventListener('click', btn.clickHandler);
     });

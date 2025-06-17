@@ -7,7 +7,6 @@ import com.phobi.gamja.entity.quest.*;
 import com.phobi.gamja.entity.title.*;
 import com.phobi.gamja.entity.user.CounterType;
 import com.phobi.gamja.entity.user.UserCounterDetail;
-import com.phobi.gamja.entity.user.UserDexStat;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.contents.DexRepository;
 import com.phobi.gamja.repository.contents.MonsterRepository;
@@ -30,6 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class QuestService {
     private final ActionService actionService;
+    private final LogService logService;
     private final QuestRepository questRepository;
     private final QuestConditionRepository questConditionRepository;
     private final QuestRewardRepository questRewardRepository;
@@ -71,7 +71,15 @@ public class QuestService {
                 : questRepository.findByTypeAndEnabledIsTrue(type);
 
         List<Quest> filtered = allQuests.stream()
-                .filter(q -> !(completedIds.contains(q.getId()) && !q.isRepeatable()))
+                .filter(q -> {
+                    if (!completedIds.contains(q.getId())) return true;
+                    if (!q.isRepeatable()) return false;
+
+                    UserQuest uq = userQuestRepository.findById(new UserQuestId(userId, q.getId())).orElse(null);
+                    if (uq == null || uq.getCompletedAt() == null) return true;
+
+                    return uq.getCompletedAt().toLocalDate().isBefore(LocalDateTime.now().toLocalDate());
+                })
                 .limit(limit)
                 .toList();
         List<Long> questIds = filtered.stream().map(Quest::getId).toList();
@@ -137,7 +145,8 @@ public class QuestService {
                         targetName = titleRepository.findById(cond.getTargetId()).map(Title::getName).orElse("???");
                     }
                     case DELIVER_ITEM -> {
-                        int owned = userInventoryRepository.getQuantity(userId, cond.getTargetId());
+                        int owned = Optional.ofNullable(userInventoryRepository.getQuantity(userId, cond.getTargetId()))
+                                .orElse(0);
                         current = owned;
                         targetName = itemRepository.findById(cond.getTargetId()).map(Item::getName).orElse("???");
                     }
@@ -197,7 +206,8 @@ public class QuestService {
         // 1. 납품 퀘스트일 경우, 아이템 수량 차감
         for (QuestCondition cond : conditions) {
             if (cond.getCounterType() == CounterType.DELIVER_ITEM) {
-                int owned = userInventoryRepository.getQuantity(userId, cond.getTargetId());
+                int owned = Optional.ofNullable(userInventoryRepository.getQuantity(userId, cond.getTargetId()))
+                        .orElse(0);
                 if (owned < cond.getRequiredCount()) {
                     throw new IllegalStateException("납품에 필요한 아이템이 부족합니다.");
                 }
@@ -229,10 +239,11 @@ public class QuestService {
                 .id(uqId)
                 .quest(quest)
                 .completed(true)
+                .completedAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
         userQuestRepository.save(userQuest);
-
+        logService.recordCounter(userId, CounterType.QUEST_COMPLETE, 0L);
         return ResponseEntity.ok(GamJaResponse.success("보상 처리 완료", null));
     }
 }

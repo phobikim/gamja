@@ -6,6 +6,9 @@ public enum CounterType {
     ITEM_CRAFT,
     CHARACTER_DRAW,
     LIFE_ACTION,
+    QUEST_COMPLETE,
+
+    /*기록 안함, 퀘스트 용 */
     EQUIP_ITEM,
     EQUIP_TITLE,
     DELIVER_ITEM

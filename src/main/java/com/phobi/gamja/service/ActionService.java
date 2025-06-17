@@ -158,42 +158,13 @@ public class ActionService {
         List<TitleCondition> conditions = title.getConditions();
 
         if (title.getCounterType() == CounterType.LIFE_ACTION) {
-            // ✅ 생활 스킬 레벨 기반 확인
-            LifeStatDto stat = statCalculator.calculateLifeSkill(userId);
-
-            for (TitleCondition cond : conditions) {
-                int level = switch (cond.getLifeType()) {
-                    case FISHING -> stat.getFishing().getTotal();
-                    case MINING -> stat.getMining().getTotal();
-                    case WOODCUTTING -> stat.getWoodcutting().getTotal();
-                    case GATHERING -> stat.getGathering().getTotal();
-                    case MAKING -> stat.getMaking().getTotal();
-                    default -> 0;
-                };
-
-                if (level < cond.getRequiredCount()) {
-                    return ResponseEntity.badRequest().body(GamJaResponse.fail("칭호 획득 조건을 만족하지 않습니다."));
-                }
-            }
+            checkLifeStatConditions(userId, conditions);
+        } else if (isTargetlessCondition(conditions)) {
+            checkTotalCounterConditions(userId, title.getCounterType(), conditions);
         } else {
-            // ✅ 일반 카운터 기반 확인
-            List<UserCounterDetail> counters = userCounterDetailRepository.findByUserId(userId);
-
-            for (TitleCondition condition : conditions) {
-                CounterType type = title.getCounterType(); // title 자체의 공통 counter_type
-                Long targetId = condition.getTargetId();
-                int required = condition.getRequiredCount();
-
-                int current = counters.stream()
-                        .filter(c -> c.getCounterType() == type && c.getTargetId().equals(targetId))
-                        .mapToInt(UserCounterDetail::getCounterValue)
-                        .sum();
-
-                if (current < required) {
-                    return ResponseEntity.badRequest().body(GamJaResponse.fail("칭호 획득 조건을 만족하지 않습니다."));
-                }
-            }
+            checkTargetCounterConditions(userId, title.getCounterType(), conditions);
         }
+
 
         // 이미 보유 중인지 체크
         boolean alreadyOwned = userTitleRepository.existsById(new UserTitleId(userId, titleId));
@@ -254,6 +225,63 @@ public class ActionService {
         }
 
         return ResponseEntity.ok(GamJaResponse.success("칭호를 착용했습니다.", dto));
+    }
+
+    /* 타이틀 계산 함수 */
+
+    //생활 스탯 조건 함수
+    private void checkLifeStatConditions(Long userId, List<TitleCondition> conditions) {
+        LifeStatDto stat = statCalculator.calculateLifeSkill(userId);
+
+        for (TitleCondition cond : conditions) {
+            int level = switch (cond.getLifeType()) {
+                case FISHING -> stat.getFishing().getTotal();
+                case MINING -> stat.getMining().getTotal();
+                case WOODCUTTING -> stat.getWoodcutting().getTotal();
+                case GATHERING -> stat.getGathering().getTotal();
+                case MAKING -> stat.getMaking().getTotal();
+                default -> 0;
+            };
+
+            if (level < cond.getRequiredCount()) {
+                throw new IllegalStateException("생활 스킬 조건 미달");
+            }
+        }
+    }
+
+    //특정 대상 기반 조건 함수 (targetId 있음)
+    private void checkTargetCounterConditions(Long userId, CounterType type, List<TitleCondition> conditions) {
+        List<UserCounterDetail> counters = userCounterDetailRepository.findByUserId(userId);
+        for (TitleCondition cond : conditions) {
+            Long targetId = cond.getTargetId();
+            int required = cond.getRequiredCount();
+
+            int current = counters.stream()
+                    .filter(c -> c.getCounterType() == type && c.getTargetId().equals(targetId))
+                    .mapToInt(UserCounterDetail::getCounterValue)
+                    .sum();
+
+            if (current < required) {
+                throw new IllegalStateException("카운터 조건 미달 (타겟 기반)");
+            }
+        }
+    }
+    //누적 카운트 조건 함수 (targetId == 0)
+    private void checkTotalCounterConditions(Long userId, CounterType type, List<TitleCondition> conditions) {
+        List<UserCounterDetail> counters = userCounterDetailRepository.findByUserId(userId);
+        int total = counters.stream()
+                .filter(c -> c.getCounterType() == type)
+                .mapToInt(UserCounterDetail::getCounterValue)
+                .sum();
+
+        for (TitleCondition cond : conditions) {
+            if (total < cond.getRequiredCount()) {
+                throw new IllegalStateException("카운터 누적합 조건 미달");
+            }
+        }
+    }
+    private boolean isTargetlessCondition(List<TitleCondition> conditions) {
+        return conditions.stream().allMatch(c -> c.getTargetId() == null || c.getTargetId() == 0);
     }
 
     // ===== 공통 처리 함수 =====
