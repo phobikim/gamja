@@ -2,7 +2,7 @@ package com.phobi.gamja.service;
 
 import com.phobi.gamja.dto.contents.MonsterDto;
 import com.phobi.gamja.dto.user.LifeStatDto;
-import com.phobi.gamja.entity.contents.Monster;
+import com.phobi.gamja.entity.battle.Monster;
 import com.phobi.gamja.entity.dex.*;
 import com.phobi.gamja.entity.item.*;
 import com.phobi.gamja.entity.title.Title;

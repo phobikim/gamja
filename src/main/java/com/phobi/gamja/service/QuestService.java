@@ -1,7 +1,7 @@
 package com.phobi.gamja.service;
 
 import com.phobi.gamja.dto.quest.*;
-import com.phobi.gamja.entity.contents.Monster;
+import com.phobi.gamja.entity.battle.Monster;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.quest.*;
 import com.phobi.gamja.entity.title.*;
