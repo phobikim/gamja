@@ -3,7 +3,7 @@ package com.phobi.gamja.util;
 import com.phobi.gamja.entity.dex.Dex;
 import com.phobi.gamja.entity.user.UserDexStat;
 import com.phobi.gamja.entity.user.UserDtl;
-import com.phobi.gamja.repository.contents.DexRepository;
+import com.phobi.gamja.repository.dex.DexRepository;
 import com.phobi.gamja.repository.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

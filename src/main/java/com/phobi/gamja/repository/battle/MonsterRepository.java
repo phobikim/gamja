@@ -1,4 +1,4 @@
-package com.phobi.gamja.repository.contents;
+package com.phobi.gamja.repository.battle;
 
 import com.phobi.gamja.entity.battle.Monster;
 import com.phobi.gamja.entity.battle.MonsterMap;
