@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -65,20 +67,29 @@ public class QuestService {
     }
 
     private List<QuestDto> getQuestListByType(Long userId, Quest.QuestType type, int limit) {
-        Set<Long> completedIds = new HashSet<>(userQuestRepository.findCompletedQuestIds(userId));
+        LocalDate today = LocalDate.now();
         List<Quest> allQuests = (type == Quest.QuestType.MAIN)
                 ? questRepository.findByTypeAndEnabledIsTrueOrderByMainOrderAsc(type)
                 : questRepository.findByTypeAndEnabledIsTrue(type);
+        // user_quest 데이터 조회
+        Map<Long, UserQuest> userQuestMap = userQuestRepository.findByIdUserId(userId).stream()
+                .collect(Collectors.toMap(
+                        uq -> uq.getQuest().getId(),
+                        uq -> uq
+                ));
 
         List<Quest> filtered = allQuests.stream()
                 .filter(q -> {
-                    if (!completedIds.contains(q.getId())) return true;
-                    if (!q.isRepeatable()) return false;
+                    UserQuest uq = userQuestMap.get(q.getId());
 
-                    UserQuest uq = userQuestRepository.findById(new UserQuestId(userId, q.getId())).orElse(null);
+                    // 완료한 적 없으면 표시
                     if (uq == null || uq.getCompletedAt() == null) return true;
 
-                    return uq.getCompletedAt().toLocalDate().isBefore(LocalDateTime.now().toLocalDate());
+                    // 반복 불가면 제외
+                    if (!q.isRepeatable()) return false;
+
+                    // 오늘보다 이전에 완료한 퀘스트만 다시 표시
+                    return uq.getCompletedAt().toLocalDate().isBefore(today);
                 })
                 .limit(limit)
                 .toList();
@@ -235,13 +246,19 @@ public class QuestService {
 
         // 3. 완료 기록
         UserQuestId uqId = new UserQuestId(userId, questId);
-        UserQuest userQuest = UserQuest.builder()
-                .id(uqId)
-                .quest(quest)
-                .completed(true)
-                .completedAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+        UserQuest userQuest = userQuestRepository.findById(uqId).orElse(null);
+
+        if (userQuest == null) {
+            userQuest = UserQuest.builder()
+                    .id(uqId)
+                    .quest(quest)
+                    .build();
+        }
+
+        userQuest.setCompleted(true);
+        userQuest.setCompletedAt(LocalDateTime.now());
+        userQuest.setUpdatedAt(LocalDateTime.now());
+
         userQuestRepository.save(userQuest);
         logService.recordCounter(userId, CounterType.QUEST_COMPLETE, 0L);
         return ResponseEntity.ok(GamJaResponse.success("보상 처리 완료", null));
