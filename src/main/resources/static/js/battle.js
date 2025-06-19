@@ -116,11 +116,7 @@ window.startBattleFromMap = async function(map) {
         return;
     }
     let selectedMonster;
-    if (user.lv === 1) {
-        selectedMonster = monsters.find(mon => mon.name === '닭') || monsters[0];
-    } else {
-        selectedMonster = monsters[Math.floor(Math.random() * monsters.length)];
-    }
+    selectedMonster = monsters[Math.floor(Math.random() * monsters.length)];
 
     initializeBattleScene(user, selectedMonster);
     startBattle(user, selectedMonster);
