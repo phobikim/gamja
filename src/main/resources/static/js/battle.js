@@ -12,7 +12,8 @@ let isProcessingTurn = false;
 let potionUsed = false;
 let tempPowerBoost = 0;
 
-const skillEffectImage = `${basePath_image}/effect/attack_slash5.png`;
+// const skillEffectImage = `${basePath_image}/effect/attack_slash5.png`;
+const skillEffectImage = `${basePath_image}/skills/potato_whip.png`;
 
 window.battleState = {
     player: {},

@@ -19,10 +19,10 @@
 }
 
 #lootModal .loot-modal-content {
-    background: var(--char-border-color);
+    background: var(--dark-3-color);
     border-radius: 20px;
     padding: 3vw;
-    width: 90%;
+    width: 100%;
     max-width: 600px;
     max-height: 90vh;
     overflow-y: auto;
@@ -43,7 +43,7 @@
     align-items: flex-start;
     gap: 4vw;
     padding: 4vw;
-    background: var(--white-color);
+    background: var(--dark-1-color);
     border-radius: 20px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
@@ -71,7 +71,7 @@
     text-align: center;
     font-size: clamp(1.6rem, 4vw, 2.2rem);
     font-weight: bold;
-    color: var(--dark-brown-font-color);
+    color: var(--dark-1-font-color);
 }
 
 #lootModal .xp-bar-container {
@@ -135,7 +135,7 @@
 #lootModal .xp-text {
     font-weight: bold;
     font-size: clamp(0.8rem, 2vw, 1.1rem);
-    color: var(--dark-brown-font-color);
+    color: var(--dark-1-font-color);
     margin-top: 1vh;
     text-align: center;
 }
@@ -183,7 +183,7 @@
 
 /* 희귀도별 색상 - border 제거하고 배경색만 유지 */
 #lootModal .loot-item-card.rarity-common {
-    background: var(--dark-orange-color);
+    background: var(--dark-1-color);
 }
 #lootModal .loot-item-card.rarity-uncommon {
     background: #61bb11;
@@ -231,7 +231,7 @@
     width: 100%;
     padding: 3vw 4vw;
     font-size: clamp(0.9rem, 2.2vw, 1.2rem);
-    background: var(--orange-color);
+    background: var(--baige-color);
     color: #000;
     border: none;
     border-radius: 12px;
