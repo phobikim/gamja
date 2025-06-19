@@ -42,11 +42,19 @@ public class AuthService {
     }
     @Transactional
     public GamJaResponse signup(String username, String pin, HttpServletRequest request, HttpSession session) {
+        // [1] 유효성 검사 (한글/영문/숫자, 1~10자)
+        if (!username.matches("^[a-zA-Z가-힣0-9]{1,10}$")) {
+            return GamJaResponse.fail("아이디는 한글 또는 영문, 숫자만 가능하며 최대 10자까지 가능합니다.");
+        }
+
         if (userRepository.findByUsername(username).isPresent()) {
             return GamJaResponse.fail("이미 존재하는 아이디입니다.");
         }
 
+        long userId = generateUniqueUserId();
+
         User newUser = new User();
+        newUser.setId(userId);
         newUser.setUsername(username);
         newUser.setPin(pin);
         User savedUser = userRepository.save(newUser);
@@ -132,5 +140,21 @@ public class AuthService {
         }
 
         return GamJaResponse.success("세션이 유효합니다",null);
+    }
+
+    private long generateUniqueUserId() {
+        Random random = new Random();
+        long userId;
+        do {
+            // 15~20자리 숫자 생성
+            int length = 15 + random.nextInt(6); // 15~20
+            StringBuilder sb = new StringBuilder();
+            sb.append(random.nextInt(9) + 1); // 첫 자리는 0 제외
+            for (int i = 1; i < length; i++) {
+                sb.append(random.nextInt(10));
+            }
+            userId = Long.parseLong(sb.toString());
+        } while (userRepository.existsById(userId));
+        return userId;
     }
 }

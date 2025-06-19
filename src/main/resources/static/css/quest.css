@@ -12,6 +12,7 @@
     background: var(--dark-3-color);
     border-radius: 15px;
     overflow: hidden;
+    margin-top: 2vh
 }
 .quest-banner-image {
     width: 100%;
@@ -190,6 +191,7 @@
     display: flex;
     justify-content: center;
     margin-top: auto;
+    padding-bottom: 2vh;
 }
 .quest-close-btn {
     background: var(--orange-color);

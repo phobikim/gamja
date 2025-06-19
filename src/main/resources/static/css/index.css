@@ -83,6 +83,7 @@
     align-items: center;
     height: 100vh;
     margin: 0;
+    position: relative;
 }
 .intro-page h2 {
     color: #ffe4b5; /* 크림 감자색 */
@@ -124,4 +125,17 @@
     min-height: 250px;
     box-sizing: border-box;
     position: relative;
+}
+
+.footer-copyright {
+    position: absolute;
+    bottom: 5rem;
+    width: 100%;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #ffe4b5;
+    text-shadow: 1px 1px 2px #000;
+    font-family: 'DungGeunMo', sans-serif;
+    line-height: 1.4;
+    z-index: 5;
 }

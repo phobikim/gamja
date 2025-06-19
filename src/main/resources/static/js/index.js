@@ -1,7 +1,7 @@
 // 최초 클릭 시 BGM 재생
-window.addEventListener("click", async () => {
-    await toggleBGM("bgm_main");
-}, { once: true });
+// window.addEventListener("click", async () => {
+//     await toggleBGM("bgm_main");
+// }, { once: true });
 
 // 로그인/회원가입 초기화 코드
 (function initLoginPage() {
@@ -32,20 +32,6 @@ window.addEventListener("click", async () => {
         return /^[가-힣a-zA-Z0-9]+$/.test(str);
     }
 
-    // 한글 조합 대응 유효성 필터 적용
-    function applyUsernameInputFilter(inputEl) {
-        let isComposing = false;
-        inputEl.addEventListener('compositionstart', () => isComposing = true);
-        inputEl.addEventListener('compositionend', () => isComposing = false);
-        inputEl.addEventListener('input', () => {
-            if (!isComposing) {
-                inputEl.value = inputEl.value.replace(/[^가-힣a-zA-Z0-9]/g, '');
-            }
-        });
-    }
-
-    applyUsernameInputFilter(adminLoginUserName);
-    applyUsernameInputFilter(signupUsernameInput);
 
     // 핀 이벤트 설정 (자동 로그인 버튼 연동 가능)
     function pinEvent(pinInputs, autoSubmitButton = null) {
@@ -71,7 +57,7 @@ window.addEventListener("click", async () => {
     pinEvent(signupPinInputs);
 
     // BGM Toggle
-    toggleBtn.addEventListener("click", () => toggleBGM("bgm_main"));
+    // toggleBtn.addEventListener("click", () => toggleBGM("bgm_main"));
 
     // 로그인 모달 열기
     logo.addEventListener('click', () => {
@@ -89,8 +75,15 @@ window.addEventListener("click", async () => {
         const username = adminLoginUserName.value.trim();
         const pin = Array.from(loginPinInputs).map(i => i.value).join('');
 
-        if (!username || pin.length !== 4 || !isValidUsername(username)) {
-            adminErrorText.textContent = '이름과 PIN을 모두 입력해주세요.';
+        if (!username || !isValidUsername(username)) {
+            adminErrorText.textContent = '아이디는 한글, 영어, 숫자만 입력할 수 있어요.';
+            adminErrorText.classList.remove('hidden');
+            adminLoginUserName.focus();
+            return;
+        }
+
+        if (pin.length !== 4) {
+            adminErrorText.textContent = 'PIN은 4자리를 모두 입력해주세요.';
             adminErrorText.classList.remove('hidden');
             loginPinInputs[0].focus();
             return;
@@ -124,7 +117,7 @@ window.addEventListener("click", async () => {
         signupModal.classList.remove('hidden');
         signupUsernameInput.value = '';
         signupPinInputs.forEach(input => input.value = '');
-        signupUsernameInput.focus();
+        setTimeout(() => signupUsernameInput.focus(), 150);
         signupErrorText.classList.add('hidden');
     });
 
@@ -133,8 +126,14 @@ window.addEventListener("click", async () => {
         const username = signupUsernameInput.value.trim();
         const pin = Array.from(signupPinInputs).map(i => i.value).join('');
 
-        if (!username || pin.length !== 4 || !isValidUsername(username)) {
-            signupErrorText.textContent = '이름과 PIN을 모두 입력해주세요.';
+        if (!username || !isValidUsername(username)) {
+            signupErrorText.textContent = '아이디는 한글, 영어, 숫자만 입력할 수 있어요.';
+            signupErrorText.classList.remove('hidden');
+            return;
+        }
+
+        if( pin.length!== 4) {
+            signupErrorText.textContent = 'PIN은 4자리를 모두 입력해주세요.';
             signupErrorText.classList.remove('hidden');
             return;
         }

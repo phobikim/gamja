@@ -43,6 +43,7 @@
 }
 
 .map-list-horizontal {
+    margin-bottom: 2vh;
     padding: 8px;
     display: flex;
     overflow-x: auto;
@@ -214,8 +215,8 @@
     justify-content: center;
     gap: 1rem;
     padding-top: 1rem;
-    padding-bottom: 0.5rem;
-    position: sticky; /* 또는 absolute 사용 가능 */
-    bottom: 5px;
+    padding-bottom: 2vh; /* ✅ 하단 여백 확보 */
+    position: sticky;
+    bottom: 0;
+    background: var(--dark-1-color); /* ✅ 배경 안 겹치게 */
 }
-
