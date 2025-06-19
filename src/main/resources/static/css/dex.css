@@ -242,7 +242,7 @@
     overflow: hidden;
     margin-bottom: 15px;
     min-height: 200px;
-    max-height: 200px;
+    /*max-height: 200px;*/
 }
 
 .dex-tab-grid {
@@ -299,7 +299,7 @@
 .dex-footer {
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom : 2vh;
 }
 
 .dex-close-btn {
@@ -508,8 +508,9 @@
     margin-bottom: 15px;
 }
 .title-tab-active .dex-content-section {
-    min-height: 455px; /* 상세패널(240px) + 여백(15px) + 기존 높이(200px) */
+    min-height: 455px;
     max-height: 455px;
+    display: flex;
 }
 
 .title-icon {
