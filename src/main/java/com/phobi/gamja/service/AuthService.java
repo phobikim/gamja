@@ -107,7 +107,6 @@ public class AuthService {
         session.setAttribute("userAgent", request.getHeader("User-Agent"));
 
         Map<String, Object> body = new HashMap<>();
-        body.put("userId", savedUser.getId());
         body.put("username", savedUser.getUsername());
 
         return GamJaResponse.success("회원가입 완료", body);
