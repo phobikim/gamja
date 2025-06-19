@@ -22,10 +22,10 @@
     <link rel="stylesheet" href="css/playerInfo.css">
     <link rel="stylesheet" href="css/color.css">
     <link rel="stylesheet" href="css/exploration.css">
-    <link rel="stylesheet" href="css/playerDexSelect.css">
     <link rel="stylesheet" href="css/gacha.css">
     <link rel="stylesheet" href="css/quest.css">
-    <!--    <link rel="stylesheet" href="css/playerEquip.css">-->
+    <link rel="stylesheet" href="css/playerEquip.css">
+    <!--    <link rel="stylesheet" href="css/playerDexSelect.css">-->
 <!--    <link rel="stylesheet" href="css/dexParty.css">-->
 </head>
 
@@ -73,33 +73,33 @@
     </div>
     <!-- 하단 인벤토리 그리드 (4x2) -->
     <section class="inventory-grid">
-        <div class="inventoryCell" onclick="openMapModal()">
-            <img src="https://phobi.me/gamja.img/images/icons/icon_map.png" alt="지도">
-            <span class="itemLabel">생활</span>
+        <div class="inventoryCell" onclick="handleQuestClick()">
+            <img src="https://phobi.me/gamja.img/images/icons/icon_quest.png" alt="퀘스트">
+            <span class="itemLabel">감자단임무</span>
+        </div>
+        <div class="inventoryCell" onclick="handleDexClick()">
+            <img src="https://phobi.me/gamja.img/images/icons/icon_book.png" alt="도감">
+            <span class="itemLabel">감자도감</span>
         </div>
         <div class="inventoryCell" onclick="handleStationClick()">
             <img src="https://phobi.me/gamja.img/images/icons/icon_station.png" alt="공방">
             <span class="itemLabel">감자공방</span>
         </div>
-        <div class="inventoryCell" onclick="handleAttackClick()">
-            <img src="https://phobi.me/gamja.img/images/icons/icon_skill_attack.png" alt="전투">
-            <span class="itemLabel">전투</span>
-        </div>
-        <div class="inventoryCell" onclick="handleDexClick()">
-            <img src="https://phobi.me/gamja.img/images/icons/icon_book.png" alt="도감">
-            <span class="itemLabel">도감</span>
-        </div>
-        <div class="inventoryCell" onclick="handleQuestClick()">
-            <img src="https://phobi.me/gamja.img/images/icons/icon_quest.png" alt="퀘스트">
-            <span class="itemLabel">임무</span>
-        </div>
         <div class="inventoryCell" onclick="handleLaboratoryClick()">
             <img src="https://phobi.me/gamja.img/images/icons/icon_laboratory.png" alt="감자감정소">
             <span class="itemLabel">감자감정소</span>
         </div>
+        <div class="inventoryCell" onclick="openMapModal()">
+            <img src="https://phobi.me/gamja.img/images/icons/icon_map.png" alt="지도">
+            <span class="itemLabel">생활</span>
+        </div>
+        <div class="inventoryCell" onclick="handleAttackClick()">
+            <img src="https://phobi.me/gamja.img/images/icons/icon_skill_attack.png" alt="전투">
+            <span class="itemLabel">전투</span>
+        </div>
         <div class="inventoryCell" onclick="handleBagClick()">
             <img src="https://phobi.me/gamja.img/images/icons/icon_bag.png" alt="인벤토리">
-            <span class="itemLabel">인벤토리</span>
+            <span class="itemLabel">가방</span>
         </div>
         <div class="inventoryCell" onclick="showMessageModal('Coming Soon')">
             <img src="https://phobi.me/gamja.img/images/icons/icon_rank.png" alt="랭킹">
