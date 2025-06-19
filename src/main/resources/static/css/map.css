@@ -2,7 +2,7 @@
     width: 90%;
     max-width: 500px; /* 원하는 최대값 있으면 추가 */
     margin: 0 auto;
-    background: #fff8dc;
+    background: var(--white-color);
     border-radius: 16px;
     padding: 1rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -11,13 +11,13 @@
 
 .map-select-list {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 12px;
     justify-items: center;
 }
 
 .map-select-list .inventoryCell {
-    width: 100px;
+    width: 70px;
     text-align: center;
     cursor: pointer;
 }

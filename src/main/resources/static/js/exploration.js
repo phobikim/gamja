@@ -225,12 +225,11 @@ function choosePath(direction) {
 }
 
 function getStageExp(stage) {
-    if (stage <= 3) return 5;
-    if (stage <= 7) return 10;
-    if (stage <= 9) return 20;
-    if (stage <= 20) return 30;
-    if (stage <= 30) return 40;
-    return 50;
+    if (stage <= 5) return 5;
+    if (stage <= 10) return 10;
+    if (stage <= 20) return 20;
+    if (stage <= 30) return 30;
+    return 40;
 }
 
 function sendExplorationResult(stage) {

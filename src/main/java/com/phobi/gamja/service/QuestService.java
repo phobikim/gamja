@@ -55,12 +55,12 @@ public class QuestService {
         Long userId = (Long) request.getAttribute("userId");
 
         List<QuestDto> mainQuests = getQuestListByType(userId, Quest.QuestType.MAIN, 5);
-        List<QuestDto> huntQuests = getQuestListByType(userId, Quest.QuestType.HUNT, 5);
+//        List<QuestDto> huntQuests = getQuestListByType(userId, Quest.QuestType.HUNT, 5);
         List<QuestDto> deliveryQuests = getQuestListByType(userId, Quest.QuestType.REQUEST, 5);
 
         List<QuestDto> combined = new ArrayList<>();
         combined.addAll(mainQuests);
-        combined.addAll(huntQuests);
+//        combined.addAll(huntQuests);
         combined.addAll(deliveryQuests);
 
         return ResponseEntity.ok(GamJaResponse.success("퀘스트 조회 성공", combined));

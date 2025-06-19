@@ -24,8 +24,8 @@
     <link rel="stylesheet" href="css/exploration.css">
     <link rel="stylesheet" href="css/playerDexSelect.css">
     <link rel="stylesheet" href="css/gacha.css">
-    <link rel="stylesheet" href="css/playerEquip.css">
     <link rel="stylesheet" href="css/quest.css">
+    <!--    <link rel="stylesheet" href="css/playerEquip.css">-->
 <!--    <link rel="stylesheet" href="css/dexParty.css">-->
 </head>
 
@@ -34,9 +34,9 @@
 <!-- 🔵 상단 헤더 (설정 버튼만) -->
 <header class="header-ui">
     <!-- 우상단 설정 아이콘 - 카드 위에 배치 -->
-    <div class="settings-icon" onclick="handleSettingsClick()">
-        <img src="https://phobi.me/gamja.img/images/icons/icon_settings.png" alt="설정">
-    </div>
+<!--    <div class="settings-icon" onclick="handleSettingsClick()">-->
+<!--        <img src="https://phobi.me/gamja.img/images/icons/icon_settings.png" alt="설정">-->
+<!--    </div>-->
 </header>
 
 <!-- 🎮 메인 게임 카드 -->
@@ -93,10 +93,18 @@
             <img src="https://phobi.me/gamja.img/images/icons/icon_quest.png" alt="퀘스트">
             <span class="itemLabel">임무</span>
         </div>
-<!--        <div class="inventoryCell" onclick="handlePartyClick()">-->
-<!--            <img src="https://phobi.me/gamja.img/images/icons/icon_quest.png" alt="파티">-->
-<!--            <span class="itemLabel">파티</span>-->
-<!--        </div>-->
+        <div class="inventoryCell" onclick="handleLaboratoryClick()">
+            <img src="https://phobi.me/gamja.img/images/icons/icon_laboratory.png" alt="감자감정소">
+            <span class="itemLabel">감자감정소</span>
+        </div>
+        <div class="inventoryCell" onclick="handleBagClick()">
+            <img src="https://phobi.me/gamja.img/images/icons/icon_bag.png" alt="인벤토리">
+            <span class="itemLabel">인벤토리</span>
+        </div>
+        <div class="inventoryCell" onclick="showMessageModal('Coming Soon')">
+            <img src="https://phobi.me/gamja.img/images/icons/icon_rank.png" alt="랭킹">
+            <span class="itemLabel">랭킹</span>
+        </div>
     </section>
 </main>
 
@@ -121,14 +129,14 @@
                 <img src="https://phobi.me/gamja.img/images/icons/icon_fish.png" alt="낚시">
                 <span class="itemLabel">낚시</span>
             </div>
-            <div class="inventoryCell" onclick="handleBagClick()">
-                <img src="https://phobi.me/gamja.img/images/icons/icon_bag.png" alt="배낭">
-                <span class="itemLabel">인벤토리</span>
-            </div>
-            <div class="inventoryCell" onclick="handleLaboratoryClick()">
-                <img src="https://phobi.me/gamja.img/images/icons/icon_laboratory.png" alt="공방">
-                <span class="itemLabel">감자감정소</span>
-            </div>
+<!--            <div class="inventoryCell" onclick="handleBagClick()">-->
+<!--                <img src="https://phobi.me/gamja.img/images/icons/icon_bag.png" alt="배낭">-->
+<!--                <span class="itemLabel">인벤토리</span>-->
+<!--            </div>-->
+<!--            <div class="inventoryCell" onclick="handleLaboratoryClick()">-->
+<!--                <img src="https://phobi.me/gamja.img/images/icons/icon_laboratory.png" alt="공방">-->
+<!--                <span class="itemLabel">감자감정소</span>-->
+<!--            </div>-->
         </div>
     </div>
 </div>
@@ -372,7 +380,7 @@
         <!-- 탭 버튼 -->
         <div class="quest-tab-header">
             <button class="quest-tab-btn active" data-type="MAIN">메인</button>
-            <button class="quest-tab-btn" data-type="HUNT">토벌</button>
+<!--            <button class="quest-tab-btn" data-type="HUNT">토벌</button>-->
             <button class="quest-tab-btn" data-type="REQUEST">납품</button>
         </div>
 
@@ -806,21 +814,21 @@
 </div>
 
 
-<!-- 캐릭터 선택 모달 -->
-<div id="characterSelectModal" class="modal hidden">
-    <div class="character-select-content">
-        <div class="char-select-modal-header">
-            <button id="applyCharacterBtn" class="apply-button" disabled>적용하기</button>
-            <button id="closeModalBtn" class="close-button">×</button>
-        </div>
-        <div id="characterCardGrid" class="character-card-grid">
-            <!-- JS로 카드들이 여기에 들어감 -->
-        </div>
-        <div class="char-select-modal-footer">
-            <div class="character-count">보유 감자 <span id="ownedCount">0</span>/<span id="totalCount">0</span></div>
-        </div>
-    </div>
-</div>
+<!--&lt;!&ndash; 캐릭터 선택 모달 &ndash;&gt;-->
+<!--<div id="characterSelectModal" class="modal hidden">-->
+<!--    <div class="character-select-content">-->
+<!--        <div class="char-select-modal-header">-->
+<!--            <button id="applyCharacterBtn" class="apply-button" disabled>적용하기</button>-->
+<!--            <button id="closeModalBtn" class="close-button">×</button>-->
+<!--        </div>-->
+<!--        <div id="characterCardGrid" class="character-card-grid">-->
+<!--            &lt;!&ndash; JS로 카드들이 여기에 들어감 &ndash;&gt;-->
+<!--        </div>-->
+<!--        <div class="char-select-modal-footer">-->
+<!--            <div class="character-count">보유 감자 <span id="ownedCount">0</span>/<span id="totalCount">0</span></div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
 
 
 <!-- 캐릭터 카드 리스트 -->
@@ -945,10 +953,10 @@
 <script src="js/map.js"></script>
 <script src="js/playerInfo.js"></script>
 <script src="js/exploration.js"></script>
-<script src="js/playerDexSelect.js"></script>
 <script src="js/gacha.js"></script>
 <script src="js/playerEquip.js"></script>
 <script src="js/quest.js"></script>
+<!--<script src="js/playerDexSelect.js"></script>-->
 <!--<script src="js/dexParty.js"></script>-->
 
 

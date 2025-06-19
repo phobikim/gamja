@@ -9,10 +9,10 @@
     flex-direction: column;
 }
 .dex-body-wrapper {
-    flex-grow: 1;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    /*justify-content: center;*/
+    overflow: hidden; /* 전체 스크롤 방지 */
 }
 /* 상단 탭 영역 */
 .dex-header {
@@ -235,21 +235,21 @@
 
 /* 하단 카드 리스트 영역 */
 .dex-content-section {
+    flex: 1 1 auto;               /* 💡 남는 공간 채우기 */
+    min-height: 200px;            /* 📏 너무 작지 않도록 */
+    overflow-y: auto;
     background: var(--dark-2-color);
     border-radius: 15px;
     padding: 5px;
-    flex: 1;
-    overflow: hidden;
-    margin-bottom: 15px;
-    min-height: 200px;
-    /*max-height: 200px;*/
+    margin-bottom: 1.5vh;
+    max-height: unset !important; /* 💥 기존 max-height 무시 */
 }
 
 .dex-tab-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 5px;
-    max-height: 200px;
+    /*max-height: 200px;*/
     overflow-y: auto;
     overflow-x: hidden;
     padding: 5px;
@@ -299,7 +299,8 @@
 .dex-footer {
     display: flex;
     justify-content: center;
-    margin-bottom : 2vh;
+    margin-top: auto;           /* ⬆️ 위에 남은 공간 밀어냄 */
+    padding-bottom: 2vh;        /* 📱 여유 있는 하단 여백 */
 }
 
 .dex-close-btn {
@@ -497,7 +498,7 @@
 
 #titleTab {
     min-height: 455px;
-    max-height: 455px;
+    /*max-height: 455px;*/
     overflow-y: auto;
     padding: 10px;
     display: flex;

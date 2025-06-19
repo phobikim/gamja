@@ -115,7 +115,12 @@ window.startBattleFromMap = async function(map) {
         showMessageModal("해당 맵에 등장하는 몬스터가 없습니다.");
         return;
     }
-    const selectedMonster = monsters[Math.floor(Math.random() * monsters.length)];
+    let selectedMonster;
+    if (user.lv === 1) {
+        selectedMonster = monsters.find(mon => mon.name === '닭') || monsters[0];
+    } else {
+        selectedMonster = monsters[Math.floor(Math.random() * monsters.length)];
+    }
 
     initializeBattleScene(user, selectedMonster);
     startBattle(user, selectedMonster);
