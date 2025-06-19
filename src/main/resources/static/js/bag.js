@@ -6,6 +6,10 @@ const allItems = []; // 전체 아이템을 여기에 저장
 const tooltip = document.getElementById('bagTooltip');
 const content = document.getElementById('tooltipContent');
 
+document.getElementById('closeBagModalBtn').addEventListener('click', () => {
+    bagModal.classList.add('hidden');
+    tooltip.classList.add('hidden');
+});
 function renderItemsByType(typeString) {
     const bagList = document.getElementById("bagList");
     bagList.innerHTML = "";
@@ -26,10 +30,6 @@ function renderItemsByType(typeString) {
         slots.push(li);
         bagList.appendChild(li);
     }
-
-    // ✅ 스크롤은 항상 끄기
-    bagList.style.overflowY = 'unset';
-    bagList.style.maxHeight = 'none';
 
     let insertIndex = 0;
     filtered.forEach(item => {
