@@ -1,4 +1,4 @@
-package com.phobi.gamja.repository.contents;
+package com.phobi.gamja.repository.dex;
 
 import com.phobi.gamja.entity.dex.DexRarityStat;
 import org.springframework.data.jpa.repository.JpaRepository;

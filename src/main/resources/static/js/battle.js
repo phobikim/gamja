@@ -38,67 +38,59 @@ window.battleState = {
  * ※ rarity 가중치는 서버 기준과 통일 (COMMON: 75.0 ~ LEGENDARY: 0.01)
  * ※ pickWeightedByRarity 함수에서 rarity 기반 비율로 선택함
  */
+//
+// const cardPool = [
+//     {
+//         name: "감자의 분노",
+//         desc: "공격력 x2! 실패 시 자해",
+//         mp: 3,
+//         effect: () => {
+//             // 추후 구현
+//         }
+//     },
+//     {
+//         name: "감자 던지기",
+//         desc: "랜덤 효과 발동",
+//         mp: 2,
+//         effect: () => {}
+//     },
+//     {
+//         name: "수분 회오리",
+//         desc: "체력 회복. 실패 시 MP -3",
+//         mp: 4,
+//         effect: () => {}
+//     },
+//     {
+//         name: "튀김 부메랑",
+//         desc: "두 번 타격. 50% 확률",
+//         mp: 3,
+//         effect: () => {}
+//     }
+// ];
 
-const cardPool = [
-    {
-        name: "감자의 분노",
-        desc: "공격력 x2! 실패 시 자해",
-        mp: 3,
-        effect: () => {
-            // 추후 구현
-        }
-    },
-    {
-        name: "감자 던지기",
-        desc: "랜덤 효과 발동",
-        mp: 2,
-        effect: () => {}
-    },
-    {
-        name: "수분 회오리",
-        desc: "체력 회복. 실패 시 MP -3",
-        mp: 4,
-        effect: () => {}
-    },
-    {
-        name: "튀김 부메랑",
-        desc: "두 번 타격. 50% 확률",
-        mp: 3,
-        effect: () => {}
-    }
-];
-
-function drawBattleCards() {
-    const container = document.getElementById('battleCardOptions');
-    container.innerHTML = '';
-
-    const shuffled = [...cardPool].sort(() => 0.5 - Math.random()).slice(0, 2);
-
-    shuffled.forEach((card, index) => {
-        const cardDiv = document.createElement('div');
-        cardDiv.className = 'battle-card';
-        cardDiv.onclick = () => selectBattleCard(index);
-
-        cardDiv.innerHTML = `
-            <div class="card-title">🔥 ${card.name}</div>
-            <div class="card-desc">${card.desc}</div>
-            <div class="card-cost">MP ${card.mp}</div>
-        `;
-
-        container.appendChild(cardDiv);
-    });
-
-    // 저장해놓기
-    window.currentBattleCards = shuffled;
-}
-
-function selectBattleCard(index) {
-    const card = window.currentBattleCards[index];
-    if (!card) return;
-    playEffect("se_select");
-    console.log(`선택된 카드: ${card.name}`);
-    card.effect(); // 추후 구체 효과
-}
+// function drawBattleCards() {
+//     const container = document.getElementById('battleCardOptions');
+//     container.innerHTML = '';
+//
+//     const shuffled = [...cardPool].sort(() => 0.5 - Math.random()).slice(0, 2);
+//
+//     shuffled.forEach((card, index) => {
+//         const cardDiv = document.createElement('div');
+//         cardDiv.className = 'battle-card';
+//         cardDiv.onclick = () => selectBattleCard(index);
+//
+//         cardDiv.innerHTML = `
+//             <div class="card-title">🔥 ${card.name}</div>
+//             <div class="card-desc">${card.desc}</div>
+//             <div class="card-cost">MP ${card.mp}</div>
+//         `;
+//
+//         container.appendChild(cardDiv);
+//     });
+//
+//     // 저장해놓기
+//     window.currentBattleCards = shuffled;
+// }
 
 
 window.startBattleFromMap = async function(map) {
@@ -455,10 +447,18 @@ function generateLootItems() {
 
     // 1. COMMON 확정 1개
     if (commonList.length > 0) {
-        const guaranteed = commonList[Math.floor(Math.random() * commonList.length)];
-        loot.push({
-            ...guaranteed,
-            count: Math.floor(Math.random() * 2) + 2 // 2~3개
+        // 1-1. 리스트가 1개면 그대로, 2개 이상이면 랜덤 2종 선택
+        const guaranteedCommons = commonList.length === 1
+            ? [commonList[0]]
+            : [...commonList]
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 2);
+
+        guaranteedCommons.forEach(item => {
+            loot.push({
+                ...item,
+                count: Math.floor(Math.random() * 2) + 2 // 2~3개
+            });
         });
     }
 

@@ -1,20 +1,25 @@
 package com.phobi.gamja.service;
 
+import com.phobi.gamja.dto.battle.SkillResultDto;
 import com.phobi.gamja.dto.contents.MonsterDto;
+import com.phobi.gamja.dto.dex.DexSkillDto;
 import com.phobi.gamja.dto.item.EquipmentSlot;
 import com.phobi.gamja.dto.user.BattleStatDto;
 import com.phobi.gamja.dto.item.ItemDto;
 import com.phobi.gamja.dto.user.UserEquipment;
-import com.phobi.gamja.entity.contents.Monster;
-import com.phobi.gamja.entity.contents.MonsterMap;
-import com.phobi.gamja.entity.dex.DexAttribute;
+import com.phobi.gamja.entity.battle.BattleSkill;
+import com.phobi.gamja.entity.battle.Monster;
+import com.phobi.gamja.entity.battle.MonsterMap;
+import com.phobi.gamja.entity.dex.*;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.item.ItemPotionEffect;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
-import com.phobi.gamja.repository.contents.DexRepository;
-import com.phobi.gamja.repository.contents.MonsterMapRepository;
-import com.phobi.gamja.repository.contents.MonsterRepository;
+import com.phobi.gamja.repository.dex.DexRepository;
+import com.phobi.gamja.repository.battle.MonsterMapRepository;
+import com.phobi.gamja.repository.battle.MonsterRepository;
+import com.phobi.gamja.repository.dex.DexSkillImageRepository;
+import com.phobi.gamja.repository.dex.DexSkillRepository;
 import com.phobi.gamja.repository.item.ItemPotionEffectRepository;
 import com.phobi.gamja.repository.item.ItemRepository;
 import com.phobi.gamja.repository.user.UserDexStatRepository;
@@ -47,6 +52,8 @@ public class BattleService {
     private final UserInventoryRepository userInventoryRepository;
     private final ItemPotionEffectRepository itemPotionEffectRepository;
     private final UserEquipmentRepository userEquipmentRepository;
+    private final DexSkillRepository dexSkillRepository;
+    private final DexSkillImageRepository dexSkillImageRepository;
 
     public GamJaResponse getMapList(HttpServletRequest request) {
         List<MonsterMap> maps = monsterMapRepository.findAll().stream()
@@ -244,6 +251,69 @@ public class BattleService {
         int remaining = Math.max(0, inventory.getQuantity());
 
         return GamJaResponse.success("물약 사용 완료", Map.of("quantity", remaining));
+    }
+
+
+    /**
+     * attribute 속성, 스킬 타입(type)에 맞는 스킬 목록을 DTO로 변환하여 반환
+     */
+    public List<DexSkillDto> getSkills(String attribute, BattleSkill.Type type) {
+        return dexSkillRepository
+                .findByDexAttributeAndSkillType(attribute, type)
+                .stream()
+                .map(skill -> {
+                    List<String> images = dexSkillImageRepository
+                            .findBySkillId(skill.getId())
+                            .stream()
+                            .map(DexSkillImage::getImagePath)
+                            .collect(Collectors.toList());
+
+                    return DexSkillDto.builder()
+                            .id(skill.getId())
+                            .name(skill.getName())
+                            .description(skill.getDescription())
+                            .powerRatio(skill.getPowerRatio())
+                            .effect(skill.getEffect().name())
+                            .effectValue(skill.getEffectValue())
+                            .target(skill.getTarget().name())
+                            .mpCost(skill.getMpCost())
+                            .cooldown(skill.getCooldown())
+                            .images(images)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 스킬 사용 로직
+     */
+    public SkillResultDto useSkill(Long skillId) {
+        // 1) 스킬 조회
+        DexSkill skill = dexSkillRepository.findById(skillId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스킬입니다. id=" + skillId));
+
+        // 2) 유저 파워 등 가져오기 (예시 하드코딩, 실제로는 인증된 유저 ID로 조회)
+        int playerPower = 10; // TODO: UserStatService로 대체
+
+        // 3) 효과별 계산
+        Integer damage = null, heal = null, buff = null;
+        switch (skill.getEffect()) {
+            case DAMAGE:
+                damage = Math.round(playerPower * skill.getPowerRatio());
+                break;
+            case HEAL:
+                heal = skill.getEffectValue();
+                break;
+            case BUFF:
+                buff = skill.getEffectValue();
+                break;
+        }
+
+        return SkillResultDto.builder()
+                .damage(damage)
+                .heal(heal)
+                .buff(buff)
+                .build();
     }
 
 }

@@ -19,7 +19,7 @@ import com.phobi.gamja.entity.item.ItemStatBonus;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.repository.user.*;
 import com.phobi.gamja.repository.item.ItemStatBonusRepository;
-import com.phobi.gamja.repository.contents.DexRepository;
+import com.phobi.gamja.repository.dex.DexRepository;
 import java.util.*;
 @Component
 @RequiredArgsConstructor

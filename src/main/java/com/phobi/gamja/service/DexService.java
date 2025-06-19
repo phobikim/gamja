@@ -2,7 +2,7 @@ package com.phobi.gamja.service;
 
 import com.phobi.gamja.dto.contents.MonsterDto;
 import com.phobi.gamja.dto.user.LifeStatDto;
-import com.phobi.gamja.entity.contents.Monster;
+import com.phobi.gamja.entity.battle.Monster;
 import com.phobi.gamja.entity.dex.*;
 import com.phobi.gamja.entity.item.*;
 import com.phobi.gamja.entity.title.Title;
@@ -10,7 +10,8 @@ import com.phobi.gamja.entity.title.TitleCondition;
 import com.phobi.gamja.entity.title.UserTitle;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
-import com.phobi.gamja.repository.contents.*;
+import com.phobi.gamja.repository.battle.MonsterRepository;
+import com.phobi.gamja.repository.dex.DexRepository;
 import com.phobi.gamja.repository.item.*;
 import com.phobi.gamja.repository.title.TitleEffectRepository;
 import com.phobi.gamja.repository.title.TitleRepository;

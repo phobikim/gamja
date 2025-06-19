@@ -1,15 +1,15 @@
 package com.phobi.gamja.service;
 
 import com.phobi.gamja.dto.quest.*;
-import com.phobi.gamja.entity.contents.Monster;
+import com.phobi.gamja.entity.battle.Monster;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.quest.*;
 import com.phobi.gamja.entity.title.*;
 import com.phobi.gamja.entity.user.CounterType;
 import com.phobi.gamja.entity.user.UserCounterDetail;
 import com.phobi.gamja.message.GamJaResponse;
-import com.phobi.gamja.repository.contents.DexRepository;
-import com.phobi.gamja.repository.contents.MonsterRepository;
+import com.phobi.gamja.repository.dex.DexRepository;
+import com.phobi.gamja.repository.battle.MonsterRepository;
 import com.phobi.gamja.repository.item.ItemRepository;
 import com.phobi.gamja.repository.quest.*;
 import com.phobi.gamja.repository.title.TitleRepository;

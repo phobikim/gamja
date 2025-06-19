@@ -1,4 +1,4 @@
-package com.phobi.gamja.dto.contents;
+package com.phobi.gamja.dto.dex;
 
 import com.phobi.gamja.entity.dex.Dex;
 import lombok.*;
