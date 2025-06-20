@@ -6,7 +6,6 @@ import com.phobi.gamja.service.CharService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 
@@ -83,6 +82,20 @@ public class CharController {
         return ResponseEntity.ok(charService.ticketCount(request));
     }
 
+    /*
+    * 배경 화면 list
+    * */
+    @GetMapping("/background/list")
+    public ResponseEntity<GamJaResponse> backgroundList(HttpServletRequest request) {
+        return ResponseEntity.ok(charService.getBackgroundList(request));
+    }
 
+    /*
+     * 배경 화면 적용
+     * */
+    @PostMapping("/background/select")
+    public ResponseEntity<GamJaResponse> setBackground(@RequestBody Map<String, Long> payload, HttpServletRequest request) {
+        return ResponseEntity.ok(charService.setBackgroundList(payload, request));
+    }
 
 }

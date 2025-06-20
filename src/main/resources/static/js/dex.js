@@ -319,7 +319,9 @@ function renderCardsByType(type, list) {
         container.appendChild(card);
 
         if (index === 0) {
-            setTimeout(() => cardEl.click(), 0);
+            requestAnimationFrame(() => {
+                cardEl.click();
+            });
         }
     });
 }

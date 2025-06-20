@@ -1,9 +1,11 @@
 package com.phobi.gamja.service;
 
+import com.phobi.gamja.entity.contents.BackgroundImage;
 import com.phobi.gamja.entity.dex.Dex;
 import com.phobi.gamja.entity.contents.SkillType;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
+import com.phobi.gamja.repository.contents.BackgroundImageRepository;
 import com.phobi.gamja.repository.dex.DexRepository;
 import com.phobi.gamja.repository.user.*;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,9 @@ public class AuthService {
     private final UserDexRepository userDexRepository;
     private final UserDexStatRepository userDexStatRepository;
     private final DexRepository dexRepository;
+    private final BackgroundImageRepository backgroundImageRepository;
+    private final UserBackgroundRepository userBackgroundRepository;
+
 
     @Transactional
     public GamJaResponse login(String username, String pin, HttpServletRequest request, HttpSession session) {
@@ -59,11 +64,17 @@ public class AuthService {
         newUser.setPin(pin);
         User savedUser = userRepository.save(newUser);
 
+        // [1] 기본 배경 조회
+        BackgroundImage defaultBg = backgroundImageRepository.findById(200L)
+                .orElseThrow(() -> new IllegalStateException("기본 배경 이미지(200번)를 찾을 수 없습니다."));
+
+
         // 기본 정보 저장
         UserDtl userDtl = new UserDtl();
         userDtl.setUser(savedUser);
         userDtl.setCharacterImage("default.png");
         userDtl.setCharacterDexId(100L);
+        userDtl.setBackgroundImage(defaultBg);
         userDtlRepository.save(userDtl);
 
         // 스킬 초기화
@@ -108,6 +119,13 @@ public class AuthService {
                         .build())
                 .toList();
         userDexStatRepository.saveAll(dexStats);
+
+        // 배경 보유 등록
+        UserBackground userBackground = UserBackground.builder()
+                .userId(savedUser.getId())
+                .backgroundImage(defaultBg)
+                .build();
+        userBackgroundRepository.save(userBackground);
 
         // 세션 저장
         session.setAttribute("userId", savedUser.getId());

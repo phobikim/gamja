@@ -61,6 +61,7 @@ html, body {
 }
 
 .player-avatar-xp-border {
+    z-index: 2;
     position: absolute;
     top: 0;
     left: 0;
@@ -72,6 +73,7 @@ html, body {
 }
 
 .player-avatar-xp-fill {
+    z-index: 2;
     position: absolute;
     top: 0;
     left: 0;
@@ -84,15 +86,27 @@ html, body {
     pointer-events: none;
 }
 
+
 .player-avatar {
     width: 100%;
     height: 100%;
     border-radius: 8px;
-    background-image: url('https://phobi.me/gamja.img/images/character/default.png');
     background-size: cover;
     background-position: center;
     z-index: 1;
     position: relative;
+
+    display: flex;             /* 추가 */
+    justify-content: center;   /* 가로 중앙 */
+    align-items: center;       /* 세로 중앙 */
+}
+
+.avatar-img {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+    image-rendering: pixelated;
+    pointer-events: none;
 }
 
 .player-details {
@@ -190,20 +204,18 @@ html, body {
 
 
 
-
 /* 캐릭터 영역 - 화면의 50%, 배경 이미지 포함 */
 .game-content {
     position: fixed;
     top: 20vh; /* 상단 UI 아래부터 */
     left: 0;
     width: 100%;
-    height: 50vh; /* 화면의 50% */
+    height: 60vh; /* 화면의 50% */
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    background-image: url('https://phobi.me/gamja.img/images/backgrounds/bg_basic2.png');
     background-size: 100% auto; /* 가로는 100%, 세로는 비율 유지 */
     background-position: center;
     background-repeat: no-repeat;
@@ -223,13 +235,13 @@ html, body {
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
 
     transform: translateY(0px); /* 세로 위치: 음수면 위로, 양수면 아래로 */
-    margin-left: 22px; /* 가로 위치: 음수면 왼쪽으로, 양수면 오른쪽으로 */
-    margin-bottom: -5px; /* 하단 여백 */
+    margin-left: 1rem; /* 가로 위치: 음수면 왼쪽으로, 양수면 오른쪽으로 */
 }
 
 
 /* footer 메뉴 영역 */
 .main-menu-grid {
+    z-index: 3;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
@@ -294,4 +306,18 @@ html, body {
     border-radius: 0 0 9px 9px;
     pointer-events: none;
     text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8);
+}
+
+/* 가로가 넓을수록 줄이기 */
+@media screen and (min-aspect-ratio: 16/9) {
+    .character-img {
+        width: 14vw;
+    }
+}
+
+/* 세로가 짧을 경우 대응 */
+@media screen and (max-height: 600px) {
+    .character-img {
+        width: 24vw;
+    }
 }

@@ -1,7 +1,19 @@
-// 최초 클릭 시 BGM 재생
-// window.addEventListener("click", async () => {
-//     await toggleBGM("bgm_main");
-// }, { once: true });
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const res = await fetch('/api/session-check', {
+            credentials: 'include',      // 세션 쿠키 포함
+            cache: 'no-store'            // 캐시 없이 매번 확인
+        });
+
+        if (res.ok) {
+            // 세션이 살아있으면 바로 이동
+            location.href = './char.html';
+        }
+    } catch (e) {
+        console.warn('세션 확인 실패:', e);
+        // 세션 없으면 아무것도 안 함 (그대로 로그인 화면 보여줌)
+    }
+});
 
 // 로그인/회원가입 초기화 코드
 (function initLoginPage() {
@@ -37,6 +49,7 @@
     function pinEvent(pinInputs, autoSubmitButton = null) {
         pinInputs.forEach((input, index) => {
             input.addEventListener('input', () => {
+                tryResumeAudioContext();
                 playEffect("se_input");
                 if (input.value.length === 1 && index < pinInputs.length - 1) {
                     pinInputs[index + 1].focus();
@@ -61,6 +74,7 @@
 
     // 로그인 모달 열기
     logo.addEventListener('click', () => {
+        tryResumeAudioContext();
         playEffect("se_click");
         adminModal.classList.remove('hidden');
         adminLoginUserName.value = '';
@@ -71,6 +85,7 @@
 
     // 로그인 처리
     adminEnterBtn.addEventListener('click', async () => {
+        tryResumeAudioContext();
         playEffect("se_input");
         const username = adminLoginUserName.value.trim();
         const pin = Array.from(loginPinInputs).map(i => i.value).join('');

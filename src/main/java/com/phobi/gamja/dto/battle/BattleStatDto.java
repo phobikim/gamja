@@ -1,7 +1,6 @@
-package com.phobi.gamja.dto.user;
+package com.phobi.gamja.dto.battle;
 
 import com.phobi.gamja.dto.item.ItemDto;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;

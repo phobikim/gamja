@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-
+import com.phobi.gamja.entity.contents.BackgroundImage;
 @Data
 @Entity
 @NoArgsConstructor
@@ -24,6 +24,10 @@ public class UserDtl {
 
     @Column(length = 255)
     private String characterImage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "background_id")
+    private BackgroundImage backgroundImage;
 
     @Column(name = "character_dex_id")
     private Long characterDexId; // 대표 감자 설정용

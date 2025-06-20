@@ -1,9 +1,11 @@
 package com.phobi.gamja.service;
+import com.phobi.gamja.dto.battle.BattleStatDto;
 import com.phobi.gamja.dto.dex.DexOwnedDto;
 import com.phobi.gamja.dto.dex.DexOwnedListResponseDto;
 import com.phobi.gamja.dto.item.EquipItemDto;
 import com.phobi.gamja.dto.item.EquipmentSlot;
 import com.phobi.gamja.dto.user.*;
+import com.phobi.gamja.entity.contents.BackgroundImage;
 import com.phobi.gamja.entity.dex.Dex;
 import com.phobi.gamja.entity.dex.DexAttribute;
 import com.phobi.gamja.entity.dex.DexRarityStat;
@@ -14,6 +16,7 @@ import com.phobi.gamja.entity.item.ItemStatBonus;
 import com.phobi.gamja.entity.title.UserTitle;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
+import com.phobi.gamja.repository.contents.BackgroundImageRepository;
 import com.phobi.gamja.repository.dex.DexRarityStatRepository;
 import com.phobi.gamja.repository.dex.DexRepository;
 import com.phobi.gamja.repository.item.ItemPotionEffectRepository;
@@ -26,7 +29,6 @@ import com.phobi.gamja.util.CommonUtil;
 import com.phobi.gamja.util.StatCalculator;
 import com.phobi.gamja.web.config.annotation.SanitizeInput;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,6 +59,8 @@ public class CharService {
     private final ItemPotionEffectRepository itemPotionEffectRepository;
     private final ItemRepository itemRepository;
     private final UserTitleRepository userTitleRepository;
+    private final BackgroundImageRepository backgroundImageRepository;
+    private final UserBackgroundRepository userBackgroundRepository;
 
     @Transactional(readOnly = true)
     public GamJaResponse getUserInfo(HttpServletRequest request) {
@@ -82,7 +86,10 @@ public class CharService {
         String equippedTitleName = equipped != null ? equipped.getTitle().getName() : null;
         String equippedTitleIcon = equipped != null ? equipped.getTitle().getIconPath() : null;
 
-        UserCharInfoDto result = new UserCharInfoDto(userDtl, stat, 0, equippedTitleName,equippedTitleIcon);
+        BackgroundImage bg = userDtl.getBackgroundImage();
+        String backgroundImageUrl = (bg != null) ? bg.getImageUrl() : null;
+        String backgroundImageName = (bg != null) ? bg.getName() : null;
+        UserCharInfoDto result = new UserCharInfoDto(userDtl, stat, 0, equippedTitleName, equippedTitleIcon, backgroundImageUrl,backgroundImageName);
 
         return GamJaResponse.success("정상 조회", result);
     }
@@ -252,36 +259,15 @@ public class CharService {
         userDtl.setCharacterImage(commonUtil.resolveCharacterImage(userDtl));
         userDtlRepository.save(userDtl);
 
-        // 3. user_dex_stat 존재 여부 확인 및 없으면 안전하게 생성
+        // 3. user_dex_stat 없으면 insert (중복 무시)
+        userDexStatRepository.insertIfNotExists(userId, dexId);
+
+        // 4. 다시 조회
         UserDexStatId statId = new UserDexStatId(userId, dexId);
-        UserDexStat stat;
+        UserDexStat stat = userDexStatRepository.findById(statId)
+                .orElseThrow(() -> new IllegalStateException("스탯 정보를 가져올 수 없습니다."));
 
-        Optional<UserDexStat> existing = userDexStatRepository.findById(statId);
-        if (existing.isPresent()) {
-            stat = existing.get();
-        } else {
-            try {
-                stat = userDexStatRepository.save(
-                        UserDexStat.builder()
-                                .id(statId)
-                                .user(userDtl.getUser())
-                                .dex(Dex.builder().id(dexId).build())
-                                .level(1)
-                                .xp(0)
-                                .maxExp(100)
-                                .power(0)
-                                .hp(0)
-                                .speed(0)
-                                .build()
-                );
-            } catch (DataIntegrityViolationException e) {
-                // 동시 insert 방어: 다른 트랜잭션에서 먼저 insert한 경우
-                stat = userDexStatRepository.findById(statId)
-                        .orElseThrow(() -> new IllegalStateException("스탯 정보를 저장하는 중 오류가 발생했습니다."));
-            }
-        }
-
-        // 4. 최종 결과 반환
+        // 5. 최종 결과 반환
         UserCharInfoDto dto = new UserCharInfoDto(userDtl, stat);
         return GamJaResponse.success("대표 감자가 설정되었습니다.", dto);
     }
@@ -457,4 +443,53 @@ public class CharService {
             "EPIC", 4,
             "LEGENDARY", 5
     );
+
+    @Transactional(readOnly = true)
+    public GamJaResponse getBackgroundList(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+
+        List<BackgroundImage> all = backgroundImageRepository.findByEnabledTrue();
+        List<UserBackground> ownedList = userBackgroundRepository.findByUserId(userId);
+        Set<Long> ownedIds = ownedList.stream()
+                .map(bg -> bg.getBackgroundImage().getId())
+                .collect(Collectors.toSet());
+
+        List<Map<String, Object>> result = all.stream()
+                .map(bg -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", bg.getId());
+                    map.put("name", bg.getName());
+                    map.put("imageUrl", bg.getImageUrl());
+                    map.put("owned", ownedIds.contains(bg.getId()));
+                    return map;
+                })
+                .toList();
+
+        return GamJaResponse.success("배경 이미지 목록", result);
+    }
+
+    @Transactional
+    public GamJaResponse setBackgroundList(Map<String, Long> payload, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        Long backgroundId = payload.get("backgroundId");
+
+        // 유효한 배경인지 확인
+        BackgroundImage bg = backgroundImageRepository.findById(backgroundId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배경입니다."));
+
+        // 보유한 배경인지 확인
+        boolean owned = userBackgroundRepository.findByUserId(userId).stream()
+                .anyMatch(ub -> ub.getBackgroundImage().getId().equals(backgroundId));
+        if (!owned) {
+            return GamJaResponse.fail("해당 배경을 보유하고 있지 않습니다.");
+        }
+
+        // 적용
+        UserDtl userDtl = userDtlRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 정보를 찾을 수 없습니다."));
+        userDtl.setBackgroundImage(bg);
+        userDtlRepository.save(userDtl);
+
+        return GamJaResponse.success("배경이 변경되었습니다.", null);
+    }
 }

@@ -4,7 +4,7 @@ import com.phobi.gamja.dto.battle.SkillResultDto;
 import com.phobi.gamja.dto.contents.MonsterDto;
 import com.phobi.gamja.dto.dex.DexSkillDto;
 import com.phobi.gamja.dto.item.EquipmentSlot;
-import com.phobi.gamja.dto.user.BattleStatDto;
+import com.phobi.gamja.dto.battle.BattleStatDto;
 import com.phobi.gamja.dto.item.ItemDto;
 import com.phobi.gamja.dto.user.UserEquipment;
 import com.phobi.gamja.entity.battle.BattleSkill;

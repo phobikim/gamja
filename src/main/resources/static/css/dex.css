@@ -299,8 +299,11 @@
 .dex-footer {
     display: flex;
     justify-content: center;
-    margin-top: auto;           /* ⬆️ 위에 남은 공간 밀어냄 */
-    padding-bottom: 2vh;        /* 📱 여유 있는 하단 여백 */
+    margin-top: auto;
+    padding-bottom: 2vh;
+
+    min-height: 50px;           /* ✅ 항상 최소 높이 확보 */
+    flex-shrink: 0;             /* ✅ 공간 부족해도 줄어들지 않게 */
 }
 
 .dex-close-btn {

@@ -25,31 +25,33 @@
     <link rel="stylesheet" href="css/gacha.css">
     <link rel="stylesheet" href="css/quest.css">
     <link rel="stylesheet" href="css/playerEquip.css">
+    <link rel="stylesheet" href="css/settingModal.css">
     <!--    <link rel="stylesheet" href="css/playerDexSelect.css">-->
 <!--    <link rel="stylesheet" href="css/dexParty.css">-->
 </head>
 
 <body class="char-page">
-
 <!-- 상단 UI -->
 <div class="top-ui" id="topUI">
     <!-- 왼쪽 플레이어 정보 -->
     <div class="player-info-card" id="playerInfoCard">
         <div class="player-avatar-wrapper" id="playerAvatarWrapper">
             <div class="player-avatar-xp-border" id="playerAvatarXpBorder"></div>
-            <div class="player-avatar-xp-fill" id="playerAvatarXpFill" style="--xp-percent: 65%;"></div>
-            <div class="player-avatar" id="playerAvatar"></div>
+            <div class="player-avatar-xp-fill" id="playerAvatarXpFill"></div>
+            <div class="player-avatar" id="playerAvatar">
+                <img id="playerAvatarImg" class="avatar-img" src="" alt="캐릭터 이미지">
+            </div>
         </div>
         <div class="player-details" id="playerDetails">
             <div class="player-name-row">
                 <div class="player-title" id="playerTitle">
-                    <img id="titleIcon" class="title-icon" src="" alt="칭호 아이콘" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle; display: none;">
+                    <img id="titleIcon" class="title-icon" src="" alt="칭호 아이콘" style="width: 24px; height: 24px; margin-right: 4px; vertical-align: middle; display: none;">
                     <span id="playerTitleText">씨앗</span>
                 </div>
-                <div class="player-name" id="playerName">포비</div>
+                <div class="player-name" id="playerName">사용자</div>
             </div>
             <hr style="border: none; border-top: 3px solid var(--dark-1-color); margin: 4px 0;">
-            <div class="dex-name" id="dexName">흙감자 <span class="inline-level" id="inlineLevel">(Lv.5)</span></div>
+            <div class="dex-name" id="dexName">흙감자 <span class="inline-level" id="inlineLevel">(Lv.1)</span></div>
         </div>
     </div>
 
@@ -520,12 +522,11 @@
                     <div class="map-rewards" id="mapRewards"></div>
                 </div>
             </div>
-            <div class="map-button-box">
-                <button id="startBattleBtn" class="start-battle-button">PLAY</button>
-                <button id="closeBattleBtn" class="start-battle-button">닫기</button>
-            </div>
         </div>
-
+        <div class="map-button-box">
+            <button id="startBattleBtn" class="start-battle-button">PLAY</button>
+            <button id="closeBattleBtn" class="start-battle-button">닫기</button>
+        </div>
     </div>
 </div>
 
@@ -940,6 +941,17 @@
     <button id="itemTooltipClose" class="item-tooltip-close">닫기</button>
 </div>
 
+<!-- 설정 모달 -->
+<!-- 설정 모달 -->
+<div id="settingModal" class="modal hidden">
+    <div class="back-modal-content">
+        <h2 class="back-title">배경 설정</h2>
+        <div id="bgGrid" class="bg-grid"></div>
+        <button id="applyBgBtn" class="apply-btn" disabled>배경 적용</button>
+        <button class="close-btn" id="closeSettingModal">닫기</button>
+    </div>
+</div>
+
 <!-- 📌 JS 파일들 로드 -->
 <script src="js/modal.js"></script>
 <script src="js/sound.js"></script>
@@ -958,6 +970,7 @@
 <script src="js/gacha.js"></script>
 <script src="js/playerEquip.js"></script>
 <script src="js/quest.js"></script>
+<script src="js/settingModal.js"></script>
 <!--<script src="js/playerDexSelect.js"></script>-->
 <!--<script src="js/dexParty.js"></script>-->
 

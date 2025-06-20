@@ -24,6 +24,8 @@ public class UserCharInfoDto {
     private int maxCombo;
     private Long dexId;
     private int affinity;
+    private String backgroundImageUrl;
+    private String backgroundImageName;
 
 
     // 기본값(maxCombo = 0), 칭호 없음
@@ -36,7 +38,13 @@ public class UserCharInfoDto {
 
         this(userDtl, stat, maxCombo, null, null);
     }
-
+    public UserCharInfoDto(UserDtl userDtl, UserDexStat stat, int maxCombo,
+                           String equippedTitleName, String equippedTitleIcon,
+                           String backgroundImageUrl, String backgroundImageName) {
+        this(userDtl, stat, maxCombo, equippedTitleName, equippedTitleIcon);
+        this.backgroundImageUrl = backgroundImageUrl;
+        this.backgroundImageName= backgroundImageName;
+    }
     // 착용 칭호명까지 받는 메인 생성자
     public UserCharInfoDto(UserDtl userDtl, UserDexStat stat, int maxCombo, String equippedTitleName, String equippedTitleIcon) {
         this.dexId = stat.getDex().getId();

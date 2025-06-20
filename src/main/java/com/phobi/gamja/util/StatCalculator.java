@@ -1,5 +1,7 @@
 package com.phobi.gamja.util;
 
+import com.phobi.gamja.dto.battle.BattleStatDetailDto;
+import com.phobi.gamja.dto.battle.BattleStatDto;
 import com.phobi.gamja.dto.item.EquipmentType;
 import com.phobi.gamja.entity.dex.DexRarityStat;
 import com.phobi.gamja.entity.item.ItemSkillBonus;

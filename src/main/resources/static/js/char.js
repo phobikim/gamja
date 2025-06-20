@@ -14,7 +14,7 @@
             throw new Error('캐릭터 정보를 불러오지 못했습니다.');
         }
 
-        // setUserInfo(charRes.data);
+        setUserInfo(charRes.data);
 
     } catch (err) {
         showMessageModal(err.message || '로그인이 필요합니다.');
@@ -31,49 +31,113 @@
             titleIconPath,
             xp,
             characterImage,
-            dexName
+            dexName,
+            backgroundImageUrl,
+            backgroundImageName
         } = data;
 
-        const charNameEl = document.getElementById('charName');
-        const charLevelEl = document.getElementById('charLevel');
-        const userTitleEl = document.getElementById('userTitleText');
-        const userTitleIconEl = document.getElementById('userTitleIcon');
-        const dexNameEl = document.getElementById('dexName');
+        //배경 이미지 적용
+        if (backgroundImageUrl || backgroundImageName) {
+            const gameContentEl = document.querySelector('.game-content');
+            if (gameContentEl) {
+                gameContentEl.style.backgroundImage = `url('${basePath}${backgroundImageUrl}')`;
+            }
 
+            // ✅ 배경색도 함께 적용
+            const charPage = document.querySelector('.char-page');
+            const mainMenu = document.querySelector('.main-menu-grid');
+            const topFooterColorMap = {
+                '숲':   { top: '#131e09', footer: '#131e09' },
+                '여름': { top: '#0f7c9f', footer: '#e1a92e' },
+                '가을': { top: '#411f16', footer: '#371d0d' },
+                '겨울': { top: '#2f5f82', footer: '#6e9bb6' },
+            };
+            const backgroundName = data.backgroundImageName || '';
+            const colorSet = topFooterColorMap[backgroundName] || {
+                top: '#fff8dc',  // default top color
+                footer: '#fff8dc' // default footer color
+            };
+            if (charPage) {
+                charPage.style.backgroundColor = colorSet.top;
+            }
+            if (mainMenu) {
+                mainMenu.style.backgroundColor = colorSet.footer;
+            }
+        }
+
+        // 메인 캐릭터 이미지 설정
+        const imagePath = '/character/';
+        const mainCharacterEl = document.getElementById('mainCharacter');
         if (characterImage) {
-            const imagePath = '/character/';
-            mainCharacter.src = basePath_image + imagePath + characterImage;
+            mainCharacterEl.src = basePath_image + imagePath + characterImage;
+            mainCharacterEl.alt = nickname || username || '캐릭터';
+        }
+        const avatarImg = document.getElementById('playerAvatarImg');
+        if (avatarImg) {
+            avatarImg.src = basePath_image + '/character/' + characterImage;
+            avatarImg.alt = nickname || username || '캐릭터';
+        }
+        const mainCharacter = document.getElementById('mainCharacter');
+        if (mainCharacter) {
+            mainCharacter.src = basePath_image + '/character/' + characterImage;
             mainCharacter.alt = nickname || username || '캐릭터';
-        }
 
-        charNameEl.textContent = nickname || username;
-        dexNameEl.textContent = dexName;
-        // 칭호 텍스트 + 아이콘
-        userTitleEl.textContent = title || '';
+            // 높이에 따라 위치 조정 (예: 캐릭터가 클수록 더 위로 이동)
+            // const characterHeight = parseInt(mainCharacter.style.height || '150'); // 기본 150px
+            // const offsetY = characterHeight * 0.15; // 하단에서 40% 올라오게
+            // mainCharacter.style.transform = `translateY(-${offsetY}px)`;
+
+
+
+        }
+        document.getElementById('mainCharacter').addEventListener('load', adjustCharacterPosition);
+        window.addEventListener('resize', adjustCharacterPosition);
+        // 이름
+        const playerNameEl = document.getElementById('playerName');
+        playerNameEl.textContent = nickname || username;
+
+        // 칭호
+        const titleTextEl = document.getElementById('playerTitleText');
+        const titleIconEl = document.getElementById('titleIcon');
+        titleTextEl.textContent = title || '';
         if (titleIconPath) {
-            userTitleIconEl.src = basePath + '/' + titleIconPath;
-            userTitleIconEl.classList.remove('hidden');
+            titleIconEl.src = basePath + '/' + titleIconPath;
+            titleIconEl.style.display = 'inline';
         } else {
-            userTitleIconEl.classList.add('hidden');
+            titleIconEl.style.display = 'none';
         }
 
-        if (level != null) {
-            charLevelEl.textContent = level;
+        // 덱스 이름 및 레벨
+        const dexNameEl = document.getElementById('dexName');
+        const inlineLevelEl = document.getElementById('inlineLevel');
+        if (dexNameEl && inlineLevelEl) {
+            dexNameEl.childNodes[0].nodeValue = dexName + ' ';
+            inlineLevelEl.textContent = `(Lv.${level})`;
         }
 
+        // 경험치 퍼센트 계산 및 바 적용
         const maxExp = 100 + (level - 1) * 20;
-        const expPercent = ((xp / maxExp) * 100).toFixed(1);
-        hpBarText.textContent = `${xp} / ${maxExp}`;
-        hpBarFill.style.width = `${expPercent}%`;
+        const xpPercent = ((xp / maxExp) * 100).toFixed(1);
+        const xpFillEl = document.getElementById('playerAvatarXpFill');
+        xpFillEl.style.setProperty('--xp-percent', `${xpPercent}%`);
     }
 
-    // 캐릭터 클릭 → 장비창
-    mainCharacter.addEventListener('click', () => {
-        playEffect("se_click2");
-        // 장비창 열기 로직 작성 예정
-    });
 
     // 필요 시 외부에서 호출 가능하도록 전역 등록
     window.setUserInfo = setUserInfo;
+
+    function adjustCharacterPosition() {
+        const mainCharacter = document.getElementById('mainCharacter');
+        const gameContent = document.querySelector('.game-content');
+
+        if (!mainCharacter || !gameContent) return;
+
+        // 이미지가 로드된 후에 정확한 높이 측정
+        const characterHeight = mainCharacter.offsetHeight;
+
+        // 캐릭터 키의 24% 만큼 위로 올리기
+        const offsetY = characterHeight * 0.15;
+        mainCharacter.style.transform = `translateY(-${offsetY}px)`;
+    }
 
 })();
