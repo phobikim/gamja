@@ -1,7 +1,5 @@
 (async function () {
     const mainCharacter = document.getElementById('mainCharacter');
-    const hpBarFill = document.getElementById('hpBarFill');
-    const hpBarText = document.getElementById('hpBarText');
 
     try {
         // ✅ 1. 세션 확인 (/api/me)
@@ -16,7 +14,7 @@
             throw new Error('캐릭터 정보를 불러오지 못했습니다.');
         }
 
-        setUserInfo(charRes.data);
+        // setUserInfo(charRes.data);
 
     } catch (err) {
         showMessageModal(err.message || '로그인이 필요합니다.');
