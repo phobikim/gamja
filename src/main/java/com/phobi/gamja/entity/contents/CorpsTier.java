@@ -14,7 +14,7 @@ public class CorpsTier {
 
     @Id
     @Column(name = "tier_id")
-    private Integer tierId;
+    private Long tierId;
 
     @Column(name = "name", nullable = false)
     private String name;

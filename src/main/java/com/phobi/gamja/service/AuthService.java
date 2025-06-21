@@ -73,7 +73,7 @@ public class AuthService {
                 .orElseThrow(() -> new IllegalStateException("기본 배경 이미지(200번)를 찾을 수 없습니다."));
 
         // 감자단 랭크 조회
-        CorpsTier defaultTier = corpsTierRepository.findById(1).orElseThrow(()-> new IllegalArgumentException("기본 랭크 정보를 찾을 수 없습니다."));
+        CorpsTier defaultTier = corpsTierRepository.findById(1L).orElseThrow(()-> new IllegalArgumentException("기본 랭크 정보를 찾을 수 없습니다."));
 
 
         // 기본 정보 저장

@@ -1,0 +1,198 @@
+.tier-modal-content {
+    width: 90%;
+    max-width: 600px;
+    background: #f5e1b2;
+    border: 5px solid #8b5a2b;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+    font-family: 'DungGeunMo', sans-serif;
+}
+
+.tier-scroll-wrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    padding: 12px;
+    margin-bottom: 20px;
+    background: #5e340e;
+    border: 2px solid #3b240c;
+    border-radius: 12px;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.tier-scroll-list {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+}
+/* 전체 티어 카드 래퍼 */
+.tier-list-card {
+    flex-shrink: 0;
+    width: 80px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--char-border-color);
+    border: 2px solid #5e340e;
+    border-radius: 12px;
+    padding: 8px 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+}
+
+.tier-list-card:hover {
+    transform: scale(1.05);
+}
+
+/* 아이콘 이미지 */
+.tier-list-card img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--dark-brown-font-color);
+}
+
+/* 티어 이름 텍스트 */
+.tier-list-card-name {
+    font-weight: bold;
+    font-size: 0.75rem;
+    color: var(--dark-1-font-color);
+    margin-top: 6px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* 현재 티어 강조 */
+.tier-list-card.current-tier {
+    outline: 3px solid var(--dark-1-font-color);
+    outline-offset: -2px;
+}
+
+/* 내 티어 정보 영역 */
+.tier-my-panel {
+    display: flex;
+    align-items: center;
+    background: var(--baige-color);
+    border-radius: 12px;
+    padding: 12px 16px;
+    gap: 16px;
+    border: 3px solid #8b5a2b;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+.tier-name-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+    flex-wrap: nowrap;
+    justify-content: center;
+}
+
+
+.tier-name, .tier-name-level {
+    font-size: 0.7rem;
+    font-weight: bold;
+    max-width: 75px;
+    color: var(--baige-color);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 2px solid #3a2412;
+    box-shadow:
+            inset 0 -1px 2px rgba(0, 0, 0, 0.4),
+            0 2px 4px rgba(0, 0, 0, 0.4);
+    text-shadow: 1px 1px 0 #000;
+    text-align: center;
+    user-select: none;
+}
+.tier-name {
+    background-color: #5d3c1a;
+}
+.tier-name-level {
+    background-color: #975b1d;
+}
+
+.tier-level-bar {
+    display: flex;
+    gap: 2px;
+    margin-top: 3px;
+    justify-content: center;
+}
+
+.tier-level-slot {
+    width: 4px;
+    height: 16px;
+    border-radius: 2px;
+    background-color: #ffffff60; /* 빈 칸 기본색 */
+}
+
+.tier-level-slot.filled {
+    background-color: #fa6719; /* 채워진 칸 */
+}
+
+.tier-info-text {
+    flex-grow: 1;
+}
+
+.tier-exp-bar {
+    border: 3px solid #8b5a2b;
+    position: relative;
+    width: 100%;
+    height: 12px;
+    background: var(--dark-1-font-color);
+    border-radius: 6px;
+    margin-top: 4px;
+}
+.tier-exp-fill {
+    height: 100%;
+    background: #fa6719;
+    width: 0%;
+    transition: width 0.3s;
+}
+.tier-exp-text {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+    text-align: center;
+    color: #fff;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px #00000070;
+    pointer-events: none;
+}
+
+.tier-next-info-text {
+    font-size: 0.85rem;
+    color: #5e340e;
+    margin-top: 4px;
+    font-weight: bold;
+}
+
+.modal-close-btn {
+    margin-top: 20px;
+    background: var(--orange-color);
+    color: white;
+    border: 2px solid var(--char-border-color);
+    padding: 12px 40px;
+    border-radius: 15px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+    background-color: #e85f0c;
+}
+
+.modal-close-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #c35414;
+}
+

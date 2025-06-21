@@ -26,6 +26,7 @@
     <link rel="stylesheet" href="css/quest.css">
     <link rel="stylesheet" href="css/playerEquip.css">
     <link rel="stylesheet" href="css/settingModal.css">
+    <link rel="stylesheet" href="css/tier.css">
     <!--    <link rel="stylesheet" href="css/playerDexSelect.css">-->
 <!--    <link rel="stylesheet" href="css/dexParty.css">-->
 </head>
@@ -935,13 +936,44 @@
 </div>
 
 <!-- 설정 모달 -->
-<!-- 설정 모달 -->
 <div id="settingModal" class="modal hidden">
     <div class="back-modal-content">
         <h2 class="back-title">배경 설정</h2>
         <div id="bgGrid" class="bg-grid"></div>
         <button id="applyBgBtn" class="apply-btn" disabled>배경 적용</button>
         <button class="close-btn" id="closeSettingModal">닫기</button>
+    </div>
+</div>
+
+<!-- 티어 정보 모달 -->
+<div id="tierModal" class="modal hidden">
+    <div class="modal-content tier-modal-content">
+
+        <!-- 상단: 전체 티어 목록 스크롤 -->
+        <div class="tier-scroll-wrapper">
+            <div id="allTierList" class="tier-scroll-list">
+                <!-- JS로 이미지 img 태그들을 여기 추가 -->
+            </div>
+        </div>
+
+        <!-- 하단: 현재 내 티어 정보 -->
+        <div class="tier-info-panel">
+            <div class="tier-my-panel">
+                <img id="myTierIcon" class="tier-icon-large" src="" alt="내 티어 아이콘" />
+                <div class="tier-info-text">
+                    <div id="myTierNameBox"></div>
+
+                    <div class="tier-exp-bar">
+                        <div id="tierExpFill" class="tier-exp-fill"></div>
+                        <div id="tierExpText" class="tier-exp-text">10 / 100</div>
+                    </div>
+
+                    <div id="nextTierInfo" class="tier-next-info-text"></div>
+                </div>
+            </div>
+        </div>
+
+        <button class="modal-close-btn" onclick="closeTierModal()">닫기</button>
     </div>
 </div>
 
@@ -964,6 +996,7 @@
 <script src="js/playerEquip.js"></script>
 <script src="js/quest.js"></script>
 <script src="js/settingModal.js"></script>
+<script src="js/tier.js"></script>
 <!--<script src="js/playerDexSelect.js"></script>-->
 <!--<script src="js/dexParty.js"></script>-->
 

@@ -159,6 +159,7 @@ async function handleGachaClick() {
             await checkPotatoCount();
         }, 4000); // 감정 완료 후 재조회
 
+        loadCharacterBasicInfo();
     } catch (e) {
         peelingLabel.classList.add("hidden");
         showMessageModal("서버 오류 발생");

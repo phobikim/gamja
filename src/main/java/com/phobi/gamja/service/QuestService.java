@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 public class QuestService {
     private final ActionService actionService;
     private final LogService logService;
+    private final CorpsTierService corpsTierService;
     private final QuestRepository questRepository;
     private final QuestConditionRepository questConditionRepository;
     private final QuestRewardRepository questRewardRepository;
@@ -261,6 +262,7 @@ public class QuestService {
 
         userQuestRepository.save(userQuest);
         logService.recordCounter(userId, CounterType.QUEST_COMPLETE, 0L);
+        corpsTierService.updateCorpsXp(userId, 10);
         return ResponseEntity.ok(GamJaResponse.success("보상 처리 완료", null));
     }
 }

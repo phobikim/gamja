@@ -1,6 +1,7 @@
 package com.phobi.gamja.dto.user;
 
 import com.phobi.gamja.entity.dex.DexAttribute;
+import com.phobi.gamja.entity.user.UserCorps;
 import com.phobi.gamja.entity.user.UserDexStat;
 import com.phobi.gamja.entity.user.UserDtl;
 import lombok.Data;
@@ -34,13 +35,15 @@ public class UserCharInfoDto {
     private String corpsTierIcon;
     private int corpsTierExp;
     private int corpsTierMaxExp;
+    private int corpsTierLevel;
+    private Long corpsTierId;
 
 
     //메인 생성자
     public UserCharInfoDto(String username, UserDtl userDtl, UserDexStat stat, int maxCombo,
                            String equippedTitleName, String equippedTitleIcon,
                            String backgroundImageUrl, String backgroundImageName,
-                           String corpsTierName, String corpsTierIcon, int corpsTierExp, int corpsTierMaxExp) {
+                           UserCorps userCorps) {
 
         // 기존 데이터 세팅
         this.username = username;
@@ -63,11 +66,14 @@ public class UserCharInfoDto {
         this.backgroundImageUrl = backgroundImageUrl;
         this.backgroundImageName = backgroundImageName;
 
-        // 감자단 정보
-        this.corpsTierName = corpsTierName;
-        this.corpsTierIcon = corpsTierIcon;
-        this.corpsTierExp = corpsTierExp;
-        this.corpsTierMaxExp = corpsTierMaxExp;
+
+        // 감자단 정보 from UserCorps
+        this.corpsTierName = userCorps.getTier().getName();
+        this.corpsTierIcon = userCorps.getTier().getIconPath();
+        this.corpsTierLevel = userCorps.getCorpsLevel();
+        this.corpsTierExp = userCorps.getCorpsXp();
+        this.corpsTierMaxExp = userCorps.getCorpsMaxXp();
+        this.corpsTierId = userCorps.getTier().getTierId();
     }
 
 }

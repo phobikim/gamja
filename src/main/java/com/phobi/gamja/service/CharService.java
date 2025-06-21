@@ -49,6 +49,7 @@ public class CharService {
     private final UtilService utilService;
     private final StatCalculator statCalculator;
     private final LogService logService;
+    private final CorpsTierService corpsTierService;
 
     private final UserDtlRepository userDtlRepository;
     private final UserRepository userRepository;
@@ -104,11 +105,6 @@ public class CharService {
         // 감자단 정보
         UserCorps userCorps = userCorpsRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("감자단 정보가 없습니다."));
-        CorpsTier tier = userCorps.getTier();
-        String corpsTierName = tier.getName();
-        String corpsTierIcon = tier.getIconPath();
-        int corpsTierExp = userCorps.getCorpsXp();
-        int corpsTierMaxExp = userCorps.getCorpsMaxXp();
 
         // ✅ 응답 DTO 구성
         UserCharInfoDto result = new UserCharInfoDto(
@@ -116,7 +112,7 @@ public class CharService {
                 userDtl, stat, 0, // 기존 필드
                 equippedTitleName, equippedTitleIcon, // 칭호
                 backgroundImageUrl, backgroundImageName, // 배경
-                corpsTierName, corpsTierIcon, corpsTierExp, corpsTierMaxExp // 감자단 정보
+                userCorps// 감자단 정보
         );
 
         return GamJaResponse.success("정상 조회", result);
@@ -379,6 +375,8 @@ public class CharService {
         result.put("desc", selected.getDescription());
         result.put("pieceGained", gainedFragments);
 
+        /* 감자단 경험치 상승 */
+        corpsTierService.updateCorpsXp(userId, 20);
 
         return GamJaResponse.success("감자 뽑기 성공", result);
     }
@@ -527,4 +525,9 @@ public class CharService {
 
         return GamJaResponse.success("배경이 변경되었습니다.", null);
     }
+    public GamJaResponse tierList(HttpServletRequest request) {
+        List<CorpsTier> tiers = corpsTierRepository.findAllByOrderByTierIdAsc();
+        return GamJaResponse.success("감자단 랭크 정보 .",tiers);
+    }
+
 }

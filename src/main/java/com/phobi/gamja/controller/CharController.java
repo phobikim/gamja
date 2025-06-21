@@ -98,4 +98,12 @@ public class CharController {
         return ResponseEntity.ok(charService.setBackgroundList(payload, request));
     }
 
+    /*
+    * 티어 정보 list
+    * */
+    @GetMapping("/tier/list")
+    public ResponseEntity<GamJaResponse> tierList(HttpServletRequest request) {
+        return ResponseEntity.ok(charService.tierList(request));
+    }
+
 }
