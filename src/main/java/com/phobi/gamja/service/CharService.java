@@ -106,7 +106,7 @@ public class CharService {
         // 감자단 정보
         UserCorps userCorps = userCorpsRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("감자단 정보가 없습니다."));
-        StatBonus statBonus = statCalculator.calculateTierStatBonus(userCorps);
+        StatBonus statBonus = corpsTierService.calculateTierStatBonus(userCorps);
         // ✅ 응답 DTO 구성
         UserCharInfoDto result = new UserCharInfoDto(
                 user.getUsername(),

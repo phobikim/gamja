@@ -11,6 +11,7 @@ import com.phobi.gamja.entity.title.UserTitle;
 import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
 import com.phobi.gamja.repository.title.TitleEffectRepository;
 import com.phobi.gamja.repository.title.UserTitleRepository;
+import com.phobi.gamja.service.CorpsTierService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,8 @@ import java.util.*;
 @Component
 @RequiredArgsConstructor
 public class StatCalculator {
+
+    private final CorpsTierService corpsTierService;
 
     private final UserDexStatRepository userDexStatRepository;
     private final UserSkillRepository userSkillRepository;
@@ -97,7 +100,7 @@ public class StatCalculator {
 
         //6. 감자단 레벨 스탯
         UserCorps userCorps = userCorpsRepository.findById(userId).orElse(null);
-        StatBonus corpsBonus = calculateTierStatBonus(userCorps);
+        StatBonus corpsBonus = corpsTierService.calculateTierStatBonus(userCorps);
         // 7. BattleStatDetailDto 구성
         BattleStatDetailDto power = new BattleStatDetailDto(
                 userDexStatPower,
@@ -125,25 +128,7 @@ public class StatCalculator {
     }
 
 
-    public StatBonus calculateTierStatBonus(UserCorps userCorps) {
-        if (userCorps == null || userCorps.getTier() == null) {
-            return new StatBonus(0, 0, 0);
-        }
 
-        int tierId = Math.toIntExact(userCorps.getTier().getTierId()); // 1 ~ 12
-        int corpsLevel = userCorps.getCorpsLevel();   // 1 ~ 10
-
-        int base = (tierId - 1) * 3;
-        int levelBonus = switch (corpsLevel) {
-            case 1, 2, 3 -> 1;
-            case 4, 5, 6, 7 -> 2;
-            case 8, 9, 10 -> 3;
-            default -> 1;
-        };
-
-        int total = base + levelBonus;
-        return new StatBonus(total, total, total);
-    }
 
     public LifeStatDto calculateLifeSkill(Long userId) {
         // 1. 유저 상세정보 + 착용 캐릭터 ID

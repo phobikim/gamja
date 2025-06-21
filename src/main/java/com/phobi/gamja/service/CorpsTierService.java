@@ -1,5 +1,6 @@
 package com.phobi.gamja.service;
 
+import com.phobi.gamja.entity.battle.StatBonus;
 import com.phobi.gamja.entity.contents.CorpsTier;
 import com.phobi.gamja.entity.user.UserCorps;
 import com.phobi.gamja.repository.contents.CorpsTierRepository;
@@ -59,5 +60,24 @@ public class CorpsTierService {
         return (int) Math.ceil(baseXp * multiplier);
     }
 
+    public StatBonus calculateTierStatBonus(UserCorps userCorps) {
+        if (userCorps == null || userCorps.getTier() == null) {
+            return new StatBonus(0, 0, 0);
+        }
+
+        int tierId = Math.toIntExact(userCorps.getTier().getTierId()); // 1 ~ 12
+        int corpsLevel = userCorps.getCorpsLevel();   // 1 ~ 10
+
+        int base = (tierId - 1) * 3;
+        int levelBonus = switch (corpsLevel) {
+            case 1, 2, 3 -> 1;
+            case 4, 5, 6, 7 -> 2;
+            case 8, 9, 10 -> 3;
+            default -> 1;
+        };
+
+        int total = base + levelBonus;
+        return new StatBonus(total, total, total);
+    }
 
 }

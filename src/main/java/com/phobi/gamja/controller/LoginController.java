@@ -1,6 +1,7 @@
 package com.phobi.gamja.controller;
 
 import com.phobi.gamja.message.GamJaResponse;
+import com.phobi.gamja.repository.user.UserRepository;
 import com.phobi.gamja.service.AuthService;
 import com.phobi.gamja.web.config.annotation.SanitizeInput;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class LoginController {
 
     private final AuthService authService;
+    private final UserRepository userRepository;
 
     @GetMapping("/me")
     public ResponseEntity<GamJaResponse> getMyInfo(HttpServletRequest request) {
@@ -51,10 +53,12 @@ public class LoginController {
     @GetMapping("/session-check")
     public ResponseEntity<?> checkSession(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
-        if (userId != null) {
+
+        if (userId != null && userRepository.existsById(userId)) {
             return ResponseEntity.ok(Map.of("code", "SUCCESS"));
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("code", "NO_SESSION"));
+            request.getSession().invalidate();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("code", "NO_VALID_USER"));
         }
     }
 

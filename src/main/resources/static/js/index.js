@@ -10,8 +10,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             location.href = './char.html';
         }
     } catch (e) {
-        console.warn('세션 확인 실패:', e);
-        // 세션 없으면 아무것도 안 함 (그대로 로그인 화면 보여줌)
+        console.warn('사용자 확인 실패:', e);
     }
 });
 
