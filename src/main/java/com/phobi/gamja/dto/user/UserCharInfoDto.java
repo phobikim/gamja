@@ -1,5 +1,6 @@
 package com.phobi.gamja.dto.user;
 
+import com.phobi.gamja.entity.battle.StatBonus;
 import com.phobi.gamja.entity.dex.DexAttribute;
 import com.phobi.gamja.entity.user.UserCorps;
 import com.phobi.gamja.entity.user.UserDexStat;
@@ -37,13 +38,15 @@ public class UserCharInfoDto {
     private int corpsTierMaxExp;
     private int corpsTierLevel;
     private Long corpsTierId;
+    private int tierAtk;
+    private int tierHp;
 
 
     //메인 생성자
     public UserCharInfoDto(String username, UserDtl userDtl, UserDexStat stat, int maxCombo,
                            String equippedTitleName, String equippedTitleIcon,
                            String backgroundImageUrl, String backgroundImageName,
-                           UserCorps userCorps) {
+                           UserCorps userCorps, StatBonus statBonus) {
 
         // 기존 데이터 세팅
         this.username = username;
@@ -74,6 +77,9 @@ public class UserCharInfoDto {
         this.corpsTierExp = userCorps.getCorpsXp();
         this.corpsTierMaxExp = userCorps.getCorpsMaxXp();
         this.corpsTierId = userCorps.getTier().getTierId();
+        this.tierAtk = statBonus.power();
+        this.tierHp = statBonus.hp();
     }
 
 }
+

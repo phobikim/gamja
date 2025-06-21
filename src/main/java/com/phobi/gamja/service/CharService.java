@@ -5,6 +5,7 @@ import com.phobi.gamja.dto.dex.DexOwnedListResponseDto;
 import com.phobi.gamja.dto.item.EquipItemDto;
 import com.phobi.gamja.dto.item.EquipmentSlot;
 import com.phobi.gamja.dto.user.*;
+import com.phobi.gamja.entity.battle.StatBonus;
 import com.phobi.gamja.entity.contents.BackgroundImage;
 import com.phobi.gamja.entity.contents.CorpsTier;
 import com.phobi.gamja.entity.dex.Dex;
@@ -105,7 +106,7 @@ public class CharService {
         // 감자단 정보
         UserCorps userCorps = userCorpsRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("감자단 정보가 없습니다."));
-
+        StatBonus statBonus = statCalculator.calculateTierStatBonus(userCorps);
         // ✅ 응답 DTO 구성
         UserCharInfoDto result = new UserCharInfoDto(
                 user.getUsername(),
@@ -113,6 +114,7 @@ public class CharService {
                 equippedTitleName, equippedTitleIcon, // 칭호
                 backgroundImageUrl, backgroundImageName, // 배경
                 userCorps// 감자단 정보
+                ,statBonus
         );
 
         return GamJaResponse.success("정상 조회", result);
@@ -266,7 +268,7 @@ public class CharService {
 
     @Transactional
     @SanitizeInput
-    public GamJaResponse setCharacterImage(HttpServletRequest request, Map<String, Long> payload) throws InterruptedException {
+    public GamJaResponse setCharacterImage(HttpServletRequest request, Map<String, Long> payload) {
         Long userId = (Long) request.getAttribute("userId");
         Long dexId = payload.get("dexId");
 
@@ -283,24 +285,12 @@ public class CharService {
         userDtl.setCharacterImage(commonUtil.resolveCharacterImage(userDtl));
         userDtlRepository.save(userDtl);
 
-        // 3. user_dex_stat 없으면 insert (중복 무시)
-        userDexStatRepository.insertIfNotExists(userId, dexId);
-        entityManager.flush();
-        entityManager.clear();
-        // 4. 다시 조회
+        // 3. 스탯 정보 조회
         UserDexStatId statId = new UserDexStatId(userId, dexId);
-        UserDexStat stat = null;
-        int retry = 3;
-        while (retry-- > 0) {
-            stat = userDexStatRepository.findById(statId).orElse(null);
-            if (stat != null) break;
-            Thread.sleep(30); // 아주 짧은 대기
-        }
-        if (stat == null) {
-            throw new IllegalStateException("스탯 정보를 가져올 수 없습니다.");
-        }
+        UserDexStat stat = userDexStatRepository.findById(statId)
+                .orElseThrow(() -> new IllegalStateException("스탯 정보를 가져올 수 없습니다."));
 
-        return GamJaResponse.success("대표 감자가 설정되었습니다.", null);
+        return GamJaResponse.success("대표 감자가 설정되었습니다.",null);
     }
     @Transactional
     @SanitizeInput
@@ -361,6 +351,20 @@ public class CharService {
             // 6. 보유 감자에 등록
             UserDex newDex = UserDex.of(userId, selected);
             userDexRepository.save(newDex);
+            UserDexStatId statId = new UserDexStatId(userId, selected.getId());
+            UserDexStat newStat = UserDexStat.builder()
+                    .id(statId)
+                    .user(userRepository.getReferenceById(userId))
+                    .dex(dexRepository.getReferenceById(selected.getId()))
+                    .level(1)
+                    .xp(0)
+                    .maxExp(100)
+                    .power(1)
+                    .hp(1)
+                    .speed(1)
+                    .affinity(0)
+                    .build();
+            userDexStatRepository.save(newStat);
         }
         // 7. 응답 데이터 구성
         DexAttribute attr = selected.getAttribute();
@@ -376,7 +380,7 @@ public class CharService {
         result.put("pieceGained", gainedFragments);
 
         /* 감자단 경험치 상승 */
-        corpsTierService.updateCorpsXp(userId, 20);
+        corpsTierService.updateCorpsXp(userId, 10);
 
         return GamJaResponse.success("감자 뽑기 성공", result);
     }

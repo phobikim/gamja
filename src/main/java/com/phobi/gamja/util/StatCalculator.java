@@ -3,6 +3,7 @@ package com.phobi.gamja.util;
 import com.phobi.gamja.dto.battle.BattleStatDetailDto;
 import com.phobi.gamja.dto.battle.BattleStatDto;
 import com.phobi.gamja.dto.item.EquipmentType;
+import com.phobi.gamja.entity.battle.StatBonus;
 import com.phobi.gamja.entity.dex.DexRarityStat;
 import com.phobi.gamja.entity.item.ItemSkillBonus;
 import com.phobi.gamja.entity.title.TitleEffect;
@@ -36,6 +37,9 @@ public class StatCalculator {
     private final ItemSkillBonusRepository itemSkillBonusRepository;
     private final UserTitleRepository userTitleRepository;
     private final TitleEffectRepository titleEffectRepository;
+    private final UserCorpsRepository userCorpsRepository;
+
+
     public BattleStatDto calculateBattleStat(Long userId) {
         // 1. 유저 상세정보 + 착용 캐릭터 ID
         UserDtl userDtl = userDtlRepository.findById(userId)
@@ -61,8 +65,7 @@ public class StatCalculator {
             baseDexSpeed = rarityStat.getBaseSpeed();
         }
 
-
-        // 장비 스탯
+        // 4. 장비 스탯
         List<UserEquipment> battleEquipments = userEquipmentRepository.findByUserIdAndType(userId, EquipmentType.EQUIP_BATTLE);
         int equipHp = 0, equipPower = 0, equipSpeed = 0;
         List<ItemDto> itemDtoList = new ArrayList<>();
@@ -77,7 +80,7 @@ public class StatCalculator {
             }
         }
 
-        // 4. 착용 칭호 스탯 추가
+        // 5. 착용 칭호 스탯 추가
         UserTitle equippedTitle = userTitleRepository.findByIdUserId(userId).stream()
                 .filter(UserTitle::isEquipped)
                 .findFirst()
@@ -92,12 +95,54 @@ public class StatCalculator {
             }
         }
 
-        BattleStatDetailDto power = new BattleStatDetailDto(userDexStatPower, baseDexPower, equipPower);
-        BattleStatDetailDto hp = new BattleStatDetailDto(userDexStatHp, baseDexHp, equipHp);
-        BattleStatDetailDto speed = new BattleStatDetailDto(userDexStatSpeed, baseDexSpeed, equipSpeed);
+        //6. 감자단 레벨 스탯
+        UserCorps userCorps = userCorpsRepository.findById(userId).orElse(null);
+        StatBonus corpsBonus = calculateTierStatBonus(userCorps);
+        // 7. BattleStatDetailDto 구성
+        BattleStatDetailDto power = new BattleStatDetailDto(
+                userDexStatPower,
+                baseDexPower,
+                equipPower,
+                corpsBonus.power()
+        );
+
+        BattleStatDetailDto hp = new BattleStatDetailDto(
+                userDexStatHp,
+                baseDexHp,
+                equipHp,
+                corpsBonus.hp()
+        );
+
+        BattleStatDetailDto speed = new BattleStatDetailDto(
+                userDexStatSpeed,
+                baseDexSpeed,
+                equipSpeed,
+                corpsBonus.speed()
+        );
 
 
         return new BattleStatDto(hp, power, speed, itemDtoList);
+    }
+
+
+    public StatBonus calculateTierStatBonus(UserCorps userCorps) {
+        if (userCorps == null || userCorps.getTier() == null) {
+            return new StatBonus(0, 0, 0);
+        }
+
+        int tierId = Math.toIntExact(userCorps.getTier().getTierId()); // 1 ~ 12
+        int corpsLevel = userCorps.getCorpsLevel();   // 1 ~ 10
+
+        int base = (tierId - 1) * 3;
+        int levelBonus = switch (corpsLevel) {
+            case 1, 2, 3 -> 1;
+            case 4, 5, 6, 7 -> 2;
+            case 8, 9, 10 -> 3;
+            default -> 1;
+        };
+
+        int total = base + levelBonus;
+        return new StatBonus(total, total, total);
     }
 
     public LifeStatDto calculateLifeSkill(Long userId) {

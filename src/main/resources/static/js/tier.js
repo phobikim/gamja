@@ -35,7 +35,9 @@ async function fetchTierData() {
         corpsTierIcon: userRes.data.corpsTierIcon,
         corpsTierExp: userRes.data.corpsTierExp,
         corpsTierMaxExp: userRes.data.corpsTierMaxExp,
-        corpsTierLevel : userRes.data.corpsTierLevel
+        corpsTierLevel : userRes.data.corpsTierLevel,
+        corpsTierBouseAtk : userRes.data.tierAtk,
+        corpsTierBouseHp : userRes.data.tierHp
     };
     window.currentTierList = tierRes.data;
     return {
@@ -130,9 +132,35 @@ function renderMyTierInfo(tier) {
             nextTierTextEl.textContent = `최종 티어입니다. 축하합니다!`;
         }
     }
+    // 감자단 보너스 스탯 표시
+    const tierBonusInfoEl = document.getElementById("tierBonusInfo");
+    if (tierBonusInfoEl) {
+        tierBonusInfoEl.innerHTML = `[감자단 보너스]<br>ATK ${tier.corpsTierBouseAtk}  HP ${tier.corpsTierBouseHp}`;
+    }
+    renderRandomTierComment();
 }
 
 // 📌 모달 닫기
 function closeTierModal() {
     tierModal.classList.add("hidden");
+}
+
+function renderRandomTierComment() {
+    const mentList = [
+        "어... 그냥 하다 보면 오르던데요?",
+        "누가 그러던데요... 싸우면 오른다고...",
+        "어제는 안 올랐는데 오늘은 올랐어요! 신기하죠?",
+        "저기... 채집 같은 거 하면 오를지도 몰라요...",
+        "칭호요? 그거 있으면 좋다고 하던데... 아마도요",
+        "감자들 많이 모으면... 그 뭐랄까... 좋아진대요",
+        "퀘스트 하면 오른다던데... 저는 안 해봤어요",
+        "그냥 막 하다 보면... 언젠간 되긴 해요 진짜루",
+        "칭호 같은 거 주워오면 좀 오르더라구요 아마...",
+        "음... 때리면... 올라가던가...? 그런 느낌이었어요",
+        "뭔가 캤는데... 그때 오른 것 같기도 하고요?",
+        "몰라요 근데 계속 하니까 뭔가 됐어요! 헤헤"
+    ];
+
+    const picked = mentList[Math.floor(Math.random() * mentList.length)];
+    document.getElementById("tierRandomMent").textContent = picked;
 }

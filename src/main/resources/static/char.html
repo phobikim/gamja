@@ -665,7 +665,7 @@
         <!-- 캐릭터 이미지 + 스탯 -->
         <div class="char-body-row">
             <!-- 이미지 -->
-            <div class="char-image-area" onclick="openCharacterSelectModal()">
+            <div class="char-image-area">
                 <img id="charImage" src="https://phobi.me/gamja.img/images/character/default.png" alt="캐릭터 이미지">
                 <!-- 캐릭터 카드 정보 -->
                 <div class="char-card-info">
@@ -969,8 +969,16 @@
                     </div>
 
                     <div id="nextTierInfo" class="tier-next-info-text"></div>
+                    <div id="tierBonusInfo" class="tier-bonus-info-text"></div>
                 </div>
             </div>
+            <!-- 티어 경험치 획득 조건 안내 패널 -->
+            <div class="tier-gain-guide-panel">
+                <div id="tierRandomMent" class="tier-random-line">
+                    <!-- 여기 JS로 랜덤 문구 삽입됨 -->
+                </div>
+            </div>
+
         </div>
 
         <button class="modal-close-btn" onclick="closeTierModal()">닫기</button>

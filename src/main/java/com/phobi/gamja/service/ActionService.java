@@ -51,6 +51,7 @@ public class ActionService {
     private final UserCounterDetailRepository userCounterDetailRepository;
 
     private final LogService logService;
+    private final CorpsTierService corpsTierService;
     private final CommonUtil commonUtil;
     private final StatCalculator statCalculator;
 
@@ -117,6 +118,7 @@ public class ActionService {
         userDtl.setCharacterImage(commonUtil.resolveCharacterImage(userDtl));
 
         logService.recordCounter(userId, CounterType.MONSTER_KILL, monsterId);
+        corpsTierService.updateCorpsXp(userId, 1);
         return ResponseEntity.ok(GamJaResponse.success("아이템 추가 완료", stat));
     }
 
@@ -135,6 +137,7 @@ public class ActionService {
             Long actionId = getLifeActionTargetId(skillType);
             logService.recordCounter(userId, CounterType.LIFE_ACTION, actionId);
         }
+        corpsTierService.updateCorpsXp(userId, 1);
         return ResponseEntity.ok(GamJaResponse.success("아이템 추가 완료", result));
     }
 
@@ -182,6 +185,7 @@ public class ActionService {
                 .build();
         userTitleRepository.save(newTitle);
 
+        corpsTierService.updateCorpsXp(userId, 10);
         return ResponseEntity.ok(GamJaResponse.success("칭호를 획득했습니다.",null));
     }
 

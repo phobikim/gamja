@@ -2,6 +2,7 @@ package com.phobi.gamja.entity.dex;
 
 import lombok.*;
 import javax.persistence.*;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -30,30 +31,27 @@ public class DexRarityStat {
     @Column(name = "bonus_description")
     private String bonusDescription;
 
+    private record RarityRate(Rarity rarity, double rate) {}
     public enum Rarity {
         COMMON, UNCOMMON, RARE, EPIC, LEGENDARY;
 
-        private static final Map<Rarity, Double> rateTable = Map.of(
-                COMMON, 60.0,
-                UNCOMMON, 25.0,
-                RARE, 10.0,
-                EPIC, 4.0,
-                LEGENDARY, 1.0
+        private static final List<RarityRate> rateTable = List.of(
+                new RarityRate(COMMON, 63.4),
+                new RarityRate(UNCOMMON, 25.0),
+                new RarityRate(RARE, 10.0),
+                new RarityRate(EPIC, 1.5),
+                new RarityRate(LEGENDARY, 0.1)
         );
 
         public static Rarity roll() {
             double rand = Math.random() * 100;
             double cumulative = 0.0;
 
-            for (Map.Entry<Rarity, Double> entry : rateTable.entrySet()) {
-                cumulative += entry.getValue();
-                if (rand < cumulative) {
-                    return entry.getKey();
-                }
+            for (RarityRate rate : rateTable) {
+                cumulative += rate.rate;
+                if (rand < cumulative) return rate.rarity;
             }
-
-            // fallback (이론상 도달 불가)
-            return COMMON;
+            return COMMON; // fallback
         }
     }
 }
