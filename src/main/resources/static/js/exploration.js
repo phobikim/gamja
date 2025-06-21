@@ -21,8 +21,6 @@ async function openExploration(activityType, rank) {
     if (logPrompt) {
         logPrompt.textContent = '카드를 선택하세요!';
     }
-
-
     explorationModal.classList.remove('hidden');
     explorationModal.classList.add('show');
 
@@ -32,20 +30,16 @@ async function openExploration(activityType, rank) {
         const cardRes = await apiRequest(url, 'GET');
 
         if (cardRes.code !== 'SUCCESS') {
-            closeExploration();
             showMessageModal(cardRes.message || '카드 목록을 불러오는 데 실패했습니다.');
             return;
         }
         if (cardRes.data.length < 2) {
-            closeExploration();
             showMessageModal('카드 데이터가 없습니다.'); // 혹은 탐사 불가능 안내
             return;
         }
-
         cardEventPool = cardRes.data;
         renderCards();
     } catch (e) {
-        closeExploration();
         showMessageModal('서버 오류가 발생했습니다.');
         console.error(e);
     }
@@ -225,11 +219,12 @@ function choosePath(direction) {
 }
 
 function getStageExp(stage) {
-    if (stage <= 5) return 5;
-    if (stage <= 10) return 10;
-    if (stage <= 20) return 20;
-    if (stage <= 30) return 30;
-    return 40;
+    if (stage <= 5) return 0;
+    if (stage <= 10) return 5;
+    if (stage <= 20) return 10;
+    if (stage <= 30) return 15;
+    if (stage <= 40) return 20;
+    return 20;
 }
 
 function sendExplorationResult(stage) {
@@ -315,3 +310,7 @@ function createLogLine(text, color) {
     return div;
 }
 
+function handleManualExplorationEnd() {
+    totalExp = getStageExp(stage);
+    sendExplorationResult(stage);
+}
