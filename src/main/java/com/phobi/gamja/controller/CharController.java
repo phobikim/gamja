@@ -62,7 +62,7 @@ public class CharController {
     * desc : 대표 캐릭터로 지정
     * */
     @PostMapping("/setDex")
-    public ResponseEntity<GamJaResponse> setCharacterImage(@RequestBody Map<String, Long> payload, HttpServletRequest request) {
+    public ResponseEntity<GamJaResponse> setCharacterImage(@RequestBody Map<String, Long> payload, HttpServletRequest request) throws InterruptedException {
         return ResponseEntity.ok(charService.setCharacterImage(request, payload));
     }
 

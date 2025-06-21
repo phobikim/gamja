@@ -25,6 +25,7 @@ async function handleDexClick() {
     Object.keys(dexTabContents).forEach(key => {
         dexTabContents[key].classList.toggle("hidden", key !== "character");
     });
+    document.querySelector(".dex-modal-container").classList.remove("title-tab-active");
 
     renderCardsByType("character", currentDexData.dexList);
     dexModal.classList.remove("hidden");
@@ -319,9 +320,7 @@ function renderCardsByType(type, list) {
         container.appendChild(card);
 
         if (index === 0) {
-            requestAnimationFrame(() => {
-                cardEl.click();
-            });
+            cardEl.click();
         }
     });
 }
@@ -480,6 +479,7 @@ function getStars(rarity) {
 
 function closeDexModal() {
     dexModal.classList.add('hidden');
+    document.querySelector(".dex-modal-container").classList.remove("title-tab-active");
 }
 
 async function claimTitle(titleId) {

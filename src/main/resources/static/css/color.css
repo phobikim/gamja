@@ -35,8 +35,33 @@
 .rarity-background-uncommon { background: #6ee367; }
 .rarity-background-rare { background: #5492d7; }
 .rarity-background-epic { background:  #c5589e; }
-.rarity-background-legendary { background: #fff2b8; }
+.rarity-background-legendary {
+    background: linear-gradient(135deg, #ffc107, #ff9800, #ff5722);
+    background-size: 400% 400%;
+    color: #fff8dc;
+    animation: legendaryGlow 3s ease infinite;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #ffe082;
+    box-shadow: 0 0 10px #ff9800, 0 0 20px #ff6f00 inset;
+    border-radius: 8px;
+}
 
+/* 반짝이는 효과 애니메이션 */
+@keyframes legendaryGlow {
+    0% {
+        background-position: 0% 50%;
+        box-shadow: 0 0 10px #ff9800, 0 0 20px #ff6f00 inset;
+    }
+    50% {
+        background-position: 100% 50%;
+        box-shadow: 0 0 15px #ffc107, 0 0 25px #ffb300 inset;
+    }
+    100% {
+        background-position: 0% 50%;
+        box-shadow: 0 0 10px #ff9800, 0 0 20px #ff6f00 inset;
+    }
+}
 
 /* 전투용 오라 배경 효과 */
 .effect-common     { width: 100px; height: 100px; background: radial-gradient(circle, rgba(57, 255, 20, 0.6), transparent); }

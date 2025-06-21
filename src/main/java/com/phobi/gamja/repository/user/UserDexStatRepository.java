@@ -25,8 +25,9 @@ public interface UserDexStatRepository extends JpaRepository<UserDexStat, UserDe
     @Modifying
     @Transactional
     @Query(value = """
-    INSERT IGNORE INTO user_dex_stat (user_id, dex_id, level, xp, max_exp, power, hp, speed)
+    INSERT INTO user_dex_stat (user_id, dex_id, level, xp, max_exp, power, hp, speed)
     VALUES (:userId, :dexId, 1, 0, 100, 0, 0, 0)
+    ON DUPLICATE KEY UPDATE user_id = user_id
     """, nativeQuery = true)
     void insertIfNotExists(@Param("userId") Long userId, @Param("dexId") Long dexId);
 

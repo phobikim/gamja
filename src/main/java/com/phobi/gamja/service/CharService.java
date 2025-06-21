@@ -32,6 +32,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,7 +41,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CharService {
-
+    @PersistenceContext
+    private EntityManager entityManager;
     private final CommonUtil commonUtil;
     private final UtilService utilService;
     private final StatCalculator statCalculator;
@@ -242,7 +245,7 @@ public class CharService {
 
     @Transactional
     @SanitizeInput
-    public GamJaResponse setCharacterImage(HttpServletRequest request, Map<String, Long> payload) {
+    public GamJaResponse setCharacterImage(HttpServletRequest request, Map<String, Long> payload) throws InterruptedException {
         Long userId = (Long) request.getAttribute("userId");
         Long dexId = payload.get("dexId");
 
@@ -261,11 +264,19 @@ public class CharService {
 
         // 3. user_dex_stat 없으면 insert (중복 무시)
         userDexStatRepository.insertIfNotExists(userId, dexId);
-
+        entityManager.flush();
         // 4. 다시 조회
         UserDexStatId statId = new UserDexStatId(userId, dexId);
-        UserDexStat stat = userDexStatRepository.findById(statId)
-                .orElseThrow(() -> new IllegalStateException("스탯 정보를 가져올 수 없습니다."));
+        UserDexStat stat = null;
+        int retry = 3;
+        while (retry-- > 0) {
+            stat = userDexStatRepository.findById(statId).orElse(null);
+            if (stat != null) break;
+            Thread.sleep(30); // 아주 짧은 대기
+        }
+        if (stat == null) {
+            throw new IllegalStateException("스탯 정보를 가져올 수 없습니다.");
+        }
 
         // 5. 최종 결과 반환
         UserCharInfoDto dto = new UserCharInfoDto(userDtl, stat);

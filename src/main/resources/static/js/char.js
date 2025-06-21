@@ -38,31 +38,36 @@
 
         //배경 이미지 적용
         if (backgroundImageUrl || backgroundImageName) {
-            const gameContentEl = document.querySelector('.game-content');
-            if (gameContentEl) {
-                gameContentEl.style.backgroundImage = `url('${basePath}${backgroundImageUrl}')`;
-            }
+            const fullUrl = `${basePath}${backgroundImageUrl}`;
+            const img = new Image();
+            img.onload = () => {
+                const gameContentEl = document.querySelector('.game-content');
+                if (gameContentEl) {
+                    gameContentEl.style.backgroundImage = `url('${fullUrl}')`;
+                }
 
-            // ✅ 배경색도 함께 적용
-            const charPage = document.querySelector('.char-page');
-            const mainMenu = document.querySelector('.main-menu-grid');
-            const topFooterColorMap = {
-                '숲':   { top: '#131e09', footer: '#131e09' },
-                '여름': { top: '#0f7c9f', footer: '#e1a92e' },
-                '가을': { top: '#411f16', footer: '#371d0d' },
-                '겨울': { top: '#2f5f82', footer: '#6e9bb6' },
+                // 색상 적용은 바로 해도 무방
+                const charPage = document.querySelector('.char-page');
+                const mainMenu = document.querySelector('.main-menu-grid');
+
+                const topFooterColorMap = {
+                    '숲':   { top: '#131e09', footer: '#131e09' },
+                    '여름': { top: '#0f7c9f', footer: '#e1a92e' },
+                    '가을': { top: '#411f16', footer: '#371d0d' },
+                    '겨울': { top: '#2f5f82', footer: '#6e9bb6' },
+                };
+
+                const backgroundName = data.backgroundImageName || '';
+                const colorSet = topFooterColorMap[backgroundName] || {
+                    top: '#fff8dc',
+                    footer: '#fff8dc'
+                };
+
+                if (charPage) charPage.style.backgroundColor = colorSet.top;
+                if (mainMenu) mainMenu.style.backgroundColor = colorSet.footer;
             };
-            const backgroundName = data.backgroundImageName || '';
-            const colorSet = topFooterColorMap[backgroundName] || {
-                top: '#fff8dc',  // default top color
-                footer: '#fff8dc' // default footer color
-            };
-            if (charPage) {
-                charPage.style.backgroundColor = colorSet.top;
-            }
-            if (mainMenu) {
-                mainMenu.style.backgroundColor = colorSet.footer;
-            }
+
+            img.src = fullUrl; // ✅ 여기서 비동기 로딩 시작
         }
 
         // 메인 캐릭터 이미지 설정
@@ -78,19 +83,8 @@
             avatarImg.alt = nickname || username || '캐릭터';
         }
         const mainCharacter = document.getElementById('mainCharacter');
-        if (mainCharacter) {
-            mainCharacter.src = basePath_image + '/character/' + characterImage;
-            mainCharacter.alt = nickname || username || '캐릭터';
 
-            // 높이에 따라 위치 조정 (예: 캐릭터가 클수록 더 위로 이동)
-            // const characterHeight = parseInt(mainCharacter.style.height || '150'); // 기본 150px
-            // const offsetY = characterHeight * 0.15; // 하단에서 40% 올라오게
-            // mainCharacter.style.transform = `translateY(-${offsetY}px)`;
-
-
-
-        }
-        document.getElementById('mainCharacter').addEventListener('load', adjustCharacterPosition);
+        mainCharacter.addEventListener('load', adjustCharacterPosition);
         window.addEventListener('resize', adjustCharacterPosition);
         // 이름
         const playerNameEl = document.getElementById('playerName');
@@ -134,9 +128,10 @@
 
         // 이미지가 로드된 후에 정확한 높이 측정
         const characterHeight = mainCharacter.offsetHeight;
-
         // 캐릭터 키의 24% 만큼 위로 올리기
         const offsetY = characterHeight * 0.15;
+        console.log("characterHeight: ", characterHeight);
+        console.log("offsetY: ", offsetY);
         mainCharacter.style.transform = `translateY(-${offsetY}px)`;
     }
 
