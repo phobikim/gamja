@@ -6,6 +6,7 @@ import com.phobi.gamja.dto.item.EquipItemDto;
 import com.phobi.gamja.dto.item.EquipmentSlot;
 import com.phobi.gamja.dto.user.*;
 import com.phobi.gamja.entity.contents.BackgroundImage;
+import com.phobi.gamja.entity.contents.CorpsTier;
 import com.phobi.gamja.entity.dex.Dex;
 import com.phobi.gamja.entity.dex.DexAttribute;
 import com.phobi.gamja.entity.dex.DexRarityStat;
@@ -17,6 +18,7 @@ import com.phobi.gamja.entity.title.UserTitle;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.contents.BackgroundImageRepository;
+import com.phobi.gamja.repository.contents.CorpsTierRepository;
 import com.phobi.gamja.repository.dex.DexRarityStatRepository;
 import com.phobi.gamja.repository.dex.DexRepository;
 import com.phobi.gamja.repository.item.ItemPotionEffectRepository;
@@ -64,12 +66,16 @@ public class CharService {
     private final UserTitleRepository userTitleRepository;
     private final BackgroundImageRepository backgroundImageRepository;
     private final UserBackgroundRepository userBackgroundRepository;
+    private final CorpsTierRepository corpsTierRepository;
+    private final UserCorpsRepository userCorpsRepository;
 
     @Transactional(readOnly = true)
     public GamJaResponse getUserInfo(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
 
         UserDtl userDtl = userDtlRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
         Long dexId = userDtl.getCharacterDexId();
         if (dexId == null) {
@@ -82,17 +88,36 @@ public class CharService {
 
         String finalImage = commonUtil.resolveCharacterImage(userDtl);
         userDtl.setCharacterImage(finalImage);
-        // ✅ 착용 중인 칭호 조회
+
+        // 칭호 조회
         UserTitle equipped = userTitleRepository.findByIdUserId(userId).stream()
                 .filter(UserTitle::isEquipped)
                 .findFirst().orElse(null);
         String equippedTitleName = equipped != null ? equipped.getTitle().getName() : null;
         String equippedTitleIcon = equipped != null ? equipped.getTitle().getIconPath() : null;
 
+        // 배경 조회
         BackgroundImage bg = userDtl.getBackgroundImage();
         String backgroundImageUrl = (bg != null) ? bg.getImageUrl() : null;
         String backgroundImageName = (bg != null) ? bg.getName() : null;
-        UserCharInfoDto result = new UserCharInfoDto(userDtl, stat, 0, equippedTitleName, equippedTitleIcon, backgroundImageUrl,backgroundImageName);
+
+        // 감자단 정보
+        UserCorps userCorps = userCorpsRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("감자단 정보가 없습니다."));
+        CorpsTier tier = userCorps.getTier();
+        String corpsTierName = tier.getName();
+        String corpsTierIcon = tier.getIconPath();
+        int corpsTierExp = userCorps.getCorpsXp();
+        int corpsTierMaxExp = userCorps.getCorpsMaxXp();
+
+        // ✅ 응답 DTO 구성
+        UserCharInfoDto result = new UserCharInfoDto(
+                user.getUsername(),
+                userDtl, stat, 0, // 기존 필드
+                equippedTitleName, equippedTitleIcon, // 칭호
+                backgroundImageUrl, backgroundImageName, // 배경
+                corpsTierName, corpsTierIcon, corpsTierExp, corpsTierMaxExp // 감자단 정보
+        );
 
         return GamJaResponse.success("정상 조회", result);
     }
@@ -265,6 +290,7 @@ public class CharService {
         // 3. user_dex_stat 없으면 insert (중복 무시)
         userDexStatRepository.insertIfNotExists(userId, dexId);
         entityManager.flush();
+        entityManager.clear();
         // 4. 다시 조회
         UserDexStatId statId = new UserDexStatId(userId, dexId);
         UserDexStat stat = null;
@@ -278,9 +304,7 @@ public class CharService {
             throw new IllegalStateException("스탯 정보를 가져올 수 없습니다.");
         }
 
-        // 5. 최종 결과 반환
-        UserCharInfoDto dto = new UserCharInfoDto(userDtl, stat);
-        return GamJaResponse.success("대표 감자가 설정되었습니다.", dto);
+        return GamJaResponse.success("대표 감자가 설정되었습니다.", null);
     }
     @Transactional
     @SanitizeInput

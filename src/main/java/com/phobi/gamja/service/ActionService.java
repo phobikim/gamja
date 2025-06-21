@@ -6,6 +6,7 @@ import com.phobi.gamja.dto.contents.CardEventDto;
 import com.phobi.gamja.dto.contents.DropTableEntryDto;
 import com.phobi.gamja.dto.user.LifeStatDto;
 import com.phobi.gamja.dto.user.UserCharInfoDto;
+import com.phobi.gamja.dto.user.UserDexXpDto;
 import com.phobi.gamja.dto.user.UserSkillDto;
 import com.phobi.gamja.entity.contents.*;
 import com.phobi.gamja.entity.item.Item;
@@ -111,12 +112,12 @@ public class ActionService {
         Long dexId = Optional.ofNullable(userDtl.getCharacterDexId())
                 .orElseThrow(() -> new IllegalArgumentException("착용 중인 캐릭터가 없습니다."));
 
-        UserDexStat stat = updateCharacterExp(userId, dexId, (int) request.get("exp"));
+        UserDexXpDto stat = updateCharacterExp(userId, dexId, (int) request.get("exp"));
         processItemRewards(userId, request);
         userDtl.setCharacterImage(commonUtil.resolveCharacterImage(userDtl));
 
         logService.recordCounter(userId, CounterType.MONSTER_KILL, monsterId);
-        return ResponseEntity.ok(GamJaResponse.success("아이템 추가 완료", new UserCharInfoDto(userDtl, stat)));
+        return ResponseEntity.ok(GamJaResponse.success("아이템 추가 완료", stat));
     }
 
     public ResponseEntity<GamJaResponse> endExploration(HttpSession session, Map<String, Object> request) {
@@ -214,17 +215,9 @@ public class ActionService {
             Title equippedTitle = userTitleRepository.findByIdUserIdAndIsEquippedTrue(userId)
                     .map(UserTitle::getTitle)
                     .orElse(null);
-
-            dto = new UserCharInfoDto(
-                    userDtl,
-                    stat,
-                    0,
-                    equippedTitle != null ? equippedTitle.getName() : null,
-                    equippedTitle != null ? equippedTitle.getIconPath() : null
-            );
         }
 
-        return ResponseEntity.ok(GamJaResponse.success("칭호를 착용했습니다.", dto));
+        return ResponseEntity.ok(GamJaResponse.success("칭호를 착용했습니다.", null));
     }
 
     /* 타이틀 계산 함수 */
@@ -330,7 +323,7 @@ public class ActionService {
         return userSkillRepository.save(skill);
     }
 
-    public UserDexStat updateCharacterExp(Long userId, Long dexId, int gainedExp) {
+    public UserDexXpDto updateCharacterExp(Long userId, Long dexId, int gainedExp) {
         UserDexStatId statId = new UserDexStatId(userId, dexId);
         UserDexStat stat = userDexStatRepository.findById(statId)
                 .orElseThrow(() -> new IllegalArgumentException("캐릭터 스탯 정보가 없습니다."));
@@ -349,7 +342,8 @@ public class ActionService {
         stat.setXp(xp);
         stat.setLevel(level);
         stat.setMaxExp(maxExp);
-        return userDexStatRepository.save(stat);
+        userDexStatRepository.save(stat);
+        return new UserDexXpDto(stat.getLevel(), stat.getXp(), stat.getMaxExp());
     }
 
     private int getRequiredExp(int level) {

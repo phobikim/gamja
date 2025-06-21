@@ -33,7 +33,12 @@
 <body class="char-page">
 <!-- 상단 UI -->
 <div class="top-ui" id="topUI">
-    <!-- 왼쪽 플레이어 정보 -->
+    <!-- 감자단 티어 정보 카드: 왼쪽 -->
+    <div class="tier-card" id="tierCard">
+        <img id="tierIcon" class="tier-icon-large" src="" alt="감자단 아이콘">
+        <div id="tierName" class="tier-name-large">감자단 이름</div>
+    </div>
+    <!-- 플레이어 정보 -->
     <div class="player-info-card" id="playerInfoCard">
         <div class="player-avatar-wrapper" id="playerAvatarWrapper">
             <div class="player-avatar-xp-border" id="playerAvatarXpBorder"></div>
@@ -52,18 +57,6 @@
             </div>
             <hr style="border: none; border-top: 3px solid var(--dark-1-color); margin: 4px 0;">
             <div class="dex-name" id="dexName">흙감자 <span class="inline-level" id="inlineLevel">(Lv.1)</span></div>
-        </div>
-    </div>
-
-    <!-- 오른쪽 리소스 정보 -->
-    <div class="resource-card" id="resourceCard">
-        <div class="resource-item">
-            <div class="resource-icon" id="goldIcon"></div>
-            <div class="resource-amount" id="goldAmount">1,324</div>
-        </div>
-        <div class="resource-item">
-            <div class="resource-icon" id="potatoIcon"></div>
-            <div class="resource-amount" id="potatoAmount">89</div>
         </div>
     </div>
 </div>

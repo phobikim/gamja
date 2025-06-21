@@ -120,7 +120,6 @@ async function fetchSetCharacters(selectedCharacterId) {
             showMessageModal(res.message || '대표 감자 설정에 실패했습니다.');
         } else {
             closeCharacterSelectModal();
-            // showMessageModal('대표 감자로 설정 OK!');
             await loadCharacterBasicInfo(); // 메인 화면 갱신
         }
     } catch (err) {

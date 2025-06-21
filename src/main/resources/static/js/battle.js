@@ -12,6 +12,8 @@ let isProcessingTurn = false;
 let potionUsed = false;
 let tempPowerBoost = 0;
 
+let currentDexImage = null;
+
 // const skillEffectImage = `${basePath_image}/effect/attack_slash5.png`;
 const skillEffectImage = `${basePath_image}/skills/potato_whip.png`;
 
@@ -135,7 +137,8 @@ function initializeBattleScene(user, monster) {
 
 
     const userImage = document.getElementById('userCharacter');
-    userImage.src = basePath_image + "/character/" + user.charImage;
+    currentDexImage = basePath_image + "/character/" + user.charImage;
+    userImage.src = currentDexImage;
     userImage.alt = user.dexName;
     playerImage.classList.remove('jump-in', 'fade-out', 'hit-effect');
     void userImage.offsetWidth;
@@ -428,11 +431,11 @@ function updateCharacterReward(user, expReward, items) {
         .then(res => {
             if (res.code === 'SUCCESS' && res.data) {
                 const { xp, maxExp, level } = res.data;
-                user.afterXp = xp ?? user.beforeXp;
-                user.maxExp = maxExp ?? 100;
-                user.level = level ?? user.beforeLevel;
+                user.afterXp = xp;
+                user.maxExp = maxExp;
+                user.level = level;
                 updateRewardUI(user, expReward);
-                setUserInfo(res.data);
+                loadCharacterBasicInfo();
             } else {
                 showMessageModal("아이템 획득 처리 실패");
             }
@@ -567,13 +570,7 @@ function showDamageText(targetSelector, value, isHeal = false) {
 
 function updateRewardUI(user, expReward) {// 캐릭터 이미지 설정
     const charImg = document.getElementById('rewardCharacterImage');
-    if (charImg) {
-        if (typeof basePath_image !== 'undefined') {
-            charImg.src = basePath_image + "/character/" + user.charImage;
-        } else {
-            charImg.src = `placeholder_${user.charImage}`;
-        }
-    }
+    charImg.src = currentDexImage
     const levelEl = document.getElementById('rewardCharLevel');
     const currentXpEl = document.getElementById('currentXp');
     const maxXpEl = document.getElementById('maxXp');

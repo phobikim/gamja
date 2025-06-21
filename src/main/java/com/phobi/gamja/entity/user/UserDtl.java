@@ -1,5 +1,6 @@
 package com.phobi.gamja.entity.user;
 
+import com.phobi.gamja.entity.contents.CorpsTier;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,19 +20,17 @@ public class UserDtl {
     @JoinColumn(name = "id")
     private User user;
 
-    @Column(length = 50)
-    private String usernickname;
-
     @Column(length = 255)
     private String characterImage;
 
+    /* 배경화면 */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "background_id")
     private BackgroundImage backgroundImage;
 
+    /* 대표 감자 */
     @Column(name = "character_dex_id")
     private Long characterDexId; // 대표 감자 설정용
-
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

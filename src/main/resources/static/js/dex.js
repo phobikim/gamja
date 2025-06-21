@@ -396,6 +396,16 @@ function showDexDetail(type, item) {
 
         // 캐릭터 장착, 강화 버튼 표시
         detailEquip.style.display = "flex";
+        const equipBtn = document.getElementById("dexEquipBtn");
+        if (item.id === currentDexData.equippedDexId) {
+            equipBtn.textContent = "장착중";
+            equipBtn.disabled = true;
+            equipBtn.classList.add("equipped");
+        } else {
+            equipBtn.textContent = "장착";
+            equipBtn.disabled = false;
+            equipBtn.classList.remove("equipped");
+        }
 
         // 미보유 오버레이 설정 (캐릭터 탭에만 적용)
         if (item.owned === false) {
@@ -459,6 +469,12 @@ async function setCharacters(selectedCharacterId) {
             showMessageModal(res.message || '대표 감자 설정에 실패했습니다.');
         } else {
             await loadCharacterBasicInfo(); // 메인 화면 갱신
+            // ✅ 장착 버튼 텍스트 갱신
+            const equipBtn = document.getElementById("dexEquipBtn");
+
+            if (selectedCharacterInDetail) {
+                selectedCharacterInDetail.equipped = true;
+            }
         }
     } catch (err) {
         console.error('대표 감자 설정 실패:', err);
@@ -506,9 +522,7 @@ async function equipTitle(titleId) {
             showMessageModal("칭호를 착용했습니다!");
             currentDexData = await fetchDexMetaData();
             renderCardsByType("title", currentDexData.titleList);
-            if (res.data) {
-                setUserInfo(res.data); // ✅ 최신 유저 정보로 메인 갱신
-            }
+            loadCharacterBasicInfo();
         } else {
             showMessageModal(res.message || '착용 실패');
         }

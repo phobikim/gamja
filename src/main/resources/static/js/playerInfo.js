@@ -43,23 +43,7 @@ function openInfoModal() {
 }
 
 
-function loadCharacterBasicInfo() {
-    const url = '/api/char';
 
-    apiRequest(url, 'GET')
-        .then(res => {
-            if (res.code === 'SUCCESS') {
-                const charRes = res.data;
-                setCharacterBasicInfo(charRes);
-                setUserInfo(charRes);
-            } else {
-                console.error('캐릭터 정보 불러오기 실패:', res.message);
-            }
-        })
-        .catch(err => {
-            console.error('API 요청 에러:', err);
-        });
-}
 
 // ✅ 기본 정보 DOM 세팅
 function setCharacterBasicInfo(data) {

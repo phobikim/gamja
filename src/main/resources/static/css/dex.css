@@ -367,7 +367,7 @@
 }
 
 .dex-button {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
     background-color: #fa6719;
     color: white;
     border: none;
@@ -583,4 +583,12 @@
     font-size: 0.8rem;
     color: #ccc;
     padding: 4px 0;
+}
+#dexEquipBtn.equipped {
+    font-size: 0.9rem;
+    background-color: var(--dark-1-font-color);
+    color: var(--dark-2-color);
+    cursor: default;
+    border: none;
+    font-weight: bold;
 }

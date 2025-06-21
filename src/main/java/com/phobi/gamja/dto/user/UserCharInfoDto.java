@@ -24,31 +24,27 @@ public class UserCharInfoDto {
     private int maxCombo;
     private Long dexId;
     private int affinity;
-    private String backgroundImageUrl;
+
+    /* 배경 */
     private String backgroundImageName;
+    private String backgroundImageUrl;
+
+    /* 감자단 랭크 */
+    private String corpsTierName;
+    private String corpsTierIcon;
+    private int corpsTierExp;
+    private int corpsTierMaxExp;
 
 
-    // 기본값(maxCombo = 0), 칭호 없음
-    public UserCharInfoDto(UserDtl userDtl, UserDexStat stat) {
-        this(userDtl, stat, 0, null, null);
-    }
-
-    // maxCombo만 지정, 칭호 없음
-    public UserCharInfoDto(UserDtl userDtl, UserDexStat stat, int maxCombo) {
-
-        this(userDtl, stat, maxCombo, null, null);
-    }
-    public UserCharInfoDto(UserDtl userDtl, UserDexStat stat, int maxCombo,
+    //메인 생성자
+    public UserCharInfoDto(String username, UserDtl userDtl, UserDexStat stat, int maxCombo,
                            String equippedTitleName, String equippedTitleIcon,
-                           String backgroundImageUrl, String backgroundImageName) {
-        this(userDtl, stat, maxCombo, equippedTitleName, equippedTitleIcon);
-        this.backgroundImageUrl = backgroundImageUrl;
-        this.backgroundImageName= backgroundImageName;
-    }
-    // 착용 칭호명까지 받는 메인 생성자
-    public UserCharInfoDto(UserDtl userDtl, UserDexStat stat, int maxCombo, String equippedTitleName, String equippedTitleIcon) {
+                           String backgroundImageUrl, String backgroundImageName,
+                           String corpsTierName, String corpsTierIcon, int corpsTierExp, int corpsTierMaxExp) {
+
+        // 기존 데이터 세팅
+        this.username = username;
         this.dexId = stat.getDex().getId();
-        this.username = userDtl.getUser().getUsername();
         this.characterImage = userDtl.getCharacterImage();
         this.level = stat.getLevel();
         this.xp = stat.getXp();
@@ -62,6 +58,16 @@ public class UserCharInfoDto {
         DexAttribute attr = stat.getDex().getAttribute();
         this.attribute = attr != null ? attr.getName() : null;
         this.attributeIconPath = attr != null ? attr.getIconPath() : null;
+
+        // 배경 정보
+        this.backgroundImageUrl = backgroundImageUrl;
+        this.backgroundImageName = backgroundImageName;
+
+        // 감자단 정보
+        this.corpsTierName = corpsTierName;
+        this.corpsTierIcon = corpsTierIcon;
+        this.corpsTierExp = corpsTierExp;
+        this.corpsTierMaxExp = corpsTierMaxExp;
     }
 
 }

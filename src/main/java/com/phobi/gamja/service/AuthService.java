@@ -1,11 +1,13 @@
 package com.phobi.gamja.service;
 
 import com.phobi.gamja.entity.contents.BackgroundImage;
+import com.phobi.gamja.entity.contents.CorpsTier;
 import com.phobi.gamja.entity.dex.Dex;
 import com.phobi.gamja.entity.contents.SkillType;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.contents.BackgroundImageRepository;
+import com.phobi.gamja.repository.contents.CorpsTierRepository;
 import com.phobi.gamja.repository.dex.DexRepository;
 import com.phobi.gamja.repository.user.*;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,8 @@ public class AuthService {
     private final DexRepository dexRepository;
     private final BackgroundImageRepository backgroundImageRepository;
     private final UserBackgroundRepository userBackgroundRepository;
+    private final CorpsTierRepository corpsTierRepository;
+    private final UserCorpsRepository userCorpsRepository;
 
 
     @Transactional
@@ -64,9 +68,12 @@ public class AuthService {
         newUser.setPin(pin);
         User savedUser = userRepository.save(newUser);
 
-        // [1] 기본 배경 조회
+        // 기본 배경 조회
         BackgroundImage defaultBg = backgroundImageRepository.findById(200L)
                 .orElseThrow(() -> new IllegalStateException("기본 배경 이미지(200번)를 찾을 수 없습니다."));
+
+        // 감자단 랭크 조회
+        CorpsTier defaultTier = corpsTierRepository.findById(1).orElseThrow(()-> new IllegalArgumentException("기본 랭크 정보를 찾을 수 없습니다."));
 
 
         // 기본 정보 저장
@@ -126,6 +133,16 @@ public class AuthService {
                 .backgroundImage(defaultBg)
                 .build();
         userBackgroundRepository.save(userBackground);
+
+        UserCorps userCorps = UserCorps.builder()
+                .userId(savedUser.getId())
+                .tier(defaultTier)
+                .corpsLevel(1)
+                .corpsXp(0)
+                .corpsMaxXp(100)
+                .build();
+        userCorpsRepository.save(userCorps);
+
 
         // 세션 저장
         session.setAttribute("userId", savedUser.getId());

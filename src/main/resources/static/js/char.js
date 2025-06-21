@@ -14,19 +14,34 @@
             throw new Error('캐릭터 정보를 불러오지 못했습니다.');
         }
 
-        setUserInfo(charRes.data);
+        loadCharacterBasicInfo();
 
     } catch (err) {
         showMessageModal(err.message || '로그인이 필요합니다.');
         location.href = './index.html';
         console.error(err);
     }
+    function loadCharacterBasicInfo() {
+        const url = '/api/char';
 
+        apiRequest(url, 'GET')
+            .then(res => {
+                if (res.code === 'SUCCESS') {
+                    const charRes = res.data;
+                    setCharacterBasicInfo(charRes);
+                    setUserInfo(charRes);
+                } else {
+                    console.error('캐릭터 정보 불러오기 실패:', res.message);
+                }
+            })
+            .catch(err => {
+                console.error('API 요청 에러:', err);
+            });
+    }
     function setUserInfo(data) {
         const {
             username,
             level,
-            nickname,
             title,
             titleIconPath,
             xp,
@@ -70,25 +85,25 @@
             img.src = fullUrl; // ✅ 여기서 비동기 로딩 시작
         }
 
-        // 메인 캐릭터 이미지 설정
         const imagePath = '/character/';
+        /* 상단 카드에 들어가는 이미지 */
+        const avatarImg = document.getElementById('playerAvatarImg');
+        if (avatarImg) {
+            avatarImg.src = basePath_image + imagePath + characterImage;
+            avatarImg.alt = username || '캐릭터';
+        }
+
+        // 메인 캐릭터 이미지 설정
         const mainCharacterEl = document.getElementById('mainCharacter');
         if (characterImage) {
             mainCharacterEl.src = basePath_image + imagePath + characterImage;
-            mainCharacterEl.alt = nickname || username || '캐릭터';
+            mainCharacterEl.alt = username || '캐릭터';
         }
-        const avatarImg = document.getElementById('playerAvatarImg');
-        if (avatarImg) {
-            avatarImg.src = basePath_image + '/character/' + characterImage;
-            avatarImg.alt = nickname || username || '캐릭터';
-        }
-        const mainCharacter = document.getElementById('mainCharacter');
-
-        mainCharacter.addEventListener('load', adjustCharacterPosition);
+        mainCharacterEl.addEventListener('load', adjustCharacterPosition);
         window.addEventListener('resize', adjustCharacterPosition);
         // 이름
         const playerNameEl = document.getElementById('playerName');
-        playerNameEl.textContent = nickname || username;
+        playerNameEl.textContent = username;
 
         // 칭호
         const titleTextEl = document.getElementById('playerTitleText');
@@ -114,11 +129,23 @@
         const xpPercent = ((xp / maxExp) * 100).toFixed(1);
         const xpFillEl = document.getElementById('playerAvatarXpFill');
         xpFillEl.style.setProperty('--xp-percent', `${xpPercent}%`);
+
+        // 감자 원정대 정보
+        const { corpsTierName, corpsTierIcon, corpsTierExp } = data;
+
+        const tierMaxExp = 1000; // 예시, 티어별 최대 경험치 (서버에서 계산되면 대체 가능)
+
+        document.getElementById('tierName').textContent = corpsTierName;
+        document.getElementById('tierIcon').src = basePath + corpsTierIcon;
+        // document.getElementById('tierExpText').textContent = `EXP ${corpsTierExp} / ${tierMaxExp}`;
+        //
+        // const percent = Math.min(100, Math.floor((corpsTierExp / tierMaxExp) * 100));
+        // document.getElementById('tierExpBar').style.width = `${percent}%`;
     }
 
 
     // 필요 시 외부에서 호출 가능하도록 전역 등록
-    window.setUserInfo = setUserInfo;
+    window.loadCharacterBasicInfo = loadCharacterBasicInfo;
 
     function adjustCharacterPosition() {
         const mainCharacter = document.getElementById('mainCharacter');
@@ -130,8 +157,6 @@
         const characterHeight = mainCharacter.offsetHeight;
         // 캐릭터 키의 24% 만큼 위로 올리기
         const offsetY = characterHeight * 0.15;
-        console.log("characterHeight: ", characterHeight);
-        console.log("offsetY: ", offsetY);
         mainCharacter.style.transform = `translateY(-${offsetY}px)`;
     }
 
