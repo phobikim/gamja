@@ -14,8 +14,11 @@ let tempPowerBoost = 0;
 
 let currentDexImage = null;
 
-
-const skillEffectImage = `${basePath_image}/skills/gam_wave.png`;
+const defaultSkillEffectImage = `${basePath_image}/skills/attack_slash.png`;
+// const skillEffectImage = `${basePath_image}/skills/potato_peel.png`;
+// const skillEffectImage = `${basePath_image}/skills/potato_fire.png`;
+// const skillEffectImage = `${basePath_image}/skills/potato_electric.png`;
+// const skillEffectImage = `${basePath_image}/skills/potato_wave.png`;
 // const skillEffectImage = `${basePath_image}/skills/potato_whip.png`;
 
 window.battleState = {
@@ -23,83 +26,11 @@ window.battleState = {
     monster: {}
 };
 
-/**
- * 몬스터 드랍 아이템 생성 로직
- *
- * [1] COMMON 아이템 (확정 드랍)
- *  - rarity가 'COMMON'인 아이템 중 1개 무조건 드랍
- *  - 수량: 랜덤 2~3개
- *
- * [2] 보너스 아이템 (확률 드랍)
- *  - rarity가 'COMMON'이 아닌 아이템 중, item.dropRate 기반으로 드랍 시도
- *  - dropRate 통과한 아이템이 있을 경우, 가중치(rarity)에 따라 1개 선택
- *
- * [3] 보너스 아이템 수량 규칙
- *  - itemType이 'EQUIP_'로 시작하는 장비 아이템: 무조건 1개
- *  - UNCOMMON 등급: 1~2개 랜덤
- *  - RARE 이상: 1개 고정
- *
- * ※ rarity 가중치는 서버 기준과 통일 (COMMON: 75.0 ~ LEGENDARY: 0.01)
- * ※ pickWeightedByRarity 함수에서 rarity 기반 비율로 선택함
- */
-//
-// const cardPool = [
-//     {
-//         name: "감자의 분노",
-//         desc: "공격력 x2! 실패 시 자해",
-//         mp: 3,
-//         effect: () => {
-//             // 추후 구현
-//         }
-//     },
-//     {
-//         name: "감자 던지기",
-//         desc: "랜덤 효과 발동",
-//         mp: 2,
-//         effect: () => {}
-//     },
-//     {
-//         name: "수분 회오리",
-//         desc: "체력 회복. 실패 시 MP -3",
-//         mp: 4,
-//         effect: () => {}
-//     },
-//     {
-//         name: "튀김 부메랑",
-//         desc: "두 번 타격. 50% 확률",
-//         mp: 3,
-//         effect: () => {}
-//     }
-// ];
-
-// function drawBattleCards() {
-//     const container = document.getElementById('battleCardOptions');
-//     container.innerHTML = '';
-//
-//     const shuffled = [...cardPool].sort(() => 0.5 - Math.random()).slice(0, 2);
-//
-//     shuffled.forEach((card, index) => {
-//         const cardDiv = document.createElement('div');
-//         cardDiv.className = 'battle-card';
-//         cardDiv.onclick = () => selectBattleCard(index);
-//
-//         cardDiv.innerHTML = `
-//             <div class="card-title">🔥 ${card.name}</div>
-//             <div class="card-desc">${card.desc}</div>
-//             <div class="card-cost">MP ${card.mp}</div>
-//         `;
-//
-//         container.appendChild(cardDiv);
-//     });
-//
-//     // 저장해놓기
-//     window.currentBattleCards = shuffled;
-// }
 
 
 window.startBattleFromMap = async function(map) {
     battleModal.classList.remove('hidden');
-
+    // [1] 유저 정보
     const userRes = await apiRequest('/api/battle/user-stat', 'GET');
     if (userRes.code !== 'SUCCESS') {
         showMessageModal(userRes.message || "유저 정보를 불러오지 못했습니다.");
@@ -107,6 +38,21 @@ window.startBattleFromMap = async function(map) {
     }
     const user = userRes.data;
 
+    // [2] 유저 스킬 정보 (속성 기준으로 BASIC 스킬 조회)
+    const attribute = user.attribute; // 예: '구운', '튀김', '껍질' 등
+    const skillRes = await apiRequest(`/api/battle/${attribute}?type=BASIC`, 'GET');
+    if (skillRes.code !== 'SUCCESS') {
+        showMessageModal(skillRes.message || "스킬 정보를 불러오지 못했습니다.");
+        return;
+    }
+    const basicSkills = skillRes.data;
+    if (basicSkills.length > 0 && basicSkills[0].images.length > 0) {
+        window.skillEffectImage = basePath_image + basicSkills[0].images[0];
+    } else {
+        window.skillEffectImage = defaultSkillEffectImage;
+    }
+
+    // [3] 몬스터 정보
     const monsterRes = await apiRequest(`/api/battle/monster_stat?mapId=${map.id}`, 'GET');
     if (monsterRes.code !== 'SUCCESS') {
         showMessageModal(monsterRes.message || "몬스터 정보를 불러오지 못했습니다.");
@@ -118,6 +64,7 @@ window.startBattleFromMap = async function(map) {
         showMessageModal("해당 맵에 등장하는 몬스터가 없습니다.");
         return;
     }
+
     let selectedMonster;
     selectedMonster = monsters[Math.floor(Math.random() * monsters.length)];
 
@@ -742,7 +689,7 @@ function showSkillEffect() {
     const container = monster.parentElement;
 
     const effectImg = document.createElement('img');
-    effectImg.src = skillEffectImage;
+    effectImg.src = window.skillEffectImage;
     effectImg.alt = 'Skill Effect';
     effectImg.className = 'skill-effect-image';
 
