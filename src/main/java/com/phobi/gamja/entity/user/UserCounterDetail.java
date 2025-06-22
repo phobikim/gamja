@@ -2,6 +2,8 @@ package com.phobi.gamja.entity.user;
 
 
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -38,10 +40,12 @@ public class UserCounterDetail {
     @Column(name = "counter_value", nullable = false)
     private Integer counterValue = 0;
 
-    @Column(name = "created_at", updatable = false, insertable = false, columnDefinition = "timestamp default current_timestamp")
+    @Column(name = "created_at", updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", insertable = false, columnDefinition = "timestamp default current_timestamp on update current_timestamp")
+    @Column(name = "updated_at")
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     // 복합 키 정의

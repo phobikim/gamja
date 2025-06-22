@@ -31,6 +31,27 @@
     }
 }
 
+.rank-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--dark-1-font-color);  
+    text-align: center;
+    padding: 12px 24px;
+    background: #5e340e;
+    border: 1px solid #3b240c;
+    box-shadow:
+            0 2px 0 #3b240c,
+            inset 0 -4px 6px rgba(0, 0, 0, 0.3),
+            inset 0 2px 4px rgba(255, 255, 255, 0.2),
+            0 4px 8px rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    width: fit-content;
+    min-width: 120px;
+    align-self: center;
+}
+
+
 .rank-scroll-area {
     flex: 1;
     overflow-y: auto;
@@ -150,6 +171,12 @@
     white-space: nowrap;
 }
 
+.rank-title-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
 .rank-tier-icon {
     width: 20%;
     max-width: 48px;
@@ -180,11 +207,12 @@
     filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
 }
 
-.rank-title {
+.rank-title-name {
     font-weight: bold;
-    color: var(--dark-1-font-color);
-    font-size: 1.3rem;
+    color: var(--dark-orange-color);
+    font-size: 0.7rem;
 }
+
 
 /* 닉네임 */
 .rank-username {

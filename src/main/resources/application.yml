@@ -10,7 +10,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mariadb://211.208.163.16:13316/gamja
+    url: jdbc:mariadb://211.208.163.16:13316/gamja?serverTimezone=Asia/Seoul
     username: phobikim
     password: phobikim8038!
     driver-class-name: org.mariadb.jdbc.Driver

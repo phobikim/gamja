@@ -41,6 +41,16 @@ async function getRankData() {
                 titleIconEl.remove();
             }
 
+            const titleNameEl = clone.querySelector('.rank-title-name');
+            if (titleNameEl) {
+                if (entry.titleName) {
+                    titleNameEl.textContent = `[${entry.titleName}]`;  // ✅ 대괄호 추가
+                    titleNameEl.classList.add('rank-rank-title-name');
+                } else {
+                    titleNameEl.remove();
+                }
+            }
+
             tierIconEl.src = `${basePath}` + entry.corpsTierIconPath;
             tierIconEl.classList.add('tier-icon');
 
