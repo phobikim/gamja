@@ -3,7 +3,7 @@
     width: 90%;
     height: 70%;
     margin: auto;
-    background: var(--dark-1-color);
+    background: var(--dark-brown-font-color);
     border-radius: 16px;
     padding: 1.5rem;
     display: flex;
@@ -14,6 +14,7 @@
 
 /* 모달 안쪽 wrapper */
 .workshop-map-content-wrapper {
+
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -26,62 +27,83 @@
 
 /* 공방 리스트 */
 #workshopDetailPanel {
-    background: var(--dark-3-color);
+    background: var(--char-border-color);
     padding: 1rem;
     border-radius: 12px;
     display: grid !important;
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
-    width: 100%;
     flex: 1;
     box-sizing: border-box;
+    overflow-y: auto;
 }
-
 /* 카드 */
 .workshop-card {
-    background-color: var(--dark-2-color);
-    width: 100%;
-    max-width: none;
-    text-align: center;
-    cursor: pointer;
-    padding: 0.6rem;
-    border-radius: 8px;
-    transition: transform 0.2s, background-color 0.2s;
-    box-sizing: border-box;
-    aspect-ratio: 1 / 1; /* 정사각형 카드 */
+    background-color: #e78d30;
+    background-size: 8px 8px;
+    border: 3px solid #5e340e;
+    box-shadow: 0 4px 0 #5e340e;
+    border-radius: 10px;
+    padding: 0.4rem;
+    aspect-ratio: 1 / 1;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-}
-
-.workshop-card:hover {
-    transform: scale(1.05);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .workshop-card.selected {
-    background-color: rgba(250, 103, 25, 0.2);
-    outline: 2px solid #fa6719;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #5e340e;
+}
+
+
+
+.station-detail-box {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    margin-top: 1rem;
+    background: var(--dark-3-color);
+    border-radius: 12px;
+    padding: 1rem;
+    color: white;
+    text-align: center;
+    min-height: 0;
 }
 
 /* 이미지가 카드 안에서 꽉 차도록 */
 .workshop-thumb {
-    width: 100%;
-    height: auto;
-    max-height: 48px;
-    aspect-ratio: 1 / 1;
+    width: 80%;
+    height: 80%;
     object-fit: contain;
     image-rendering: pixelated;
 }
 
-/* 공방 이름 */
+/* 이름은 카드 바깥에 따로 배치 */
 .workshop-name {
-    font-weight: bold;
-    margin-top: 6px;
     font-size: 0.8rem;
-    color: var(--dark-1-font-color);
-    word-break: keep-all;
+    font-weight: bold;
+    margin-top: 0.4rem;
+    padding: 0.3rem 0.5rem;
+    color: #fff8dc;
+    background: #5e340e; /* 진한 나무 간판색 */
+    border: 2px solid #3b240c;
+    border-radius: 6px;
+    box-shadow: 0 2px 0 #2e1a07;
+    text-align: center;
+    min-width: 80px;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
 }
+
 
 /* 제목 */
 .workshop-select-header {
@@ -103,3 +125,4 @@
     padding-top: 1rem;
     width: 100%;
 }
+

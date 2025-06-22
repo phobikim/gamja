@@ -2,7 +2,7 @@
 
 
 .rank-modal-content {
-    background: #f5e1b2;
+    background: var(--dark-brown-font-color);
     border: 5px solid #8b5a2b;
     position: fixed;
     top: 50%;
@@ -178,6 +178,12 @@
     object-fit: contain;
     flex-shrink: 0;
     filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
+}
+
+.rank-title {
+    font-weight: bold;
+    color: var(--dark-1-font-color);
+    font-size: 1.3rem;
 }
 
 /* 닉네임 */

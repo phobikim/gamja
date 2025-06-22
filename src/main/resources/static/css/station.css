@@ -3,7 +3,7 @@
     width: 100%;
     height: 100%;
     margin: 0;
-    background-color: var(--dark-1-color);
+    background-color: #3b240c; /* 어두운 나무색 배경 */
     border-radius: 0;
     padding: 1rem;
     display: flex;
@@ -56,47 +56,90 @@
 
 .craft-recipe-list {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: 90px;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 100px;
     min-height: 0;
     max-height: 40%;
     gap: 0.8rem;
-    padding: 0.8rem;
-    background-color: var(--dark-2-color);
+    padding: 0.7rem;
+    background-color: #5e340e; /* 짙은 갈색 나무판 */
     border-radius: 12px;
     overflow-y: auto;
+    overflow-x: hidden; /* 가로 넘침 방지 */
     box-sizing: border-box;
     flex: 0 0 50%;
+    scrollbar-gutter: stable; /* 스크롤 너비 확보 */
+
+    box-shadow:
+            0 2px 0 #3b240c,
+            0 4px 6px rgba(0, 0, 0, 0.4);
+    border: 3px solid #935717;
+
+
 }
 
 /* 카드형 아이템 */
 .recipe-card {
-    border-radius: 8px;
-    padding: 0.5rem;
-    text-align: center;
-    cursor: pointer;
-    transition: transform 0.2s;
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
     align-items: center;
     box-sizing: border-box;
-    background-color: rgba(255, 255, 255, 0.02);
+
+    background-color: var(--char-border-color);
+    background-blend-mode: multiply;
+    background-size: 8px 8px;
+
+    border: 2px solid #5e340e;
+    box-shadow:
+            inset 0 0 3px rgba(0, 0, 0, 0.15),
+            2px 2px 6px rgba(0, 0, 0, 0.3),
+            -2px -2px 4px rgba(255, 255, 255, 0.1); /* 입체 그림자 */
+
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .recipe-card:hover {
-    transform: scale(1.05);
+    transform: translateY(-3px);
+    box-shadow:
+            inset 0 0 3px rgba(0, 0, 0, 0.1),
+            4px 4px 8px rgba(0, 0, 0, 0.4),
+            -2px -2px 6px rgba(255, 255, 255, 0.05);
+}
+
+.recipe-card.active {
+    border: 2px solid #fa6719;
+    box-shadow:
+            0 0 0 2px #fa6719 inset,
+            4px 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 .recipe-icon {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     margin-bottom: 0.3rem;
+    image-rendering: pixelated;
+    filter: drop-shadow(1px 2px 0 rgba(0,0,0,0.3));
 }
 
 .recipe-name {
     font-size: 0.75rem;
     font-weight: bold;
-    color: var(--dark-brown-font-color);
+    color: var(--dark-1-font-color);
+    background: #5e340e;
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    margin-top: 0.3rem;
+    box-shadow: 0 2px 0 #3b240c;
+    border: 1px solid #3b240c;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .craft-detail-panel {
@@ -110,18 +153,40 @@
 .craft-detail-scroll {
     flex: 1;
     overflow-y: auto;
-    background-color: var(--dark-2-color);
+    background-color: #5e340e; /* 통일된 나무 배경 */
     border-radius: 12px;
     box-sizing: border-box;
     padding: 1rem;
-    margin-bottom: 0.5rem; /* 버튼과 간격 */
+    margin-bottom: 0.5rem;
+    scrollbar-gutter: stable;
+    box-shadow:
+            0 6px 0 #3b240c,
+            0 8px 6px rgba(0, 0, 0, 0.4);
 }
 /* 아이템 정보 박스 */
 .detail-info-box {
     text-align: center;
     margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px dashed #888; /* ✅ 구분선 */
+    padding: 1rem;
+    border-radius: 12px;
+    border: 3px solid #3b240c;
+
+    /* 입체감 */
+    box-shadow:
+            0 4px 0 #3b240c,
+            0 6px 4px rgba(0, 0, 0, 0.3);
+}
+.ingredient-list {
+    background-color : var(--char-border-color);
+    margin-top: 1rem;
+    border: 3px solid #3b240c;
+    border-radius: 12px;
+    padding: 0.8rem;
+
+    /* 입체감 */
+    box-shadow:
+            0 4px 0 #3b240c,
+            0 6px 4px rgba(0, 0, 0, 0.3);
 }
 
 .craft-button-row {
@@ -130,6 +195,7 @@
     gap: 1rem;
     margin-bottom: 2vh;
 }
+
 .craft-button {
     padding: 0.8rem;
     font-size: 1rem;
@@ -154,11 +220,9 @@
 }
 
 .craft-button.close {
-    background-color: #666;
+    background-color: var(--orange-color);
 }
-.craft-button.close:hover {
-    background-color: #444;
-}
+
 
 .ingredient-scroll {
     overflow-y: auto;
@@ -216,13 +280,13 @@
 }
 .recipe-stat-row {
     display: inline-flex;
-    margin: 0 auto;
+    margin: 2px auto;
     align-items: center;
     gap: 6px;
     font-size: 0.75rem;
-    background: var(--dark-3-color);
-    padding: 2px 6px;
-    border-radius: 6px;
+    background: var(--dark-orange-color);
+    padding: 5px 10px;
+    border-radius: 10px;
     box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.3);
 }
 

@@ -43,19 +43,30 @@ function renderWorkshopCards(stations) {
     const panel = document.getElementById('workshopDetailPanel');
     panel.innerHTML = '';
     stations.forEach(station => {
+        const wrapper = document.createElement('div');
         const card = document.createElement('div');
         card.className = 'workshop-card';
         card.dataset.category = station.category;
         card.innerHTML = `
-      <img src="${basePath}/${station.imagePath}" class="workshop-thumb" alt="${station.name}" />
-      <div class="workshop-name">${station.name}</div>
-    `;
+          <img src="${basePath}/${station.imagePath}" class="workshop-thumb" alt="${station.name}" />
+        `;
+
+        // 클릭 이벤트는 카드에만
         card.addEventListener('click', () => {
             playEffect("se_click2");
             document.getElementById('workshopSelectModal').classList.add('hidden');
             openCraftModal(station.category);
         });
-        panel.appendChild(card);
+
+        // 이름 div
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'workshop-name';
+        nameDiv.textContent = station.name;
+
+        wrapper.appendChild(card);
+        wrapper.appendChild(nameDiv);
+
+        panel.appendChild(wrapper);
     });
 }
 
@@ -107,12 +118,24 @@ function renderRecipeList(recipeList, preselectedRecipe = null) {
 
     recipeList.forEach(recipe => {
         const card = document.createElement('div');
-        card.className = `recipe-card ${getRarityBackgroundClass(recipe.grade)}`;
-        card.innerHTML = `
-            <img src="${basePath}${recipe.resultItemIcon}" class="recipe-icon" />
-            <div class="recipe-name">${recipe.resultItemName}</div>
-        `;
+        // card.className = `recipe-card ${getRarityBackgroundClass(recipe.grade)}`;
+        card.className = `recipe-card`;
+        // ▶ 분리된 이미지 아이콘
+        const icon = document.createElement('img');
+        icon.src = `${basePath}${recipe.resultItemIcon}`;
+        icon.alt = recipe.resultItemName;
+        icon.className = 'recipe-icon';
 
+        // ▶ 분리된 이름 요소
+        const name = document.createElement('div');
+        name.className = 'recipe-name';
+        name.textContent = recipe.resultItemName;
+
+        // ▶ 카드 조립
+        card.appendChild(icon);
+        card.appendChild(name);
+
+        // ▶ 클릭 이벤트
         card.addEventListener('click', () => {
             document.querySelectorAll('.recipe-card').forEach(c => c.classList.remove('active'));
             card.classList.add('active');
@@ -124,7 +147,6 @@ function renderRecipeList(recipeList, preselectedRecipe = null) {
 
         if (!firstCard) firstCard = card;
 
-        // ID 기반으로 방금 제작한 recipe인지 체크
         if (preselectedRecipe && recipe.recipeId === preselectedRecipe.recipeId) {
             selectedCard = card;
             selectedRecipe = recipe;
@@ -285,6 +307,7 @@ function renderRecipeDetail(selectedRecipe) {
     buttonRow.appendChild(craftBtn);
     buttonRow.appendChild(closeBtn);
     container.appendChild(buttonRow);
+
 }
 
 function getRarityBackgroundClass(grade) {

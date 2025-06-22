@@ -194,6 +194,10 @@
     border-radius: 8px;
     padding: 0;
     overflow: hidden;
+    /* 하단 입체감 */
+    box-shadow:
+            0 4px 0 rgba(0, 0, 0, 0.6),     /* 하단 진한 그림자 */
+            0 6px 6px rgba(0, 0, 0, 0.35);  /* 퍼지는 그림자 */
 }
 
 .effect-row {
@@ -266,22 +270,32 @@
     align-items: center;
     position: relative;
     overflow: hidden;
-    padding: 5px;
+    padding: 6px;
     box-sizing: border-box;
+    background: #2d2d2d; /* 좀 더 어두운 톤으로 조화 */
+    transition: all 0.1s ease-in-out;
+    cursor: pointer;
+    border-radius: 12px;
 }
 
-.dex-square-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+.dex-square-card:active {
+    transform: translateY(2px);
+    box-shadow:
+            inset 0 2px 4px rgba(0, 0, 0, 0.6),
+            inset 0 -2px 2px rgba(255, 255, 255, 0.08);
 }
+
+
 
 .card-img {
     width: 100%;
-    height: 100%;
+    aspect-ratio: 1/1; /* 정사각형 유지 */
     object-fit: cover;
-    border-radius: 10px;
-    background: var(--white-color);
+    border-radius: 8px;  /* 카드보다 살짝 작은 radius */
+    background: #1a1a1a; /* 이미지 없는 경우 대비 배경 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3); /* 이미지 자체에 입체감 */
 }
+
 
 .rarity-stars {
     position: absolute;
