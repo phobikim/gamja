@@ -126,9 +126,9 @@ public class BattleService {
         DexAttribute attr = userDexStat.getDex().getAttribute();
         userInfo.put("attribute", attr != null ? attr.getName() : null);
         userInfo.put("attributeIconPath", attr != null ? attr.getIconPath() : null);
-        userInfo.put("power", userBattleDto.getPower());
-        userInfo.put("hp", userBattleDto.getHp());
-        userInfo.put("speed", userBattleDto.getSpeed());
+        userInfo.put("power", userBattleDto.getPower().getTotal());
+        userInfo.put("hp", userBattleDto.getHp().getTotal());
+        userInfo.put("speed", userBattleDto.getSpeed().getTotal());
 
         // 포션 아이템 정보
         ItemDto potionItem = null;

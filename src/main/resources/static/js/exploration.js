@@ -6,9 +6,11 @@ let cardEventPool = [];      // 서버에서 불러온 카드 이벤트
 let gainedItems = [];        // 누적 보상 아이템
 let totalExp = 0;            // 누적 경험치
 const explorationModal = document.getElementById('explorationModal');
+let isExplorationEnded = false;
 
 // 🌟 탐사 시작
 async function openExploration(activityType, rank) {
+    isExplorationEnded = false;
     hp = 3;
     stage = 1;
     totalExp = 0;
@@ -98,6 +100,7 @@ function restoreCardListeners() {
 }
 
 function choosePath(direction) {
+    if (isExplorationEnded) return;
 
     const leftCard = document.getElementById('leftCard');
     const rightCard = document.getElementById('rightCard');
@@ -205,6 +208,7 @@ function choosePath(direction) {
 
     // 1. 체력 0일 때
     if (hp <= 0) {
+        isExplorationEnded = true;
         totalExp = getStageExp(stage);
         logBox.prepend(createLogLine('💀 체력을 모두 잃고 쓰러졌습니다...', '#f55'));
         sendExplorationResult(stage);  // ✅ stage는 현재값
@@ -279,6 +283,17 @@ function showExplorationResultModal(stage, exp, items) {
 
     explorationResultModal.classList.remove('hidden');
     explorationResultModal.classList.add('show');
+
+    // 닫기 버튼이 자꾸 안눌려서 방탄처리
+    setTimeout(() => {
+        const closeBtn = document.getElementById('closeResultBtn');
+        if (closeBtn) {
+            closeBtn.disabled = false;
+            closeBtn.style.pointerEvents = 'auto';
+            closeBtn.style.opacity = 1;
+            closeBtn.onclick = () => closeExploration();
+        }
+    }, 100); // 혹은 200ms 줘도 됨
 }
 
 document.getElementById('closeResultBtn').onclick = () => {
@@ -311,6 +326,9 @@ function createLogLine(text, color) {
 }
 
 function handleManualExplorationEnd() {
+    if (isExplorationEnded) return;
+    isExplorationEnded = true;
+
     totalExp = getStageExp(stage);
     sendExplorationResult(stage);
 }

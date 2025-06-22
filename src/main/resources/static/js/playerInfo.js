@@ -15,11 +15,17 @@ const lifeEquipment = document.getElementById('lifeEquipment');
 function updateStatValue(statId, detail, max = 100) {
     const block = document.getElementById(`stat-${statId}`);
     if (!block) return;
-
-
     const barBg = block.querySelector('.stat-bar-bg');
     const valueSpan = block.querySelector('.stat-bar-value');
-    const total = detail.fromUser + detail.fromBase + detail.fromEquip;
+    const {
+        fromUser = 0,
+        fromBase = 0,
+        fromEquip = 0,
+        fromTier = 0
+    } = detail;
+    const total = fromUser + fromBase + fromEquip + fromTier;
+
+
     valueSpan.textContent = total;
 
     // 색상 순서: base → dex → equip

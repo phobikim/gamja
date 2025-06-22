@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="css/playerEquip.css">
     <link rel="stylesheet" href="css/settingModal.css">
     <link rel="stylesheet" href="css/tier.css">
+    <link rel="stylesheet" href="css/rank.css">
     <!--    <link rel="stylesheet" href="css/playerDexSelect.css">-->
 <!--    <link rel="stylesheet" href="css/dexParty.css">-->
 </head>
@@ -97,7 +98,7 @@
         <img src="https://phobi.me/gamja.img/images/icons/icon_bag.png" alt="인벤토리">
         <span class="itemLabel">가방</span>
     </div>
-    <div class="main-menu-cell" onclick="showMessageModal('Coming Soon')">
+    <div class="main-menu-cell" onclick="handleRankClick()">
         <img src="https://phobi.me/gamja.img/images/icons/icon_rank.png" alt="랭킹">
         <span class="itemLabel">랭킹</span>
     </div>
@@ -267,16 +268,17 @@
                                 <span class="dex-stat-label">HP</span><span id="detailHp" class="stat-value">0</span>
                             </div>
                         </div>
-                        <div class="detail-level-info">
+                        <div id= "detailLevelInfo" class="detail-level-info">
                             <span id="detailLevel" class="level-badge">LV1</span>
                             <div class="xp-bar">
                                 <div id="detailXpFill" class="xp-fill" style="width: 0%"></div>
                             </div>
                             <span id="detailXpText">0/100</span>
                         </div>
+
                         <div id="detailAffinityInfo" class="affinity-info">
                             <span>친밀도:</span>
-                            <span id="detailAffinity">💛 0</span>
+                            <span id="detailAffinity"> 0</span>
                         </div>
                     </div>
                     <div id="notOwnedOverlay" class="not-owned-overlay hidden">
@@ -358,9 +360,13 @@
         <div class="rank-number"></div>
         <img class="rank-avatar" src="" alt="캐릭터 이미지">
         <div class="rank-info">
-            <span class="rank-username">닉네임</span>
+            <div class="rank-username-line">
+                <img class="rank-title-icon" src="" alt="칭호" />
+                <span class="rank-username">닉네임</span>
+            </div>
             <span class="rank-total">000 점</span>
         </div>
+        <img class="rank-tier-icon" src="" alt="티어 아이콘" />
     </div>
 </template>
 
@@ -1005,6 +1011,7 @@
 <script src="js/quest.js"></script>
 <script src="js/settingModal.js"></script>
 <script src="js/tier.js"></script>
+<script src="js/rank.js"></script>
 <!--<script src="js/playerDexSelect.js"></script>-->
 <!--<script src="js/dexParty.js"></script>-->
 

@@ -17,4 +17,7 @@ public class BattleStatDetailDto {
     private int fromBase;
     private int fromEquip;
     private int fromTier;
+    public int getTotal() {
+        return fromUser + fromBase + fromEquip + fromTier;
+    }
 }

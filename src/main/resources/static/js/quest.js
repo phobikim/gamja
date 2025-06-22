@@ -24,6 +24,7 @@ async function getQuestList() {
         const res = await apiRequest(`/api/quest/list`, 'GET');
         if (res.code !== 'SUCCESS' || !res.data) {
             showMessageModal('퀘스트 리스트를 불러오지 못했습니다.');
+            cache: 'no-store'
             return;
         }
         renderQuestTabs(res.data);

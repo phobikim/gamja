@@ -102,9 +102,9 @@ public class DexService {
                         m.put("level", stat != null ? stat.getLevel() : 1);
                         m.put("currentXp", stat != null ? stat.getXp() : 0);
                         m.put("maxXp", stat != null ? stat.getMaxExp() : 100);
-                        m.put("basePower", rarityStat.getBasePower());
-                        m.put("baseHp", rarityStat.getBaseHp());
-                        m.put("baseSpeed", rarityStat.getBaseSpeed());
+                        m.put("basePower", stat != null ? rarityStat.getBasePower() + stat.getPower() : rarityStat.getBasePower());
+                        m.put("baseHp", stat != null ? rarityStat.getBaseHp() + stat.getHp() : rarityStat.getBaseHp());
+                        m.put("baseSpeed", stat != null ? rarityStat.getBaseSpeed() + stat.getSpeed() : rarityStat.getBaseSpeed());
                     }
 
                     return m;

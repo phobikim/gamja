@@ -22,8 +22,9 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -68,7 +69,7 @@ public class QuestService {
     }
 
     private List<QuestDto> getQuestListByType(Long userId, Quest.QuestType type, int limit) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
         List<Quest> allQuests = (type == Quest.QuestType.MAIN)
                 ? questRepository.findByTypeAndEnabledIsTrueOrderByMainOrderAsc(type)
                 : questRepository.findByTypeAndEnabledIsTrue(type);
@@ -90,7 +91,11 @@ public class QuestService {
                     if (!q.isRepeatable()) return false;
 
                     // 오늘보다 이전에 완료한 퀘스트만 다시 표시
-                    return uq.getCompletedAt().toLocalDate().isBefore(today);
+                    LocalDate completedDate = uq.getCompletedAt()
+                            .atZone(ZoneId.of("Asia/Seoul"))
+                            .toLocalDate();
+
+                    return !completedDate.equals(today);
                 })
                 .limit(limit)
                 .toList();

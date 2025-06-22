@@ -90,7 +90,7 @@ function renderDexTabs() {
     });
 
     // 세부 아이템 카테고리 탭 클릭 이벤트
-// renderDexTabs 내부
+    // renderDexTabs 내부
     const itemTypeTabs = document.getElementById("itemTypeTabs");
     [...itemTypeTabs.querySelectorAll("button")].forEach(btn => {
         btn.addEventListener("click", () => {
@@ -332,7 +332,7 @@ function showDexDetail(type, item) {
     const detailImg = document.getElementById("detailImage");
     const notOwnedOverlay = document.getElementById("notOwnedOverlay");
     const detailEffects = document.getElementById("detailEffects");
-    const detailLevelInfo = document.querySelector(".detail-level-info");
+    const detailLevelInfo = document.getElementById("detailLevelInfo");
     const detailAffinityInfo = document.getElementById("detailAffinityInfo");
     const detailStat = document.getElementById("detailStat");
     const detailEquip = document.getElementById("detailEquip");
@@ -381,7 +381,6 @@ function showDexDetail(type, item) {
         document.getElementById("detailAffinity").textContent = `${item.affinity || 0}`;
         detailLevelInfo.style.display = "flex";
         detailAffinityInfo.style.display = "flex";
-
 
         // detailEffects 영역 표시
         detailEffects.style.display = "block";

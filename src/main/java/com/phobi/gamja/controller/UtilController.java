@@ -4,6 +4,7 @@ import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.contents.DailyQuestRepository;
 import com.phobi.gamja.repository.dex.DexRepository;
 import com.phobi.gamja.repository.user.*;
+import com.phobi.gamja.service.RankService;
 import com.phobi.gamja.service.UtilService;
 import com.phobi.gamja.util.CommonUtil;
 import com.phobi.gamja.dto.user.UserInventoryDto;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.*;
 
@@ -20,6 +22,7 @@ import java.util.*;
 public class UtilController {
     private final CommonUtil commonUtil;
     private final UtilService itemService;
+    private final RankService rankService;
     private final UserDtlRepository userDtlRepository;
     private final UserInventoryRepository userInventoryRepository;
     private final UserSkillRepository userSkillRepository;
@@ -54,5 +57,10 @@ public class UtilController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(GamJaResponse.fail("장착 실패: " + e.getMessage()));
         }
+    }
+
+    @GetMapping("/rank")
+    public ResponseEntity<GamJaResponse> rank (HttpServletRequest request) {
+        return ResponseEntity.ok(rankService.getRank(request));
     }
 }

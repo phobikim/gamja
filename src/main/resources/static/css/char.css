@@ -150,10 +150,6 @@ html, body {
     margin-left: 4px;
 }
 
-.level-badge {
-    display: none;
-}
-
 .tier-card {
     background: #8b5a2b; /* 나무판 느낌 */
     border: 4px solid #5c3a1e;

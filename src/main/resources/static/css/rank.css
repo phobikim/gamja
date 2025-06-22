@@ -2,20 +2,19 @@
 
 
 .rank-modal-content {
+    background: #f5e1b2;
+    border: 5px solid #8b5a2b;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 85vw;
-    max-width: 320px;
+    width: 100vw;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px 24px;
     border-radius: 20px;
-    border: 2px solid #e0cfa3;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
-    background: #fff8dc;
     color: #5e340e;
     animation: fadeInScale 0.3s ease-out;
     box-sizing: border-box;
@@ -54,34 +53,6 @@
     box-shadow: 0 0 6px rgba(255, 166, 0, 0.4); /* 살짝 빛나는 느낌 */
 }
 
-/* 1~3위 특별 색상 */
-.rank-item.rank-1 {
-    background-color: #e94d4d;
-    color: white;
-}
-
-.rank-item.rank-2 {
-    background-color: #4d8de9;
-    color: white;
-}
-
-.rank-item.rank-3 {
-    background-color: #30ad49;
-    color: white;
-}
-
-/* 그 외 (4위~) */
-.rank-item.default-rank {
-    background-color: #edb74c; /* 베이지 */
-    color: #333;
-}
-
-
-
-.rank-title, .rank-subtitle, .rank-username, .rank-total {
-    color: #5e340e;
-}
-
 
 .rank-list {
     display: flex;
@@ -90,48 +61,137 @@
 }
 
 .rank-item {
+    background: #5e340e;
+    border: 2px solid #3b240c;
     display: flex;
     align-items: center;
-    padding: 7px 18px;
+    justify-content: space-between;
+    padding: 8px;
+    gap: 8px;
     border-radius: 12px;
-    background-color: #f9f3e4; /* 기본 배경 */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    border: none;
-}
-
-.rank-medal {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
-    margin-right: 6px;
+    box-shadow:
+            inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+            inset 0 1px 2px rgba(255, 255, 255, 0.4),
+            2px 3px 6px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+    min-height: 60px;
 }
 
 .rank-number {
+    width: 20%;
+    text-align: center;
     font-weight: bold;
+    font-size: 14px;
+    padding: 6px 0;
+    border-radius: 8px;
+    background: #a86c3a;
+    color: #fff8dc;
+
+    /* 중심 정렬을 위한 추가 */
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px; /* 이미지 크기에 맞춰 키워줌 */
-    height: 48px;
-    margin-right: 10px;
+    position: relative;
+
+    box-shadow:
+            inset 0 2px 3px rgba(255, 255, 255, 0.3),
+            inset 0 -2px 3px rgba(0, 0, 0, 0.3),
+            2px 3px 6px rgba(0, 0, 0, 0.3);
+    border: 2px solid #3a2412;
+    text-shadow: 1px 1px 0 #000;
+    box-sizing: border-box;
+}
+
+.rank-medal {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #fff7e0 0%, #f3c96b 60%, #e0a040 100%);
+    padding: 4px;
+    box-shadow:
+            inset 0 1px 2px rgba(255, 255, 255, 0.6),
+            inset 0 -1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .rank-avatar {
-    width: 45px;
-    height: 45px;
-    margin-right: 10px;
+    width: 20%;
+    max-width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: #c98c4c;
+    padding: 2px;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    flex-shrink: 0;
 }
 
 .rank-info {
+    width: 40%;
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: 4px 6px;
+    background: #f2d7a0;
+    border-radius: 6px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+    overflow: hidden;
 }
 
+.rank-username-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.rank-tier-icon {
+    width: 20%;
+    max-width: 48px;
+    height: 48px;
+    object-fit: contain;
+    background: #a86c3a;
+    border-radius: 6px;
+    padding: 2px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+    flex-shrink: 0;
+}
+
+/* 닉네임 줄 */
+.rank-username-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* 칭호 아이콘 */
+.rank-title-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
+}
+
+/* 닉네임 */
 .rank-username {
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: bold;
+    color: #3b240c;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
+/* 점수 */
 .rank-total {
-    font-size: 0.9em;
-    color: #fff0f0;
+    font-weight: bold;
+    font-size: 12px;
+    color: #5e340e;
 }

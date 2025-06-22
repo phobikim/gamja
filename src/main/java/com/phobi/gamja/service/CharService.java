@@ -339,9 +339,9 @@ public class CharService {
                             .level(1)
                             .xp(0)
                             .maxExp(100)
-                            .power(1)
-                            .hp(1)
-                            .speed(1)
+                            .power(0)
+                            .hp(0)
+                            .speed(0)
                             .affinity(0)
                             .build());
 
@@ -359,9 +359,9 @@ public class CharService {
                     .level(1)
                     .xp(0)
                     .maxExp(100)
-                    .power(1)
-                    .hp(1)
-                    .speed(1)
+                    .power(0)
+                    .hp(0)
+                    .speed(0)
                     .affinity(0)
                     .build();
             userDexStatRepository.save(newStat);

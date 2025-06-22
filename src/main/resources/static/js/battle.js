@@ -210,13 +210,14 @@ function updateHpBar(current, max, barId, textId) {
 }
 
 function resetBattleState(user, monster) {
+    console.log(user)
     battleState.player = {
         dexName: user.dexName,
         attribute: user.attribute,
-        maxHp: user.hp?.total || 10,
-        currentHp: user.hp?.total || 10,
-        power: user.power?.total || 5,
-        speed: user.speed?.total || 5,
+        maxHp: user.hp || 10,
+        currentHp: user.hp || 10,
+        power: user.power || 5,
+        speed: user.speed || 5,
         currentXp: user.xp,
         lv: user.lv,
         charImg: user.charImage,
