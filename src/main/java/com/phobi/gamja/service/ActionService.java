@@ -8,6 +8,7 @@ import com.phobi.gamja.dto.user.LifeStatDto;
 import com.phobi.gamja.dto.user.UserCharInfoDto;
 import com.phobi.gamja.dto.user.UserDexXpDto;
 import com.phobi.gamja.dto.user.UserSkillDto;
+import com.phobi.gamja.entity.battle.Monster;
 import com.phobi.gamja.entity.contents.*;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.title.Title;
@@ -16,6 +17,7 @@ import com.phobi.gamja.entity.title.UserTitle;
 import com.phobi.gamja.entity.title.UserTitleId;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
+import com.phobi.gamja.repository.battle.MonsterRepository;
 import com.phobi.gamja.repository.contents.*;
 import com.phobi.gamja.repository.item.ItemRepository;
 import com.phobi.gamja.repository.title.TitleEffectRepository;
@@ -27,6 +29,8 @@ import com.phobi.gamja.util.StatCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 import java.util.*;
@@ -44,11 +48,14 @@ public class ActionService {
     private final UserDexStatRepository userDexStatRepository;
     private final ActionCardEventRepository actionCardEventRepository;
     private final ActionCardEventDropRepository actionCardEventDropRepository;
+    private final MonsterRepository monsterRepository;
+
     // 타이틀 관련
     private final TitleRepository titleRepository;
     private final TitleEffectRepository titleEffectRepository;
     private final UserTitleRepository userTitleRepository;
     private final UserCounterDetailRepository userCounterDetailRepository;
+
 
     private final LogService logService;
     private final CorpsTierService corpsTierService;
@@ -114,7 +121,7 @@ public class ActionService {
                 .orElseThrow(() -> new IllegalArgumentException("착용 중인 캐릭터가 없습니다."));
 
         UserDexXpDto stat = updateCharacterExp(userId, dexId, (int) request.get("exp"));
-        processItemRewards(userId, request);
+        processItemRewards(userId, request, true);
         userDtl.setCharacterImage(commonUtil.resolveCharacterImage(userDtl));
 
         logService.recordCounter(userId, CounterType.MONSTER_KILL, monsterId);
@@ -129,7 +136,7 @@ public class ActionService {
         int maxCombo = ((Number) request.getOrDefault("maxCombo", 0)).intValue();
 
         UserSkill userSkill = updateUserSkill(userId, skillType, exp, maxCombo);
-        processItemRewards(userId, request);
+        processItemRewards(userId, request, false);
 
         UserSkillDto result = new UserSkillDto(skillType, userSkill.getLevel(), userSkill.getExp(), getRequiredExp(userSkill.getLevel()), userSkill.getMaxCombo());
         // ✅ 활동 로그 및 카운팅 처리
@@ -292,11 +299,31 @@ public class ActionService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
     }
 
-    private void processItemRewards(Long userId, Map<String, Object> request) {
+    private void processItemRewards(Long userId, Map<String, Object> request, boolean validateDrops) {
         List<Map<String, Object>> items = (List<Map<String, Object>>) request.get("items");
+
+        Set<Long> allowedItemIds = new HashSet<>();
+        if (validateDrops) {
+            Long monsterId = ((Number) request.get("monsterId")).longValue();
+            Monster monster = monsterRepository.findById(monsterId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 몬스터입니다."));
+
+            allowedItemIds = Stream.of(
+                    monster.getDropItem1Id(),
+                    monster.getDropItem2Id(),
+                    monster.getDropItem3Id(),
+                    monster.getDropItem4Id(),
+                    monster.getDropItem5Id()
+            ).filter(Objects::nonNull).collect(Collectors.toSet());
+        }
+
         for (Map<String, Object> itemMap : items) {
             Long itemId = ((Number) itemMap.get("itemId")).longValue();
             int count = ((Number) itemMap.get("count")).intValue();
+
+            if (validateDrops && !allowedItemIds.contains(itemId)) {
+                throw new IllegalArgumentException("허가 없는 접근 시...너도 튀겨질 수 있어.");
+            }
 
             UserInventory inv = userInventoryRepository.findByUserIdAndItemId(userId, itemId)
                     .orElseGet(() -> new UserInventory(userId, itemId, 0));

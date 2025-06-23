@@ -37,10 +37,10 @@ public class DexRarityStat {
 
         private static final List<RarityRate> rateTable = List.of(
                 new RarityRate(COMMON, 63.4),
-                new RarityRate(UNCOMMON, 25.0),
+                new RarityRate(UNCOMMON, 25.5),
                 new RarityRate(RARE, 10.0),
                 new RarityRate(EPIC, 1.5),
-                new RarityRate(LEGENDARY, 0.1)
+                new RarityRate(LEGENDARY, 0.05)
         );
 
         public static Rarity roll() {

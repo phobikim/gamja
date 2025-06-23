@@ -15,11 +15,6 @@ let tempPowerBoost = 0;
 let currentDexImage = null;
 
 const defaultSkillEffectImage = `${basePath_image}/skills/attack_slash.png`;
-// const skillEffectImage = `${basePath_image}/skills/potato_peel.png`;
-// const skillEffectImage = `${basePath_image}/skills/potato_fire.png`;
-// const skillEffectImage = `${basePath_image}/skills/potato_electric.png`;
-// const skillEffectImage = `${basePath_image}/skills/potato_wave.png`;
-// const skillEffectImage = `${basePath_image}/skills/potato_whip.png`;
 
 window.battleState = {
     player: {},
@@ -157,14 +152,39 @@ function updateHpBar(current, max, barId, textId) {
 
 }
 
+function getPlayerPower() {
+    const base = battleState.player.basePower;
+    const buff = tempPowerBoost;
+    const rawPower = base + buff;
+
+    const isCritical = Math.random() < 0.3; //30% 확률
+    if (isCritical) {
+        showCriticalText(); // 크리 표시용 텍스트 (아래 따로 정의)
+        return Math.floor(rawPower * 1.5);
+    }
+
+    return rawPower;
+}
+
+function showCriticalText() {
+    const container = document.querySelector('.monster-container');
+    if (!container) return;
+
+    const crit = document.createElement('div');
+    crit.className = 'critical-hit-text';
+    crit.textContent = 'CRITICAL!';
+    container.appendChild(crit);
+
+    setTimeout(() => { crit.remove(); }, 1000);
+}
+
 function resetBattleState(user, monster) {
-    console.log(user)
     battleState.player = {
         dexName: user.dexName,
         attribute: user.attribute,
         maxHp: user.hp || 10,
         currentHp: user.hp || 10,
-        power: user.power || 5,
+        basePower: user.power || 5,
         speed: user.speed || 5,
         currentXp: user.xp,
         lv: user.lv,
@@ -192,11 +212,12 @@ function resetBattleState(user, monster) {
 }
 
 function startBattle(user, monster) {
+    battleEnded = false;
+    isProcessingTurn = false;
+    isPlayerTurn = true;
     tempPowerBoost = 0;
     updateBattleUI();
-    battleEnded = false;
-    isPlayerTurn = true;
-    isProcessingTurn = false;
+
     resetBattleState(user, monster);
     updateBattleUI();
     updateButtonStates();
@@ -235,13 +256,13 @@ function updateBattleUI() {
     updateHpBar(p.currentHp, p.maxHp, "playerHpBar", "playerHpText");
     updateHpBar(m.currentHp, m.maxHp, "monsterHpBar", "monsterHpText");
 
-    const atkBase = p.power - tempPowerBoost;
+    const atkBase = p.basePower;
     const atkDisplay = document.getElementById('attackPowerDisplay');
     if (atkDisplay) {
         if (tempPowerBoost > 0) {
             atkDisplay.textContent = `ATK: ${atkBase} +${tempPowerBoost}`;
         } else {
-            atkDisplay.textContent = `ATK: ${p.power}`;
+            atkDisplay.textContent = `ATK: ${atkBase}`;
         }
     }
 }
@@ -262,7 +283,7 @@ function doAttack() {
     isProcessingTurn = true;
     updateButtonStates();
 
-    const damage = battleState.player.power;
+    const damage = getPlayerPower();
     battleState.monster.currentHp -= damage;
     applyHitEffect('.monster-character');
     showSkillEffect();
@@ -288,13 +309,16 @@ function monsterTurn() {
 
     // ✅ 물약 효과 원상복구
     if (tempPowerBoost > 0) {
-        battleState.player.power -= tempPowerBoost;
         tempPowerBoost = 0;
+        battleState.player.power = getPlayerPower();
     }
 
     isProcessingTurn = true;
 
-    const damage = Math.floor(Math.random() * battleState.monster.power) + 1;
+    // 최소 데미지를 **몬스터 공격력의 20% 로 설정
+    const minRatio = 0.2;
+    const ratio = minRatio + Math.random() * (1 - minRatio);
+    const damage = Math.max(1, Math.floor(battleState.monster.power * ratio));
     battleState.player.currentHp -= damage;
     applyHitEffect('.player-character');
     showDamageText('.player-container', damage);
@@ -393,81 +417,75 @@ function updateCharacterReward(user, expReward, items) {
 
 function generateLootItems() {
     const dropList = battleState.monster.drops || [];
-
-    const commonList = dropList.filter(item => item.rarity?.toUpperCase() === 'COMMON');
-    const bonusList = dropList.filter(item => item.rarity?.toUpperCase() !== 'COMMON');
-
     const loot = [];
 
-    // 1. COMMON 확정 1개
-    if (commonList.length > 0) {
-        // 1-1. 리스트가 1개면 그대로, 2개 이상이면 랜덤 2종 선택
-        const guaranteedCommons = commonList.length === 1
-            ? [commonList[0]]
-            : [...commonList]
-                .sort(() => Math.random() - 0.5)
-                .slice(0, 2);
+    const rarityGroups = {
+        COMMON: [],
+        UNCOMMON: [],
+        RARE: [],
+        EPIC: [],
+        LEGENDARY: []
+    };
 
-        guaranteedCommons.forEach(item => {
-            loot.push({
-                ...item,
-                count: Math.floor(Math.random() * 2) + 2 // 2~3개
-            });
-        });
-    }
-
-    // 2. 희귀템 드랍 시도 → dropRate 통과한 후보들 필터링
-    const bonusCandidates = bonusList.filter(item => {
-        const chance = item.dropRate ?? 0;
-        return Math.random() * 100 < chance;
+    // 드랍 테이블 분리
+    dropList.forEach(item => {
+        const rarity = item.rarity?.toUpperCase();
+        if (rarityGroups[rarity]) {
+            rarityGroups[rarity].push(item);
+        }
     });
 
-    // 3. 가중치 기반으로 후보 중 1개 선택
-    if (bonusCandidates.length > 0) {
-        const picked = pickWeightedByRarity(bonusCandidates);
-        const rarity = picked.rarity?.toUpperCase();
-        const isEquip = picked.itemType?.startsWith('EQUIP');
-
-        let count = 1;
-        if (!isEquip) {
-            if (rarity === 'UNCOMMON') {
-                count = Math.floor(Math.random() * 2) + 1; // 1~2개
+    // 1. COMMON 확정 드랍 (1~2개)
+    if (rarityGroups.COMMON.length > 0) {
+        const commons = [...rarityGroups.COMMON].sort(() => Math.random() - 0.5);
+        const dropCount = Math.min(2, commons.length);
+        for (let i = 0; i < dropCount; i++) {
+            const rand = Math.random();
+            let count = 3;
+            if (rand < 0.4) {
+                count = 3; // 40%
+            } else if (rand < 0.8) {
+                count = 5; // 40%
+            } else {
+                count = 7; // 20%
             }
-        }
 
-        loot.push({ ...picked, count });
+            loot.push({
+                ...commons[i],
+                count
+            });
+        }
+    }
+
+    // 2~5. 나머지 rarity는 각 확률로 개별 드랍 시도
+    const rarityChances = {
+        UNCOMMON: 50,
+        RARE: 20,
+        EPIC: 1,
+        LEGENDARY: 0.1
+    };
+
+    for (const [rarity, chance] of Object.entries(rarityChances)) {
+        const candidates = rarityGroups[rarity];
+        if (candidates?.length > 0 && Math.random() * 100 < chance) {
+            const picked = candidates[Math.floor(Math.random() * candidates.length)];
+
+            // 드랍 수량 계산
+            let count = 1; // 기본값
+
+            const isEquip = picked.itemType?.startsWith('EQUIP'); // 장비 여부 확인
+            if (!isEquip && rarity === 'UNCOMMON') {
+                count = Math.floor(Math.random() * 2) + 2; // 2~3개
+            }
+
+            loot.push({
+                ...picked,
+                count
+            });
+        }
     }
 
     return loot;
-}
-
-
-function pickWeightedByRarity(items) {
-    const rarityWeights = {
-        COMMON: 60.0,
-        UNCOMMON: 25.0,
-        RARE: 10.0,
-        EPIC: 4.0,
-        LEGENDARY: 1.0
-    };
-
-    const weightedItems = items.map(item => {
-        const rarity = item.rarity?.toUpperCase() || 'COMMON';
-        const weight = rarityWeights[rarity] || 1;
-        return { item, weight };
-    });
-
-    const total = weightedItems.reduce((sum, wi) => sum + wi.weight, 0);
-    let random = Math.random() * total;
-
-    for (const wi of weightedItems) {
-        random -= wi.weight;
-        if (random <= 0) {
-            return wi.item;
-        }
-    }
-
-    return weightedItems[0].item; // fallback
 }
 
 function updateLootItemsDisplay(items) {
@@ -491,7 +509,7 @@ function updateLootItemsDisplay(items) {
         setTimeout(() => {
             itemCard.style.opacity = '1';
             itemCard.style.transform = 'translateY(0)';
-        }, 500 + (index * 200));
+        }, 300 + (index * 80)); // 약 0.08초 간격
     });
 }
 
@@ -603,8 +621,12 @@ function updateExpBar(expBarContainer, currentExp, maxExp) {
 
 function nextBattle() {
     // 보상 모달만 닫기
-    lootModal.classList.add('hidden');
-    defeatModal.classList.add('hidden')
+    resetModalStyles(lootModal);
+    resetModalStyles(defeatModal);
+
+    battleEnded = false;
+    isProcessingTurn = false;
+    isPlayerTurn = true;
 
     // 같은 맵에서 새로운 전투 시작
     if (window.selectedMap) {
@@ -615,6 +637,14 @@ function nextBattle() {
         document.body.style.overflow = '';
         handleAttackClick();
     }
+}
+
+function resetModalStyles(modalEl) {
+    modalEl.classList.add('hidden');
+    modalEl.style.display = '';
+    modalEl.style.pointerEvents = '';
+    modalEl.style.opacity = '';
+    modalEl.style.zIndex = '';
 }
 
 async function doDefend() {
@@ -659,7 +689,6 @@ async function doDefend() {
         // ✅ 공격력 버프
         if (bonusPower > 0) {
             tempPowerBoost = bonusPower;
-            player.power += bonusPower;
         }
 
         updateBattleUI();
@@ -717,21 +746,5 @@ function disableBattleButtons(disabled) {
     if (defendBtn) {
         const quantity = battleState.player.potion?.quantity ?? 0;
         defendBtn.disabled = disabled || quantity <= 0 || potionUsed;
-    }
-}
-
-function useFood(foodItem) {
-    const powerBuff = foodItem.bonusPower || 0;
-
-    if (powerBuff > 0) {
-        // 기존 버프가 있다면 제거 (한 번에 하나만 허용)
-        if (tempPowerBoost > 0) {
-            battleState.player.power -= tempPowerBoost;
-        }
-
-        tempPowerBoost = powerBuff;
-        battleState.player.power += powerBuff;
-
-        updateBattleUI();
     }
 }

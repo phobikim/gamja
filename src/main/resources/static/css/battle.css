@@ -472,3 +472,16 @@
     font-size: 0.75rem;
     color: #fff8dc;
 }
+
+.critical-hit-text {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: var(--green-hignlight);
+    text-shadow: 0 0 4px #fff, 0 0 10px #ff3838;
+    pointer-events: none;
+}
+

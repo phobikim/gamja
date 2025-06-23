@@ -298,7 +298,6 @@ public class CharService {
         Long userId = (Long) request.getAttribute("userId");
         // 1. 인벤토리에서 미감정 감자 확인
         final Long UNAPPRAISED_POTATO_ID = 53L;
-        final Long POTATO_FRAGMENT_ID = 68L;
 
         // 1. 미감정 감자 보유 확인 및 수량 차감
         UserInventory unappraised = userInventoryRepository.findByUserIdAndItemId(userId, UNAPPRAISED_POTATO_ID)
@@ -391,19 +390,14 @@ public class CharService {
         Long userId = (Long) request.getAttribute("userId");
         // 1. 인벤토리에서 미감정 감자 확인
         final Long UNAPPRAISED_POTATO_ID = 53L;
-        final Long POTATO_FRAGMENT_ID = 68L;
 
         // 1. 미감정 감자 및 미감정 감자 조각 보유 개수 확인
         UserInventory unappraisedCount = userInventoryRepository.findByUserIdAndItemId(userId, UNAPPRAISED_POTATO_ID)
                 .orElse(null);
-        UserInventory potatoFragmentCount = userInventoryRepository.findByUserIdAndItemId(userId, POTATO_FRAGMENT_ID)
-                .orElse(null);
-
 
         // 7. 응답 데이터 구성
         Map<String, Object> result = new HashMap<>();
         result.put("unappraisedCount", unappraisedCount != null ? unappraisedCount.getQuantity() : 0);
-        result.put("potatoFragmentCount", potatoFragmentCount != null ? potatoFragmentCount.getQuantity() : 0);
 
         return GamJaResponse.success("미감정 감자 조회 성공", result);
     }
