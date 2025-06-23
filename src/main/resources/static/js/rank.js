@@ -30,26 +30,33 @@ async function getRankData() {
 
             const charImagePath = `${basePath_image}`+ /character/;
             const iconImagePath = `${basePath_image}` + /icons/;
+
+            const titleGroupEl = clone.querySelector('.rank-title-group');
             const tierIconEl = clone.querySelector('.rank-tier-icon');
-
             const titleIconEl = clone.querySelector('.rank-title-icon');
-
-            if (entry.titleIconPath) {
-                titleIconEl.src = `${basePath}${entry.titleIconPath}`;
-                titleIconEl.classList.add('title-icon');
-            } else {
-                titleIconEl.remove();
-            }
-
             const titleNameEl = clone.querySelector('.rank-title-name');
-            if (titleNameEl) {
+
+
+            if (entry.titleIconPath || entry.titleName) {
+                if (entry.titleIconPath) {
+                    titleIconEl.src = `${basePath}${entry.titleIconPath}`;
+                    titleIconEl.classList.add('title-icon');
+                } else {
+                    titleIconEl.remove();
+                }
+
                 if (entry.titleName) {
-                    titleNameEl.textContent = `[${entry.titleName}]`;  // ✅ 대괄호 추가
-                    titleNameEl.classList.add('rank-rank-title-name');
+                    titleNameEl.textContent = `[${entry.titleName}]`;
                 } else {
                     titleNameEl.remove();
                 }
+            } else {
+                // ✅ 칭호가 아예 없을 경우
+                if (titleGroupEl) {
+                    titleGroupEl.style.display = 'none';
+                }
             }
+
 
             tierIconEl.src = `${basePath}` + entry.corpsTierIconPath;
             tierIconEl.classList.add('tier-icon');
@@ -78,10 +85,41 @@ async function getRankData() {
                     const myFixedClone = template.content.cloneNode(true);
                     const myFixedItem = myFixedClone.querySelector('.rank-item');
                     myFixedItem.classList.add('my-rank');
+
                     myFixedClone.querySelector('.rank-number').textContent = `${index + 1} 위`;
                     myFixedClone.querySelector('.rank-avatar').src = charImagePath + `${entry.characterImage}`;
                     myFixedClone.querySelector('.rank-username').textContent = entry.username;
                     myFixedClone.querySelector('.rank-total').textContent = `${entry.total} 점`;
+
+                    const myTitleGroup = myFixedClone.querySelector('.rank-title-group');
+                    const myTitleIcon = myFixedClone.querySelector('.rank-title-icon');
+                    const myTitleName = myFixedClone.querySelector('.rank-title-name');
+
+                    if (entry.titleIconPath || entry.titleName) {
+                        if (entry.titleIconPath && myTitleIcon) {
+                            myTitleIcon.src = `${basePath}${entry.titleIconPath}`;
+                        } else if (myTitleIcon) {
+                            myTitleIcon.remove();
+                        }
+
+                        if (entry.titleName && myTitleName) {
+                            myTitleName.textContent = `[${entry.titleName}]`;
+                        } else if (myTitleName) {
+                            myTitleName.remove();
+                        }
+                    } else {
+                        // ✅ 칭호가 없으면 간판 숨기기
+                        if (myTitleGroup) {
+                            myTitleGroup.style.display = 'none';
+                        }
+                    }
+
+                    // ✅ 티어 아이콘
+                    const myTierIcon = myFixedClone.querySelector('.rank-tier-icon');
+                    if (entry.corpsTierIconPath && myTierIcon) {
+                        myTierIcon.src = `${basePath}${entry.corpsTierIconPath}`;
+                    }
+
                     myContainer.innerHTML = '';
                     myContainer.appendChild(myFixedClone);
                     myContainer.classList.remove('hidden');
