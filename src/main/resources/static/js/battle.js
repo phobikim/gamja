@@ -461,8 +461,8 @@ function generateLootItems() {
     const rarityChances = {
         UNCOMMON: 50,
         RARE: 20,
-        EPIC: 1,
-        LEGENDARY: 0.1
+        EPIC: 0.1,
+        LEGENDARY: 0.01
     };
 
     for (const [rarity, chance] of Object.entries(rarityChances)) {

@@ -7,6 +7,7 @@ import com.phobi.gamja.entity.quest.*;
 import com.phobi.gamja.entity.title.*;
 import com.phobi.gamja.entity.user.CounterType;
 import com.phobi.gamja.entity.user.UserCounterDetail;
+import com.phobi.gamja.entity.user.UserDailyQuestLog;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.dex.DexRepository;
 import com.phobi.gamja.repository.battle.MonsterRepository;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,11 +36,13 @@ public class QuestService {
     private final ActionService actionService;
     private final LogService logService;
     private final CorpsTierService corpsTierService;
+    private final UserLogService userLogService;
     private final QuestRepository questRepository;
     private final QuestConditionRepository questConditionRepository;
     private final QuestRewardRepository questRewardRepository;
     private final UserCounterDetailRepository userCounterDetailRepository;
     private final UserQuestRepository userQuestRepository;
+    private final UserDailyQuestLogRepository userDailyQuestLogRepository;
 
     private final MonsterRepository monsterRepository;
     private final ItemRepository itemRepository;
@@ -80,25 +84,56 @@ public class QuestService {
                         uq -> uq
                 ));
 
+        // 일일퀘스트 완료 기록 조회 (REQUEST일 때만 사용)
+        Set<Long> dailyCompletedQuestIds = (type == Quest.QuestType.REQUEST)
+                ? userDailyQuestLogRepository.findByUserIdAndLogDate(userId, today).stream()
+                .map(UserDailyQuestLog::getQuestId)
+                .collect(Collectors.toSet())
+                : Set.of();
+
         List<Quest> filtered = allQuests.stream()
                 .filter(q -> {
                     UserQuest uq = userQuestMap.get(q.getId());
 
-                    // 완료한 적 없으면 표시
+                    // ✅ 일일퀘스트는 별도 로그 기반으로 처리 (위에서 dailyCompletedQuestIds 로 체크했음)
+                    if (q.getType() == Quest.QuestType.REQUEST) {
+                        return !dailyCompletedQuestIds.contains(q.getId());
+                    }
+
+
+                    // 수행한 적 없으면 표시
                     if (uq == null || uq.getCompletedAt() == null) return true;
 
-                    // 반복 불가면 제외
-                    if (!q.isRepeatable()) return false;
+                    if (q.getType() == Quest.QuestType.MAIN) {
+                        return uq == null || uq.getCompletedAt() == null;
+                    }
 
-                    // 오늘보다 이전에 완료한 퀘스트만 다시 표시
-                    LocalDate completedDate = uq.getCompletedAt()
-                            .atZone(ZoneId.of("Asia/Seoul"))
-                            .toLocalDate();
-
-                    return !completedDate.equals(today);
+                    // ✅ 반복 가능한 일반 퀘스트는 항상 표시
+                    return true;
                 })
-                .limit(limit)
                 .toList();
+
+
+        // ✅ REQUEST 퀘스트는 grade별로 5개씩 제한
+        if (type == Quest.QuestType.REQUEST) {
+            Map<Quest.QuestDifficulty, List<Quest>> grouped = filtered.stream()
+                    .collect(Collectors.groupingBy(Quest::getGrade));
+
+            List<Quest> sortedByGrade = new ArrayList<>();
+            for (Quest.QuestDifficulty grade : List.of(
+                    Quest.QuestDifficulty.EASY,
+                    Quest.QuestDifficulty.NORMAL,
+                    Quest.QuestDifficulty.HARD
+            )) {
+                List<Quest> group = grouped.getOrDefault(grade, List.of());
+                sortedByGrade.addAll(group.stream().limit(limit).toList());
+            }
+
+            filtered = sortedByGrade;
+        } else {
+            filtered = filtered.stream().limit(limit).toList(); // MAIN은 5개까지
+        }
+
         List<Long> questIds = filtered.stream().map(Quest::getId).toList();
         // 조건 맵: questId → List<QuestCondition>
         Map<Long, List<QuestCondition>> conditionMap =
@@ -207,12 +242,13 @@ public class QuestService {
                     .rewards(rewardDtos)
                     .achieved(achieved)
                     .build();
-        }).limit(limit).toList();
+        }).toList();
     }
 
 
     @Transactional
     public ResponseEntity<GamJaResponse> completeQuest(HttpServletRequest request, Map<String, Object> payload) {
+        LocalDateTime koreaNow = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
         Long userId = (Long) request.getAttribute("userId");
         Long questId = ((Number) payload.get("questId")).longValue();
         // 0. 퀘스트 및 조건 조회
@@ -262,12 +298,19 @@ public class QuestService {
         }
 
         userQuest.setCompleted(true);
-        userQuest.setCompletedAt(LocalDateTime.now());
-        userQuest.setUpdatedAt(LocalDateTime.now());
+        userQuest.setCompletedAt(koreaNow);
+        userQuest.setUpdatedAt(koreaNow);
 
         userQuestRepository.save(userQuest);
+        // ✅ QUEST_COMPLETE 카운터 (누적)
         logService.recordCounter(userId, CounterType.QUEST_COMPLETE, 0L);
-        corpsTierService.updateCorpsXp(userId, 10);
+
+        // ✅ REQUEST 퀘스트일 경우, 일일 완료 로그 저장
+        if (quest.getType() == Quest.QuestType.REQUEST) {
+            userLogService.recordDailyQuest(userId, questId);
+        }
+
+        corpsTierService.updateCorpsXp(userId, 5);
         return ResponseEntity.ok(GamJaResponse.success("보상 처리 완료", null));
     }
 }

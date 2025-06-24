@@ -208,3 +208,47 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(220, 20, 60, 0.4);
 }
+
+.quest-tab-header {
+    display: flex;
+    justify-content: center; /* 가운데 정렬 */
+    gap: 6px;
+    margin-top: 15px;
+    margin-bottom: 6px;
+}
+
+.quest-tab-btn {
+    padding: 10px 14px; /* 좌우 여백만 유지 */
+    font-weight: bold;
+    background: var(--dark-2-color);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: white;
+    border: none;
+    transition: all 0.2s ease;
+    white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+.quest-difficulty-filter {
+    display: flex;
+    justify-content: center; /* 가운데 정렬 */
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.difficulty-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: var(--dark-2-color);
+    color: white;
+    border: none;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+.difficulty-btn.active {
+    background: var(--orange-color);
+}

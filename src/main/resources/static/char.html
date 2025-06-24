@@ -386,6 +386,11 @@
 <!--            <button class="quest-tab-btn" data-type="HUNT">토벌</button>-->
             <button class="quest-tab-btn" data-type="REQUEST">납품</button>
         </div>
+        <div class="quest-difficulty-filter hidden" id="difficultyFilter">
+            <button class="difficulty-btn active" data-diff="EASY">쉬움</button>
+            <button class="difficulty-btn" data-diff="NORMAL">중간</button>
+            <button class="difficulty-btn" data-diff="HARD">어려움</button>
+        </div>
 
         <!-- 리스트 + 세부 영역 -->
         <div class="quest-content-section">
@@ -450,22 +455,18 @@
 <!-- 공방 선택 모달 -->
 <div id="workshopSelectModal" class="modal hidden">
     <div class="workshop-map-select-modal-content">
-        <div class="workshop-map-content-wrapper">
+        <!-- 🔹 상단 제목 -->
+        <div class="workshop-select-header">
+            <span class="map-name">공방 선택</span>
+        </div>
 
-            <!-- 🔹 상단 제목 -->
-            <div class="workshop-select-header">
-                <span class="map-name">공방 선택</span>
-            </div>
+        <!-- 🔸 중앙 공방 아이콘 리스트 -->
+        <div id="workshopDetailPanel" class="station-detail-box">
 
-            <!-- 🔸 중앙 공방 아이콘 리스트 -->
-            <div id="workshopDetailPanel" class="station-detail-box">
+        </div>
 
-            </div>
-
-            <div class="workshop-button-box">
-                <button id="closeWorkshopSelect" class="start-battle-button">닫기</button>
-            </div>
-
+        <div class="workshop-button-box">
+            <button id="closeWorkshopSelect" class="start-battle-button">닫기</button>
         </div>
     </div>
 </div>

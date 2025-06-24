@@ -4,6 +4,7 @@ const questModal = document.getElementById('questModal');
 const questTabBtns = document.querySelectorAll('.quest-tab-btn');
 const questListContainer = document.getElementById('questList');
 let currentQuestType = 'MAIN';
+let currentDifficulty = 'EASY';
 function handleQuestClick() {
     playEffect("se_click2");
     questModal.classList.remove('hidden');
@@ -51,11 +52,19 @@ function renderQuestTabs(questList) {
 
 function renderQuestList(list, type) {
     questListContainer.innerHTML = '';
-    const filtered = list.filter(q => q.type === type);
+
+    let filtered = list.filter(q => q.type === type);
+
+    // ⬇️ REQUEST 타입일 때만 난이도 필터 추가
+    if (type === 'REQUEST') {
+        filtered = filtered.filter(q => q.difficulty === currentDifficulty);
+    }
+
     if (filtered.length === 0) {
         questListContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #ccc;">해당 타입의 퀘스트가 없습니다.</div>';
         return;
     }
+
     filtered.forEach(quest => {
         const wrapper = document.createElement('div');
         wrapper.className = 'quest-entry';
@@ -177,4 +186,53 @@ function getRewardText(reward) {
         case 'COIN': return `코인 +${reward.amount}`;
         default: return `보상 +${reward.amount}`;
     }
+}
+// 난이도 버튼 클릭 핸들러 세팅
+function setupDifficultyFilter() {
+    const difficultyWrapper = document.getElementById('difficultyFilter');
+    const diffBtns = difficultyWrapper.querySelectorAll('.difficulty-btn');
+
+    diffBtns.forEach(btn => {
+        btn.onclick = async () => {
+            diffBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentDifficulty = btn.dataset.diff;
+
+            // 🔥 최신 퀘스트 리스트 새로 불러오기
+            try {
+                const res = await apiRequest(`/api/quest/list`, 'GET');
+                if (res.code === 'SUCCESS' && res.data) {
+                    renderQuestList(res.data, 'REQUEST');
+                }
+            } catch (e) {
+                console.error(e);
+                showMessageModal("퀘스트 목록을 갱신하지 못했습니다.");
+            }
+        };
+    });
+}
+
+// 퀘스트 탭 클릭 핸들러
+function renderQuestTabs(questList) {
+    questTabBtns.forEach(btn => {
+        btn.removeEventListener('click', btn.clickHandler);
+        btn.clickHandler = () => {
+            questTabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentQuestType = btn.dataset.type;
+
+            // REQUEST 탭이면 난이도 필터 보이기
+            const diffFilter = document.getElementById('difficultyFilter');
+            if (currentQuestType === 'REQUEST') {
+                diffFilter.classList.remove('hidden');
+                currentDifficulty = 'EASY'; // 항상 쉬움으로 리셋
+                setupDifficultyFilter(questList);
+            } else {
+                diffFilter.classList.add('hidden');
+            }
+
+            renderQuestList(questList, currentQuestType);
+        };
+        btn.addEventListener('click', btn.clickHandler);
+    });
 }
