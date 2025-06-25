@@ -397,7 +397,7 @@ function updateCharacterReward(user, expReward, items) {
     const payload = {
         exp: expReward,
         monsterId: battleState.monster.id,
-        items: items.map(item => ({ itemId: item.id, count: item.count }))
+        items: items.map(item => ({ itemId: item.itemId, count: item.count }))
     };
 
     apiRequestJson('/api/action/end-battle', 'POST', payload)
@@ -419,71 +419,21 @@ function generateLootItems() {
     const dropList = battleState.monster.drops || [];
     const loot = [];
 
-    const rarityGroups = {
-        COMMON: [],
-        UNCOMMON: [],
-        RARE: [],
-        EPIC: [],
-        LEGENDARY: []
-    };
+    dropList.forEach(drop => {
+        const chance = drop.dropRate ?? 0;
+        const roll = Math.random() * 100;
 
-    // 드랍 테이블 분리
-    dropList.forEach(item => {
-        const rarity = item.rarity?.toUpperCase();
-        if (rarityGroups[rarity]) {
-            rarityGroups[rarity].push(item);
+        if (roll <= chance) {
+            const min = drop.minCount ?? 1;
+            const max = drop.maxCount ?? min;
+            const count = Math.floor(Math.random() * (max - min + 1)) + min;
+
+            loot.push({
+                ...drop,
+                count
+            });
         }
     });
-
-    // 1. COMMON 확정 드랍 (1~2개)
-    if (rarityGroups.COMMON.length > 0) {
-        const commons = [...rarityGroups.COMMON].sort(() => Math.random() - 0.5);
-        const dropCount = Math.min(2, commons.length);
-        for (let i = 0; i < dropCount; i++) {
-            const rand = Math.random();
-            let count = 3;
-            if (rand < 0.4) {
-                count = 3; // 40%
-            } else if (rand < 0.8) {
-                count = 5; // 40%
-            } else {
-                count = 7; // 20%
-            }
-
-            loot.push({
-                ...commons[i],
-                count
-            });
-        }
-    }
-
-    // 2~5. 나머지 rarity는 각 확률로 개별 드랍 시도
-    const rarityChances = {
-        UNCOMMON: 50,
-        RARE: 20,
-        EPIC: 0.1,
-        LEGENDARY: 0.01
-    };
-
-    for (const [rarity, chance] of Object.entries(rarityChances)) {
-        const candidates = rarityGroups[rarity];
-        if (candidates?.length > 0 && Math.random() * 100 < chance) {
-            const picked = candidates[Math.floor(Math.random() * candidates.length)];
-
-            // 드랍 수량 계산
-            let count = 1; // 기본값
-
-            const isEquip = picked.itemType?.startsWith('EQUIP'); // 장비 여부 확인
-            if (!isEquip && rarity === 'UNCOMMON') {
-                count = Math.floor(Math.random() * 2) + 2; // 2~3개
-            }
-
-            loot.push({
-                ...picked,
-                count
-            });
-        }
-    }
 
     return loot;
 }

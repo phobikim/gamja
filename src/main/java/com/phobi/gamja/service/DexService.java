@@ -218,7 +218,7 @@ public class DexService {
                     List<Map<String, Object>> dropList = dto.getDropItems().stream()
                             .map(item -> {
                                 Map<String, Object> d = new HashMap<>();
-                                d.put("id", item.getId());
+                                d.put("id", item.getItemId());
                                 d.put("name", item.getName());
                                 d.put("rarity", item.getRarity());
                                 d.put("imagePath", item.getIconPath());

@@ -1,5 +1,6 @@
 package com.phobi.gamja.service;
 
+import com.phobi.gamja.dto.battle.DropItemDto;
 import com.phobi.gamja.dto.battle.SkillResultDto;
 import com.phobi.gamja.dto.contents.MonsterDto;
 import com.phobi.gamja.dto.dex.DexSkillDto;
@@ -9,12 +10,14 @@ import com.phobi.gamja.dto.item.ItemDto;
 import com.phobi.gamja.dto.user.UserEquipment;
 import com.phobi.gamja.entity.battle.BattleSkill;
 import com.phobi.gamja.entity.battle.Monster;
+import com.phobi.gamja.entity.battle.MonsterDrop;
 import com.phobi.gamja.entity.battle.MonsterMap;
 import com.phobi.gamja.entity.dex.*;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.item.ItemPotionEffect;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
+import com.phobi.gamja.repository.battle.MonsterDropRepository;
 import com.phobi.gamja.repository.dex.DexRepository;
 import com.phobi.gamja.repository.battle.MonsterMapRepository;
 import com.phobi.gamja.repository.battle.MonsterRepository;
@@ -54,6 +57,7 @@ public class BattleService {
     private final UserEquipmentRepository userEquipmentRepository;
     private final DexSkillRepository dexSkillRepository;
     private final DexSkillImageRepository dexSkillImageRepository;
+    private final MonsterDropRepository monsterDropRepository;
 
     public GamJaResponse getMapList(HttpServletRequest request) {
         List<MonsterMap> maps = monsterMapRepository.findAll().stream()
@@ -80,8 +84,8 @@ public class BattleService {
                     })
                     .collect(Collectors.toList());
 
-            List<Item> uniqueDrops = collectUniqueDropItems(monsterDtos);
-            uniqueDrops.sort(Comparator.comparing(Item::getRarity));
+            List<DropItemDto> uniqueDrops = collectUniqueDropItems(monsterDtos);
+            uniqueDrops.sort(Comparator.comparing(DropItemDto::getRarity));
 
             Map<String, Object> mapData = new HashMap<>();
             mapData.put("id", map.getId());
@@ -191,11 +195,11 @@ public class BattleService {
         return GamJaResponse.success("몬스터 전체 조회 성공", monsterDtos);
     }
 
-    private List<Item> collectUniqueDropItems(List<MonsterDto> monsters) {
+    private List<DropItemDto> collectUniqueDropItems(List<MonsterDto> monsters) {
         return monsters.stream()
                 .flatMap(m -> m.getDropItems().stream())
                 .collect(Collectors.collectingAndThen(
-                        Collectors.toMap(Item::getId, Function.identity(), (a, b) -> a),
+                        Collectors.toMap(DropItemDto::getItemId, Function.identity(), (a, b) -> a),
                         m -> new ArrayList<>(m.values())
                 ));
     }
@@ -211,14 +215,24 @@ public class BattleService {
         dto.setMonsterHp(monster.getMonsterHp());
         dto.setMonsterXp(monster.getMonsterXp());
 
-        List<Item> dropItems = new ArrayList<>();
-        if (monster.getDropItem1Id() != null) itemRepository.findById(monster.getDropItem1Id()).ifPresent(dropItems::add);
-        if (monster.getDropItem2Id() != null) itemRepository.findById(monster.getDropItem2Id()).ifPresent(dropItems::add);
-        if (monster.getDropItem3Id() != null) itemRepository.findById(monster.getDropItem3Id()).ifPresent(dropItems::add);
-        if (monster.getDropItem4Id() != null) itemRepository.findById(monster.getDropItem4Id()).ifPresent(dropItems::add);
-        if (monster.getDropItem5Id() != null) itemRepository.findById(monster.getDropItem5Id()).ifPresent(dropItems::add);
+        // DropItemDto 리스트 구성
+        List<DropItemDto> dropDtos = monsterDropRepository.findByMonster(monster).stream()
+                .map(drop -> {
+                    Item item = drop.getItem();
+                    return DropItemDto.builder()
+                            .itemId(item.getId())
+                            .name(item.getName())
+                            .iconPath(item.getIconPath())
+                            .rarity(item.getRarity())
+                            .itemType(item.getItemType())
+                            .dropRate(drop.getDropRate())
+                            .minCount(drop.getMinCount())
+                            .maxCount(drop.getMaxCount())
+                            .build();
+                })
+                .collect(Collectors.toList());
 
-        dto.setDropItems(dropItems);
+        dto.setDropItems(dropDtos);
         return dto;
     }
 

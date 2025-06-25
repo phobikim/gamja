@@ -1,5 +1,6 @@
 package com.phobi.gamja.dto.contents;
 
+import com.phobi.gamja.dto.battle.DropItemDto;
 import com.phobi.gamja.entity.item.Item;
 import lombok.Data;
 
@@ -17,5 +18,5 @@ public class MonsterDto {
     private int monsterHp;
     private int monsterXp;
 
-    private List<Item> dropItems; // ✅ 이것만 있으면 충분!
+    private List<DropItemDto> dropItems;
 }

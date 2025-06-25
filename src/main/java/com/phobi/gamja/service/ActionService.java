@@ -17,6 +17,7 @@ import com.phobi.gamja.entity.title.UserTitle;
 import com.phobi.gamja.entity.title.UserTitleId;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
+import com.phobi.gamja.repository.battle.MonsterDropRepository;
 import com.phobi.gamja.repository.battle.MonsterRepository;
 import com.phobi.gamja.repository.contents.*;
 import com.phobi.gamja.repository.item.ItemRepository;
@@ -49,6 +50,7 @@ public class ActionService {
     private final ActionCardEventRepository actionCardEventRepository;
     private final ActionCardEventDropRepository actionCardEventDropRepository;
     private final MonsterRepository monsterRepository;
+    private final MonsterDropRepository monsterDropRepository;
 
     // 타이틀 관련
     private final TitleRepository titleRepository;
@@ -308,13 +310,10 @@ public class ActionService {
             Monster monster = monsterRepository.findById(monsterId)
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 몬스터입니다."));
 
-            allowedItemIds = Stream.of(
-                    monster.getDropItem1Id(),
-                    monster.getDropItem2Id(),
-                    monster.getDropItem3Id(),
-                    monster.getDropItem4Id(),
-                    monster.getDropItem5Id()
-            ).filter(Objects::nonNull).collect(Collectors.toSet());
+            // ✅ monster_drop 기준으로 허용된 드랍 아이템 ID 목록 수집
+            allowedItemIds = monsterDropRepository.findByMonster(monster).stream()
+                    .map(md -> md.getItem().getId())
+                    .collect(Collectors.toSet());
         }
 
         for (Map<String, Object> itemMap : items) {
