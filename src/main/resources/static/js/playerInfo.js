@@ -15,30 +15,41 @@ const lifeEquipment = document.getElementById('lifeEquipment');
 function updateStatValue(statId, detail, max = 100) {
     const block = document.getElementById(`stat-${statId}`);
     if (!block) return;
+
     const barBg = block.querySelector('.stat-bar-bg');
     const valueSpan = block.querySelector('.stat-bar-value');
+
     const {
         fromUser = 0,
         fromBase = 0,
         fromEquip = 0,
         fromTier = 0
     } = detail;
+
     const total = fromUser + fromBase + fromEquip + fromTier;
-
-
     valueSpan.textContent = total;
 
-    // 색상 순서: base → dex → equip
-    const dexPercent = (detail.fromUser / max) * 100;
-    const basePercent = (detail.fromBase / max) * 100;
-    const equipPercent = (detail.fromEquip / max) * 100;
+    let levelClass = 'level-1';
+    let relativeValue = total;
 
+    if (total > 300) {
+        levelClass = 'level-4';
+        relativeValue = total - 300;
+    } else if (total > 200) {
+        levelClass = 'level-3';
+        relativeValue = total - 200;
+    } else if (total > 100) {
+        levelClass = 'level-2';
+        relativeValue = total - 100;
+    }
+
+
+    const percent = Math.min(100, (relativeValue / max) * 100);
+
+    // ✅ 클래스로만 처리
     barBg.innerHTML = `
-    <div class="stat-bar-fill base" style="width:${basePercent}%"></div>
-    <div class="stat-bar-fill user" style="width:${dexPercent}%"></div>
-    <div class="stat-bar-fill equip" style="width:${equipPercent}%"></div>
-  `;
-
+        <div class="stat-bar-fill ${levelClass}" style="width:${percent}%"></div>
+    `;
 }
 
 function openInfoModal() {

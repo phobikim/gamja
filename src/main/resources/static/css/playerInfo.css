@@ -201,3 +201,16 @@
     padding: 1px 4px;
     border-radius: 4px;
 }
+
+.stat-bar-fill.level-1 {
+    background-color: var(--orange-color); /* 0~100 */
+}
+.stat-bar-fill.level-2 {
+    background-color: #2c7f59;
+}
+.stat-bar-fill.level-3 {
+    background-color: #317ff5;
+}
+.stat-bar-fill.level-4 {
+    background-color: #b522bf;
+}
