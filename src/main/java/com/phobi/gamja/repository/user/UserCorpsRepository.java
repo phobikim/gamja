@@ -25,7 +25,7 @@ public interface UserCorpsRepository extends JpaRepository<UserCorps, Long> {
         JOIN UserDtl dtl ON dtl.user = u
         LEFT JOIN UserTitle ut ON ut.id.userId = uc.userId AND ut.isEquipped = true
         LEFT JOIN Title t ON ut.title = t
-        ORDER BY uc.tier.id DESC, uc.corpsLevel DESC
+        ORDER BY uc.tier.id DESC, uc.corpsLevel DESC, uc.corpsXp DESC
     """)
     List<UserRankDto> findTopRankList();
 }
