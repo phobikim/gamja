@@ -60,6 +60,7 @@ public class ActionService {
 
 
     private final LogService logService;
+    private final UserLogService userLogService;
     private final CorpsTierService corpsTierService;
     private final CommonUtil commonUtil;
     private final StatCalculator statCalculator;
@@ -127,6 +128,7 @@ public class ActionService {
         userDtl.setCharacterImage(commonUtil.resolveCharacterImage(userDtl));
 
         logService.recordCounter(userId, CounterType.MONSTER_KILL, monsterId);
+        userLogService.recordDailyMonster(userId, monsterId);
         corpsTierService.updateCorpsXp(userId, 1);
         return ResponseEntity.ok(GamJaResponse.success("아이템 추가 완료", stat));
     }

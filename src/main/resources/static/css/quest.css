@@ -232,21 +232,25 @@
 
 .quest-difficulty-filter {
     display: flex;
-    justify-content: center; /* 가운데 정렬 */
+    justify-content: center;
     gap: 6px;
     margin-bottom: 12px;
+    width: 90%;           /* 💡 너비 90% */
+    margin: 0 auto 12px;  /* 💡 가운데 정렬 + 아래 여백 */
 }
 
+
 .difficulty-btn {
+    flex: 1; /* 💡 동일한 너비로 퍼지게 */
     padding: 6px 14px;
     border-radius: 8px;
-    background: var(--dark-2-color);
-    color: white;
+    background: var(--baige-color);
+    color: var(--dark-brown-font-color);
     border: none;
     font-size: 0.8rem;
     cursor: pointer;
     transition: background 0.2s ease;
-    white-space: nowrap; /* 줄바꿈 방지 */
+    white-space: nowrap;
 }
 
 .difficulty-btn.active {

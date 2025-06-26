@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 @Service
 @RequiredArgsConstructor
@@ -21,7 +22,7 @@ public class UserLogService {
     private final static ZoneId KST = ZoneId.of("Asia/Seoul");
 
     private LocalDate today() {
-        return LocalDate.now(KST);
+        return ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDate();
     }
 
     // ✅ 퀘스트 수행 기록 (중복 방지)
@@ -44,8 +45,9 @@ public class UserLogService {
     @Transactional
     public void recordDailyMonster(Long userId, Long monsterId) {
         LocalDate date = today();
+
         Optional<UserDailyActionLog> optional = userDailyActionLogRepository
-                .findByUserIdAndLogDateAndMonsterId(userId, date, monsterId);
+                .findByUserIdAndLogDateAndMonsterIdAndItemId(userId, date, monsterId, null); // ✅ itemId=null
 
         if (optional.isPresent()) {
             UserDailyActionLog log = optional.get();
@@ -64,11 +66,13 @@ public class UserLogService {
     }
 
     // ✅ 아이템 제작 기록 (+1 누적)
+
     @Transactional
     public void recordDailyItem(Long userId, Long itemId) {
         LocalDate date = today();
+
         Optional<UserDailyActionLog> optional = userDailyActionLogRepository
-                .findByUserIdAndLogDateAndItemId(userId, date, itemId);
+                .findByUserIdAndLogDateAndMonsterIdAndItemId(userId, date, null, itemId); // ✅ monsterId=null
 
         if (optional.isPresent()) {
             UserDailyActionLog log = optional.get();
@@ -78,8 +82,8 @@ public class UserLogService {
             UserDailyActionLog log = UserDailyActionLog.builder()
                     .userId(userId)
                     .logDate(date)
-                    .itemId(itemId)
                     .monsterId(null)
+                    .itemId(itemId)
                     .count(1)
                     .build();
             userDailyActionLogRepository.save(log);

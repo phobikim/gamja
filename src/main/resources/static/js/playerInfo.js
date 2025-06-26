@@ -240,11 +240,7 @@ document.getElementById('characterModalClose').addEventListener('click', () => {
     document.getElementById('characterModal').classList.add('hidden');
 });
 
-// 캐릭터 상세 정보로 이동
-// document.querySelector('.char-image-area').addEventListener('click', () => {
-//     // 여기에 보유 캐릭터 데이터를 넘겨야 함
-//     openCharacterSelectModal();
-// });
+
 function applyRarityToEachSlot(slotMap, equippedItems) {
     const rarityColors = {
         'COMMON':'var(--baige-color)',

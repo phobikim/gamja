@@ -5,9 +5,7 @@ import com.phobi.gamja.entity.battle.Monster;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.quest.*;
 import com.phobi.gamja.entity.title.*;
-import com.phobi.gamja.entity.user.CounterType;
-import com.phobi.gamja.entity.user.UserCounterDetail;
-import com.phobi.gamja.entity.user.UserDailyQuestLog;
+import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.dex.DexRepository;
 import com.phobi.gamja.repository.battle.MonsterRepository;
@@ -43,6 +41,7 @@ public class QuestService {
     private final UserCounterDetailRepository userCounterDetailRepository;
     private final UserQuestRepository userQuestRepository;
     private final UserDailyQuestLogRepository userDailyQuestLogRepository;
+    private final UserDailyActionLogRepository userDailyActionLogRepository;
 
     private final MonsterRepository monsterRepository;
     private final ItemRepository itemRepository;
@@ -61,193 +60,216 @@ public class QuestService {
         Long userId = (Long) request.getAttribute("userId");
 
         List<QuestDto> mainQuests = getQuestListByType(userId, Quest.QuestType.MAIN, 5);
-//        List<QuestDto> huntQuests = getQuestListByType(userId, Quest.QuestType.HUNT, 5);
+        List<QuestDto> huntQuests = getQuestListByType(userId, Quest.QuestType.HUNT, 5);
         List<QuestDto> deliveryQuests = getQuestListByType(userId, Quest.QuestType.REQUEST, 5);
 
         List<QuestDto> combined = new ArrayList<>();
         combined.addAll(mainQuests);
-//        combined.addAll(huntQuests);
+        combined.addAll(huntQuests);
         combined.addAll(deliveryQuests);
 
         return ResponseEntity.ok(GamJaResponse.success("퀘스트 조회 성공", combined));
     }
 
-    private List<QuestDto> getQuestListByType(Long userId, Quest.QuestType type, int limit) {
-        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
-        List<Quest> allQuests = (type == Quest.QuestType.MAIN)
-                ? questRepository.findByTypeAndEnabledIsTrueOrderByMainOrderAsc(type)
-                : questRepository.findByTypeAndEnabledIsTrue(type);
-        // user_quest 데이터 조회
+    public List<QuestDto> getQuestListByType(Long userId, Quest.QuestType type, int limit) {
+        return switch (type) {
+            case MAIN -> getMainQuestList(userId, limit);
+            case HUNT -> getHuntQuestList(userId, limit);
+            case REQUEST -> getRequestQuestList(userId, limit);
+        };
+    }
+
+    private List<QuestDto> getMainQuestList(Long userId, int limit) {
+        List<Quest> allQuests = questRepository.findByTypeAndEnabledIsTrueOrderByMainOrderAsc(Quest.QuestType.MAIN);
         Map<Long, UserQuest> userQuestMap = userQuestRepository.findByIdUserId(userId).stream()
+                .collect(Collectors.toMap(uq -> uq.getQuest().getId(), uq -> uq));
+
+        // 누적 카운터
+        Map<String, Integer> counterMap = userCounterDetailRepository.findByUserId(userId).stream()
                 .collect(Collectors.toMap(
-                        uq -> uq.getQuest().getId(),
-                        uq -> uq
+                        c -> c.getCounterType().name() + ":" + c.getTargetId(),
+                        UserCounterDetail::getCounterValue,
+                        Integer::sum
                 ));
-
-        // 일일퀘스트 완료 기록 조회 (REQUEST일 때만 사용)
-        Set<Long> dailyCompletedQuestIds = (type == Quest.QuestType.REQUEST)
-                ? userDailyQuestLogRepository.findByUserIdAndLogDate(userId, today).stream()
-                .map(UserDailyQuestLog::getQuestId)
-                .collect(Collectors.toSet())
-                : Set.of();
-
-        List<Quest> filtered = allQuests.stream()
-                .filter(q -> {
-                    UserQuest uq = userQuestMap.get(q.getId());
-
-                    // ✅ 일일퀘스트는 별도 로그 기반으로 처리 (위에서 dailyCompletedQuestIds 로 체크했음)
-                    if (q.getType() == Quest.QuestType.REQUEST) {
-                        return !dailyCompletedQuestIds.contains(q.getId());
-                    }
-
-
-                    // 수행한 적 없으면 표시
-                    if (uq == null || uq.getCompletedAt() == null) return true;
-
-                    if (q.getType() == Quest.QuestType.MAIN) {
-                        return uq == null || uq.getCompletedAt() == null;
-                    }
-
-                    // ✅ 반복 가능한 일반 퀘스트는 항상 표시
-                    return true;
-                })
-                .toList();
-
-
-        // ✅ REQUEST 퀘스트는 grade별로 5개씩 제한
-        if (type == Quest.QuestType.REQUEST) {
-            Map<Quest.QuestDifficulty, List<Quest>> grouped = filtered.stream()
-                    .collect(Collectors.groupingBy(Quest::getGrade));
-
-            List<Quest> sortedByGrade = new ArrayList<>();
-            for (Quest.QuestDifficulty grade : List.of(
-                    Quest.QuestDifficulty.EASY,
-                    Quest.QuestDifficulty.NORMAL,
-                    Quest.QuestDifficulty.HARD
-            )) {
-                List<Quest> group = grouped.getOrDefault(grade, List.of());
-                sortedByGrade.addAll(group.stream().limit(limit).toList());
-            }
-
-            filtered = sortedByGrade;
-        } else {
-            filtered = filtered.stream().limit(limit).toList(); // MAIN은 5개까지
-        }
-
-        List<Long> questIds = filtered.stream().map(Quest::getId).toList();
-        // 조건 맵: questId → List<QuestCondition>
-        Map<Long, List<QuestCondition>> conditionMap =
-                questConditionRepository.findByQuestIdIn(questIds).stream()
-                        .collect(Collectors.groupingBy(q -> q.getQuest().getId()));
-
-        // 보상 맵: questId → List<QuestReward>
-        Map<Long, List<QuestReward>> rewardMap =
-                questRewardRepository.findByQuestIdIn(questIds).stream()
-                        .collect(Collectors.groupingBy(r -> r.getQuest().getId()));
-
-        // 카운터 맵: "MONSTER_KILL:12" → 현재 수치
-        Map<String, Integer> counterMap =
-                userCounterDetailRepository.findByUserId(userId).stream()
-                        .collect(Collectors.toMap(
-                                c -> c.getCounterType().name() + ":" + c.getTargetId(),
-                                UserCounterDetail::getCounterValue,
-                                Integer::sum
-                        ));
 
         int totalDrawCount = counterMap.entrySet().stream()
                 .filter(e -> e.getKey().startsWith("CHARACTER_DRAW:"))
                 .mapToInt(Map.Entry::getValue)
                 .sum();
 
-        return filtered.stream().map(q -> {
-            List<QuestConditionDto> conditionDtos = new ArrayList<>();
-            boolean achieved = true;
+        return allQuests.stream()
+                .filter(q -> {
+                    UserQuest uq = userQuestMap.get(q.getId());
+                    return uq == null || uq.getCompletedAt() == null;
+                })
+                .limit(limit)
+                .map(q -> buildQuestDto(userId, q, counterMap, totalDrawCount, null))
+                .toList();
+    }
 
-            for (QuestCondition cond : conditionMap.getOrDefault(q.getId(), List.of())) {
-                int current;
-                String targetName;
 
-                switch (cond.getCounterType()) {
-                    case CHARACTER_DRAW -> {
-                        // 🔥 target_id를 무시하고 null 키로 접근
-                        current = totalDrawCount;
-                        targetName = null;
-                    }
-                    case MONSTER_KILL, ITEM_CRAFT -> {
-                        current = counterMap.getOrDefault(cond.getCounterType().name() + ":" + cond.getTargetId(), 0);
-                        targetName = itemRepository.findById(cond.getTargetId()).map(Item::getName).orElse("???");
-                        if (cond.getCounterType() == CounterType.MONSTER_KILL)
-                            targetName = monsterRepository.findById(cond.getTargetId()).map(Monster::getName).orElse("???");
-                    }
-                    case LIFE_ACTION -> {
-                        current = counterMap.getOrDefault("LIFE_ACTION:" + cond.getTargetId(), 0);
-                        targetName = switch (cond.getTargetId().intValue()) {
-                            case 1 -> "벌목"; case 2 -> "낚시"; case 3 -> "채광"; case 4 -> "채집";
-                            default -> "알 수 없음";
-                        };
-                    }
-                    case EQUIP_ITEM -> {
-                        boolean equipped = userEquipmentRepository.existsByUserIdAndItemId(userId, cond.getTargetId());
-                        current = equipped ? 1 : 0;
-                        targetName = itemRepository.findById(cond.getTargetId()).map(Item::getName).orElse("???");
-                    }
-                    case EQUIP_TITLE -> {
-                        boolean equipped = userTitleRepository.existsEquippedTitle(userId, cond.getTargetId());
-                        current = equipped ? 1 : 0;
-                        targetName = titleRepository.findById(cond.getTargetId()).map(Title::getName).orElse("???");
-                    }
-                    case DELIVER_ITEM -> {
-                        int owned = Optional.ofNullable(userInventoryRepository.getQuantity(userId, cond.getTargetId()))
-                                .orElse(0);
-                        current = owned;
-                        targetName = itemRepository.findById(cond.getTargetId()).map(Item::getName).orElse("???");
-                    }
-                    default -> {
-                        current = 0;
-                        targetName = null;
-                    }
+    private List<QuestDto> getHuntQuestList(Long userId, int limit) {
+        LocalDate today = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDate();
+        List<Quest> allQuests = questRepository.findByTypeAndEnabledIsTrue(Quest.QuestType.HUNT);
+
+        // ✅ 오늘 완료한 퀘스트 제외 (REQUEST와 동일 로직)
+        Set<Long> completedIds = userDailyQuestLogRepository.findByUserIdAndLogDate(userId, today).stream()
+                .map(UserDailyQuestLog::getQuestId)
+                .collect(Collectors.toSet());
+
+        List<Quest> filtered = allQuests.stream()
+                .filter(q -> !completedIds.contains(q.getId()))
+                .toList();
+
+        Map<Long, List<QuestCondition>> conditionMap = questConditionRepository.findByQuestIdIn(
+                filtered.stream().map(Quest::getId).toList()
+        ).stream().collect(Collectors.groupingBy(q -> q.getQuest().getId()));
+
+        // 오늘 일자 로그 (monster_id 기준)
+        Map<Long, Integer> huntKillMap = userDailyActionLogRepository.findByUserIdAndLogDate(userId, today).stream()
+                .collect(Collectors.toMap(UserDailyActionLog::getMonsterId, UserDailyActionLog::getCount, Integer::sum));
+
+        return filtered.stream()
+                .limit(limit)
+                .map(q -> buildQuestDto(userId, q, null, 0, huntKillMap))
+                .toList();
+    }
+
+    private List<QuestDto> getRequestQuestList(Long userId, int limit) {
+        LocalDate today = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDate();
+        List<Quest> allQuests = questRepository.findByTypeAndEnabledIsTrue(Quest.QuestType.REQUEST);
+
+        Set<Long> completedIds = userDailyQuestLogRepository.findByUserIdAndLogDate(userId, today).stream()
+                .map(UserDailyQuestLog::getQuestId)
+                .collect(Collectors.toSet());
+
+        List<Quest> filtered = allQuests.stream()
+                .filter(q -> !completedIds.contains(q.getId()))
+                .toList();
+
+        // grade별 제한 5개
+        Map<Quest.QuestDifficulty, List<Quest>> grouped = filtered.stream()
+                .collect(Collectors.groupingBy(Quest::getGrade));
+
+        List<Quest> limited = new ArrayList<>();
+        for (Quest.QuestDifficulty diff : List.of(Quest.QuestDifficulty.EASY, Quest.QuestDifficulty.NORMAL, Quest.QuestDifficulty.HARD)) {
+            List<Quest> group = grouped.getOrDefault(diff, List.of());
+            limited.addAll(group.stream().limit(limit).toList());
+        }
+
+        return limited.stream()
+                .map(q -> buildQuestDto(userId, q, null, 0, null))
+                .toList();
+    }
+
+
+    private QuestDto buildQuestDto(Long userId, Quest quest,
+                                   Map<String, Integer> counterMap,
+                                   int totalDrawCount,
+                                   Map<Long, Integer> huntKillMap) {
+
+        Map<Long, List<QuestCondition>> conditionMap =
+                questConditionRepository.findByQuestIdIn(List.of(quest.getId()))
+                        .stream().collect(Collectors.groupingBy(q -> q.getQuest().getId()));
+
+        Map<Long, List<QuestReward>> rewardMap =
+                questRewardRepository.findByQuestIdIn(List.of(quest.getId()))
+                        .stream().collect(Collectors.groupingBy(r -> r.getQuest().getId()));
+
+        List<QuestConditionDto> conditionDtos = new ArrayList<>();
+        boolean achieved = true;
+
+        for (QuestCondition cond : conditionMap.getOrDefault(quest.getId(), List.of())) {
+            int current;
+            String targetName;
+
+            switch (cond.getCounterType()) {
+                case CHARACTER_DRAW -> {
+                    current = totalDrawCount;
+                    targetName = null;
                 }
-
-                boolean pass = current >= cond.getRequiredCount();
-                achieved &= pass;
-
-                conditionDtos.add(QuestConditionDto.builder()
-                        .counterType(cond.getCounterType())
-                        .targetId(cond.getTargetId())
-                        .targetName(targetName)
-                        .requiredCount(cond.getRequiredCount())
-                        .currentCount(current)
-                        .achieved(pass)
-                        .build());
+                case MONSTER_KILL -> {
+                    if (quest.getType() == Quest.QuestType.HUNT) {
+                        current = huntKillMap != null
+                                ? huntKillMap.getOrDefault(cond.getTargetId(), 0) : 0;
+                    } else {
+                        String key = "MONSTER_KILL:" + cond.getTargetId();
+                        current = counterMap != null ? counterMap.getOrDefault(key, 0) : 0;
+                    }
+                    targetName = monsterRepository.findById(cond.getTargetId()).map(Monster::getName).orElse("???");
+                }
+                case ITEM_CRAFT -> {
+                    String key = "ITEM_CRAFT:" + cond.getTargetId();
+                    current = counterMap != null ? counterMap.getOrDefault(key, 0) : 0;
+                    targetName = itemRepository.findById(cond.getTargetId()).map(Item::getName).orElse("???");
+                }
+                case LIFE_ACTION -> {
+                    String key = "LIFE_ACTION:" + cond.getTargetId();
+                    current = counterMap != null ? counterMap.getOrDefault(key, 0) : 0;
+                    targetName = switch (cond.getTargetId().intValue()) {
+                        case 1 -> "벌목"; case 2 -> "낚시"; case 3 -> "채광"; case 4 -> "채집"; default -> "알 수 없음";
+                    };
+                }
+                case EQUIP_ITEM -> {
+                    boolean equipped = userEquipmentRepository.existsByUserIdAndItemId(userId, cond.getTargetId());
+                    current = equipped ? 1 : 0;
+                    targetName = itemRepository.findById(cond.getTargetId()).map(Item::getName).orElse("???");
+                }
+                case EQUIP_TITLE -> {
+                    boolean equipped = userTitleRepository.existsEquippedTitle(userId, cond.getTargetId());
+                    current = equipped ? 1 : 0;
+                    targetName = titleRepository.findById(cond.getTargetId()).map(Title::getName).orElse("???");
+                }
+                case DELIVER_ITEM -> {
+                    current = Optional.ofNullable(userInventoryRepository.getQuantity(userId, cond.getTargetId())).orElse(0);
+                    targetName = itemRepository.findById(cond.getTargetId()).map(Item::getName).orElse("???");
+                }
+                default -> {
+                    current = 0;
+                    targetName = null;
+                }
             }
 
-            List<QuestRewardDto> rewardDtos = rewardMap.getOrDefault(q.getId(), List.of()).stream()
-                    .map(r -> QuestRewardDto.builder()
-                            .rewardType(r.getRewardType())
-                            .itemId(r.getItemId())
-                            .itemName(r.getItemId() != null
-                                    ? itemRepository.findById(r.getItemId()).map(Item::getName).orElse("???")
-                                    : null)
-                            .amount(r.getAmount())
-                            .build())
-                    .toList();
+            boolean pass = current >= cond.getRequiredCount();
+            achieved &= pass;
 
-            return QuestDto.builder()
-                    .id(q.getId())
-                    .name(q.getName())
-                    .description(q.getDescription())
-                    .type(q.getType())
-                    .difficulty(q.getGrade())
-                    .conditions(conditionDtos)
-                    .rewards(rewardDtos)
-                    .achieved(achieved)
-                    .build();
-        }).toList();
+            conditionDtos.add(QuestConditionDto.builder()
+                    .counterType(cond.getCounterType())
+                    .targetId(cond.getTargetId())
+                    .targetName(targetName)
+                    .requiredCount(cond.getRequiredCount())
+                    .currentCount(current)
+                    .achieved(pass)
+                    .build());
+        }
+
+        List<QuestRewardDto> rewardDtos = rewardMap.getOrDefault(quest.getId(), List.of()).stream()
+                .map(r -> QuestRewardDto.builder()
+                        .rewardType(r.getRewardType())
+                        .itemId(r.getItemId())
+                        .itemName(r.getItemId() != null
+                                ? itemRepository.findById(r.getItemId()).map(Item::getName).orElse("???")
+                                : null)
+                        .amount(r.getAmount())
+                        .build())
+                .toList();
+
+        return QuestDto.builder()
+                .id(quest.getId())
+                .name(quest.getName())
+                .description(quest.getDescription())
+                .type(quest.getType())
+                .difficulty(quest.getGrade())
+                .conditions(conditionDtos)
+                .rewards(rewardDtos)
+                .achieved(achieved)
+                .build();
     }
 
 
     @Transactional
     public ResponseEntity<GamJaResponse> completeQuest(HttpServletRequest request, Map<String, Object> payload) {
+
         LocalDateTime koreaNow = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
         Long userId = (Long) request.getAttribute("userId");
         Long questId = ((Number) payload.get("questId")).longValue();
@@ -255,6 +277,14 @@ public class QuestService {
         Quest quest = questRepository.findById(questId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 퀘스트입니다."));
         List<QuestCondition> conditions = questConditionRepository.findByQuestId(questId);
+
+        if (quest.getType() == Quest.QuestType.REQUEST || quest.getType() == Quest.QuestType.HUNT) {
+            LocalDate today = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDate();
+            boolean alreadyCompleted = userDailyQuestLogRepository.existsByUserIdAndQuestIdAndLogDate(userId, questId, today);
+            if (alreadyCompleted) {
+                throw new IllegalStateException("오늘 이미 완료한 퀘스트입니다.");
+            }
+        }
 
         // 1. 납품 퀘스트일 경우, 아이템 수량 차감
         for (QuestCondition cond : conditions) {
@@ -306,7 +336,7 @@ public class QuestService {
         logService.recordCounter(userId, CounterType.QUEST_COMPLETE, 0L);
 
         // ✅ REQUEST 퀘스트일 경우, 일일 완료 로그 저장
-        if (quest.getType() == Quest.QuestType.REQUEST) {
+        if (quest.getType() == Quest.QuestType.REQUEST || quest.getType() == Quest.QuestType.HUNT) {
             userLogService.recordDailyQuest(userId, questId);
         }
 

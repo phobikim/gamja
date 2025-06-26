@@ -10,8 +10,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_daily_action_log")
-@IdClass(UserDailyActionLogId.class)
+@Table(name = "user_daily_action_log",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "log_date", "monster_id", "item_id"})
+        })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,22 +22,22 @@ import java.time.LocalDateTime;
 public class UserDailyActionLog {
 
     @Id
-    @Column(name = "user_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // ✅ 단일 PK
+
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Id
-    @Column(name = "log_date")
+    @Column(name = "log_date", nullable = false)
     private LocalDate logDate;
 
-    @Id
     @Column(name = "monster_id")
     private Long monsterId;
 
-    @Id
     @Column(name = "item_id")
     private Long itemId;
 
-    @Column(name = "count")
+    @Column(name = "count", nullable = false)
     private int count;
 
     @Column(name = "created_at", insertable = false, updatable = false)
