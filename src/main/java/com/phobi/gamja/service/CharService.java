@@ -121,9 +121,65 @@ public class CharService {
     }
 
     @Transactional(readOnly = true)
+    public GamJaResponse getUserInfoByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        Long userId = user.getId();
+
+        UserDtl userDtl = userDtlRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
+        Long dexId = userDtl.getCharacterDexId();
+        if (dexId == null) {
+            return GamJaResponse.fail("착용 중인 캐릭터가 없습니다.");
+        }
+
+        UserDexStatId statId = new UserDexStatId(userId, dexId);
+        UserDexStat stat = userDexStatRepository.findById(statId)
+                .orElseThrow(() -> new IllegalArgumentException("캐릭터 스탯 정보가 없습니다."));
+
+        String finalImage = commonUtil.resolveCharacterImage(userDtl);
+        userDtl.setCharacterImage(finalImage);
+
+        UserTitle equipped = userTitleRepository.findByIdUserId(userId).stream()
+                .filter(UserTitle::isEquipped)
+                .findFirst().orElse(null);
+        String equippedTitleName = equipped != null ? equipped.getTitle().getName() : null;
+        String equippedTitleIcon = equipped != null ? equipped.getTitle().getIconPath() : null;
+
+        BackgroundImage bg = userDtl.getBackgroundImage();
+        String backgroundImageUrl = (bg != null) ? bg.getImageUrl() : null;
+        String backgroundImageName = (bg != null) ? bg.getName() : null;
+
+        UserCorps userCorps = userCorpsRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("감자단 정보가 없습니다."));
+        StatBonus statBonus = corpsTierService.calculateTierStatBonus(userCorps);
+
+        UserCharInfoDto result = new UserCharInfoDto(
+                user.getUsername(),
+                userDtl, stat, 0,
+                equippedTitleName, equippedTitleIcon,
+                backgroundImageUrl, backgroundImageName,
+                userCorps,
+                statBonus
+        );
+
+        return GamJaResponse.success("정상 조회", result);
+    }
+
+    @Transactional(readOnly = true)
     public GamJaResponse getBattleInfo(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         BattleStatDto result = statCalculator.calculateBattleStat(userId);
+        return GamJaResponse.success("정상 조회", result);
+    }
+
+    @Transactional(readOnly = true)
+    public GamJaResponse getBattleInfoByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 유저입니다."));
+
+        BattleStatDto result = statCalculator.calculateBattleStat(user.getId());
         return GamJaResponse.success("정상 조회", result);
     }
 

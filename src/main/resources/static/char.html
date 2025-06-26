@@ -656,16 +656,27 @@
 <div id="characterModal" class="modal hidden">
     <div class="character-modal-content">
         <button id="characterModalClose" class="modal-close">✖</button>
-        <!-- 탭 영역 -->
-        <div class="char-tab">
+
+        <!-- 탭 영역 (내 정보용) -->
+        <div class="char-tab" id="charTab">
             <button class="tab-btn active" data-tab="battle" id="battleTabBtn">전투</button>
             <button class="tab-btn" data-tab="life" id="lifeTabBtn">생활</button>
+        </div>
+
+        <!-- 다른 사람 정보일 때만 노출될 유저네임 헤더 -->
+        <div class="char-username-header hidden" id="charUsernameHeader">
+            <div class="player-title">
+                <img id="charTitleIcon" class="title-icon" src="" alt="칭호 아이콘">
+                <span id="charTitleName" class="char-title-name"></span>
+                <span id="charUsernameLabel" class="char-username-label"></span>
+            </div>
         </div>
 
         <!-- 캐릭터 이미지 + 스탯 -->
         <div class="char-body-row">
             <!-- 이미지 -->
             <div class="char-image-area">
+                <div id="dexNameLabel" class="char-dex-name hidden">감자이름</div>
                 <img id="charImage" src="https://phobi.me/gamja.img/images/character/default.png" alt="캐릭터 이미지">
                 <!-- 캐릭터 카드 정보 -->
                 <div class="char-card-info">

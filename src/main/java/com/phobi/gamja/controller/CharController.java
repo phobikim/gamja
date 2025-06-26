@@ -24,12 +24,21 @@ public class CharController {
         return ResponseEntity.ok(charService.getUserInfo(request));
     }
 
+    @GetMapping("/{username}")
+    public ResponseEntity<GamJaResponse> getCharInfoByUsername(@PathVariable String username) {
+        return ResponseEntity.ok(charService.getUserInfoByUsername(username));
+    }
     /*
      * desc : 캐릭터 정보 > 전투 stat 조회
      * */
     @GetMapping("/battle")
     public ResponseEntity<GamJaResponse> getBattleInfo(HttpServletRequest request) {
         return ResponseEntity.ok(charService.getBattleInfo(request));
+    }
+
+    @GetMapping("/{username}/battle")
+    public ResponseEntity<GamJaResponse> getBattleInfoByUsername(@PathVariable String username) {
+        return ResponseEntity.ok(charService.getBattleInfoByUsername(username));
     }
 
     /*

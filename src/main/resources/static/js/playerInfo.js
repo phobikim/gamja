@@ -54,11 +54,15 @@ function updateStatValue(statId, detail, max = 100) {
 
 function openInfoModal() {
     characterModal.classList.remove('hidden');
-    // 캐릭터 기본 정보 호출
+
+    // ✅ 탭 보이기
+    document.getElementById('charTab').classList.remove('hidden');
+    // ✅ 유저네임 헤더 숨기기
+    document.getElementById('charUsernameHeader').classList.add('hidden');
+
     loadCharacterBasicInfo();
     loadCharacterBattleInfo();
 }
-
 
 
 
@@ -114,6 +118,58 @@ function setCharacterBattleInfo(data) {
     });
     applyRarityToEachSlot(slotMap, data.equippedItems);
 }
+
+function setOtherUserBattleInfo(data) {
+    // 스탯 바 표시
+    updateStatValue('combatAtk', data.power);
+    updateStatValue('combatHp', data.hp);
+    updateStatValue('combatSpeed', data.speed);
+
+    const slotMap = {
+        WEAPON: 'combatSlotWEAPON',
+        HELMET: 'combatSlotHELMET',
+        ARMOR: 'combatSlotARMOR',
+        PANTS: 'combatSlotPANTS',
+        SHOES: 'combatSlotSHOES',
+        RING: 'combatSlotRING',
+        NECK: 'combatSlotNECK',
+        POTION: 'combatSlotPOTION'
+    };
+
+    // 장비 유무 확인용 map
+    const equippedMap = {};
+    if (Array.isArray(data.equippedItems)) {
+        data.equippedItems.forEach(item => {
+            equippedMap[item.equipSlot] = item;
+        });
+    }
+
+    // 슬롯 초기화 및 장비 반영
+    Object.entries(slotMap).forEach(([slotKey, slotId]) => {
+        const slot = document.getElementById(slotId);
+        if (!slot) return;
+
+        const equippedItem = equippedMap[slotKey];
+        slot.innerHTML = ''; // 기존 내용 초기화
+
+        if (equippedItem) {
+            // ✅ 장비 있음 → 이미지만 표시
+            const img = document.createElement('img');
+            img.src = `${window.basePath}${equippedItem.iconPath}`;
+            img.alt = equippedItem.name;
+            img.title = equippedItem.name;
+            img.dataset.item = JSON.stringify(equippedItem);
+            slot.appendChild(img);
+        } else {
+            // ✅ 장비 없음 → 텍스트만 유지
+            slot.textContent = getSlotLabel(slotKey);
+        }
+    });
+
+    applyRarityToEachSlot(slotMap, data.equippedItems || []);
+}
+
+
 function loadCharacterLifeInfo() {
     apiRequest('/api/char/life', 'GET')
         .then(res => {
@@ -185,10 +241,10 @@ document.getElementById('characterModalClose').addEventListener('click', () => {
 });
 
 // 캐릭터 상세 정보로 이동
-document.querySelector('.char-image-area').addEventListener('click', () => {
-    // 여기에 보유 캐릭터 데이터를 넘겨야 함
-    openCharacterSelectModal();
-});
+// document.querySelector('.char-image-area').addEventListener('click', () => {
+//     // 여기에 보유 캐릭터 데이터를 넘겨야 함
+//     openCharacterSelectModal();
+// });
 function applyRarityToEachSlot(slotMap, equippedItems) {
     const rarityColors = {
         'COMMON':'var(--baige-color)',
@@ -216,4 +272,69 @@ function applyRarityToEachSlot(slotMap, equippedItems) {
             }
         }
     });
+}
+
+function openCharacterModal(data) {
+    characterModal.classList.remove('hidden');
+
+    // 탭 숨기기 / 간판 영역 표시
+    document.getElementById('charTab').classList.add('hidden');
+    document.getElementById('charUsernameHeader').classList.remove('hidden');
+
+    // 유저 이름
+    document.getElementById('charUsernameLabel').textContent = data.username || '';
+
+    // 타이틀 텍스트
+    const titleNameEl = document.getElementById('charTitleName');
+    if (data.title) {
+        titleNameEl.textContent = `[${data.title}]`;
+        titleNameEl.classList.remove('hidden');
+    } else {
+        titleNameEl.textContent = '';
+        titleNameEl.classList.add('hidden');
+    }
+
+    // 타이틀 아이콘
+    const titleIconEl = document.getElementById('charTitleIcon');
+    if (data.titleIconPath) {
+        titleIconEl.src = `${window.basePath}${data.titleIconPath}`;
+        titleIconEl.style.display = 'inline-block';
+    } else {
+        titleIconEl.style.display = 'none';
+    }
+    const dexNameEl = document.getElementById('dexNameLabel');
+    if (data.dexName) {
+        dexNameEl.textContent = data.dexName;
+        dexNameEl.classList.remove('hidden');
+    } else {
+        dexNameEl.classList.add('hidden');
+    }
+    // 기본 정보 및 스탯
+    setCharacterBasicInfo(data);
+    if (data.battleStat) {
+        setOtherUserBattleInfo(data.battleStat);
+    }
+    if (data.lifeStat) setCharacterLifeInfo(data.lifeStat);
+
+    // 탭 상태 기본값
+    battleTabBtn.classList.add('active');
+    lifeTabBtn.classList.remove('active');
+    combatStats.classList.remove('hidden');
+    combatEquipment.classList.remove('hidden');
+    lifeStats.classList.add('hidden');
+    lifeEquipment.classList.add('hidden');
+}
+
+function getSlotLabel(equipSlot) {
+    const labels = {
+        WEAPON: '무기',
+        HELMET: '머리',
+        ARMOR: '상의',
+        PANTS: '하의',
+        SHOES: '신발',
+        RING: '반지',
+        NECK: '목걸이',
+        POTION: '물약'
+    };
+    return labels[equipSlot] || '';
 }
