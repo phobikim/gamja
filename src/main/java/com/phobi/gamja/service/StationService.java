@@ -18,6 +18,7 @@ import com.phobi.gamja.repository.user.UserInventoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,8 +54,9 @@ public class StationService {
         return toRecipeDtos(recipes, itemMap, inventoryMap);
     }
 
-
+    @Transactional
     public List<ItemRecipeDto> craftItem(Long userId, String stationCategory, CraftRequest request) {
+        List<UserInventory> updatedInventories = new ArrayList<>();
         // 1. 재료 소모
         for (CraftRequest.CraftIngredient ing : request.getIngredients()) {
             UserInventory inv = userInventoryRepository
@@ -64,9 +66,11 @@ public class StationService {
             if (inv.getQuantity() < ing.getQuantity()) {
                 throw new IllegalArgumentException("재료 부족: " + ing.getItemId());
             }
+
             inv.setQuantity(inv.getQuantity() - ing.getQuantity());
-            userInventoryRepository.save(inv);
+            updatedInventories.add(inv); // 📌 나중에 일괄 저장
         }
+        userInventoryRepository.saveAll(updatedInventories);
 
         // 2. 결과 아이템 지급
         UserInventory result = userInventoryRepository
@@ -78,10 +82,12 @@ public class StationService {
                     newInv.setQuantity(0);
                     return newInv;
                 });
-
         result.setQuantity(result.getQuantity() + request.getResultQuantity());
-        userInventoryRepository.save(result);
-        logService.recordCounter(userId, CounterType.ITEM_CRAFT, request.getResultItemId());
+
+        updatedInventories.add(result);
+        userInventoryRepository.saveAll(updatedInventories);
+        // 대량 제작 할 경우 수량 인자로 받음
+        logService.recordCounter(userId, CounterType.ITEM_CRAFT, request.getResultItemId(), request.getResultQuantity());
         return getRecipeList(userId, stationCategory);
     }
 

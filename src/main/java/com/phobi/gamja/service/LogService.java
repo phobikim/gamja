@@ -15,19 +15,24 @@ public class LogService {
     private final UserCounterDetailRepository userCounterDetailRepository;
     @Transactional
     public void recordCounter(Long userId, CounterType counterType, Long targetId) {
+        recordCounter(userId, counterType, targetId, 1);
+    }
+
+    @Transactional
+    public void recordCounter(Long userId, CounterType counterType, Long targetId, int amount) {
         UserCounterDetail.PK pk = new UserCounterDetail.PK(userId, counterType, targetId);
         Optional<UserCounterDetail> optional = userCounterDetailRepository.findById(pk);
+
         if (optional.isPresent()) {
             UserCounterDetail detail = optional.get();
-            detail.setCounterValue(detail.getCounterValue() + 1);
-            // updated_at은 DB에서 자동 갱신됨
+            detail.setCounterValue(detail.getCounterValue() + amount);
             userCounterDetailRepository.save(detail);
         } else {
             UserCounterDetail newDetail = UserCounterDetail.builder()
                     .userId(userId)
                     .counterType(counterType)
                     .targetId(targetId)
-                    .counterValue(1)
+                    .counterValue(amount)
                     .build();
             userCounterDetailRepository.save(newDetail);
         }

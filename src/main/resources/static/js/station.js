@@ -169,12 +169,12 @@ function renderRecipeDetail(selectedRecipe) {
     const container = document.getElementById('craftDetailPanel');
     container.innerHTML = '';
 
-    // ✅ 스크롤 전체 감싸는 영역
     const scrollBox = document.createElement('div');
     scrollBox.className = 'craft-detail-scroll';
-    // ▶ 아이템 아이콘 + 이름 + 설명
+
+    // ▶ 아이템 정보
     const infoBox = document.createElement('div');
-    infoBox.className = 'detail-info-box'; // 이 안에 아이콘, 이름, 설명
+    infoBox.className = 'detail-info-box';
 
     const icon = document.createElement('img');
     icon.src = basePath + selectedRecipe.resultItemIcon;
@@ -193,7 +193,6 @@ function renderRecipeDetail(selectedRecipe) {
     name.style.fontSize = '1rem';
     name.innerHTML = `${selectedRecipe.resultItemName} <span style="font-size: 0.85rem; color: #ccc;">(보유: ${selectedRecipe.resultItemUserOwned})</span>`;
 
-    // 📌 스탯 영역 (이 부분을 이름 아래, 설명 위에 넣는다)
     const statRow = document.createElement('div');
     statRow.className = 'recipe-stat-row';
 
@@ -202,15 +201,9 @@ function renderRecipeDetail(selectedRecipe) {
     const spd = selectedRecipe.baseSpeed ?? 0;
 
     if (atk !== 0 || hp !== 0 || spd !== 0) {
-        if (atk !== 0) {
-            statRow.innerHTML += `<span class="recipe-stat-label">ATK</span><span class="recipe-stat-value">${atk}</span>`;
-        }
-        if (hp !== 0) {
-            statRow.innerHTML += `<span class="recipe-stat-label">HP</span><span class="recipe-stat-value">${hp}</span>`;
-        }
-        if (spd !== 0) {
-            statRow.innerHTML += `<span class="recipe-stat-label">SPD</span><span class="recipe-stat-value">${spd}</span>`;
-        }
+        if (atk !== 0) statRow.innerHTML += `<span class="recipe-stat-label">ATK</span><span class="recipe-stat-value">${atk}</span>`;
+        if (hp !== 0) statRow.innerHTML += `<span class="recipe-stat-label">HP</span><span class="recipe-stat-value">${hp}</span>`;
+        if (spd !== 0) statRow.innerHTML += `<span class="recipe-stat-label">SPD</span><span class="recipe-stat-value">${spd}</span>`;
         infoBox.appendChild(statRow);
     }
 
@@ -223,17 +216,18 @@ function renderRecipeDetail(selectedRecipe) {
     desc.style.fontWeight = 'bold';
     desc.textContent = selectedRecipe.recipeDescription;
 
-
     infoBox.appendChild(icon);
     infoBox.appendChild(name);
     if (statRow.innerHTML) infoBox.appendChild(statRow);
     infoBox.appendChild(desc);
-
-
+    scrollBox.appendChild(infoBox);
 
     // ▶ 재료 리스트
     const materialBox = document.createElement('div');
-    materialBox.className = 'ingredient-list'; // ✅ 이름 변경
+    materialBox.className = 'ingredient-list';
+
+    // 재료 row 캐시용
+    const materialRows = [];
 
     selectedRecipe.ingredients.forEach(ing => {
         const row = document.createElement('div');
@@ -242,7 +236,7 @@ function renderRecipeDetail(selectedRecipe) {
         row.style.justifyContent = 'space-between';
         row.style.margin = '0.3rem 0';
         row.style.fontSize = '0.85rem';
-        row.style.color = 'var(--dark-1-font-color)'
+        row.style.color = 'var(--dark-1-font-color)';
 
         const left = document.createElement('div');
         left.style.display = 'flex';
@@ -270,15 +264,60 @@ function renderRecipeDetail(selectedRecipe) {
         row.appendChild(left);
         row.appendChild(owned);
         materialBox.appendChild(row);
+
+        materialRows.push({ row, ing, ingText, owned });
     });
 
-    // ▶ 전체 스크롤 영역에 append
-    scrollBox.appendChild(infoBox);
     scrollBox.appendChild(materialBox);
+    // ▶ 최대 제작 수량 계산
+    let maxCraftCount = Infinity;
+    selectedRecipe.ingredients.forEach(ing => {
+        const possible = Math.floor(ing.userOwned / ing.quantity);
+        if (possible < maxCraftCount) maxCraftCount = possible;
+    });
+    if (maxCraftCount < 1) maxCraftCount = 1;
 
-    // ▶ 버튼
+    // ▶ 수량 슬라이더
+    const quantityBox = document.createElement('div');
+    quantityBox.className = 'quantity-control';
+    quantityBox.style.marginTop = '1rem';
+    quantityBox.style.padding = '0 1rem';
+    quantityBox.style.textAlign = 'center';
+
+    const quantityLabel = document.createElement('div');
+    quantityLabel.className = 'quantity-label';
+    quantityLabel.innerHTML = `제작 수량: <span id="craftQuantity">1</span>`;
+    quantityLabel.style.fontWeight = 'bold';
+    quantityLabel.style.marginBottom = '0.5rem';
+    quantityLabel.style.color = 'var(--dark-1-font-color)';
+
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.min = 1;
+    slider.max = maxCraftCount;
+    slider.value = 1;
+    slider.id = 'craftSlider';
+    slider.style.width = '100%';
+
+    // ▶ 슬라이더 이벤트 - 수량, 재료 실시간 반영
+    slider.addEventListener('input', () => {
+        const count = parseInt(slider.value);
+        document.getElementById('craftQuantity').textContent = count;
+
+        materialRows.forEach(({ ing, ingText, owned }) => {
+            const totalNeed = ing.quantity * count;
+            ingText.textContent = `${ing.itemName} ×${totalNeed}`;
+            owned.style.color = ing.userOwned >= totalNeed ? 'lightgreen' : 'red';
+        });
+    });
+
+    quantityBox.appendChild(quantityLabel);
+    quantityBox.appendChild(slider);
+    scrollBox.appendChild(quantityBox);
+
+    // ▶ 제작 & 닫기 버튼
     const buttonRow = document.createElement('div');
-    buttonRow.className = 'craft-button-row'; // ✅ 클래스 지정
+    buttonRow.className = 'craft-button-row';
     buttonRow.style.display = 'flex';
     buttonRow.style.justifyContent = 'center';
     buttonRow.style.gap = '1rem';
@@ -287,10 +326,13 @@ function renderRecipeDetail(selectedRecipe) {
     const craftBtn = document.createElement('button');
     craftBtn.className = 'craft-button';
     craftBtn.textContent = 'CRAFT';
+
     const canCraft = selectedRecipe.ingredients.every(ing => ing.userOwned >= ing.quantity);
     craftBtn.disabled = !canCraft;
+
     craftBtn.addEventListener('click', () => {
-        if (canCraft) handleCraft(selectedRecipe);
+        const count = parseInt(document.getElementById('craftSlider')?.value || '1');
+        if (canCraft) handleCraft(selectedRecipe, count);
     });
 
     const closeBtn = document.createElement('button');
@@ -300,12 +342,10 @@ function renderRecipeDetail(selectedRecipe) {
         document.getElementById('craftModal').classList.add('hidden');
     });
 
-    // ▶ 조립
-
-    container.appendChild(scrollBox);
-
     buttonRow.appendChild(craftBtn);
     buttonRow.appendChild(closeBtn);
+
+    container.appendChild(scrollBox);
     container.appendChild(buttonRow);
 
 }
@@ -323,7 +363,7 @@ function getRarityBackgroundClass(grade) {
 
 
 // 제작 api 호출
-async function handleCraft(selectedRecipe) {
+async function handleCraft(selectedRecipe, quantity = 1) {
     if (!selectedRecipe || !selectedStation) {
         console.error('station category 또는 recipe가 설정되지 않았습니다.');
         return;
@@ -331,23 +371,22 @@ async function handleCraft(selectedRecipe) {
 
     playEffect("se_craft")
 
+    const count = quantity; // 또는 외부에서 받은 quantity 그대로 사용
+
     const payload = {
         resultItemId: selectedRecipe.resultItemId,
-        resultQuantity: 1,
+        resultQuantity: count,
         ingredients: selectedRecipe.ingredients.map(ing => ({
             itemId: ing.itemId,
-            quantity: ing.quantity
+            quantity: ing.quantity * count
         }))
     };
-
     try {
         const url = `/api/station/${selectedStation}/craft`;
         const res = await apiRequestJson(url, 'POST', payload);
 
         if (res.code === 'SUCCESS') {
             showCraftSuccessEffect();
-
-
 
         } else {
             showMessageModal(`제작 실패: ${res.message}`);
