@@ -25,6 +25,7 @@ window.battleState = {
 
 window.startBattleFromMap = async function(map) {
     battleModal.classList.remove('hidden');
+    showBattleSkeleton();
     // [1] 유저 정보
     const userRes = await apiRequest('/api/battle/user-stat', 'GET');
     if (userRes.code !== 'SUCCESS') {
@@ -83,6 +84,7 @@ function initializeBattleScene(user, monster) {
     currentDexImage = basePath_image + "/character/" + user.charImage;
     userImage.src = currentDexImage;
     userImage.alt = user.dexName;
+
     playerImage.classList.remove('jump-in', 'fade-out', 'hit-effect');
     void userImage.offsetWidth;
     userImage.classList.add('jump-in');
@@ -90,6 +92,7 @@ function initializeBattleScene(user, monster) {
     const monsterImg = document.getElementById('monsterCharacter');
     monsterImg.src = basePath + monster.imagePath;
     monsterImg.alt = monster.name;
+
     monsterImg.classList.remove('jump-in', 'fade-out', 'hit-effect');
     void monsterImg.offsetWidth;
     monsterImg.classList.add('jump-in');
@@ -122,6 +125,7 @@ function initializeBattleScene(user, monster) {
 
     document.getElementById('monsterNameLabel').textContent = monster.name;
     document.getElementById('monsterAttrLabel').textContent = monster.rank; // or 속성 이름이 있다면 그걸로!
+    waitForAllBattleImagesToLoad(removeBattleSkeleton);
 
 }
 
@@ -216,11 +220,12 @@ function startBattle(user, monster) {
     isProcessingTurn = false;
     isPlayerTurn = true;
     tempPowerBoost = 0;
-    updateBattleUI();
 
     resetBattleState(user, monster);
     updateBattleUI();
-    updateButtonStates();
+    requestAnimationFrame(() => {
+        updateButtonStates();  // 렌더 후 안전하게 버튼 상태 업데이트
+    });
 
     // 🔥 HP 바 초기화
     updateHpBar(
@@ -573,6 +578,7 @@ function nextBattle() {
     // 보상 모달만 닫기
     resetModalStyles(lootModal);
     resetModalStyles(defeatModal);
+    resetModalStyles(battleModal);
 
     battleEnded = false;
     isProcessingTurn = false;
@@ -597,7 +603,7 @@ function resetModalStyles(modalEl) {
     modalEl.style.zIndex = '';
 }
 
-async function doDefend() {
+async function doPotion() {
     const player = battleState.player;
 
     // 조건: 턴 중 & 패배 아님 & 아직 안 쓴 경우 & 살아있는 경우만 가능
@@ -648,7 +654,7 @@ async function doDefend() {
     }
 }
 
-function doHeal() {
+function doRun() {
     if (!isPlayerTurn || isProcessingTurn || battleEnded) return;
     showMessageModal("도망쳤습니다!");
     closeBattleModal();
@@ -697,4 +703,94 @@ function disableBattleButtons(disabled) {
         const quantity = battleState.player.potion?.quantity ?? 0;
         defendBtn.disabled = disabled || quantity <= 0 || potionUsed;
     }
+}
+
+function handleBattleClose() {
+    // 전투 모달 닫기
+    document.getElementById('battleModal')?.classList.add('hidden');
+    document.getElementById('lootModal')?.classList.add('hidden');
+    document.getElementById('defeatModal')?.classList.add('hidden');
+    document.getElementById('battleMapSelectModal')?.classList.remove('hidden');
+}
+
+function showBattleSkeleton() {
+    document.getElementById('userCharacterSkeleton')?.classList.add('skeleton');
+    document.getElementById('monsterCharacterSkeleton')?.classList.add('skeleton');
+    document.getElementById('battleBackgroundSkeleton')?.classList.add('skeleton');
+
+    document.getElementById('userCharacter').style.display = 'none';
+    document.getElementById('monsterCharacter').style.display = 'none';
+    document.getElementById('battleBackground').style.display = 'none';
+}
+
+function waitForAllBattleImagesToLoad(callback) {
+    let loaded = 0;
+    const total = 3;
+
+    function checkDone() {
+        loaded++;
+        if (loaded >= total && typeof callback === 'function') callback();
+    }
+
+    const userImage = document.getElementById('userCharacter');
+    const monsterImage = document.getElementById('monsterCharacter');
+    const background = document.getElementById('battleBackground');
+
+    if (userImage?.complete) {
+        checkDone();
+    } else {
+        userImage.onload = checkDone;
+    }
+
+    if (monsterImage?.complete) {
+        checkDone();
+    } else {
+        monsterImage.onload = checkDone;
+    }
+
+    if (background?.complete) {
+        checkDone();
+    } else {
+        background.onload = checkDone;
+    }
+}
+
+function removeBattleSkeleton() {
+    // 1. 스켈레톤 대체 div에서 .skeleton 클래스 제거
+    const skeletonDivIds = [
+        'userCharacterSkeleton',
+        'monsterCharacterSkeleton',
+        'battleBackgroundSkeleton'
+    ];
+    skeletonDivIds.forEach(id => {
+        document.getElementById(id)?.classList.remove('skeleton');
+    });
+
+    // 2. 실제 이미지 요소 다시 표시 (img 태그)
+    const imageIds = [
+        'userCharacter',
+        'monsterCharacter',
+        'battleBackground'
+    ];
+    imageIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = '';
+    });
+
+    // 3. 내부 텍스트 요소에서 skeleton 클래스 제거
+    const skeletonTextIds = [
+        'userCharacter', 'monsterCharacter', 'battleBackground',
+        'playerHpText', 'monsterHpText',
+        'playerNameLabel', 'playerAttrLabel',
+        'monsterNameLabel', 'monsterAttrLabel',
+        'attackPowerDisplay'
+    ];
+    skeletonTextIds.forEach(id => {
+        document.getElementById(id)?.classList.remove('skeleton');
+    });
+
+    // 4. char-label wrapper에서 skeleton 제거
+    document.querySelectorAll('.char-label.skeleton').forEach(el => {
+        el.classList.remove('skeleton');
+    });
 }

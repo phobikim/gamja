@@ -536,7 +536,7 @@
         <!-- 전투 장면 -->
         <div class="battle-scene">
             <div id="battleMapName" class="map-name-banner">야생 들판</div>
-            <img id="battleBackground" src="" alt="전투 씬">
+            <img id="battleBackground" class="skeleton" src="" alt="전투 씬">
 
             <!-- 🟢 플레이어 영역 -->
             <div class="player-container">
@@ -544,15 +544,16 @@
                     <div class="hp-bar-bg">
                         <div id="playerHpBar" class="hp-bar-fill"></div>
                     </div>
-                    <div id="playerHpText" class="hp-text">12 / 15</div>
+                    <div id="playerHpText" class="hp-text skeleton"></div>
                 </div>
                 <div class="char-shadow"></div>
-                <img id="userCharacter" class="player-character" src="" alt="내 캐릭터">
+                <div id="userCharacterSkeleton" class="skeleton-img skeleton"></div>
+                <img id="userCharacter" class="player-character" src="" alt="내 캐릭터" style="display: none;">
 
                 <!-- ✅ 캐릭터 이름/속성 -->
-                <div class="char-label">
-                    <strong id="playerNameLabel">감풍덩</strong>
-                    [<span id="playerAttrLabel">생감자</span>]
+                <div class="char-label skeleton">
+                    <strong id="playerNameLabel"></strong>
+                    [<span id="playerAttrLabel"></span>]
                 </div>
             </div>
 
@@ -562,44 +563,31 @@
                     <div class="hp-bar-bg">
                         <div id="monsterHpBar" class="hp-bar-fill"></div>
                     </div>
-                    <div id="monsterHpText" class="hp-text">10 / 10</div>
+                    <div id="monsterHpText" class="hp-text skeleton"></div>
                 </div>
                 <div id="monsterEffectContainer" class="monster-effect-container hidden">
                     <div id="monsterEffect" class="monster-effect"></div>
                 </div>
                 <div class="char-shadow"></div>
-                <img id="monsterCharacter" class="monster-character" src="" alt="몬스터">
+                <img id="monsterCharacter" class="skeleton-img skeleton monster-character" src="" alt="몬스터">
 
                 <!-- ✅ 몬스터 이름/속성 -->
-                <div class="char-label">
-                    <strong id="monsterNameLabel">도둑쥐</strong>
-                    [<span id="monsterAttrLabel">야생</span>]
+                <div class="char-label skeleton">
+                    <strong id="monsterNameLabel"></strong>
+                    [<span id="monsterAttrLabel"></span>]
                 </div>
             </div>
         </div>
         <div class="battle-cards" id="battleCardOptions">
-            <!-- 카드 1 -->
-<!--            <div class="battle-card" onclick="selectBattleCard(0)">-->
-<!--                <div class="card-title">🔥 감자의 분노</div>-->
-<!--                <div class="card-desc">공격력 x2! 실패 시 자해</div>-->
-<!--                <div class="card-cost">MP 3</div>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; 카드 2 &ndash;&gt;-->
-<!--            <div class="battle-card" onclick="selectBattleCard(1)">-->
-<!--                <div class="card-title">🎲 감자 던지기</div>-->
-<!--                <div class="card-desc">랜덤 효과 발동</div>-->
-<!--                <div class="card-cost">MP 2</div>-->
-<!--            </div>-->
         </div>
 
         <div class="battle-actions">
-            <button id="healBtn" onclick="doHeal()">도망</button>
+            <button id="healBtn" onclick="doRun()">도망</button>
             <button id="attackBtn" onclick="doAttack()">
                 <div class="attack-btn-top">공격</div>
-                <div class="attack-btn-bottom" id="attackPowerDisplay">공격력: 17</div>
+                <div class="attack-btn-bottom skeleton" id="attackPowerDisplay"></div>
             </button>
-            <button id="defendBtn" onclick="doDefend()">물약</button>
+            <button id="defendBtn" onclick="doPotion()">물약</button>
         </div>
     </div>
 </div>
@@ -637,9 +625,12 @@
             </div>
 
             <!-- 다음 전투 버튼 -->
-            <div class="next-battle-section">
-                <button id="nextBattleBtn" class="modal-btn btn-continue" onclick="nextBattle()">
+            <div class="next-battle-section inline-buttons">
+                <button id="nextBattleBtn" class="modal-btn orange-btn" onclick="nextBattle()">
                     다음 전투
+                </button>
+                <button id="closeBattleModalBtn" class="modal-btn orange-btn" onclick="handleBattleClose()">
+                    닫기
                 </button>
             </div>
         </div>
@@ -653,7 +644,10 @@
             <img src="https://phobi.me/gamja.img/images/icons/icon_defeat.png" alt="Defeat Image" class="defeat-image">
             <div class="sign-text" id="defeatSignText">여기에 다시 묻히다...</div>
         </div>
-        <button onclick="nextBattle()" class="modal-btn defeat-buttons">다시 도전!</button>
+        <div class="defeat-button-row inline-buttons">
+            <button onclick="nextBattle()" class="modal-btn orange-btn">다시 도전</button>
+            <button onclick="handleBattleClose()" class="modal-btn orange-btn">닫기</button>
+        </div>
     </div>
 </div>
 
@@ -679,13 +673,6 @@
                     <div>LV <span id="combatLevelValue">1</span></div>
                 </div>
             </div>
-<!--            &lt;!&ndash;스탯 모달&ndash;&gt;-->
-<!--            <div id="statTooltipModal" class="stat-tooltip-modal hidden">-->
-<!--                <div class="stat-tooltip-content">-->
-<!--                    <div id="statTooltipText" class="tooltip-content"></div>-->
-<!--                </div>-->
-<!--                <button id="statTooltipClose" class="stat-tooltip-close">닫기</button>-->
-<!--            </div>-->
             <!-- 스탯 -->
             <div class="char-stats-area">
                 <!-- 전투 스탯 -->
