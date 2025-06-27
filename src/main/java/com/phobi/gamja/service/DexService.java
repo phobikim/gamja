@@ -67,7 +67,7 @@ public class DexService {
     }
 
     private List<Map<String, Object>> buildDexList(Long userId) {
-        List<Dex> dexList = dexRepository.findAllEnabledForUser();
+        List<Dex> dexList = dexRepository.findByUseFlagTrue();
         List<UserDex> ownedDexList = userDexRepository.findByUserId(userId);
         Set<Long> ownedDexIds = ownedDexList.stream()
                 .map(ud -> ud.getDex().getId())

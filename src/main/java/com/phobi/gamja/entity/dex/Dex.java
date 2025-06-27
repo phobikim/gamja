@@ -31,8 +31,11 @@ public class Dex {
     @Column(name = "condition", nullable = false, columnDefinition = "TEXT")
     private String condition;
 
-    @Column(name = "user_flag", nullable = false)
-    private boolean userFlag;
+    @Column(name = "use_flag", nullable = false)
+    private boolean useFlag;
+
+    @Column(name = "is_hidden", nullable = false)
+    private boolean hidden;
 
     // 기존 String attribute → DexAttribute로 변경
     @ManyToOne(fetch = FetchType.LAZY)

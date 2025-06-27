@@ -371,7 +371,7 @@ public class CharService {
                 .orElseThrow(() -> new IllegalStateException("해당 rarity가 존재하지 않습니다: " + selectedRarity));
 
 
-        List<Dex> candidates = dexRepository.findByRarity_Rarity(selectedRarity);
+        List<Dex> candidates = dexRepository.getGachaCandidates(selectedRarity);
         if (candidates.isEmpty()) {
             return GamJaResponse.fail("해당 등급의 감자가 없습니다.");
         }
