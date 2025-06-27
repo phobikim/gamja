@@ -9,8 +9,10 @@ import com.phobi.gamja.dto.user.UserCharInfoDto;
 import com.phobi.gamja.dto.user.UserDexXpDto;
 import com.phobi.gamja.dto.user.UserSkillDto;
 import com.phobi.gamja.entity.battle.Monster;
+import com.phobi.gamja.entity.battle.MonsterDrop;
 import com.phobi.gamja.entity.contents.*;
 import com.phobi.gamja.entity.item.Item;
+import com.phobi.gamja.entity.item.ItemReward;
 import com.phobi.gamja.entity.title.Title;
 import com.phobi.gamja.entity.title.TitleCondition;
 import com.phobi.gamja.entity.title.UserTitle;
@@ -30,11 +32,15 @@ import com.phobi.gamja.util.StatCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 import java.util.*;
+
+import static com.phobi.gamja.entity.contents.SkillType.*;
 
 @Service
 @RequiredArgsConstructor
@@ -85,20 +91,42 @@ public class ActionService {
         }
     }
 
-    public ResponseEntity<GamJaResponse> getCardEvents(String activity, int rank) {
+    public ResponseEntity<GamJaResponse> getCardEvents(String activity, int rank, HttpSession session) {
+        Long userId = getUserId(session);
         ActivityType activityType = ActivityType.valueOf(activity.toUpperCase());
-        List<ActionCardEvent> eventList = actionCardEventRepository
+
+        // 카드 풀 불러오기
+        List<ActionCardEvent> allEvents = actionCardEventRepository
                 .findByActivityTypeAndRankAndIsEnabledTrue(activityType, rank);
 
-        List<CardEventDto> result = eventList.stream()
-                .map(event -> {
-                    List<ActionCardEventDrop> drops = Optional.ofNullable(event.getDropGroupId())
-                            .map(actionCardEventDropRepository::findByDropGroupId)
-                            .orElse(List.of());
-                    return CardEventDto.of(event, drops);
-                }).toList();
+        if (allEvents.size() < 2) {
+            return ResponseEntity.ok(GamJaResponse.fail("카드 이벤트가 부족합니다."));
+        }
 
-        return ResponseEntity.ok(GamJaResponse.success("카드 이벤트 조회 완료", result));
+        // 랜덤 2장 추출
+        Collections.shuffle(allEvents);
+        List<ActionCardEvent> selectedEvents = allEvents.subList(0, 2);
+
+        // ExplorationSession 생성
+        ExplorationSession exploration = new ExplorationSession();
+        exploration.setUserId(userId);
+        exploration.setHp(3);
+        exploration.setStage(1);
+        exploration.setUsedCardIds(new ArrayList<>());
+        exploration.setRewards(new ArrayList<>());
+        exploration.setCurrentChoices(selectedEvents);
+
+        session.setAttribute("explorationSession", exploration);
+
+        List<CardChoiceDto> result = selectedEvents.stream()
+                .map(CardChoiceDto::of)
+                .collect(Collectors.toList());
+
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("hp", exploration.getHp());
+        responseBody.put("stage", exploration.getStage());
+        responseBody.put("currentChoices", result);
+        return ResponseEntity.ok(GamJaResponse.success("카드 이벤트 시작", responseBody));
     }
 
     public ResponseEntity<GamJaResponse> getDropTable(String activityType, int spotRank, HttpSession session) {
@@ -114,43 +142,269 @@ public class ActionService {
 
         return ResponseEntity.ok(GamJaResponse.success("정상 조회", result));
     }
-
+    public record DropResult(List<Map<String, Object>> visibleRewards, List<ItemReward> internalRewards) {}
     public ResponseEntity<GamJaResponse> endBattle(HttpSession session, Map<String, Object> request) {
+
         Long userId = getUserId(session);
         Long monsterId = ((Number) request.get("monsterId")).longValue();
 
         UserDtl userDtl = getUserDtl(userId);
         Long dexId = Optional.ofNullable(userDtl.getCharacterDexId())
                 .orElseThrow(() -> new IllegalArgumentException("착용 중인 캐릭터가 없습니다."));
+        // 몬스터 조회
+        Monster monster = monsterRepository.findById(monsterId)
+                .orElseThrow(() -> new IllegalArgumentException("몬스터 없음"));
 
-        UserDexXpDto stat = updateCharacterExp(userId, dexId, (int) request.get("exp"));
-        processItemRewards(userId, request, true);
-        userDtl.setCharacterImage(commonUtil.resolveCharacterImage(userDtl));
+        // 경험치 획득
+        int gainedXp = monster.getMonsterXp();
+        UserDexXpDto stat = updateCharacterExp(userId, dexId, gainedXp);
+
+        // 드랍 계산
+        DropResult dropResult = getDropResult(monster);
+        processItemRewards(userId, dropResult.internalRewards());
+
 
         logService.recordCounter(userId, CounterType.MONSTER_KILL, monsterId);
         userLogService.recordDailyMonster(userId, monsterId);
         corpsTierService.updateCorpsXp(userId, 1);
-        return ResponseEntity.ok(GamJaResponse.success("아이템 추가 완료", stat));
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("xp", stat.getXp());
+        result.put("maxExp", stat.getMaxExp());
+        result.put("level", stat.getLevel());
+        result.put("gainedXp", gainedXp);
+        result.put("items", dropResult.visibleRewards());
+
+        return ResponseEntity.ok(GamJaResponse.success("전투 보상 처리 완료", result));
     }
+
+
+
+    public DropResult getDropResult(Monster monster) {
+        List<MonsterDrop> drops = monsterDropRepository.findByMonster(monster);
+        List<Map<String, Object>> visible = new ArrayList<>();
+        List<ItemReward> internal = new ArrayList<>();
+
+        for (MonsterDrop drop : drops) {
+            if (Math.random() * 100 <= drop.getDropRate()) {
+                int count = drop.getMinCount() + new Random().nextInt(drop.getMaxCount() - drop.getMinCount() + 1);
+                Item item = drop.getItem();
+
+                // 클라이언트용
+                visible.add(Map.of(
+                        "name", item.getName(),
+                        "iconPath", item.getIconPath(),
+                        "rarity", item.getRarity().name(),
+                        "count", count
+                ));
+
+                // 내부 처리용
+                internal.add(new ItemReward(item, count));
+            }
+        }
+
+        return new DropResult(visible, internal);
+    }
+
+    public ResponseEntity<GamJaResponse> resolveCardDropResponse(HttpSession session, Map<String, Object> request) {
+        Long eventId = ((Number) request.get("eventId")).longValue();
+
+        // 1. 세션 유효성 검증
+        ExplorationSession exploration = (ExplorationSession) session.getAttribute("explorationSession");
+        if (exploration == null) {
+            return ResponseEntity.ok(GamJaResponse.fail("진행 중인 탐사가 없습니다."));
+        }
+
+        Long userId = getUserId(session);
+
+        // 2. 현재 선택 가능한 카드인지 검증
+        boolean validChoice = exploration.getCurrentChoices().stream()
+                .anyMatch(e -> e.getId().equals(eventId));
+        if (!validChoice) {
+            return ResponseEntity.ok(GamJaResponse.fail("유효하지 않은 카드 선택입니다."));
+        }
+
+        // 3. 카드 이벤트 조회
+        ActionCardEvent event = actionCardEventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("카드 이벤트가 존재하지 않습니다."));
+
+        // 4. HP 처리
+        int hp = exploration.getHp();
+        hp += event.getHpChange(); // trap일 경우 -1 등
+        exploration.setHp(hp);
+
+        // 5. stage 증가
+        int stage = exploration.getStage() + 1;
+        exploration.setStage(stage);
+
+        // 6. 드랍 처리
+        Map<String, Object> dropResult = null;
+        if (event.getDropGroupId() != null) {
+            List<ActionCardEventDrop> drops = actionCardEventDropRepository.findByDropGroupId(event.getDropGroupId());
+            Random rand = new Random();
+            for (ActionCardEventDrop drop : drops) {
+                if (rand.nextFloat() <= drop.getDropRate()) {
+                    int qty = rand.nextInt(drop.getMaxQuantity() - drop.getMinQuantity() + 1) + drop.getMinQuantity();
+                    Item item = drop.getItem();
+
+                    ExplorationReward reward = new ExplorationReward();
+                    reward.setStage(stage);
+                    reward.setTotalExp(calculateExplorationExp(stage));
+                    reward.addDrop(item.getId(), item.getName(), item.getIconPath(), qty);
+
+                    exploration.getRewards().add(reward);
+
+                    dropResult = Map.of(
+                            "itemId", item.getId(),
+                            "itemName", item.getName(),
+                            "iconPath", item.getIconPath(),
+                            "count", qty
+                    );
+                    break; // 최초 1개만 리턴
+                }
+            }
+        }
+
+        // 7. 사용한 카드 ID 기록
+        exploration.getUsedCardIds().add(eventId);
+
+        // 8. 다음 카드 2장 갱신
+        List<ActionCardEvent> pool = actionCardEventRepository.findByActivityTypeAndRankAndIsEnabledTrue(
+                event.getActivityType(), event.getRank());
+        pool.removeIf(e -> exploration.getUsedCardIds().contains(e.getId()));
+        Collections.shuffle(pool);
+        if (pool.size() >= 2) {
+            exploration.setCurrentChoices(pool.subList(0, 2));
+        } else {
+            exploration.setCurrentChoices(List.of()); // 다음 카드 없음
+        }
+
+        // 9. 세션 갱신
+        session.setAttribute("explorationSession", exploration);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("hp", exploration.getHp());
+        response.put("stage", exploration.getStage());
+        response.put("isEnd", exploration.getHp() <= 0);
+        response.put("nextChoices", exploration.getCurrentChoices().stream()
+                .map(card -> {
+                    Map<String, Object> dto = new HashMap<>();
+                    dto.put("id", card.getId());
+                    dto.put("cardText", card.getCardText());
+                    dto.put("eventMessage", card.getEventMessage());
+                    dto.put("eventType", card.getEventType().name());
+
+                    // 아이템 미리보기: 이름, 이미지만
+                    List<Map<String, String>> items = Optional.ofNullable(card.getDropGroupId())
+                            .map(actionCardEventDropRepository::findByDropGroupId)
+                            .orElse(List.of())
+                            .stream()
+                            .map(drop -> Map.of(
+                                    "itemName", drop.getItem().getName(),
+                                    "iconPath", drop.getItem().getIconPath()
+                            ))
+                            .collect(Collectors.toList());
+
+                    dto.put("items", items);
+                    return dto;
+                }).toList());
+        if (dropResult != null) {
+            response.putAll(dropResult); // itemId, itemName, iconPath, count
+        }
+
+        return ResponseEntity.ok(GamJaResponse.success(
+                dropResult != null ? "아이템 획득" : "아이템 없음", response
+        ));
+    }
+
 
     public ResponseEntity<GamJaResponse> endExploration(HttpSession session, Map<String, Object> request) {
         Long userId = getUserId(session);
         SkillType skillType = SkillType.valueOf(((String) request.get("activityType")).toUpperCase());
-        double exp = ((Number) request.getOrDefault("exp", 0)).doubleValue();
-        int maxCombo = ((Number) request.getOrDefault("maxCombo", 0)).intValue();
 
-        UserSkill userSkill = updateUserSkill(userId, skillType, exp, maxCombo);
-        processItemRewards(userId, request, false);
+        // 1. 세션 꺼내기
+        ExplorationSession exploration = (ExplorationSession) session.getAttribute("explorationSession");
+        if (exploration == null) {
+            return ResponseEntity.badRequest().body(GamJaResponse.fail("진행 중인 탐사가 없습니다."));
+        }
 
-        UserSkillDto result = new UserSkillDto(skillType, userSkill.getLevel(), userSkill.getExp(), getRequiredExp(userSkill.getLevel()), userSkill.getMaxCombo());
-        // ✅ 활동 로그 및 카운팅 처리
-        if (EnumSet.of(SkillType.WOODCUTTING, SkillType.FISHING, SkillType.MINING, SkillType.GATHERING).contains(skillType)) {
+        int stage = exploration.getStage();
+        int maxCombo = stage;
+        int totalExp = calculateExplorationExp(stage);
+
+        // 2. 인벤토리 보상 반영 + 누적 아이템 리스트 구성
+        List<Map<String, Object>> itemList = new ArrayList<>();
+        Map<Long, Map<String, Object>> merged = new HashMap<>();
+
+        for (ExplorationReward reward : exploration.getRewards()) {
+            for (Map<String, Object> drop : reward.getDrops()) {
+                Long itemId = ((Number) drop.get("itemId")).longValue();
+                int count = ((Number) drop.get("count")).intValue();
+                String itemName = (String) drop.get("itemName");
+                String iconPath = (String) drop.get("iconPath");
+
+                // 인벤토리에 저장
+                UserInventory inv = userInventoryRepository.findByUserIdAndItemId(userId, itemId)
+                        .orElseGet(() -> new UserInventory(userId, itemId, 0));
+                inv.setQuantity(inv.getQuantity() + count);
+                userInventoryRepository.save(inv);
+
+                // 누적 정리 (itemId는 key로만 사용하고, 내려보내지 않음)
+                if (!merged.containsKey(itemId)) {
+                    Map<String, Object> itemInfo = new HashMap<>();
+                    itemInfo.put("itemName", itemName);
+                    itemInfo.put("iconPath", iconPath);
+                    itemInfo.put("count", count);
+                    merged.put(itemId, itemInfo);
+                } else {
+                    Map<String, Object> existing = merged.get(itemId);
+                    int old = (int) existing.get("count");
+                    existing.put("count", old + count);
+                }
+            }
+        }
+
+        itemList.addAll(merged.values());
+
+        // 3. EXP 계산 + 스킬 업데이트
+        UserSkill userSkill = updateUserSkill(userId, skillType, totalExp, maxCombo);
+
+        // 4. 로그 기록
+        if (EnumSet.of(SkillType.WOODCUTTING, FISHING, MINING, GATHERING).contains(skillType)) {
             Long actionId = getLifeActionTargetId(skillType);
             logService.recordCounter(userId, CounterType.LIFE_ACTION, actionId);
         }
+
+        // 5. 부가 보상
         corpsTierService.updateCorpsXp(userId, 1);
-        return ResponseEntity.ok(GamJaResponse.success("아이템 추가 완료", result));
+
+        // 6. 세션 초기화
+        session.removeAttribute("explorationSession");
+
+        // ✅ 최종 응답
+        Map<String, Object> result = new HashMap<>();
+        result.put("skillType", skillType.name());
+        result.put("level", userSkill.getLevel());
+        result.put("xp", userSkill.getExp());
+        result.put("maxExp", getRequiredExp(userSkill.getLevel()));
+        result.put("maxCombo", userSkill.getMaxCombo());
+        result.put("stage", exploration.getStage()); // 탐사에서 실제 도달한 스테이지
+        result.put("gainedExp", totalExp); // 서버 계산한 경험치
+        result.put("items", itemList);
+
+        return ResponseEntity.ok(GamJaResponse.success("탐사 완료", result));
     }
+
+
+    private int calculateExplorationExp(int stage) {
+        if (stage <= 5) return 0;
+        if (stage <= 10) return 5;
+        if (stage <= 20) return 10;
+        if (stage <= 30) return 15;
+        if (stage <= 40) return 20;
+        return 20;
+    }
+
 
     private Long getLifeActionTargetId(SkillType skillType) {
         return switch (skillType) {
@@ -303,28 +557,10 @@ public class ActionService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
     }
 
-    private void processItemRewards(Long userId, Map<String, Object> request, boolean validateDrops) {
-        List<Map<String, Object>> items = (List<Map<String, Object>>) request.get("items");
-
-        Set<Long> allowedItemIds = new HashSet<>();
-        if (validateDrops) {
-            Long monsterId = ((Number) request.get("monsterId")).longValue();
-            Monster monster = monsterRepository.findById(monsterId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 몬스터입니다."));
-
-            // ✅ monster_drop 기준으로 허용된 드랍 아이템 ID 목록 수집
-            allowedItemIds = monsterDropRepository.findByMonster(monster).stream()
-                    .map(md -> md.getItem().getId())
-                    .collect(Collectors.toSet());
-        }
-
-        for (Map<String, Object> itemMap : items) {
-            Long itemId = ((Number) itemMap.get("itemId")).longValue();
-            int count = ((Number) itemMap.get("count")).intValue();
-
-            if (validateDrops && !allowedItemIds.contains(itemId)) {
-                throw new IllegalArgumentException("허가 없는 접근 시...너도 튀겨질 수 있어.");
-            }
+    private void processItemRewards(Long userId, List<ItemReward> items) {
+        for (ItemReward reward : items) {
+            Long itemId = reward.getItem().getId();
+            int count = reward.getCount();
 
             UserInventory inv = userInventoryRepository.findByUserIdAndItemId(userId, itemId)
                     .orElseGet(() -> new UserInventory(userId, itemId, 0));

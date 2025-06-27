@@ -39,20 +39,4 @@ public class Monster {
     @Column(name = "monster_xp")
     private int monsterXp;
 
-//    @Column(name = "drop_item1_id")
-//    private Long dropItem1Id;
-//
-//    @Column(name = "drop_item2_id")
-//    private Long dropItem2Id;
-//
-//    @Column(name = "drop_item3_id")
-//    private Long dropItem3Id;
-//
-//    @Column(name = "drop_item4_id")
-//    private Long dropItem4Id;
-//
-//    @Column(name = "drop_item5_id")
-//    private Long dropItem5Id;
-
-
 }

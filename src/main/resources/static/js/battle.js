@@ -392,56 +392,30 @@ function updateWinBox() {
 
 function showRewardResults() {
     const currentUser = getCurrentBattleUser();
-    const expReward = battleState.monster.exp || 0;
-    const dropItems = generateLootItems();
-    updateCharacterReward(currentUser, expReward, dropItems);
-    updateLootItemsDisplay(dropItems);
-}
 
-function updateCharacterReward(user, expReward, items) {
     const payload = {
-        exp: expReward,
-        monsterId: battleState.monster.id,
-        items: items.map(item => ({ itemId: item.itemId, count: item.count }))
+        monsterId: battleState.monster.id
     };
 
     apiRequestJson('/api/action/end-battle', 'POST', payload)
         .then(res => {
             if (res.code === 'SUCCESS' && res.data) {
-                const { xp, maxExp, level } = res.data;
-                user.afterXp = xp;
-                user.maxExp = maxExp;
-                user.level = level;
-                updateRewardUI(user, expReward);
+                const { xp, maxExp, level, gainedXp, items } = res.data;
+
+                currentUser.afterXp = xp;
+                currentUser.maxExp = maxExp;
+                currentUser.level = level;
+
+                updateRewardUI(currentUser, gainedXp);
+                updateLootItemsDisplay(items);
                 loadCharacterBasicInfo();
             } else {
-                showMessageModal("아이템 획득 처리 실패");
+                showMessageModal("전투 보상 처리 실패");
             }
         });
+
 }
 
-function generateLootItems() {
-    const dropList = battleState.monster.drops || [];
-    const loot = [];
-
-    dropList.forEach(drop => {
-        const chance = drop.dropRate ?? 0;
-        const roll = Math.random() * 100;
-
-        if (roll <= chance) {
-            const min = drop.minCount ?? 1;
-            const max = drop.maxCount ?? min;
-            const count = Math.floor(Math.random() * (max - min + 1)) + min;
-
-            loot.push({
-                ...drop,
-                count
-            });
-        }
-    });
-
-    return loot;
-}
 
 function updateLootItemsDisplay(items) {
     const lootItemsList = document.getElementById('lootItemsList');
@@ -490,7 +464,7 @@ function showDamageText(targetSelector, value, isHeal = false) {
     setTimeout(() => { dmg.remove(); }, 1000);
 }
 
-function updateRewardUI(user, expReward) {// 캐릭터 이미지 설정
+function updateRewardUI(user, expReward) {
     const charImg = document.getElementById('rewardCharacterImage');
     charImg.src = currentDexImage
     const levelEl = document.getElementById('rewardCharLevel');
@@ -527,58 +501,14 @@ function updateRewardUI(user, expReward) {// 캐릭터 이미지 설정
     }
 }
 
-function createRewardInfoElement() {
-    const container = document.createElement('div');
-    container.id = 'rewardInfo';
-    container.className = 'reward-info-container';
-
-    // lootModal 내부에 추가
-    const lootModal = document.getElementById('lootModal');
-    if (lootModal) {
-        const lootItemsList = document.getElementById('lootItemsList');
-        if (lootItemsList) {
-            lootModal.insertBefore(container, lootItemsList);
-        } else {
-            lootModal.appendChild(container);
-        }
-    }
-
-    return container;
-}
-
-function createExpBar() {
-    const expBarContainer = document.createElement('div');
-    expBarContainer.className = 'exp-bar-container';
-    expBarContainer.innerHTML = `
-        <div class="exp-bar">
-            <div class="exp-fill"></div>
-            <div class="exp-text">0 / 100</div>
-        </div>
-    `;
-    return expBarContainer;
-}
-
-function updateExpBar(expBarContainer, currentExp, maxExp) {
-    const expFill = expBarContainer.querySelector('.exp-fill');
-    const expText = expBarContainer.querySelector('.exp-text');
-
-    const percentage = Math.min((currentExp / maxExp) * 100, 100);
-
-    if (expFill) {
-        expFill.style.width = `${percentage}%`;
-        expFill.style.transition = 'width 1s ease-in-out';
-    }
-
-    if (expText) {
-        expText.textContent = `${currentExp} / ${maxExp}`;
-    }
-}
 
 function nextBattle() {
-    // 보상 모달만 닫기
+    // 기존 전투 데이터 초기화
     resetModalStyles(lootModal);
     resetModalStyles(defeatModal);
     resetModalStyles(battleModal);
+    // 드랍 영역 초기화
+    clearLootItemsDisplay();
 
     battleEnded = false;
     isProcessingTurn = false;
@@ -711,6 +641,8 @@ function handleBattleClose() {
     document.getElementById('lootModal')?.classList.add('hidden');
     document.getElementById('defeatModal')?.classList.add('hidden');
     document.getElementById('battleMapSelectModal')?.classList.remove('hidden');
+    // 드랍 영역 초기화
+    clearLootItemsDisplay();
 }
 
 function showBattleSkeleton() {
@@ -793,4 +725,8 @@ function removeBattleSkeleton() {
     document.querySelectorAll('.char-label.skeleton').forEach(el => {
         el.classList.remove('skeleton');
     });
+}
+function clearLootItemsDisplay() {
+    const lootItemsList = document.getElementById('lootItemsList');
+    if (lootItemsList) lootItemsList.innerHTML = '';
 }

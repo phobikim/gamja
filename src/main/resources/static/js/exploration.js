@@ -1,20 +1,13 @@
-// 🌟 전역 상태
-let hp = 3;
-let stage = 1;
 
-let cardEventPool = [];      // 서버에서 불러온 카드 이벤트
-let gainedItems = [];        // 누적 보상 아이템
-let totalExp = 0;            // 누적 경험치
 const explorationModal = document.getElementById('explorationModal');
 let isExplorationEnded = false;
+let gainedItems = [];
 
-// 🌟 탐사 시작
+// 탐사 시작
 async function openExploration(activityType, rank) {
     isExplorationEnded = false;
-    hp = 3;
-    stage = 1;
-    totalExp = 0;
     gainedItems = [];
+    totalExp = 0;
 
     document.getElementById('hp').textContent = hp;
     document.getElementById('stage').textContent = stage;
@@ -27,48 +20,37 @@ async function openExploration(activityType, rank) {
     explorationModal.classList.add('show');
 
     try {
-        cardEventPool = []; // 이전 카드 데이터 명확히 비우기
         const url = `/api/action/card-event?activity=${activityType}&rank=${rank}`;
-        const cardRes = await apiRequest(url, 'GET');
+        const res = await apiRequest(url, 'GET');
 
-        if (cardRes.code !== 'SUCCESS') {
-            showMessageModal(cardRes.message || '카드 목록을 불러오는 데 실패했습니다.');
-            return;
-        }
-        if (cardRes.data.length < 2) {
-            showMessageModal('카드 데이터가 없습니다.'); // 혹은 탐사 불가능 안내
-            return;
-        }
-        cardEventPool = cardRes.data;
-        renderCards();
+        if (res.code !== 'SUCCESS') return showMessageModal(res.message);
+        const { hp, stage, currentChoices } = res.data;
+
+        updateExplorationStatus(hp, stage);
+        renderCards(currentChoices);
     } catch (e) {
-        showMessageModal('서버 오류가 발생했습니다.');
-        console.error(e);
+        showMessageModal('서버 오류');
     }
 }
 
-function renderCards() {
+function updateExplorationStatus(hp, stage) {
+    document.getElementById('hp').textContent = hp;
+    document.getElementById('stage').textContent = stage;
+}
+
+
+function renderCards(cardList) {
     const leftCard = document.getElementById('leftCard');
     const rightCard = document.getElementById('rightCard');
-    // ✅ 이전 카드 초기화
     leftCard.textContent = '';
     rightCard.textContent = '';
-    leftCard.removeAttribute('data-event');
-    rightCard.removeAttribute('data-event');
 
-    if (cardEventPool.length < 2) {
-        fetchNewCards();
+    if (!cardList || cardList.length < 2) {
+        showMessageModal('다음 카드가 부족합니다.');
         return;
     }
 
-    let leftIndex = Math.floor(Math.random() * cardEventPool.length);
-    let rightIndex;
-    do {
-        rightIndex = Math.floor(Math.random() * cardEventPool.length);
-    } while (rightIndex === leftIndex);
-
-    const left = cardEventPool[leftIndex];
-    const right = cardEventPool[rightIndex];
+    const [left, right] = cardList;
 
     leftCard.textContent = left.cardText;
     rightCard.textContent = right.cardText;
@@ -78,148 +60,54 @@ function renderCards() {
     restoreCardListeners();
 }
 
-async function fetchNewCards() {
-    try {
-        const url = `/api/action/card-event?activity=${currentActivityType}&rank=${currentRank}`;
-        const res = await apiRequest(url, 'GET');
-        if (res.code === 'SUCCESS' && res.data.length >= 2) {
-            cardEventPool = res.data;
-            renderCards(); // 다시 시도
-        } else {
-            showMessageModal('카드를 더 이상 불러올 수 없습니다.');
-        }
-    } catch (e) {
-        console.error(e);
-        showMessageModal('카드 로딩 실패');
-    }
-}
-
 function restoreCardListeners() {
     document.getElementById('leftCard').onclick = () => choosePath('left');
     document.getElementById('rightCard').onclick = () => choosePath('right');
 }
 
-function choosePath(direction) {
+async function choosePath(direction) {
     if (isExplorationEnded) return;
 
-    const leftCard = document.getElementById('leftCard');
-    const rightCard = document.getElementById('rightCard');
+    const selected = JSON.parse(document.getElementById(direction === 'left' ? 'leftCard' : 'rightCard').dataset.event);
 
-    // 클릭 애니메이션
-    const clickedCard = direction === 'left' ? leftCard : rightCard;
-    clickedCard.classList.add('click-animate');
+    logCardEvent(selected);
 
-    // 애니메이션 끝나면 자동 제거
-    setTimeout(() => {
-        clickedCard.classList.remove('click-animate');
-    }, 200);
-
-
-
-    const log = document.getElementById('log');
-    const selectedCard = document.getElementById(direction === 'left' ? 'leftCard' : 'rightCard');
-    const event = JSON.parse(selectedCard.dataset.event);
-    // ✅ 이벤트 메시지 로그 (1회만)
-    const logEntry = document.createElement('div');
-    logEntry.textContent = event.eventMessage;
-    logEntry.classList.add('exploration-log-entry');
-
-    if (event.eventType === 'TRAP') {
-        logEntry.classList.add('log-trap');
-        hp += event.hpChange || 0;
-    } else if (event.eventType === 'RESOURCE') {
-        logEntry.classList.add('log-resource');
-    } else {
-        // logEntry.classList.add('log-event');
-    }
-
-    const logBox = document.getElementById('logMessages');
-    logBox.prepend(logEntry);
-    document.getElementById('hp').textContent = hp;
-
-
-    if (stage === 10) {
-        const logPrompt = document.getElementById('logPrompt');
-        if (logPrompt) {
-            logPrompt.innerHTML = `
-            <div style="color: orange; font-weight: bold; animation: burn-flash 1s infinite alternate;">
-                🔥 버닝 모드 진입! 획득량 2배!
-            </div>
-        `;
-        }
-    }
-    if (stage === 20) {
-        const logPrompt = document.getElementById('logPrompt');
-        if (logPrompt) {
-            logPrompt.innerHTML = `
-            <div style="color: red; font-weight: bold; animation: burn-flash-strong 0.8s infinite;">
-                🔥🔥 궁극의 버닝 모드! 획득량 3배!!
-            </div>
-        `;
-        }
-    }
-
-
-    if (Array.isArray(event.drops) && event.drops.length > 0) {
-        // 1. 가중치 총합 계산
-        const totalWeight = event.drops.reduce((sum, drop) => sum + drop.dropRate, 0);
-        const rand = Math.random() * totalWeight;
-
-        // 2. 가중치 기반으로 하나 선택
-        let cumulative = 0;
-        let selectedDrop = null;
-        for (const drop of event.drops) {
-            cumulative += drop.dropRate;
-            if (rand <= cumulative) {
-                selectedDrop = drop;
-                break;
-            }
-        }
-
-        // 3. 수량 계산 및 획득 처리
-        if (selectedDrop) {
-            let qty = Math.floor(Math.random() * (selectedDrop.maxQuantity - selectedDrop.minQuantity + 1)) + selectedDrop.minQuantity;
-            const existing = gainedItems.find(i => i.itemId === selectedDrop.itemId);
-            // 💥 버닝일 경우 2배
-            if (stage > 10) {
-                qty *= 2;
-            }
-            // 💥 버닝일 경우 3배
-            if (stage > 20) {
-                qty *= 3;
-            }
-            if (existing) {
-                existing.count += qty;
-            } else {
-                gainedItems.push({
-                    itemId: selectedDrop.itemId,
-                    count: qty,
-                    itemName: selectedDrop.itemName,
-                    itemImg: selectedDrop.iconPath
-                });
-            }
-            const dropLog = document.createElement('div');
-            dropLog.textContent = `🎁 ${selectedDrop.itemName} x${qty} 획득!`;
-            dropLog.classList.add('exploration-log-entry', 'log-resource');
-            logBox.prepend(dropLog);
-
-        }
-    }
-
-    // 1. 체력 0일 때
-    if (hp <= 0) {
-        isExplorationEnded = true;
-        totalExp = getStageExp(stage);
-        logBox.prepend(createLogLine('💀 체력을 모두 잃고 쓰러졌습니다...', '#f55'));
-        sendExplorationResult(stage);  // ✅ stage는 현재값
+    const res = await apiRequestJson('/api/action/resolve-card', 'POST', {
+        eventId: selected.id,
+        activityType: currentActivityType
+    });
+    const result = res.data;
+    if (!result) {
+        showMessageModal(res.message || '카드 처리 실패');
         return;
     }
+    if (result.itemId) {
+        const { itemId, count, itemName, iconPath } = result;
+        gainedItems.push({ itemId, count, itemName, itemImg: iconPath });
 
-    // 2. 다음 단계 진입
-    stage++;
-    document.getElementById('stage').textContent = stage;
+        const log = document.createElement('div');
+        log.textContent = `🎁 ${itemName} x${count} 획득!`;
+        log.classList.add('exploration-log-entry', 'log-resource');
+        document.getElementById('logMessages').prepend(log);
+    }
 
-    renderCards();
+    if (result.isEnd) {
+        isExplorationEnded = true;
+        sendExplorationResult();
+        return;
+    }
+    updateExplorationStatus(result.hp, result.stage);
+    renderCards(result.nextChoices);
+}
+
+function logCardEvent(event) {
+    const logBox = document.getElementById('logMessages');
+    const entry = document.createElement('div');
+    entry.textContent = event.eventMessage;
+    entry.classList.add('exploration-log-entry');
+    if (event.eventType === 'TRAP') entry.classList.add('log-trap');
+    else if (event.eventType === 'RESOURCE') entry.classList.add('log-resource');
+    logBox.prepend(entry);
 }
 
 function getStageExp(stage) {
@@ -231,69 +119,48 @@ function getStageExp(stage) {
     return 20;
 }
 
-function sendExplorationResult(stage) {
-    const payload = {
-        activityType: currentActivityType,
-        exp: totalExp,
-        items: gainedItems,
-        maxCombo :stage
-    };
+function sendExplorationResult() {
+    apiRequestJson('/api/action/end-exploration', 'POST', {
+        activityType: currentActivityType
+    }).then(res => {
+        if (res.code === 'SUCCESS') {
+            const skillInfo = res.data;
+
+            // 서버에서 내려준 stage, gainedExp, items 사용
+            const stage = skillInfo.stage;
+            const exp = skillInfo.gainedExp;
+            const items = skillInfo.items || [];
+
+            showExplorationResultModal(stage, exp, items);
+            updateUserSkillInfo(skillInfo);
+            actionGather(currentActivityType);
+        } else {
+            showMessageModal(res.message);
+        }
+    }).catch(() => {
+        showMessageModal('서버 오류');
+    });
 
     closeExploration();
-
-    apiRequestJson('/api/action/end-exploration', 'POST', payload)
-        .then(res => {
-            if (res.code === 'SUCCESS') {
-                const skillInfo = res.data;
-
-                // ✅ 탐사 결과 모달 표시
-                showExplorationResultModal(stage, totalExp, gainedItems);
-
-                // ✅ 유저 스킬 업데이트 전역 갱신
-                updateUserSkillInfo(skillInfo); // EXP bar 등 업데이트
-                // ✅ spotList도 다시 렌더링
-                actionGather(currentActivityType);
-            } else {
-                showMessageModal(res.message || '탐사 보상 저장 실패');
-            }
-        })
-        .catch(e => {
-            console.error('탐사 결과 저장 실패', e);
-            showMessageModal('서버 오류로 탐사 보상을 저장하지 못했습니다.');
-        });
 }
 
+
 function showExplorationResultModal(stage, exp, items) {
-    const explorationResultModal = document.getElementById('explorationResultModal');
-    const header = document.getElementById('explorationResultHeader');
+    const modal = document.getElementById('explorationResultModal');
     const expEl = document.getElementById('resultExp');
     const itemList = document.getElementById('resultItemList');
 
-    // const isClear = stage === maxStage;
-    // header.textContent = isClear ? '탐사 완료' : `탐사 중단 [STAGE: ${stage}]`;
-    header.textContent = `탐사 완료 [STAGE: ${stage}]`;
     expEl.textContent = `+${exp} XP`;
     itemList.innerHTML = '';
 
     items.forEach(i => {
         const row = document.createElement('div');
-        row.innerHTML = `<img src="${basePath}/${i.itemImg}" alt="${i.itemName}" /> <span>${i.itemName} x${i.count}</span>`;
+        row.innerHTML = `<img src="${basePath}/${i.iconPath}" alt="${i.itemName}" /> <span>${i.itemName} x${i.count}</span>`;
         itemList.appendChild(row);
     });
 
-    explorationResultModal.classList.remove('hidden');
-    explorationResultModal.classList.add('show');
-
-    // 닫기 버튼이 자꾸 안눌려서 방탄처리
-    setTimeout(() => {
-        const closeBtn = document.getElementById('closeResultBtn');
-        if (closeBtn) {
-            closeBtn.disabled = false;
-            closeBtn.style.pointerEvents = 'auto';
-            closeBtn.style.opacity = 1;
-            closeBtn.onclick = () => closeExploration();
-        }
-    }, 100); // 혹은 200ms 줘도 됨
+    modal.classList.remove('hidden');
+    modal.classList.add('show');
 }
 
 document.getElementById('closeResultBtn').onclick = () => {
@@ -302,9 +169,14 @@ document.getElementById('closeResultBtn').onclick = () => {
 
 function updateUserSkillInfo(userInfo) {
     const expPercent = Math.min(100, (userInfo.xp / userInfo.maxExp) * 100).toFixed(1);
-    document.getElementById('userSkillLevel').textContent = `스킬 레벨: Lv.${userInfo.level}`;
-    document.getElementById('userSkillExpFill').style.width = `${expPercent}%`;
-    document.getElementById('userSkillExpText').textContent = `${userInfo.xp} / ${userInfo.maxExp} EXP`;
+
+    const levelEl = document.getElementById('userSkillLevel');
+    const barEl = document.getElementById('userSkillExpFill');
+    const textEl = document.getElementById('userSkillExpText');
+
+    if (levelEl) levelEl.textContent = `스킬 레벨: Lv.${userInfo.level}`;
+    if (barEl) barEl.style.width = `${expPercent}%`;
+    if (textEl) textEl.textContent = `${userInfo.xp} / ${userInfo.maxExp} EXP`;
 }
 
 function closeExploration() {
@@ -313,7 +185,7 @@ function closeExploration() {
     explorationModal.classList.add('hidden');
     explorationModal.classList.remove('show');
 
-    // ✅ spotSelectModal 다시 보이게
+    //  spotSelectModal 다시 보이게
     document.getElementById('spotSelectModal').classList.remove('hidden');
 }
 
@@ -330,5 +202,5 @@ function handleManualExplorationEnd() {
     isExplorationEnded = true;
 
     totalExp = getStageExp(stage);
-    sendExplorationResult(stage);
+    sendExplorationResult();
 }

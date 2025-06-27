@@ -10,6 +10,7 @@ import java.util.List;
 @Builder
 @Getter
 public class CardEventDto {
+    private Long id;
     private String cardText;
     private String eventMessage;
     private String eventType;
@@ -19,6 +20,7 @@ public class CardEventDto {
 
     public static CardEventDto of(ActionCardEvent event, List<ActionCardEventDrop> drops) {
         return CardEventDto.builder()
+                .id(event.getId())
                 .cardText(event.getCardText())
                 .eventMessage(event.getEventMessage())
                 .eventType(event.getEventType().name())
