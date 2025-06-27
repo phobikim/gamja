@@ -520,3 +520,14 @@
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
 }
+
+#lootModal .loot-items-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    min-height: 120px; /* 💡 아이템 없을 때도 공간 확보 */
+    padding: 8px 0;
+    transition: min-height 0.3s ease;
+    box-sizing: border-box;
+}
