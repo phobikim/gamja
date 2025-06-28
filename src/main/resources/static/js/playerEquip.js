@@ -106,11 +106,10 @@ function showEquipEffect(item) {
     if (item.bonusPower) effects.push(`공격력 +${item.bonusPower}`);
     if (item.bonusHp) effects.push(`체력 +${item.bonusHp}`);
     if (item.bonusSpeed) effects.push(`민첩 +${item.bonusSpeed}`);
-    if (item.durationTurns) effects.push(`지속 턴수 +${item.durationTurns}`);
-    if (item.bonusSkillFish) effects.push(`낚시 스킬 +${item.bonusSkillFish}`);
-    if (item.bonusSkillMining) effects.push(`채광 스킬 +${item.bonusSkillMining}`);
-    if (item.bonusSkillWoodCutting) effects.push(`벌목 스킬 +${item.bonusSkillWoodCutting}`);
-    if (item.bonusSkillGathering) effects.push(`채집 스킬 +${item.bonusSkillGathering}`);
+    if (item.bonusSkillFish) effects.push(`낚시 체력 +${item.bonusSkillFish}`);
+    if (item.bonusSkillMining) effects.push(`채광 체력 +${item.bonusSkillMining}`);
+    if (item.bonusSkillWoodCutting) effects.push(`벌목 체력 +${item.bonusSkillWoodCutting}`);
+    if (item.bonusSkillGathering) effects.push(`채집 체력 +${item.bonusSkillGathering}`);
     if (effects.length === 0) effects.push("효과 없음");
 
     equipEffectText.textContent = effects.join(' / ');

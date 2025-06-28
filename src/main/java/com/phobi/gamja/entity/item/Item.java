@@ -49,7 +49,7 @@ public class Item {
 
     public enum ItemType {
         GATHER_MATERIAL, CRAFT_MATERIAL, COMPOSITE,
-        EQUIP_GATHER, EQUIP_BATTLE, DROP, POTION
+        EQUIP_GATHER, EQUIP_BATTLE, DROP, EQUIP_POTION
     }
 
 }

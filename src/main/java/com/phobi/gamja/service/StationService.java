@@ -2,18 +2,12 @@ package com.phobi.gamja.service;
 
 import com.phobi.gamja.dto.item.ItemRecipeDto;
 import com.phobi.gamja.dto.contents.StationDto;
-import com.phobi.gamja.entity.item.Item;
-import com.phobi.gamja.entity.item.ItemRecipe;
-import com.phobi.gamja.entity.item.ItemSkillBonus;
-import com.phobi.gamja.entity.item.ItemStatBonus;
+import com.phobi.gamja.entity.item.*;
 import com.phobi.gamja.entity.user.CounterType;
 import com.phobi.gamja.entity.user.UserInventory;
 import com.phobi.gamja.message.CraftRequest;
 import com.phobi.gamja.repository.contents.StationRepository;
-import com.phobi.gamja.repository.item.ItemRecipeRepository;
-import com.phobi.gamja.repository.item.ItemRepository;
-import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
-import com.phobi.gamja.repository.item.ItemStatBonusRepository;
+import com.phobi.gamja.repository.item.*;
 import com.phobi.gamja.repository.user.UserInventoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,6 +30,7 @@ public class StationService {
     private final UserInventoryRepository userInventoryRepository;
     private final ItemStatBonusRepository itemStatBonusRepository;
     private final ItemSkillBonusRepository itemSkillBonusRepository;
+    private final ItemPotionEffectRepository itemPotionEffectRepository;
     private final LogService logService;
 
     public List<StationDto> getStationList() {
@@ -154,6 +149,10 @@ public class StationService {
                         builder.woodcutting(bonus != null ? bonus.getWoodcutting() : 0);
                         builder.gathering(bonus != null ? bonus.getGathering() : 0);
                         builder.making(bonus != null ? bonus.getMaking() : 0);
+                    } else if (resultItem.getItemType() == Item.ItemType.EQUIP_POTION) {
+                        ItemPotionEffect effect = itemPotionEffectRepository.findById(resultItem.getId()).orElse(null);
+                        builder.baseHp(effect != null ? effect.getHealHp() : 0);
+                        builder.basePower(effect != null ? effect.getBonusPower() : 0);
                     }
 
                     return builder.build();

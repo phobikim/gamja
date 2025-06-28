@@ -77,7 +77,7 @@
 
 /* 기본 배경 */
 .intro-page {
-    background-color: #5e340e;
+    background-color: var(--dark-brown-font-color);
     display: flex;
     justify-content: center;
     align-items: center;

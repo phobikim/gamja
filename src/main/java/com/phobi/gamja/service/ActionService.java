@@ -2,14 +2,17 @@
 package com.phobi.gamja.service;
 
 
+import com.phobi.gamja.dto.item.EquipmentType;
 import com.phobi.gamja.dto.user.LifeStatDto;
 import com.phobi.gamja.dto.user.UserCharInfoDto;
 import com.phobi.gamja.dto.user.UserDexXpDto;
+import com.phobi.gamja.dto.user.UserEquipment;
 import com.phobi.gamja.entity.battle.Monster;
 import com.phobi.gamja.entity.battle.MonsterDrop;
 import com.phobi.gamja.entity.contents.*;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.item.ItemReward;
+import com.phobi.gamja.entity.item.ItemSkillBonus;
 import com.phobi.gamja.entity.title.Title;
 import com.phobi.gamja.entity.title.TitleCondition;
 import com.phobi.gamja.entity.title.UserTitle;
@@ -20,6 +23,7 @@ import com.phobi.gamja.repository.battle.MonsterDropRepository;
 import com.phobi.gamja.repository.battle.MonsterRepository;
 import com.phobi.gamja.repository.contents.*;
 import com.phobi.gamja.repository.item.ItemRepository;
+import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
 import com.phobi.gamja.repository.title.TitleEffectRepository;
 import com.phobi.gamja.repository.title.TitleRepository;
 import com.phobi.gamja.repository.title.UserTitleRepository;
@@ -51,12 +55,14 @@ public class ActionService {
     private final ActionCardEventDropRepository actionCardEventDropRepository;
     private final MonsterRepository monsterRepository;
     private final MonsterDropRepository monsterDropRepository;
+    private final ItemSkillBonusRepository itemSkillBonusRepository;
 
     // 타이틀 관련
     private final TitleRepository titleRepository;
     private final TitleEffectRepository titleEffectRepository;
     private final UserTitleRepository userTitleRepository;
     private final UserCounterDetailRepository userCounterDetailRepository;
+    private final UserEquipmentRepository userEquipmentRepository;
 
 
     private final LogService logService;
@@ -102,7 +108,6 @@ public class ActionService {
     public ResponseEntity<GamJaResponse> getCardEvents(String activity, int rank, HttpSession session) {
         Long userId = getUserId(session);
         ActivityType activityType = ActivityType.valueOf(activity.toUpperCase());
-
         // 카드 풀 불러오기
         List<ActionCardEvent> allEvents = actionCardEventRepository
                 .findByActivityTypeAndRankAndIsEnabledTrue(activityType, rank);
@@ -114,11 +119,13 @@ public class ActionService {
         // 랜덤 2장 추출
         Collections.shuffle(allEvents);
         List<ActionCardEvent> selectedEvents = allEvents.subList(0, 2);
-
+        // 장비 기반으로 HP 계산
+        int totalHp = calculateInitialHp(userId, activityType);
         // ExplorationSession 생성
         ExplorationSession exploration = new ExplorationSession();
         exploration.setUserId(userId);
-        exploration.setHp(3);
+
+        exploration.setHp(totalHp);
         exploration.setStage(1);
         exploration.setUsedCardIds(new ArrayList<>());
         exploration.setRewards(new ArrayList<>());
@@ -144,8 +151,31 @@ public class ActionService {
         return ResponseEntity.ok(GamJaResponse.success("카드 이벤트 시작", responseBody));
     }
 
+    public int calculateInitialHp(Long userId, ActivityType activityType) {
+        int baseHp = 3;
+        int bonusHp = 0;
 
-    public record DropResult(List<Map<String, Object>> visibleRewards, List<ItemReward> internalRewards) {}
+        // [1] 생활 장비 조회
+        List<UserEquipment> equipped = userEquipmentRepository.findByUserIdAndType(userId, EquipmentType.EQUIP_GATHER);
+        if (equipped.isEmpty()) return baseHp;
+
+        List<Long> itemIds = equipped.stream()
+                .map(UserEquipment::getItemId)
+                .toList();
+
+        // [2] 생활 장비의 HP 보너스 정보 조회
+        List<ItemSkillBonus> bonuses = itemSkillBonusRepository.findByItemIdIn(itemIds);
+        for (ItemSkillBonus bonus : bonuses) {
+            switch (activityType) {
+                case FISHING -> bonusHp += bonus.getFishing();
+                case MINING -> bonusHp += bonus.getMining();
+                case WOODCUTTING -> bonusHp += bonus.getWoodcutting();
+                case GATHERING -> bonusHp += bonus.getGathering();
+            }
+        }
+
+        return baseHp + bonusHp;
+    }
 
     public ResponseEntity<GamJaResponse> resolveCardDropResponse(HttpSession session, Map<String, Object> request) {
         Long eventId = ((Number) request.get("eventId")).longValue();

@@ -234,9 +234,8 @@
     display: flex;
     justify-content: center;
     gap: 6px;
-    margin-bottom: 12px;
     width: 90%;           /* 💡 너비 90% */
-    margin: 0 auto 12px;  /* 💡 가운데 정렬 + 아래 여백 */
+    margin: 8px auto 12px;  /* 💡 가운데 정렬 + 아래 여백 */
 }
 
 

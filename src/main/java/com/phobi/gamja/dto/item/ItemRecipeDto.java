@@ -32,6 +32,10 @@ public class ItemRecipeDto {
     private Integer gathering;
     private Integer making;
 
+    //음식 전용
+    private int healHp;
+    private int bonusPower;
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
