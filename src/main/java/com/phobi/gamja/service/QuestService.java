@@ -283,7 +283,7 @@ public class QuestService {
             LocalDate today = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDate();
             boolean alreadyCompleted = userDailyQuestLogRepository.existsByUserIdAndQuestIdAndLogDate(userId, questId, today);
             if (alreadyCompleted) {
-                throw new IllegalStateException("오늘 이미 완료한 퀘스트입니다.");
+                return ResponseEntity.badRequest().body(GamJaResponse.fail("오늘 이미 완료한 퀘스트입니다."));
             }
         }
 
@@ -293,12 +293,12 @@ public class QuestService {
                 int owned = Optional.ofNullable(userInventoryRepository.getQuantity(userId, cond.getTargetId()))
                         .orElse(0);
                 if (owned < cond.getRequiredCount()) {
-                    throw new IllegalStateException("납품에 필요한 아이템이 부족합니다.");
+                    return ResponseEntity.badRequest().body(GamJaResponse.fail("납품에 필요한 아이템이 부족합니다."));
                 }
 
                 int result = userInventoryRepository.consumeItem(userId, cond.getTargetId(), cond.getRequiredCount());
                 if (result == 0) {
-                    throw new IllegalStateException("아이템 차감 실패: 수량 부족");
+                    return ResponseEntity.badRequest().body(GamJaResponse.fail("아이템 차감 실패: 수량 부족"));
                 }
             }
         }
@@ -320,7 +320,9 @@ public class QuestService {
         // 3. 완료 기록
         UserQuestId uqId = new UserQuestId(userId, questId);
         UserQuest userQuest = userQuestRepository.findById(uqId).orElse(null);
-
+        if (!quest.isRepeatable() && userQuest != null && Boolean.TRUE.equals(userQuest.isCompleted())) {
+            return ResponseEntity.badRequest().body(GamJaResponse.fail("이미 완료한 퀘스트입니다."));
+        }
         if (userQuest == null) {
             userQuest = UserQuest.builder()
                     .id(uqId)
