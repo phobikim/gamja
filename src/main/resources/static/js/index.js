@@ -1,20 +1,26 @@
 window.addEventListener('DOMContentLoaded', async () => {
     try {
         const res = await fetch('/api/session-check', {
-            credentials: 'include',      // 세션 쿠키 포함
-            cache: 'no-store'            // 캐시 없이 매번 확인
+            credentials: 'include',
+            cache: 'no-store'
         });
-        if (res.status === 503) {
-            // 서버 점검 중이면 점검 페이지로 이동
+
+        const json = await res.json();
+
+        if (json.code === 'MAINTENANCE') {
             location.href = './maintenance.html';
             return;
         }
-        if (res.ok) {
-            // 세션이 살아있으면 바로 이동
+
+        if (json.code === 'SUCCESS') {
             location.href = './char.html';
+            return;
         }
+
+        // 그 외 NO_VALID_USER면 stay
+
     } catch (e) {
-        console.warn('사용자 확인 실패:', e);
+        console.warn('세션 확인 실패:', e);
     }
 });
 

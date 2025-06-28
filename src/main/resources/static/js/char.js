@@ -2,6 +2,23 @@
     const mainCharacter = document.getElementById('mainCharacter');
 
     try {
+        const sessionRes = await fetch('/api/session-check', {
+            credentials: 'include',
+            cache: 'no-store'
+        });
+
+        const sessionJson = await sessionRes.json();
+
+        if (sessionJson.code === 'MAINTENANCE') {
+            location.href = './maintenance.html';
+            return;
+        }
+
+        if (sessionJson.code !== 'SUCCESS') {
+            location.href = './index.html';
+            return;
+        }
+
         // ✅ 1. 세션 확인 (/api/me)
         const meRes = await apiRequest('/api/me', 'GET');
         if (meRes.code !== 'SUCCESS') {

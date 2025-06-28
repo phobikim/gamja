@@ -3,6 +3,7 @@ package com.phobi.gamja.controller;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.user.UserRepository;
 import com.phobi.gamja.service.AuthService;
+import com.phobi.gamja.service.MaintenanceService;
 import com.phobi.gamja.web.config.annotation.SanitizeInput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import java.util.Map;
 public class LoginController {
 
     private final AuthService authService;
+    private final MaintenanceService maintenanceService;
     private final UserRepository userRepository;
 
     @GetMapping("/me")
@@ -51,15 +53,16 @@ public class LoginController {
     }
 
     @GetMapping("/session-check")
-    public ResponseEntity<?> checkSession(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-
-        if (userId != null && userRepository.existsById(userId)) {
-            return ResponseEntity.ok(Map.of("code", "SUCCESS"));
-        } else {
-            request.getSession().invalidate();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("code", "NO_VALID_USER"));
+    public ResponseEntity<?> sessionCheck(HttpSession session) {
+        if (maintenanceService.isUnderMaintenance()) {
+            return ResponseEntity.ok(Map.of("code", "MAINTENANCE"));
         }
+
+        if (session == null || session.getAttribute("userId") == null) {
+            return ResponseEntity.ok(Map.of("code", "NO_VALID_USER"));
+        }
+
+        return ResponseEntity.ok(Map.of("code", "SUCCESS"));
     }
 
 }

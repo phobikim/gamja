@@ -15,10 +15,9 @@ public class UserAgentInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        // 1. 점검 중이면 바로 차단
-        if (maintenanceService.isUnderMaintenance()) {
-            response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "서버 점검 중입니다.");
-            return false;
+        String uri = request.getRequestURI();
+        if (uri.equals("/api/maintenance/server/current")) {
+            return true;
         }
 
         HttpSession session = request.getSession(false); // 세션이 없으면 null

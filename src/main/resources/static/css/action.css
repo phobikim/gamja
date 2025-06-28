@@ -133,23 +133,7 @@
     z-index: 10;
 }
 
-.activity-click-tooltip {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(94, 52, 14, 0.95);
-    color: #fff8dc;
-    padding: 1.5vw 3vw;
-    font-size: 4.5vw;
-    border-radius: 1vw;
-    font-weight: bold;
-    white-space: nowrap;
-    box-shadow: 0 0.5vw 1vw rgba(0, 0, 0, 0.3);
-    animation: tooltipBlinkBig 1.2s ease-in-out infinite;
-    z-index: 10;
-    pointer-events: none;
-}
+
 
 @keyframes tooltipBlinkBig {
     0%, 100% {

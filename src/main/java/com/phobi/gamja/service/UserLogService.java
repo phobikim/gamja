@@ -19,8 +19,6 @@ public class UserLogService {
     private final UserDailyQuestLogRepository userDailyQuestLogRepository;
     private final UserDailyActionLogRepository userDailyActionLogRepository;
 
-    private final static ZoneId KST = ZoneId.of("Asia/Seoul");
-
     private LocalDate today() {
         return ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDate();
     }

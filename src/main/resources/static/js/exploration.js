@@ -164,6 +164,11 @@ function showExplorationResultModal(stage, exp, items) {
         itemList.appendChild(row);
     });
 
+    const closeBtn = document.getElementById('closeResultBtn');
+    closeBtn.onclick = () => {
+        closeExploration();
+    };
+
     modal.classList.remove('hidden');
     modal.classList.add('show');
 }
