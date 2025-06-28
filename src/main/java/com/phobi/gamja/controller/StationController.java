@@ -40,17 +40,7 @@ public class StationController {
             @PathVariable String stationCategory,
             @RequestBody CraftRequest request,
             HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-
-        if (userId == null) {
-            return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
-        }
-
-        try {
-            List<ItemRecipeDto> updatedRecipes = stationService.craftItem(userId, stationCategory, request);
-            return ResponseEntity.ok(GamJaResponse.success("제작 완료", updatedRecipes));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(GamJaResponse.fail(e.getMessage()));
-        }
+        stationService.craftItem(session, stationCategory, request);
+        return ResponseEntity.ok(GamJaResponse.success("제작 완료", null));
     }
 }

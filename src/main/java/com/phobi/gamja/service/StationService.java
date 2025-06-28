@@ -18,8 +18,10 @@ import com.phobi.gamja.repository.user.UserInventoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.phobi.gamja.service.UtilService.RARITY_ORDER;
@@ -55,40 +57,64 @@ public class StationService {
     }
 
     @Transactional
-    public List<ItemRecipeDto> craftItem(Long userId, String stationCategory, CraftRequest request) {
-        List<UserInventory> updatedInventories = new ArrayList<>();
-        // 1. 재료 소모
-        for (CraftRequest.CraftIngredient ing : request.getIngredients()) {
-            UserInventory inv = userInventoryRepository
-                    .findByUserIdAndItemId(userId, ing.getItemId())
-                    .orElseThrow(() -> new IllegalArgumentException("재료 부족: " + ing.getItemId()));
+    public void craftItem(HttpSession session, String stationCategory, CraftRequest request) {
+        Long userId = (Long) session.getAttribute("userId");
+        Long resultItemId = request.getResultItemId();
+        int resultQuantity = request.getResultQuantity();
+        // 1. 레시피 조회
+        ItemRecipe recipe = itemRecipeRepository.findByResultItemId(resultItemId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 제작 레시피입니다."));
 
-            if (inv.getQuantity() < ing.getQuantity()) {
-                throw new IllegalArgumentException("재료 부족: " + ing.getItemId());
+        // 재료 차감
+        for (int i = 1; i <= 4; i++) {
+            Long itemId = getIngredientItemId(recipe, i);
+            Integer quantity = getIngredientQuantity(recipe, i);
+            if (itemId == null || quantity == null || quantity <= 0) continue;
+
+            int totalRequired = quantity * resultQuantity;
+            UserInventory inv = userInventoryRepository.findByUserIdAndItemId(userId, itemId)
+                    .orElseThrow(() -> new IllegalArgumentException("재료가 부족합니다."));
+            if (inv.getQuantity() < totalRequired) {
+                throw new IllegalArgumentException("재료가 부족합니다.");
             }
-
-            inv.setQuantity(inv.getQuantity() - ing.getQuantity());
-            updatedInventories.add(inv); // 📌 나중에 일괄 저장
+            inv.setQuantity(inv.getQuantity() - totalRequired);
+            userInventoryRepository.save(inv);
         }
-        userInventoryRepository.saveAll(updatedInventories);
-
-        // 2. 결과 아이템 지급
+        // 결과 아이템 지급
         UserInventory result = userInventoryRepository
-                .findByUserIdAndItemId(userId, request.getResultItemId())
-                .orElseGet(() -> {
-                    UserInventory newInv = new UserInventory();
-                    newInv.setUserId(userId);
-                    newInv.setItemId(request.getResultItemId());
-                    newInv.setQuantity(0);
-                    return newInv;
-                });
-        result.setQuantity(result.getQuantity() + request.getResultQuantity());
+                .findByUserIdAndItemId(userId, resultItemId)
+                .orElseGet(() -> new UserInventory(userId, resultItemId, 0));
+        result.setQuantity(result.getQuantity() + resultQuantity);
+        userInventoryRepository.save(result);
 
-        updatedInventories.add(result);
-        userInventoryRepository.saveAll(updatedInventories);
-        // 대량 제작 할 경우 수량 인자로 받음
-        logService.recordCounter(userId, CounterType.ITEM_CRAFT, request.getResultItemId(), request.getResultQuantity());
-        return getRecipeList(userId, stationCategory);
+        logService.recordCounter(userId, CounterType.ITEM_CRAFT, resultItemId, resultQuantity);
+    }
+
+    private Long getIngredientItemId(ItemRecipe recipe, int index) {
+        return switch (index) {
+            case 1 -> recipe.getIngredientItemId1();
+            case 2 -> recipe.getIngredientItemId2();
+            case 3 -> recipe.getIngredientItemId3();
+            case 4 -> recipe.getIngredientItemId4();
+            default -> null;
+        };
+    }
+
+    private Integer getIngredientQuantity(ItemRecipe recipe, int index) {
+        return switch (index) {
+            case 1 -> recipe.getIngredientQuantity1();
+            case 2 -> recipe.getIngredientQuantity2();
+            case 3 -> recipe.getIngredientQuantity3();
+            case 4 -> recipe.getIngredientQuantity4();
+            default -> null;
+        };
+    }
+
+
+    private ItemRecipeDto toRecipeDto(ItemRecipe recipe,
+                                      Map<Long, Item> itemMap,
+                                      Map<Long, Integer> inventoryMap) {
+        return toRecipeDtos(List.of(recipe), itemMap, inventoryMap).get(0);
     }
 
     private List<ItemRecipeDto> toRecipeDtos(List<ItemRecipe> recipes,

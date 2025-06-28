@@ -14,6 +14,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(GamJaResponse.fail(e.getMessage()));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<GamJaResponse> handleIllegalArgument(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(GamJaResponse.fail(e.getMessage()));
+    }
+
     // 그 외 모든 예외 처리
     @ExceptionHandler(Exception.class)
     public ResponseEntity<GamJaResponse> handleException(Exception e) {

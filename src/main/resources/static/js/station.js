@@ -381,21 +381,17 @@ async function handleCraft(selectedRecipe, quantity = 1) {
 
     const payload = {
         resultItemId: selectedRecipe.resultItemId,
-        resultQuantity: count,
-        ingredients: selectedRecipe.ingredients.map(ing => ({
-            itemId: ing.itemId,
-            quantity: ing.quantity * count
-        }))
+        resultQuantity: quantity
     };
+
     try {
         const url = `/api/station/${selectedStation}/craft`;
         const res = await apiRequestJson(url, 'POST', payload);
 
         if (res.code === 'SUCCESS') {
             showCraftSuccessEffect();
-
         } else {
-            showMessageModal(`제작 실패: ${res.message}`);
+            showMessageModal(`제작 실패`);
         }
     } catch (err) {
         showMessageModal('제작 중 오류 발생');
