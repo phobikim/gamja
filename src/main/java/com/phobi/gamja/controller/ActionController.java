@@ -18,17 +18,13 @@ public class ActionController {
 
     private final ActionService actionService;
 
+    /*
+    * 생활 컨텐츠 선택
+    * */
     @GetMapping("/{activityType}")
     public ResponseEntity<GamJaResponse> getActionsByCategory(@PathVariable String activityType, HttpSession session) {
         return actionService.getActionsByCategory(activityType, session);
     }
-
-    @GetMapping("/{activityType}/{spotRank}")
-    public ResponseEntity<GamJaResponse> getDropTable(@PathVariable String activityType, @PathVariable int spotRank, HttpSession session) {
-        return actionService.getDropTable(activityType, spotRank, session);
-    }
-
-
     /* 생활 컨텐츠 시작
      * */
     @GetMapping("/card-event")

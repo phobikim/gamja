@@ -27,27 +27,28 @@ async function actionGather(activityType) {
             return;
         }
 
-        const filteredSpots = (result.data || []).filter(spot => spot.category === activityType);
+        const filteredSpots = (result.data?.spots || []);
+        const { level, exp, maxCombo, spots } = result.data || {};
         if (filteredSpots.length === 0) {
             showMessageModal(`${activityType}에 해당하는 장소가 없습니다.`);
             return;
         }
 
-        const { level, exp } = filteredSpots[0];
-        renderSpotList(filteredSpots, level, exp);
+        renderSpotList(filteredSpots, level, exp, maxCombo);
         spotModal.classList.remove("hidden");
     } catch (e) {
         console.error("스팟 목록을 불러오는 데 실패했습니다.", e);
     }
 }
 
-function renderSpotList(spots, level, exp) {
+function renderSpotList(spots, level, exp, maxCombo) {
     const container = document.getElementById("spotListScroll");
     const startBtn = document.getElementById("startActionBtn");
     const maxExp = 100 + (level - 1) * 20;
     const expPercent = Math.min(100, (exp / maxExp) * 100).toFixed(1);
 
     // 기본 스킬 정보 표시
+    document.getElementById('spotComboRecord').textContent = `[${maxCombo || 0}]`;
     document.getElementById('userSkillLevel').textContent = `스킬 레벨: Lv.${level}`;
     document.getElementById('userSkillExpFill').style.width = `${expPercent}%`;
     document.getElementById('userSkillExpText').textContent = `${exp} / ${maxExp} EXP`;
@@ -98,10 +99,10 @@ function renderSpotList(spots, level, exp) {
 }
 
 function updateSpotDetail(spot) {
+    console.log("spotSelectDescription" , spot);
     document.getElementById('spotSelectName').textContent = spot.displayName;
     document.getElementById('spotSelectDescription').textContent = spot.description || '-';
     document.getElementById('spotRequiredLevel').textContent = spot.requiredLevel
-    document.getElementById('spotComboRecord').textContent = `[${spot.maxCombo || 0}]`;
 }
 
 
@@ -157,10 +158,7 @@ let comboTimer = null;
 let maxCombo = 0;
 
 // 모달 외부 클릭 시 닫기
-spotModal.addEventListener('click', (e) => {
-    const inside = e.target.closest('.map-select-modal-content');
-    if (!inside) spotModal.classList.add('hidden');
-});
+
 
 // 닫기 버튼
 document.getElementById('closeActionBtn').onclick = () => {

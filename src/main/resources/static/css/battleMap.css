@@ -210,6 +210,7 @@
 
 
 .map-button-box {
+    border-radius: 15px;
     margin-top: auto;
     display: flex;
     justify-content: center;

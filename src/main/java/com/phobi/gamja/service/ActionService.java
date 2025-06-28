@@ -1,13 +1,10 @@
 // ActionService.java
 package com.phobi.gamja.service;
 
-import com.phobi.gamja.dto.contents.ActionDto;
-import com.phobi.gamja.dto.contents.CardEventDto;
-import com.phobi.gamja.dto.contents.DropTableEntryDto;
+
 import com.phobi.gamja.dto.user.LifeStatDto;
 import com.phobi.gamja.dto.user.UserCharInfoDto;
 import com.phobi.gamja.dto.user.UserDexXpDto;
-import com.phobi.gamja.dto.user.UserSkillDto;
 import com.phobi.gamja.entity.battle.Monster;
 import com.phobi.gamja.entity.battle.MonsterDrop;
 import com.phobi.gamja.entity.contents.*;
@@ -33,8 +30,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Stream;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
@@ -46,7 +41,6 @@ import static com.phobi.gamja.entity.contents.SkillType.*;
 @RequiredArgsConstructor
 public class ActionService {
 
-    private final ActionDropRepository actionDropRepository;
     private final ItemRepository itemRepository;
     private final UserInventoryRepository userInventoryRepository;
     private final UserSkillRepository userSkillRepository;
@@ -71,25 +65,38 @@ public class ActionService {
     private final CommonUtil commonUtil;
     private final StatCalculator statCalculator;
 
+
+
     public ResponseEntity<GamJaResponse> getActionsByCategory(String activityType, HttpSession session) {
         Long userId = getUserId(session);
         try {
             SkillType actionCategory = SkillType.valueOf(activityType.toUpperCase());
             ActivityType type = ActivityType.valueOf(activityType.toUpperCase());
+
             Optional<UserSkill> userSkillOpt = userSkillRepository.findByUserIdAndSkillType(userId, actionCategory);
             int level = userSkillOpt.map(UserSkill::getLevel).orElse(1);
             int exp = userSkillOpt.map(UserSkill::getExp).orElse(0);
             int maxCombo = userSkillOpt.map(UserSkill::getMaxCombo).orElse(0);
 
             List<Action> actions = actionRepository.findByCategoryAndIsEnabledOrderByRankAsc(type, true);
-            List<ActionDto> result = actions.stream()
-                    .map(action -> ActionDto.of(action, level, exp, maxCombo))
+
+            List<SpotPreviewDto> spots = actions.stream()
+                    .map(SpotPreviewDto::of)
                     .toList();
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("level", level);
+            result.put("exp", exp);
+            result.put("maxCombo", maxCombo);
+            result.put("spots", spots);
+
             return ResponseEntity.ok(GamJaResponse.success("정상 조회", result));
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(GamJaResponse.fail("잘못된 카테고리"));
         }
     }
+
 
     public ResponseEntity<GamJaResponse> getCardEvents(String activity, int rank, HttpSession session) {
         Long userId = getUserId(session);
@@ -118,30 +125,25 @@ public class ActionService {
 
         session.setAttribute("explorationSession", exploration);
 
-        List<CardChoiceDto> result = selectedEvents.stream()
-                .map(CardChoiceDto::of)
-                .collect(Collectors.toList());
+        // ✅ drops 조회 및 DTO 변환
+        List<CardPreviewDto> result = selectedEvents.stream()
+                .map(event -> {
+                    List<ActionCardEventDrop> drops = Optional.ofNullable(event.getDropGroupId())
+                            .map(actionCardEventDropRepository::findByDropGroupId)
+                            .orElse(List.of());
+                    return CardPreviewDto.of(event, drops);
+                })
+                .toList();
 
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("hp", exploration.getHp());
         responseBody.put("stage", exploration.getStage());
         responseBody.put("currentChoices", result);
+
         return ResponseEntity.ok(GamJaResponse.success("카드 이벤트 시작", responseBody));
     }
 
-    public ResponseEntity<GamJaResponse> getDropTable(String activityType, int spotRank, HttpSession session) {
-        Long userId = getUserId(session);
-        ActivityType type = ActivityType.valueOf(activityType.toUpperCase());
 
-        List<ActionDrop> drops = actionDropRepository.findByActivityTypeAndSpotRank(type, spotRank);
-        List<DropTableEntryDto> result = drops.stream().map(drop -> {
-            Item item = itemRepository.findById(drop.getItemId())
-                    .orElseThrow(() -> new IllegalArgumentException("아이템 없음: " + drop.getItemId()));
-            return DropTableEntryDto.of(drop, item);
-        }).toList();
-
-        return ResponseEntity.ok(GamJaResponse.success("정상 조회", result));
-    }
     public record DropResult(List<Map<String, Object>> visibleRewards, List<ItemReward> internalRewards) {}
     public ResponseEntity<GamJaResponse> endBattle(HttpSession session, Map<String, Object> request) {
 
@@ -229,42 +231,49 @@ public class ActionService {
                 .orElseThrow(() -> new IllegalArgumentException("카드 이벤트가 존재하지 않습니다."));
 
         // 4. HP 처리
-        int hp = exploration.getHp();
-        hp += event.getHpChange(); // trap일 경우 -1 등
+        int hp = exploration.getHp() + event.getHpChange();
         exploration.setHp(hp);
 
-        // 5. stage 증가
         int stage = exploration.getStage() + 1;
         exploration.setStage(stage);
 
-        // 6. 드랍 처리
         Map<String, Object> dropResult = null;
-        if (event.getDropGroupId() != null) {
+        // 6. 드랍 처리
+        if (event.getEventType() == EventType.RESOURCE && event.getDropGroupId() != null) {
             List<ActionCardEventDrop> drops = actionCardEventDropRepository.findByDropGroupId(event.getDropGroupId());
             Random rand = new Random();
-            for (ActionCardEventDrop drop : drops) {
-                if (rand.nextFloat() <= drop.getDropRate()) {
-                    int qty = rand.nextInt(drop.getMaxQuantity() - drop.getMinQuantity() + 1) + drop.getMinQuantity();
-                    Item item = drop.getItem();
 
-                    ExplorationReward reward = new ExplorationReward();
-                    reward.setStage(stage);
-                    reward.setTotalExp(calculateExplorationExp(stage));
-                    reward.addDrop(item.getId(), item.getName(), item.getIconPath(), qty);
+            List<ActionCardEventDrop> candidates = drops.stream()
+                    .filter(drop -> rand.nextFloat() <= drop.getDropRate())
+                    .toList();
 
-                    exploration.getRewards().add(reward);
+            ActionCardEventDrop selectedDrop = candidates.isEmpty()
+                    ? drops.get(rand.nextInt(drops.size()))
+                    : candidates.get(rand.nextInt(candidates.size()));
 
-                    dropResult = Map.of(
-                            "itemId", item.getId(),
-                            "itemName", item.getName(),
-                            "iconPath", item.getIconPath(),
-                            "count", qty
-                    );
-                    break; // 최초 1개만 리턴
-                }
-            }
+            int qty = rand.nextInt(selectedDrop.getMaxQuantity() - selectedDrop.getMinQuantity() + 1)
+                    + selectedDrop.getMinQuantity();
+
+            // stage 보상 배수 적용
+            int multiplier = stage >= 20 ? 3 : (stage >= 10 ? 2 : 1);
+            qty *= multiplier;
+
+            Item item = selectedDrop.getItem();
+
+            ExplorationReward reward = new ExplorationReward();
+            reward.setStage(stage);
+            reward.setTotalExp(calculateExplorationExp(stage));
+            reward.addDrop(item.getId(), item.getName(), item.getIconPath(), qty);
+            exploration.getRewards().add(reward);
+
+            dropResult = Map.of(
+                    "itemId", item.getId(),
+                    "itemName", item.getName(),
+                    "iconPath", item.getIconPath(),
+                    "count", qty,
+                    "multiplier", multiplier
+            );
         }
-
         // 7. 사용한 카드 ID 기록
         exploration.getUsedCardIds().add(eventId);
 
@@ -273,43 +282,31 @@ public class ActionService {
                 event.getActivityType(), event.getRank());
         pool.removeIf(e -> exploration.getUsedCardIds().contains(e.getId()));
         Collections.shuffle(pool);
-        if (pool.size() >= 2) {
-            exploration.setCurrentChoices(pool.subList(0, 2));
-        } else {
-            exploration.setCurrentChoices(List.of()); // 다음 카드 없음
-        }
+
+        List<ActionCardEvent> nextChoices = pool.size() >= 2 ? pool.subList(0, 2) : List.of();
+        exploration.setCurrentChoices(nextChoices);
 
         // 9. 세션 갱신
         session.setAttribute("explorationSession", exploration);
+
+        // ✅ 카드 미리보기 DTO 변환
+        List<CardPreviewDto> previewDtos = nextChoices.stream()
+                .map(card -> {
+                    List<ActionCardEventDrop> drops = Optional.ofNullable(card.getDropGroupId())
+                            .map(actionCardEventDropRepository::findByDropGroupId)
+                            .orElse(List.of());
+                    return CardPreviewDto.of(card, drops);
+                })
+                .toList();
 
         Map<String, Object> response = new HashMap<>();
         response.put("hp", exploration.getHp());
         response.put("stage", exploration.getStage());
         response.put("isEnd", exploration.getHp() <= 0);
-        response.put("nextChoices", exploration.getCurrentChoices().stream()
-                .map(card -> {
-                    Map<String, Object> dto = new HashMap<>();
-                    dto.put("id", card.getId());
-                    dto.put("cardText", card.getCardText());
-                    dto.put("eventMessage", card.getEventMessage());
-                    dto.put("eventType", card.getEventType().name());
+        response.put("nextChoices", previewDtos);
 
-                    // 아이템 미리보기: 이름, 이미지만
-                    List<Map<String, String>> items = Optional.ofNullable(card.getDropGroupId())
-                            .map(actionCardEventDropRepository::findByDropGroupId)
-                            .orElse(List.of())
-                            .stream()
-                            .map(drop -> Map.of(
-                                    "itemName", drop.getItem().getName(),
-                                    "iconPath", drop.getItem().getIconPath()
-                            ))
-                            .collect(Collectors.toList());
-
-                    dto.put("items", items);
-                    return dto;
-                }).toList());
         if (dropResult != null) {
-            response.putAll(dropResult); // itemId, itemName, iconPath, count
+            response.putAll(dropResult);
         }
 
         return ResponseEntity.ok(GamJaResponse.success(

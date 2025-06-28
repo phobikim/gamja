@@ -7,14 +7,14 @@ let gainedItems = [];
 async function openExploration(activityType, rank) {
     isExplorationEnded = false;
     gainedItems = [];
-    totalExp = 0;
 
-    document.getElementById('hp').textContent = hp;
-    document.getElementById('stage').textContent = stage;
+    document.getElementById('hp').textContent = '3';
+    document.getElementById('stage').textContent = '1';
     document.getElementById('logMessages').innerHTML = '';
     const logPrompt = document.getElementById('logPrompt');
     if (logPrompt) {
         logPrompt.textContent = '카드를 선택하세요!';
+        logPrompt.classList.remove('burning-log');
     }
     explorationModal.classList.remove('hidden');
     explorationModal.classList.add('show');
@@ -34,8 +34,21 @@ async function openExploration(activityType, rank) {
 }
 
 function updateExplorationStatus(hp, stage) {
-    document.getElementById('hp').textContent = hp;
-    document.getElementById('stage').textContent = stage;
+    document.getElementById('hp').textContent = '-';
+    document.getElementById('stage').textContent = '-';
+    const logPrompt = document.getElementById('logPrompt');
+    if (logPrompt) {
+        if (stage >= 20) {
+            logPrompt.textContent = '감자단 속보: 현재 감자기운, 튀김 임계치 도달';
+            logPrompt.classList.add('burning-log');
+        } else if (stage >= 10) {
+            logPrompt.textContent = '감자단 보고서: 이 구역, 보상 중복현상 발생 중';
+            logPrompt.classList.remove('burning-log');
+        } else {
+            logPrompt.textContent = '감자단 규칙 1조: 감으로 고른다';
+            logPrompt.classList.remove('burning-log');
+        }
+    }
 }
 
 
@@ -82,11 +95,15 @@ async function choosePath(direction) {
         return;
     }
     if (result.itemId) {
-        const { itemId, count, itemName, iconPath } = result;
+        const { itemId, count, itemName, iconPath, multiplier } = result;
         gainedItems.push({ itemId, count, itemName, itemImg: iconPath });
 
         const log = document.createElement('div');
-        log.textContent = `🎁 ${itemName} x${count} 획득!`;
+        let bonusText = '';
+        if (multiplier === 2) bonusText = ' (2배 보상!)';
+        else if (multiplier === 3) bonusText = ' (3배 보상!)';
+
+        log.textContent = `🎁 ${itemName} x${count} 획득!${bonusText}`;
         log.classList.add('exploration-log-entry', 'log-resource');
         document.getElementById('logMessages').prepend(log);
     }
@@ -108,15 +125,6 @@ function logCardEvent(event) {
     if (event.eventType === 'TRAP') entry.classList.add('log-trap');
     else if (event.eventType === 'RESOURCE') entry.classList.add('log-resource');
     logBox.prepend(entry);
-}
-
-function getStageExp(stage) {
-    if (stage <= 5) return 0;
-    if (stage <= 10) return 5;
-    if (stage <= 20) return 10;
-    if (stage <= 30) return 15;
-    if (stage <= 40) return 20;
-    return 20;
 }
 
 function sendExplorationResult() {
@@ -201,6 +209,5 @@ function handleManualExplorationEnd() {
     if (isExplorationEnded) return;
     isExplorationEnded = true;
 
-    totalExp = getStageExp(stage);
     sendExplorationResult();
 }
