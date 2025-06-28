@@ -35,6 +35,7 @@ public class QuestService {
     private final LogService logService;
     private final CorpsTierService corpsTierService;
     private final UserLogService userLogService;
+    private final LevelService levelService;
     private final QuestRepository questRepository;
     private final QuestConditionRepository questConditionRepository;
     private final QuestRewardRepository questRewardRepository;
@@ -310,7 +311,7 @@ public class QuestService {
             } else if (reward.getRewardType() == QuestReward.RewardType.EXP) {
                 Long dexId = userDtlRepository.findCharacterDexIdByUserId(userId);
                 if (dexId != null) {
-                    actionService.updateCharacterExp(userId, dexId, reward.getAmount());
+                    levelService.updateCharacterExp(userId, dexId, reward.getAmount());
                 }
             }
         }

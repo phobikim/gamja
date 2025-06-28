@@ -64,6 +64,7 @@ public class ActionService {
     private final CorpsTierService corpsTierService;
     private final CommonUtil commonUtil;
     private final StatCalculator statCalculator;
+    private final LevelService levelService;
 
 
 
@@ -145,68 +146,6 @@ public class ActionService {
 
 
     public record DropResult(List<Map<String, Object>> visibleRewards, List<ItemReward> internalRewards) {}
-    public ResponseEntity<GamJaResponse> endBattle(HttpSession session, Map<String, Object> request) {
-
-        Long userId = getUserId(session);
-        Long monsterId = ((Number) request.get("monsterId")).longValue();
-
-        UserDtl userDtl = getUserDtl(userId);
-        Long dexId = Optional.ofNullable(userDtl.getCharacterDexId())
-                .orElseThrow(() -> new IllegalArgumentException("착용 중인 캐릭터가 없습니다."));
-        // 몬스터 조회
-        Monster monster = monsterRepository.findById(monsterId)
-                .orElseThrow(() -> new IllegalArgumentException("몬스터 없음"));
-
-        // 경험치 획득
-        int gainedXp = monster.getMonsterXp();
-        UserDexXpDto stat = updateCharacterExp(userId, dexId, gainedXp);
-
-        // 드랍 계산
-        DropResult dropResult = getDropResult(monster);
-        processItemRewards(userId, dropResult.internalRewards());
-
-
-        logService.recordCounter(userId, CounterType.MONSTER_KILL, monsterId);
-        userLogService.recordDailyMonster(userId, monsterId);
-        corpsTierService.updateCorpsXp(userId, 1);
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("xp", stat.getXp());
-        result.put("maxExp", stat.getMaxExp());
-        result.put("level", stat.getLevel());
-        result.put("gainedXp", gainedXp);
-        result.put("items", dropResult.visibleRewards());
-
-        return ResponseEntity.ok(GamJaResponse.success("전투 보상 처리 완료", result));
-    }
-
-
-
-    public DropResult getDropResult(Monster monster) {
-        List<MonsterDrop> drops = monsterDropRepository.findByMonster(monster);
-        List<Map<String, Object>> visible = new ArrayList<>();
-        List<ItemReward> internal = new ArrayList<>();
-
-        for (MonsterDrop drop : drops) {
-            if (Math.random() * 100 <= drop.getDropRate()) {
-                int count = drop.getMinCount() + new Random().nextInt(drop.getMaxCount() - drop.getMinCount() + 1);
-                Item item = drop.getItem();
-
-                // 클라이언트용
-                visible.add(Map.of(
-                        "name", item.getName(),
-                        "iconPath", item.getIconPath(),
-                        "rarity", item.getRarity().name(),
-                        "count", count
-                ));
-
-                // 내부 처리용
-                internal.add(new ItemReward(item, count));
-            }
-        }
-
-        return new DropResult(visible, internal);
-    }
 
     public ResponseEntity<GamJaResponse> resolveCardDropResponse(HttpSession session, Map<String, Object> request) {
         Long eventId = ((Number) request.get("eventId")).longValue();
@@ -382,7 +321,7 @@ public class ActionService {
         result.put("skillType", skillType.name());
         result.put("level", userSkill.getLevel());
         result.put("xp", userSkill.getExp());
-        result.put("maxExp", getRequiredExp(userSkill.getLevel()));
+        result.put("maxExp", levelService.getRequiredExp(userSkill.getLevel()));
         result.put("maxCombo", userSkill.getMaxCombo());
         result.put("stage", exploration.getStage()); // 탐사에서 실제 도달한 스테이지
         result.put("gainedExp", totalExp); // 서버 계산한 경험치
@@ -543,29 +482,13 @@ public class ActionService {
     }
 
     // ===== 공통 처리 함수 =====
-    private Long getUserId(HttpSession session) {
+    public Long getUserId(HttpSession session) {
         return Optional.ofNullable((Long) session.getAttribute("userId"))
                 .orElseThrow(() -> new IllegalArgumentException("로그인이 필요합니다."));
     }
 
-    private UserDtl getUserDtl(Long userId) {
-        return userDtlRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
-    }
 
-    private void processItemRewards(Long userId, List<ItemReward> items) {
-        for (ItemReward reward : items) {
-            Long itemId = reward.getItem().getId();
-            int count = reward.getCount();
-
-            UserInventory inv = userInventoryRepository.findByUserIdAndItemId(userId, itemId)
-                    .orElseGet(() -> new UserInventory(userId, itemId, 0));
-            inv.setQuantity(inv.getQuantity() + count);
-            userInventoryRepository.save(inv);
-        }
-    }
-
-    private UserSkill updateUserSkill(Long userId, SkillType skillType, double gainedExp, int maxCombo) {
+    public UserSkill updateUserSkill(Long userId, SkillType skillType, double gainedExp, int maxCombo) {
         UserSkillId skillId = new UserSkillId(userId, skillType);
         UserSkill skill = userSkillRepository.findById(skillId).orElseGet(() -> new UserSkill(userId, skillType, 1, 0));
 
@@ -575,7 +498,7 @@ public class ActionService {
 
         double totalExp = skill.getExp() + gainedExp;
         int level = skill.getLevel();
-        int maxExp = getRequiredExp(level);
+        int maxExp = levelService.getRequiredExp(level);
 
         while (totalExp >= maxExp) {
             totalExp -= maxExp;
@@ -585,33 +508,6 @@ public class ActionService {
         skill.setLevel(level);
         skill.setExp((int) totalExp);
         return userSkillRepository.save(skill);
-    }
-
-    public UserDexXpDto updateCharacterExp(Long userId, Long dexId, int gainedExp) {
-        UserDexStatId statId = new UserDexStatId(userId, dexId);
-        UserDexStat stat = userDexStatRepository.findById(statId)
-                .orElseThrow(() -> new IllegalArgumentException("캐릭터 스탯 정보가 없습니다."));
-
-        int xp = stat.getXp() + gainedExp;
-        int level = stat.getLevel();
-        int maxExp = stat.getMaxExp();
-
-        while (xp >= maxExp) {
-            xp -= maxExp;
-            level++;
-            commonUtil.levelUp(stat);
-            maxExp = getRequiredExp(level);
-        }
-
-        stat.setXp(xp);
-        stat.setLevel(level);
-        stat.setMaxExp(maxExp);
-        userDexStatRepository.save(stat);
-        return new UserDexXpDto(stat.getLevel(), stat.getXp(), stat.getMaxExp());
-    }
-
-    private int getRequiredExp(int level) {
-        return 100 + (level - 1) * 20;
     }
 
 

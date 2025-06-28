@@ -51,15 +51,6 @@ public class ActionController {
         return actionService.endExploration(session, request);
     }
 
-    /* 전투 컨텐츠 완료
-    *  아이템 획득 처리
-    *  */
-    @PostMapping("/end-battle")
-    public ResponseEntity<GamJaResponse> endBattle(@RequestBody Map<String, Object> request, HttpSession session) {
-        return actionService.endBattle(session, request);
-    }
-
-
     // ✅ 칭호 획득
     @PostMapping("/title/claim")
     public ResponseEntity<GamJaResponse> claimTitle(@RequestBody Map<String, Object> request, HttpSession session) {
