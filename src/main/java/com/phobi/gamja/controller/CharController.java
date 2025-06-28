@@ -56,8 +56,8 @@ public class CharController {
 
     @PostMapping("/set-equip-items")
     public ResponseEntity<GamJaResponse> setEquipItems(HttpServletRequest request, @RequestBody Map<String, String> payload) {
-        List<UserInventoryDto> responseList = charService.setEquipItems(request, payload);
-        return ResponseEntity.ok(GamJaResponse.success("장착 완료", responseList));
+        charService.setEquipItems(request, payload);
+        return ResponseEntity.ok(GamJaResponse.success("장착 완료", null));
     }
     /*
     * desc : 보유한 캐릭터 조회

@@ -315,11 +315,10 @@ public class CharService {
 
 
     @Transactional
-    public List<UserInventoryDto> setEquipItems(HttpServletRequest request, Map<String, String> payload) {
+    public void setEquipItems(HttpServletRequest request, Map<String, String> payload) {
         Long userId = (Long) request.getAttribute("userId");
         Long itemId = Long.valueOf(payload.get("itemId"));
-
-        return utilService.equipItem(userId,itemId);
+        utilService.equipItem(userId,itemId);
     }
 
     @Transactional

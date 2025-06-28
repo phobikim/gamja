@@ -61,13 +61,18 @@ public class UtilService {
     public List<UserInventoryDto> equipItem(Long userId, Long itemId) {
         // 1. 아이템 조회
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("아이템이 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("아이템이 존재하지 않습니다."));
 
+        // 인벤토리 확인 (보유한 아이템인지 + 수량 ≥ 1)
+        Integer quantity = userInventoryRepository.getQuantity(userId, itemId);
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalStateException("해당 아이템을 보유하고 있지 않습니다.");
+        }
         // 2. 장착 가능한 장비인지 확인
         String itemTypeName = item.getItemType().name();
         String slotTypeName = item.getEquipSlot().name();
         if (!(itemTypeName.startsWith("EQUIP") || slotTypeName.equals("POTION"))) {
-            throw new RuntimeException("장착할 수 없는 아이템입니다.");
+            throw new IllegalArgumentException("장착할 수 없는 아이템입니다.");
         }
         EquipmentType type;
         EquipmentSlot slot;

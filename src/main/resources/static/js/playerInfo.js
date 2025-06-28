@@ -64,6 +64,7 @@ async function openInfoModal() {
 
     loadCharacterBasicInfo();
     loadCharacterBattleInfo();
+    loadCharacterLifeInfo()
 }
 
 
