@@ -1,6 +1,9 @@
 const mapModal = document.getElementById('mapSelectModal');
 
-function openMapModal() {
+async function openMapModal() {
+    const valid = await checkSessionValid();
+    if (!valid) return;
+
     mapModal.classList.remove('hidden');
 }
 mapModal.addEventListener('click', (e) => {

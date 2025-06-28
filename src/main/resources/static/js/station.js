@@ -7,6 +7,9 @@ let selectedStation = null;
 let selectedRecipe = null;
 let currentWorkshopType = null;
 async function handleStationClick() {
+    const valid = await checkSessionValid();
+    if (!valid) return;
+
     playEffect("se_click2");
     workshopSelectModal.classList.remove('hidden');
     selectedStation = null;
@@ -92,7 +95,10 @@ function selectWorkshopCard(cardEl, category) {
 //
 // });
 
-function openCraftModal(stationCategory, preselectedRecipe = null) {
+async function openCraftModal(stationCategory, preselectedRecipe = null) {
+    const valid = await checkSessionValid();
+    if (!valid) return;
+
     selectedStation = stationCategory;
     document.getElementById('craftModal').classList.remove('hidden');
     fetchRecipes(stationCategory, preselectedRecipe);

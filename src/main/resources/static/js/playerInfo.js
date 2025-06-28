@@ -52,7 +52,9 @@ function updateStatValue(statId, detail, max = 100) {
     `;
 }
 
-function openInfoModal() {
+async function openInfoModal() {
+    const valid = await checkSessionValid();
+    if (!valid) return;
     characterModal.classList.remove('hidden');
 
     // ✅ 탭 보이기

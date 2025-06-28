@@ -5,7 +5,10 @@ const questTabBtns = document.querySelectorAll('.quest-tab-btn');
 const questListContainer = document.getElementById('questList');
 let currentQuestType = 'MAIN';
 let currentDifficulty = 'EASY';
-function handleQuestClick() {
+async function handleQuestClick() {
+    const valid = await checkSessionValid();
+    if (!valid) return;
+
     playEffect("se_click2");
     questModal.classList.remove('hidden');
     getQuestList();

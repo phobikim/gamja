@@ -6,6 +6,9 @@ const closeBattleBtn = document.getElementById('closeBattleBtn');
 let selectedMap = null;
 
 async function handleAttackClick() {
+    const valid = await checkSessionValid();
+    if (!valid) return;
+
     playEffect("se_click2")
     document.body.style.overflow = 'hidden';
     battleMapSelectModal.classList.remove('hidden');

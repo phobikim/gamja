@@ -24,6 +24,9 @@ window.battleState = {
 
 
 window.startBattleFromMap = async function(map) {
+    const valid = await checkSessionValid();
+    if (!valid) return;
+
     battleModal.classList.remove('hidden');
     showBattleSkeleton();
     // [1] 유저 정보
@@ -280,7 +283,10 @@ function updateButtonStates() {
     disableBattleButtons(!canAct);
 }
 
-function doAttack() {
+async function doAttack() {
+    const valid = await checkSessionValid();
+    if (!valid) return;
+
     if (!isPlayerTurn || isProcessingTurn || battleEnded) return;
     playEffect("se_attack");
     const attackBtn = document.getElementById('attackBtn');
@@ -354,7 +360,7 @@ function showDefeatModal(text) {
     document.getElementById('defeatSignText').innerText = text || "여기에 다시 묻히다...";
 }
 
-function winBattle() {
+async function winBattle() {
     battleEnded = true;
     isProcessingTurn = false;
     updateBattleUI();
@@ -502,7 +508,9 @@ function updateRewardUI(user, expReward) {
 }
 
 
-function nextBattle() {
+async function nextBattle() {
+    const valid = await checkSessionValid();
+    if (!valid) return;
     // 기존 전투 데이터 초기화
     resetModalStyles(lootModal);
     resetModalStyles(defeatModal);
@@ -534,6 +542,9 @@ function resetModalStyles(modalEl) {
 }
 
 async function doPotion() {
+    const valid = await checkSessionValid();
+    if (!valid) return;
+
     const player = battleState.player;
 
     // 조건: 턴 중 & 패배 아님 & 아직 안 쓴 경우 & 살아있는 경우만 가능
@@ -584,7 +595,10 @@ async function doPotion() {
     }
 }
 
-function doRun() {
+async function doRun() {
+    const valid = await checkSessionValid();
+    if (!valid) return;
+
     if (!isPlayerTurn || isProcessingTurn || battleEnded) return;
     showMessageModal("도망쳤습니다!");
     closeBattleModal();

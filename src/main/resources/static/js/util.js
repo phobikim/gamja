@@ -45,6 +45,23 @@ async function apiRequestJson(url, method = 'POST', data = null) {
     }
 }
 
+async function checkSessionValid() {
+    try {
+        const res = await fetch('/api/session-check', {
+            credentials: 'include',
+            cache: 'no-store'
+        });
+
+        if (!res.ok) throw new Error('세션 만료');
+        return true;
+    } catch (e) {
+        showSessionExpiredModal();
+        return false;
+    }
+}
+
+
+
 
 
 

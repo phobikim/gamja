@@ -2,7 +2,9 @@ const tierCard = document.getElementById("tierCard");
 const tierModal = document.getElementById("tierModal");
 
 // 📌 티어 카드 클릭 → 모달 열기
-tierCard.addEventListener("click", () => {
+tierCard.addEventListener("click", async () => {
+    const valid = await checkSessionValid();
+    if (!valid) return;
     openTierModal();
 });
 

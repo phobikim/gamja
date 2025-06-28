@@ -11,23 +11,6 @@ function showMessageModal(message) {
     };
 }
 
-function showItemTooltip(item) {
-    const tooltip = document.getElementById('itemTooltip');
-    const nameElem = document.getElementById('tooltipName');
-    const rarityElem = document.getElementById('tooltipRarity');
-    const descElem = document.getElementById('tooltipDescription');
-
-    nameElem.textContent = item.name || '';
-    rarityElem.textContent = `희귀도: ${item.rarity || ''}`;
-    descElem.textContent = item.description || '설명이 없습니다.';
-
-    // 중앙 고정이라 위치 계산 X
-    tooltip.style.top = '50%';
-    tooltip.style.left = '50%';
-    tooltip.style.transform = 'translate(-50%, -50%)';
-
-    tooltip.classList.remove('hidden');
-}
 
 function hideItemTooltip() {
     const tooltip = document.getElementById('itemTooltip');
@@ -36,3 +19,12 @@ function hideItemTooltip() {
 
 document.getElementById('itemTooltipClose').addEventListener('click', hideItemTooltip);
 
+function showSessionExpiredModal() {
+    const modal = document.getElementById('sessionExpiredModal');
+    const confirmBtn = document.getElementById('sessionExpiredConfirm');
+    modal.classList.remove('hidden');
+
+    confirmBtn.onclick = () => {
+        location.href = '/index.html';
+    };
+}

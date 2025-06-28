@@ -148,6 +148,9 @@ async function getBagItems() {
 }
 
 async function handleBagClick() {
+    const valid = await checkSessionValid();
+    if (!valid) return;
+
     playEffect("se_click2");
     bagModal.classList.remove('hidden');
     await loadBagItems();

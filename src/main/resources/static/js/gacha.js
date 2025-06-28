@@ -1,6 +1,9 @@
 let isGachaInProgress = false;
 
 async function handleLaboratoryClick() {
+    const valid = await checkSessionValid();
+    if (!valid) return;
+
     const overlay = document.getElementById("resultCardOverlay");
     const modalContent = document.querySelector('.gacha-modal-content');
 

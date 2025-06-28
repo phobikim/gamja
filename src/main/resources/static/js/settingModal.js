@@ -6,6 +6,9 @@ let ownedMap = {}; // 보유 여부 확인용
 
 // 모달 열기
 document.getElementById('playerInfoCard').addEventListener('click', async () => {
+    const valid = await checkSessionValid();
+    if (!valid) return;
+
     const res = await apiRequest('/api/char/background/list', 'GET');
     if (res.code !== 'SUCCESS') return;
 

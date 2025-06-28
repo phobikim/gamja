@@ -10,6 +10,9 @@ let currentDexData = null;
 let selectedCharacterInDetail = null;
 
 async function handleDexClick() {
+    const valid = await checkSessionValid();
+    if (!valid) return;
+
     playEffect("se_click2");
     currentDexData = await fetchDexMetaData();
     if (!currentDexData) return;

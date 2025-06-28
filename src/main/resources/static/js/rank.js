@@ -5,7 +5,10 @@ const rankListContainer = document.getElementById("rankList");
 const template = document.getElementById("rankItemTemplate");
 const myContainer = document.getElementById("myRankContainer");
 
-function handleRankClick() {
+async function handleRankClick() {
+    const valid = await checkSessionValid();
+    if (!valid) return;
+
     rankModal.classList.remove('hidden');
     getRankData();
 }
