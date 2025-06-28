@@ -347,7 +347,7 @@ public class ActionService {
             case FISHING    -> 2L;
             case MINING     -> 3L;
             case GATHERING  -> 4L;
-            default -> throw new IllegalArgumentException("LIFE_ACTION에 해당하지 않는 스킬입니다: " + skillType);
+            default -> throw new IllegalArgumentException("생활에 해당하지 않는 스킬입니다: " + skillType);
         };
     }
 
@@ -357,8 +357,10 @@ public class ActionService {
         Long titleId = ((Number) request.get("titleId")).longValue();
 
         Title title = titleRepository.findById(titleId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 칭호입니다."));
-
+                .orElse(null);
+        if (title == null) {
+            throw new IllegalStateException("칭호 획득 조건 미달");
+        }
         List<TitleCondition> conditions = title.getConditions();
 
         if (title.getCounterType() == CounterType.LIFE_ACTION) {
@@ -441,11 +443,10 @@ public class ActionService {
             };
 
             if (level < cond.getRequiredCount()) {
-                throw new IllegalStateException("생활 스킬 조건 미달");
+                throw new IllegalStateException("칭호 획득 조건 미달");
             }
         }
     }
-
     //특정 대상 기반 조건 함수 (targetId 있음)
     private void checkTargetCounterConditions(Long userId, CounterType type, List<TitleCondition> conditions) {
         List<UserCounterDetail> counters = userCounterDetailRepository.findByUserId(userId);
@@ -459,7 +460,7 @@ public class ActionService {
                     .sum();
 
             if (current < required) {
-                throw new IllegalStateException("카운터 조건 미달 (타겟 기반)");
+                throw new IllegalStateException("칭호 획득 조건 미달");
             }
         }
     }
@@ -473,7 +474,7 @@ public class ActionService {
 
         for (TitleCondition cond : conditions) {
             if (total < cond.getRequiredCount()) {
-                throw new IllegalStateException("카운터 누적합 조건 미달");
+                throw new IllegalStateException("칭호 획득 조건 미달");
             }
         }
     }
