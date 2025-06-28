@@ -4,7 +4,11 @@ window.addEventListener('DOMContentLoaded', async () => {
             credentials: 'include',      // 세션 쿠키 포함
             cache: 'no-store'            // 캐시 없이 매번 확인
         });
-
+        if (res.status === 503) {
+            // 서버 점검 중이면 점검 페이지로 이동
+            location.href = './maintenance.html';
+            return;
+        }
         if (res.ok) {
             // 세션이 살아있으면 바로 이동
             location.href = './char.html';

@@ -2,7 +2,7 @@ server:
   port: ${PORT:58080}
   servlet:
     session:
-      timeout: 30m              # 세션 유지 시간
+      timeout: 60m              # 세션 유지 시간
       cookie:
         secure: true            # HTTPS에서만 쿠키 전송
         http-only: true         # JS로 쿠키 접근 불가 (XSS 방어)

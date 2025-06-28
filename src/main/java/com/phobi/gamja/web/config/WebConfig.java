@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
-
+    private final UserAgentInterceptor userAgentInterceptor;
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -20,10 +20,11 @@ public class WebConfig implements WebMvcConfigurer {
     }
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new UserAgentInterceptor())
+        registry.addInterceptor(userAgentInterceptor)
                 .addPathPatterns("/api/**")
                 .excludePathPatterns("/api/login", "/api/signup") // 로그인 제외
-                .excludePathPatterns("/api/admin/*" ); // 관리자 제외
+                .excludePathPatterns("/api/admin/*" ) // 관리자 제외
+                .excludePathPatterns("/api/maintenance/server/current");
     }
 
 }

@@ -9,6 +9,8 @@ async function apiRequest(url, method = 'GET', data = null) {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
+        credentials: 'include',
+        cache: 'no-store',
     };
 
     if (data) {
@@ -17,10 +19,17 @@ async function apiRequest(url, method = 'GET', data = null) {
 
     try {
         const response = await fetch(url, options);
+
+        if (!response.ok) {
+            const error = new Error('API 요청 실패');
+            error.status = response.status;
+            throw error;
+        }
+
         return await response.json();
-    } catch (error) {
-        console.error('API 호출 에러:', error);
-        throw error;
+    } catch (err) {
+        console.error('API 호출 에러:', err);
+        throw err;
     }
 }
 
@@ -30,6 +39,8 @@ async function apiRequestJson(url, method = 'POST', data = null) {
         headers: {
             'Content-Type': 'application/json',
         },
+        credentials: 'include',
+        cache: 'no-store',
     };
 
     if (data) {
@@ -38,10 +49,16 @@ async function apiRequestJson(url, method = 'POST', data = null) {
 
     try {
         const response = await fetch(url, options);
+        if (!response.ok) {
+            const error = new Error('API 요청 실패');
+            error.status = response.status;
+            throw error;
+        }
+
         return await response.json();
-    } catch (error) {
-        console.error('API 호출 에러:', error);
-        throw error;
+    } catch (err) {
+        console.error('API 호출 에러:', err);
+        throw err;
     }
 }
 

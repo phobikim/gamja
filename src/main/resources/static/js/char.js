@@ -17,9 +17,18 @@
         loadCharacterBasicInfo();
 
     } catch (err) {
+        // ✅ 서버 점검 응답 처리
+        if (err.status === 503) {
+            location.href = './maintenance.html';
+            return;
+        }
+        if (err.status === 401) {
+            showMessageModal('세션이 만료되었습니다. 다시 로그인해주세요.');
+            setTimeout(() => location.href = './index.html', 1500);
+            return;
+        }
         showMessageModal(err.message || '로그인이 필요합니다.');
-        location.href = './index.html';
-        console.error(err);
+        setTimeout(() => location.href = './index.html', 1500);
     }
     function loadCharacterBasicInfo() {
         const url = '/api/char';
