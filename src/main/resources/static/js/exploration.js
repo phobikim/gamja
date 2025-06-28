@@ -34,15 +34,15 @@ async function openExploration(activityType, rank) {
 }
 
 function updateExplorationStatus(hp, stage) {
-    document.getElementById('hp').textContent = '-';
-    document.getElementById('stage').textContent = '-';
+    document.getElementById('hp').textContent = hp;
+    document.getElementById('stage').textContent = stage;
     const logPrompt = document.getElementById('logPrompt');
     if (logPrompt) {
         if (stage >= 20) {
-            logPrompt.textContent = '감자단 속보: 현재 감자기운, 튀김 임계치 도달';
+            logPrompt.textContent = '감자단 속보: 현재 보상 세배 임계치 도달';
             logPrompt.classList.add('burning-log');
         } else if (stage >= 10) {
-            logPrompt.textContent = '감자단 보고서: 이 구역, 보상 중복현상 발생 중';
+            logPrompt.textContent = '감자단 보고서: 이 구역, 보상 두배 현상 발생 중';
             logPrompt.classList.remove('burning-log');
         } else {
             logPrompt.textContent = '감자단 규칙 1조: 감으로 고른다';
@@ -99,11 +99,8 @@ async function choosePath(direction) {
         gainedItems.push({ itemId, count, itemName, itemImg: iconPath });
 
         const log = document.createElement('div');
-        let bonusText = '';
-        if (multiplier === 2) bonusText = ' (2배 보상!)';
-        else if (multiplier === 3) bonusText = ' (3배 보상!)';
 
-        log.textContent = `🎁 ${itemName} x${count} 획득!${bonusText}`;
+        log.textContent = `🎁 ${itemName} x${count} 획득!`;
         log.classList.add('exploration-log-entry', 'log-resource');
         document.getElementById('logMessages').prepend(log);
     }

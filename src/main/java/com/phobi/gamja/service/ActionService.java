@@ -278,9 +278,8 @@ public class ActionService {
         exploration.getUsedCardIds().add(eventId);
 
         // 8. 다음 카드 2장 갱신
-        List<ActionCardEvent> pool = actionCardEventRepository.findByActivityTypeAndRankAndIsEnabledTrue(
-                event.getActivityType(), event.getRank());
-        pool.removeIf(e -> exploration.getUsedCardIds().contains(e.getId()));
+        List<ActionCardEvent> pool = actionCardEventRepository
+                .findByActivityTypeAndRankAndIsEnabledTrue(event.getActivityType(), event.getRank());
         Collections.shuffle(pool);
 
         List<ActionCardEvent> nextChoices = pool.size() >= 2 ? pool.subList(0, 2) : List.of();
