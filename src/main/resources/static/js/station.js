@@ -6,6 +6,7 @@ const closeWorkshopSelect = document.getElementById('closeWorkshopSelect');
 let selectedStation = null;
 let selectedRecipe = null;
 let currentWorkshopType = null;
+let cachedRecipeList = [];
 async function handleStationClick() {
     const valid = await checkSessionValid();
     if (!valid) return;
@@ -18,6 +19,7 @@ async function handleStationClick() {
     // goToWorkshopBtn.classList.add('disabled');
     await getWorkshopStations();
 }
+
 
 document.getElementById('closeWorkshopSelect').addEventListener('click', () => {
     document.getElementById('workshopSelectModal').classList.add('hidden');
@@ -101,13 +103,40 @@ async function openCraftModal(stationCategory, preselectedRecipe = null) {
 
     selectedStation = stationCategory;
     document.getElementById('craftModal').classList.remove('hidden');
+    // BATTLE일 경우 탭 보여주기
+    const tabRow = document.getElementById('equipmentTabRow');
+    if (stationCategory === 'BATTLE') {
+        tabRow.style.display = 'flex';
+    } else {
+        tabRow.style.display = 'none';
+    }
+
     fetchRecipes(stationCategory, preselectedRecipe);
 }
+
+document.querySelectorAll('#equipmentTabRow .craft-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('#equipmentTabRow .craft-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        currentEquipFilter = btn.dataset.type;
+        const filtered = cachedRecipeList.filter(r => r.slotType === currentEquipFilter);
+        renderRecipeList(filtered);
+    });
+});
+function filterRecipeListByEquipType(type) {
+    fetchRecipes(selectedStation).then(() => {
+        // 선택된 탭 타입을 기반으로 필터링 렌더링
+        renderRecipeList(window.lastFetchedRecipes || [], selectedRecipe);
+    });
+}
+
 
 async function fetchRecipes(stationCategory, preselectedRecipe = null) {
     try {
         const res = await apiRequest(`/api/station/${stationCategory}/recipe`, 'POST');
         if (res.code === 'SUCCESS') {
+            cachedRecipeList = res.data;
             renderRecipeList(res.data, preselectedRecipe);
         }
     } catch (err) {
@@ -118,6 +147,15 @@ async function fetchRecipes(stationCategory, preselectedRecipe = null) {
 function renderRecipeList(recipeList, preselectedRecipe = null) {
     const container = document.getElementById('craftRecipeList');
     container.innerHTML = '';
+
+    let filteredList = recipeList;
+    if (selectedStation === 'BATTLE') {
+        const activeTab = document.querySelector('#equipmentTabRow .craft-tab-btn.active');
+        if (activeTab) {
+            const type = activeTab.dataset.type;
+            recipeList = recipeList.filter(r => r.slotType === type);
+        }
+    }
 
     let firstCard = null;
     let selectedCard = null;

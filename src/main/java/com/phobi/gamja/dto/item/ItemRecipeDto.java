@@ -13,6 +13,7 @@ public class ItemRecipeDto {
     private String recipeName;
     private String recipeDescription; // 이건 아이템 메타 테이블의 desc
     private String grade;
+    private String slotType;
 
     private Long resultItemId;
     private String resultItemName;

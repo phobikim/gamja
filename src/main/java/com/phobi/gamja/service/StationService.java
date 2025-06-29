@@ -142,6 +142,13 @@ public class StationService {
                         builder.baseHp(stat != null ? stat.getBonusHp() : 0);
                         builder.basePower(stat != null ? stat.getBonusPower() : 0);
                         builder.baseSpeed(stat != null ? stat.getBonusSpeed() : 0);
+                        String slotCategory = switch (resultItem.getEquipSlot()) {
+                            case WEAPON -> "WEAPON";
+                            case HELMET, ARMOR, PANTS, SHOES -> "ARMOR";
+                            case RING, NECK -> "ACCESSORY";
+                            default -> null;
+                        };
+                        builder.slotType(slotCategory);
                     } else if (resultItem.getItemType() == Item.ItemType.EQUIP_GATHER) {
                         ItemSkillBonus bonus = itemSkillBonusRepository.findById(resultItem.getId()).orElse(null);
                         builder.fishing(bonus != null ? bonus.getFishing() : 0);
