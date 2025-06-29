@@ -37,10 +37,15 @@ public class Title {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "use_flag", nullable = false)
+    private Boolean useFlag = true;
+
     @OneToMany(mappedBy = "title", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TitleEffect> effects;
 
     @OneToMany(mappedBy = "title", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TitleCondition> conditions;
+
+
 }
 

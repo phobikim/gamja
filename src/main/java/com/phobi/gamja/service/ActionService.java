@@ -13,6 +13,8 @@ import com.phobi.gamja.entity.contents.*;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.item.ItemReward;
 import com.phobi.gamja.entity.item.ItemSkillBonus;
+import com.phobi.gamja.entity.quest.UserQuest;
+import com.phobi.gamja.entity.quest.UserQuestId;
 import com.phobi.gamja.entity.title.Title;
 import com.phobi.gamja.entity.title.TitleCondition;
 import com.phobi.gamja.entity.title.UserTitle;
@@ -24,6 +26,7 @@ import com.phobi.gamja.repository.battle.MonsterRepository;
 import com.phobi.gamja.repository.contents.*;
 import com.phobi.gamja.repository.item.ItemRepository;
 import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
+import com.phobi.gamja.repository.quest.UserQuestRepository;
 import com.phobi.gamja.repository.title.TitleEffectRepository;
 import com.phobi.gamja.repository.title.TitleRepository;
 import com.phobi.gamja.repository.title.UserTitleRepository;
@@ -63,6 +66,7 @@ public class ActionService {
     private final UserTitleRepository userTitleRepository;
     private final UserCounterDetailRepository userCounterDetailRepository;
     private final UserEquipmentRepository userEquipmentRepository;
+    private final UserQuestRepository userQuestRepository;
 
 
     private final LogService logService;
@@ -395,6 +399,8 @@ public class ActionService {
 
         if (title.getCounterType() == CounterType.LIFE_ACTION) {
             checkLifeStatConditions(userId, conditions);
+        } else if (title.getCounterType() == CounterType.QUEST_COMPLETE) {
+            checkQuestCompleteConditions(userId, conditions);
         } else if (isTargetlessCondition(conditions)) {
             checkTotalCounterConditions(userId, title.getCounterType(), conditions);
         } else {
@@ -419,6 +425,19 @@ public class ActionService {
 
         corpsTierService.updateCorpsXp(userId, 10);
         return ResponseEntity.ok(GamJaResponse.success("칭호를 획득했습니다.",null));
+    }
+
+    private void checkQuestCompleteConditions(Long userId, List<TitleCondition> conditions) {
+        for (TitleCondition cond : conditions) {
+            Long questId = cond.getTargetId();
+            UserQuestId uqId = new UserQuestId(userId, questId);
+            UserQuest userQuest = userQuestRepository.findById(uqId).orElse(null);
+
+            boolean completed = userQuest != null && userQuest.isCompleted();
+            if (!completed) {
+                throw new IllegalStateException("칭호 획득 조건 미달: 퀘스트 미완료");
+            }
+        }
     }
 
     // ✅ 칭호 착용

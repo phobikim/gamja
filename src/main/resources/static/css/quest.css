@@ -146,6 +146,16 @@
     gap: 8px;
 }
 
+.quest-status {
+    flex: 0 0 70%;
+}
+
+.quest-action > div:last-child {
+    flex: 0 0 30%;
+    display: flex;
+    justify-content: flex-end;
+}
+
 .quest-rewards {
     display: flex;
     gap: 6px;

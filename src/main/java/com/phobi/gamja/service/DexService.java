@@ -5,6 +5,9 @@ import com.phobi.gamja.dto.user.LifeStatDto;
 import com.phobi.gamja.entity.battle.Monster;
 import com.phobi.gamja.entity.dex.*;
 import com.phobi.gamja.entity.item.*;
+import com.phobi.gamja.entity.quest.Quest;
+import com.phobi.gamja.entity.quest.UserQuest;
+import com.phobi.gamja.entity.quest.UserQuestId;
 import com.phobi.gamja.entity.title.Title;
 import com.phobi.gamja.entity.title.TitleCondition;
 import com.phobi.gamja.entity.title.UserTitle;
@@ -13,6 +16,8 @@ import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.battle.MonsterRepository;
 import com.phobi.gamja.repository.dex.DexRepository;
 import com.phobi.gamja.repository.item.*;
+import com.phobi.gamja.repository.quest.QuestRepository;
+import com.phobi.gamja.repository.quest.UserQuestRepository;
 import com.phobi.gamja.repository.title.TitleEffectRepository;
 import com.phobi.gamja.repository.title.TitleRepository;
 import com.phobi.gamja.repository.title.UserTitleRepository;
@@ -43,6 +48,8 @@ public class DexService {
     private final TitleEffectRepository titleEffectRepository;
     private final UserTitleRepository userTitleRepository;
     private final UserCounterDetailRepository userCounterDetailRepository;
+    private final UserQuestRepository userQuestRepository;
+    private final QuestRepository questRepository;
 
     private static final Map<String, Integer> RARITY_ORDER = Map.of(
             "COMMON", 1,
@@ -235,7 +242,7 @@ public class DexService {
     }
 
     private List<Map<String, Object>> buildTitleList(Long userId) {
-        List<Title> titles = titleRepository.findAll();
+        List<Title> titles = titleRepository.findAllByUseFlagTrue();
         List<UserTitle> userTitles = userTitleRepository.findByIdUserId(userId);
         List<UserCounterDetail> counterDetails = userCounterDetailRepository.findByUserId(userId);
 
@@ -314,8 +321,23 @@ public class DexService {
                                 Dex dex = dexRepository.findById(cond.getTargetId()).orElse(null);
                                 yield dex != null ? dex.getName() : "???";
                             }
-                            case QUEST_COMPLETE -> "퀘스트 수행";
-                            default -> "???";
+                            case QUEST_COMPLETE -> {
+                                Quest quest = questRepository.findById(cond.getTargetId()).orElse(null);
+                                targetName = quest != null ? quest.getName() : "???";
+
+                                UserQuestId uqId = new UserQuestId(userId, cond.getTargetId());
+                                UserQuest userQuest = userQuestRepository.findById(uqId).orElse(null);
+
+                                pass = (userQuest != null && userQuest.isCompleted());
+                                current = pass ? 1 : 0;
+                                yield quest != null ? quest.getName() : "???";
+                            }
+                            default -> {
+                                targetName = "???";
+                                pass = false;
+                                current = 0;
+                                yield "???";
+                            }
                         };
                     }
 
