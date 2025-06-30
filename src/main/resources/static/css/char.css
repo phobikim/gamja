@@ -322,3 +322,20 @@ html, body {
         width: 24vw;
     }
 }
+
+.notice-icon-btn {
+    position: fixed;
+    top: 20vh;
+    left: 12px;
+    width: 36px;
+    height: 36px;
+    z-index: 2;
+    cursor: pointer;
+    image-rendering: pixelated;
+    filter: drop-shadow(1px 1px 2px #00000080);
+    transition: transform 0.2s;
+}
+
+.notice-icon-btn:hover {
+    transform: scale(1.05);
+}

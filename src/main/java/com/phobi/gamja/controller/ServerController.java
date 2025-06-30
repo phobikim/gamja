@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.Optional;
 
@@ -32,5 +33,10 @@ public class ServerController {
         } else {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
+    }
+
+    @GetMapping("/notices")
+    public ResponseEntity<GamJaResponse> getNoticeList(HttpServletRequest request) {
+        return maintenanceService.getNoticeList(request);
     }
 }

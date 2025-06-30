@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="css/settingModal.css">
     <link rel="stylesheet" href="css/tier.css">
     <link rel="stylesheet" href="css/rank.css">
+    <link rel="stylesheet" href="css/notice.css">
     <!--    <link rel="stylesheet" href="css/playerDexSelect.css">-->
 <!--    <link rel="stylesheet" href="css/dexParty.css">-->
 </head>
@@ -62,6 +63,15 @@
         </div>
     </div>
 </div>
+
+<!-- 공지 아이콘 (top-ui 바로 아래 왼쪽 고정) -->
+<img id="noticeIconBtn"
+     src="https://phobi.me/gamja.img/images/icons/icon_notice.png"
+     alt="공지사항"
+     title="공지사항"
+     class="notice-icon-btn"
+/>
+
 
 <!-- 캐릭터 영역 -->
 <div class="game-content" onclick="openInfoModal()">
@@ -700,9 +710,7 @@
                             <div class="stat-label">공격력</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
-                                    <div class="stat-bar-fill base"></div>
-                                    <div class="stat-bar-fill user"></div>
-                                    <div class="stat-bar-fill equip"></div>
+                                    <div class="stat-bar-fill"></div>
                                 </div>
                                 <span class="stat-bar-value"></span>
                             </div>
@@ -714,9 +722,7 @@
                             <div class="stat-label">체력</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
-                                    <div class="stat-bar-fill base"></div>
-                                    <div class="stat-bar-fill user"></div>
-                                    <div class="stat-bar-fill equip"></div>
+                                    <div class="stat-bar-fill"></div>
                                 </div>
                                 <span class="stat-bar-value"></span>
                             </div>
@@ -728,9 +734,7 @@
                             <div class="stat-label">민첩</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
-                                    <div class="stat-bar-fill base"></div>
-                                    <div class="stat-bar-fill user"></div>
-                                    <div class="stat-bar-fill equip"></div>
+                                    <div class="stat-bar-fill"></div>
                                 </div>
                                 <span class="stat-bar-value"></span>
                             </div>
@@ -746,9 +750,7 @@
                             <div class="stat-label">낚시</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
-                                    <div class="stat-bar-fill base"></div>
-                                    <div class="stat-bar-fill user"></div>
-                                    <div class="stat-bar-fill equip"></div>
+                                    <div class="stat-bar-fill"></div>
                                 </div>
                                 <span class="stat-bar-value"></span>
                             </div>
@@ -760,9 +762,7 @@
                             <div class="stat-label">벌목</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
-                                    <div class="stat-bar-fill base"></div>
-                                    <div class="stat-bar-fill user"></div>
-                                    <div class="stat-bar-fill equip"></div>
+                                    <div class="stat-bar-fill"></div>
                                 </div>
                                 <span class="stat-bar-value"></span>
                             </div>
@@ -774,9 +774,7 @@
                             <div class="stat-label">채집</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
-                                    <div class="stat-bar-fill base"></div>
-                                    <div class="stat-bar-fill user"></div>
-                                    <div class="stat-bar-fill equip"></div>
+                                    <div class="stat-bar-fill"></div>
                                 </div>
                                 <span class="stat-bar-value"></span>
                             </div>
@@ -788,9 +786,7 @@
                             <div class="stat-label">채광</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
-                                    <div class="stat-bar-fill base"></div>
-                                    <div class="stat-bar-fill user"></div>
-                                    <div class="stat-bar-fill equip"></div>
+                                    <div class="stat-bar-fill"></div>
                                 </div>
                                 <span class="stat-bar-value"></span>
                             </div>
@@ -977,6 +973,35 @@
     </div>
 </div>
 
+<!-- 공지 모달 -->
+<div id="noticeModal" class="modal hidden">
+    <div class="tier-modal-content">
+
+        <!-- 나무간판 헤더 -->
+        <div class="notice-header-wood">
+            감자단 공지
+        </div>
+
+        <!-- 공지 본문 패널 -->
+        <div id="noticePanel" class="notice-gain-guide-panel">
+            <!-- 좌우 버튼 -->
+            <button id="noticePrevBtn" class="notice-page-btn"></button>
+
+            <div id="noticeTitle" class="notice-title">공지 제목</div>
+            <div id="noticeDuration" class="notice-duration">공지 기간</div>
+            <div id="noticeContent" class="notice-content">공지 본문 내용</div>
+            <div id="noticePatchList" class="notice-patch-list scrollable hidden"></div>
+            <div id="noticePageIndicator" class="notice-page-indicator">1 / 1</div>
+
+            <button id="noticeNextBtn" class="notice-page-btn"></button>
+        </div>
+
+        <div style="text-align: center;">
+            <button class="modal-close-btn" onclick="closeNoticeModal()">닫기</button>
+        </div>
+    </div>
+</div>
+
 <div id="sessionExpiredModal" class="modal hidden">
     <div class="session-modal-content">
         <p class="message-text">
@@ -1008,6 +1033,7 @@
 <script src="js/settingModal.js"></script>
 <script src="js/tier.js"></script>
 <script src="js/rank.js"></script>
+<script src="js/notice.js"></script>
 <!--<script src="js/playerDexSelect.js"></script>-->
 <!--<script src="js/dexParty.js"></script>-->
 
