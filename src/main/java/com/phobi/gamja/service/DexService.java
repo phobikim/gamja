@@ -322,15 +322,24 @@ public class DexService {
                                 yield dex != null ? dex.getName() : "???";
                             }
                             case QUEST_COMPLETE -> {
-                                Quest quest = questRepository.findById(cond.getTargetId()).orElse(null);
-                                targetName = quest != null ? quest.getName() : "???";
+                                if (cond.getTargetId() == 0) {
+                                    // 누적 퀘스트 완료 (user_counter_detail 사용)
+                                    key = title.getCounterType().name() + "_0";
+                                    current = counterMap.getOrDefault(key, 0);
+                                    pass = current >= cond.getRequiredCount();
+                                    targetName = "퀘스트 수행";
+                                } else {
+                                    // 특정 퀘스트 완료 (user_quest 사용)
+                                    Quest quest = questRepository.findById(cond.getTargetId()).orElse(null);
+                                    targetName = quest != null ? quest.getName() : "???";
 
-                                UserQuestId uqId = new UserQuestId(userId, cond.getTargetId());
-                                UserQuest userQuest = userQuestRepository.findById(uqId).orElse(null);
+                                    UserQuestId uqId = new UserQuestId(userId, cond.getTargetId());
+                                    UserQuest userQuest = userQuestRepository.findById(uqId).orElse(null);
 
-                                pass = (userQuest != null && userQuest.isCompleted());
-                                current = pass ? 1 : 0;
-                                yield quest != null ? quest.getName() : "???";
+                                    pass = (userQuest != null && userQuest.isCompleted());
+                                    current = pass ? 1 : 0;
+                                }
+                                yield targetName;
                             }
                             default -> {
                                 targetName = "???";
