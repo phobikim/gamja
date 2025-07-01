@@ -143,5 +143,11 @@ function injectChronicleIcon() {
     icon.alt = '감자연대기';
     icon.classList.add('chronicle-icon');
 
+    icon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        playEffect("se_click2");
+        openChronicleModal();
+    });
+
     container.appendChild(icon);
 }

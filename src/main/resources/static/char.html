@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="css/tier.css">
     <link rel="stylesheet" href="css/rank.css">
     <link rel="stylesheet" href="css/notice.css">
+    <link rel="stylesheet" href="css/chronicle.css">
     <!--    <link rel="stylesheet" href="css/playerDexSelect.css">-->
 <!--    <link rel="stylesheet" href="css/dexParty.css">-->
 </head>
@@ -1005,6 +1006,47 @@
     </div>
 </div>
 
+<!-- 감자 연대기 모달 -->
+<div id="chronicleModal" class="modal hidden">
+    <div class="tier-modal-content">
+
+        <!-- 🥔 퀘스트 진행률 (임시) -->
+        <div class="tier-gain-guide-panel">
+            <div class="tier-next-info-text">퀘스트 진행률</div>
+            <div class="tier-exp-bar">
+                <div class="tier-exp-fill" style="width: 60%;"></div>
+                <div class="tier-exp-text">60%</div>
+            </div>
+        </div>
+
+        <!-- 📦 수집품 진행률 -->
+        <div class="tier-gain-guide-panel">
+            <div class="tier-next-info-text">수집품 진행률 (54%)</div>
+            <div class="tier-scroll-wrapper">
+                <div class="tier-scroll-list" id="chronicleCollectList">
+                    <!-- JS로 카드 삽입 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 🍳 요리 진행률 -->
+        <div class="tier-gain-guide-panel">
+            <div class="tier-next-info-text">요리 진행률 (30%)</div>
+            <div class="tier-scroll-wrapper">
+                <div class="tier-scroll-list" id="chronicleCookList">
+                    <!-- JS로 카드 삽입 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 닫기 버튼 -->
+        <div style="text-align: center;">
+            <button id="closeChronicleBtn" class="modal-close-btn">닫기</button>
+        </div>
+
+    </div>
+</div>
+
 <div id="sessionExpiredModal" class="modal hidden">
     <div class="session-modal-content">
         <p class="message-text">
@@ -1037,6 +1079,7 @@
 <script src="js/tier.js"></script>
 <script src="js/rank.js"></script>
 <script src="js/notice.js"></script>
+<script src="js/chronicle.js"></script>
 <!--<script src="js/playerDexSelect.js"></script>-->
 <!--<script src="js/dexParty.js"></script>-->
 
