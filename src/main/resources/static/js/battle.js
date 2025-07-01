@@ -111,8 +111,16 @@ function initializeBattleScene(player, monster) {
     }
 
     window.currentDexImage = charImagePath;
-    waitForAllBattleImagesToLoad(removeBattleSkeleton);
+    waitForAllBattleImagesToLoad(() => {
+        removeBattleSkeleton();
 
+        setTimeout(() => {
+            isPlayerTurn = true;
+            isProcessingTurn = false;
+            battleEnded = false;
+            updateButtonStates();
+        }, 0);
+    });
 }
 
 function renderBattleState(player, monster) {
@@ -515,6 +523,7 @@ async function nextBattle() {
     // 같은 맵에서 새로운 전투 시작
     if (window.selectedMap) {
         await window.startBattleFromMap(window.selectedMap);
+        updateButtonStates();
     } else {
         // selectedMap이 없으면 맵 선택으로 돌아가기
         battleModal.classList.add('hidden');
