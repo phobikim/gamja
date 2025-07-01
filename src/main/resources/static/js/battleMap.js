@@ -12,6 +12,9 @@ async function handleAttackClick() {
     playEffect("se_click2")
     document.body.style.overflow = 'hidden';
     battleMapSelectModal.classList.remove('hidden');
+
+
+
     // 1. 전투 맵 리스트 조회
     const mapRes = await apiRequest('/api/battle/map-list', 'GET');
     if (mapRes.code !== 'SUCCESS') {
@@ -38,6 +41,7 @@ function renderMapList(mapList) {
 
             selectedMap = map;
             updateMapDetail(map);
+            injectChronicleIcon();
             document.querySelectorAll('.map-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
         });
@@ -46,6 +50,7 @@ function renderMapList(mapList) {
         if (idx === 0) {
             selectedMap = map;
             updateMapDetail(map);
+            injectChronicleIcon();
             card.classList.add('selected');
         }
     });
@@ -125,4 +130,18 @@ function updateMapDetail(map) {
         wrapper.appendChild(tooltip);
         rewardBox.appendChild(wrapper);
     });
+}
+
+function injectChronicleIcon() {
+    const container = document.getElementById('chronicleIconContainer');
+    if (!container) return;
+
+    if (container.querySelector('img')) return;
+
+    const icon = document.createElement('img');
+    icon.src = `${basePath_image}/icons/chronicle_book.png`;
+    icon.alt = '감자연대기';
+    icon.classList.add('chronicle-icon');
+
+    container.appendChild(icon);
 }

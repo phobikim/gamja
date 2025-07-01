@@ -221,3 +221,23 @@
     bottom: 0;
     background: var(--dark-1-color); /* ✅ 배경 안 겹치게 */
 }
+
+.potato-chronicle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #ffe7a0;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
+#chronicleIconContainer img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.3));
+}
