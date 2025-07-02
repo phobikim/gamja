@@ -10,10 +10,12 @@ import com.phobi.gamja.repository.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,6 +26,7 @@ public class UtilService {
     private final UserInventoryRepository userInventoryRepository;
     private final UserEquipmentRepository userEquipmentRepository;
     private final ItemRepository itemRepository;
+
     public List<UserInventoryDto> getUserInventoryWithEquipStatus(Long userId) {
         List<UserInventory> inventoryList = userInventoryRepository.findByUserId(userId);
         List<UserEquipment> battleEquipments = userEquipmentRepository.findByUserIdAndType(userId, EquipmentType.EQUIP_BATTLE);
@@ -77,7 +80,7 @@ public class UtilService {
         EquipmentType type;
         EquipmentSlot slot;
         // 3. 타입, 슬롯 변환
-        if(slotTypeName.equals("POTION")) {
+        if (slotTypeName.equals("POTION")) {
             type = EquipmentType.EQUIP_BATTLE;
             slot = EquipmentSlot.POTION;
         } else {
@@ -109,5 +112,4 @@ public class UtilService {
             "EPIC", 4,
             "LEGENDARY", 5
     );
-
 }

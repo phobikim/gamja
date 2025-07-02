@@ -246,7 +246,7 @@ public class BattleService {
 
     @Transactional(readOnly = true)
     public GamJaResponse startBattle(Map<String, Object> request, HttpSession session) {
-        Long userId = actionService.getUserId(session);
+        Long userId = commonUtil.getUserId(session);
         Long mapId = ((Number) request.get("mapId")).longValue();
 
         // 몬스터 랜덤 선택

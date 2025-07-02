@@ -8,6 +8,9 @@ import com.phobi.gamja.repository.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpSession;
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class CommonUtil {
@@ -34,6 +37,11 @@ public class CommonUtil {
         stat.setSpeed(stat.getSpeed() + 1);
 
         userDexStatRepository.save(stat);
+    }
+
+    public Long getUserId(HttpSession session) {
+        return Optional.ofNullable((Long) session.getAttribute("userId"))
+                .orElseThrow(() -> new IllegalArgumentException("로그인이 필요합니다."));
     }
 
 }

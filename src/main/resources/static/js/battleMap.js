@@ -146,7 +146,7 @@ function injectChronicleIcon() {
     icon.addEventListener('click', (e) => {
         e.stopPropagation();
         playEffect("se_click2");
-        openChronicleModal();
+        openChronicleModal(selectedMap);
     });
 
     container.appendChild(icon);

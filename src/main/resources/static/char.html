@@ -1010,42 +1010,51 @@
 
 <!-- 감자 연대기 모달 -->
 <div id="chronicleModal" class="modal hidden">
-    <div class="tier-modal-content">
+    <div class="chronicle-modal-content">
 
-        <!-- 🥔 퀘스트 진행률 (임시) -->
-        <div class="tier-gain-guide-panel">
-            <div class="tier-next-info-text">퀘스트 진행률</div>
-            <div class="tier-exp-bar">
-                <div class="tier-exp-fill" style="width: 60%;"></div>
-                <div class="tier-exp-text">60%</div>
+        <!-- 총 진행률 -->
+        <div class="chronicle-summary-bar">
+            <div class="chronicle-summary-text">감자 연대기 진행률</div>
+            <div class="chronicle-progress-bar">
+                <div class="chronicle-progress-fill"></div>
+                <div class="chronicle-progress-text"></div>
             </div>
         </div>
 
-        <!-- 📦 수집품 진행률 -->
-        <div class="tier-gain-guide-panel">
-            <div class="tier-next-info-text">수집품 진행률 (54%)</div>
-            <div class="tier-scroll-wrapper">
-                <div class="tier-scroll-list" id="chronicleCollectList">
-                    <!-- JS로 카드 삽입 -->
+        <!-- 수집품 리스트 -->
+        <div class="chronicle-section">
+            <div class="chronicle-section-header">
+                <div class="chronicle-section-title">수집품</div>
+                <div class="chronicle-progress-bar small">
+                    <div class="chronicle-progress-fill" id="collectProgressFill"></div>
+                    <div class="chronicle-progress-text" id="collectProgressText"></div>
                 </div>
+            </div>
+            <div class="chronicle-scroll-wrapper">
+                <div id="chronicleCollectList" class="chronicle-scroll-list"></div>
+                <div class="chronicle-desc-board" id="collectDescBoard"></div>
             </div>
         </div>
 
-        <!-- 🍳 요리 진행률 -->
-        <div class="tier-gain-guide-panel">
-            <div class="tier-next-info-text">요리 진행률 (30%)</div>
-            <div class="tier-scroll-wrapper">
-                <div class="tier-scroll-list" id="chronicleCookList">
-                    <!-- JS로 카드 삽입 -->
+        <!-- 요리 리스트 -->
+        <div class="chronicle-section">
+            <div class="chronicle-section-header">
+                <div class="chronicle-section-title">요리</div>
+                <div class="chronicle-progress-bar small">
+                    <div class="chronicle-progress-fill" id="foodProgressFill"></div>
+                    <div class="chronicle-progress-text" id="foodProgressText"></div>
                 </div>
+            </div>
+            <div class="chronicle-scroll-wrapper">
+                <div id="chronicleCookList" class="chronicle-scroll-list"></div>
+                <div class="chronicle-desc-board" id="foodDescBoard"></div>
             </div>
         </div>
 
         <!-- 닫기 버튼 -->
         <div style="text-align: center;">
-            <button id="closeChronicleBtn" class="modal-close-btn">닫기</button>
+            <button id="closeChronicleBtn" class="chronicle-close-btn modal-close-btn">닫기</button>
         </div>
-
     </div>
 </div>
 

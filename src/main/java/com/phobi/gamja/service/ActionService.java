@@ -79,7 +79,7 @@ public class ActionService {
 
 
     public ResponseEntity<GamJaResponse> getActionsByCategory(String activityType, HttpSession session) {
-        Long userId = getUserId(session);
+        Long userId = commonUtil.getUserId(session);
         try {
             SkillType actionCategory = SkillType.valueOf(activityType.toUpperCase());
             ActivityType type = ActivityType.valueOf(activityType.toUpperCase());
@@ -110,7 +110,7 @@ public class ActionService {
 
 
     public ResponseEntity<GamJaResponse> getCardEvents(String activity, int rank, HttpSession session) {
-        Long userId = getUserId(session);
+        Long userId = commonUtil.getUserId(session);
         ActivityType activityType = ActivityType.valueOf(activity.toUpperCase());
         // 카드 풀 불러오기
         List<ActionCardEvent> allEvents = actionCardEventRepository
@@ -190,7 +190,7 @@ public class ActionService {
             return ResponseEntity.ok(GamJaResponse.fail("진행 중인 탐사가 없습니다."));
         }
 
-        Long userId = getUserId(session);
+        Long userId = commonUtil.getUserId(session);
 
         // 2. 현재 선택 가능한 카드인지 검증
         boolean validChoice = exploration.getCurrentChoices().stream()
@@ -288,7 +288,7 @@ public class ActionService {
 
 
     public ResponseEntity<GamJaResponse> endExploration(HttpSession session, Map<String, Object> request) {
-        Long userId = getUserId(session);
+        Long userId = commonUtil.getUserId(session);
         SkillType skillType = SkillType.valueOf(((String) request.get("activityType")).toUpperCase());
 
         // 1. 세션 꺼내기
@@ -387,7 +387,7 @@ public class ActionService {
 
     // ✅ 칭호 수동 획득
     public ResponseEntity<GamJaResponse> claimTitle(HttpSession session, Map<String, Object> request) {
-        Long userId = getUserId(session);
+        Long userId = commonUtil.getUserId(session);
         Long titleId = ((Number) request.get("titleId")).longValue();
 
         Title title = titleRepository.findById(titleId)
@@ -442,7 +442,7 @@ public class ActionService {
 
     // ✅ 칭호 착용
     public ResponseEntity<GamJaResponse> equipTitle(HttpSession session, Map<String, Object> request) {
-        Long userId = getUserId(session);
+        Long userId = commonUtil.getUserId(session);
         Long titleId = ((Number) request.get("titleId")).longValue();
 
         List<UserTitle> userTitles = userTitleRepository.findByIdUserId(userId);
@@ -532,10 +532,7 @@ public class ActionService {
     }
 
     // ===== 공통 처리 함수 =====
-    public Long getUserId(HttpSession session) {
-        return Optional.ofNullable((Long) session.getAttribute("userId"))
-                .orElseThrow(() -> new IllegalArgumentException("로그인이 필요합니다."));
-    }
+
 
 
     public UserSkill updateUserSkill(Long userId, SkillType skillType, double gainedExp, int maxCombo) {

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/chronicle")
@@ -19,7 +19,7 @@ public class ChronicleController {
     private final ChronicleService chronicleService;
 
     @GetMapping("/list")
-    public ResponseEntity<GamJaResponse> getChronicleList(@RequestParam Long mapId, HttpServletRequest request) {
-        return chronicleService.getChronicleList(mapId, request);
+    public ResponseEntity<GamJaResponse> getChronicleList(@RequestParam Long mapId, HttpSession session) {
+        return chronicleService.getChronicleList(mapId, session);
     }
 }

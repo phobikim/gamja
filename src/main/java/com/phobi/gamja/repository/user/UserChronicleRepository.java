@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface UserChronicleRepository extends JpaRepository<UserChronicle, UserChronicleId> {
     List<UserChronicle> findByUserId(Long userId);
-    List<UserChronicle> findByUserIdAndChronicle_MapId(Long userId, Long mapId);
+    // 유저의 연대기 항목들 진행도
+    List<UserChronicle> findByUserIdAndChronicleIdIn(Long userId, List<Long> chronicleIds);
 }
