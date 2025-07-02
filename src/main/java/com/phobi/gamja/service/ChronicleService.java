@@ -138,7 +138,14 @@ public class ChronicleService {
                         uc -> uc.getChronicle().getId(),
                         uc -> uc
                 ));
-
+        // MONSTER_KILL 전체 미리 조회
+        Map<Long, Integer> monsterKillMap = userCounterDetailRepository
+                .findAllByUserIdAndCounterType(userId, CounterType.MONSTER_KILL)
+                .stream()
+                .collect(Collectors.toMap(
+                        UserCounterDetail::getTargetId,
+                        UserCounterDetail::getCounterValue
+                ));
         // 가중치 설정 (비율: 몬스터 25, 수집품 25, 퀘스트 25, 요리 25)
         Map<String, Double> weightMap = Map.of(
                 "MONSTER", 0.25,
@@ -151,23 +158,26 @@ public class ChronicleService {
         List<Map<String, Object>> typeList = new ArrayList<>();
 
         for (Chronicle.ChronicleTargetType type : Chronicle.ChronicleTargetType.values()) {
-            // 각 타입 그룹 필터링
             List<Chronicle> group = all.stream()
                     .filter(c -> c.getTargetType() == type)
                     .toList();
 
-            // 총 필요 수량과 유저 달성 수량 계산
             int requiredTotal = group.stream()
                     .mapToInt(Chronicle::getRequiredCount)
                     .sum();
 
             int userTotal = group.stream()
                     .mapToInt(c -> {
-                        UserChronicle uc = userMap.get(c.getId());
-                        return Math.min(
-                                uc != null ? uc.getProgressCount() : 0,
-                                c.getRequiredCount()
-                        );
+                        if (type == Chronicle.ChronicleTargetType.MONSTER) {
+                            int count = monsterKillMap.getOrDefault(c.getTargetId(), 0);
+                            return Math.min(count, c.getRequiredCount());
+                        } else {
+                            UserChronicle uc = userMap.get(c.getId());
+                            return Math.min(
+                                    uc != null ? uc.getProgressCount() : 0,
+                                    c.getRequiredCount()
+                            );
+                        }
                     })
                     .sum();
 
@@ -185,7 +195,7 @@ public class ChronicleService {
         }
 
         return Map.of(
-                "totalPercent", Math.round(totalWeightedProgress * 10) / 10.0, // 반올림
+                "totalPercent", Math.round(totalWeightedProgress * 10) / 10.0,
                 "details", typeList
         );
     }
