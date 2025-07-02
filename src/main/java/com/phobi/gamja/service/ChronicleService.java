@@ -1,12 +1,16 @@
 package com.phobi.gamja.service;
 
 import com.phobi.gamja.entity.chronicle.Chronicle;
+import com.phobi.gamja.entity.user.CounterType;
 import com.phobi.gamja.entity.user.UserChronicle;
+import com.phobi.gamja.entity.user.UserCounterDetail;
 import com.phobi.gamja.message.GamJaResponse;
+import com.phobi.gamja.repository.battle.MonsterRepository;
 import com.phobi.gamja.repository.chronicle.ChronicleRepository;
 import com.phobi.gamja.repository.item.ItemRepository;
 import com.phobi.gamja.repository.quest.QuestRepository;
 import com.phobi.gamja.repository.user.UserChronicleRepository;
+import com.phobi.gamja.repository.user.UserCounterDetailRepository;
 import com.phobi.gamja.util.CommonUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +18,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +29,8 @@ public class ChronicleService {
     private final UserChronicleRepository userChronicleRepository;
     private final ItemRepository itemRepository;
     private final QuestRepository questRepository;
+    private final MonsterRepository monsterRepository;
+    private final UserCounterDetailRepository userCounterDetailRepository;
 
     private final CommonUtil commonUtil;
 
@@ -67,16 +70,10 @@ public class ChronicleService {
             data.put("requiredCount", element.getRequiredCount());
             data.put("order", element.getOrderInUi());
 
-            // 유저 진행도
-            UserChronicle uc = userMap.get(element.getId());
-            int progress = uc != null ? uc.getProgressCount() : 0;
-            boolean completed = uc != null && uc.isCompleted();
-            double percent = (double) Math.min(progress, element.getRequiredCount()) / element.getRequiredCount() * 100;
+            int progress = 0;
+            boolean completed = false;
 
-            data.put("progressCount", progress);
-            data.put("completed", completed);
-            data.put("percent", percent);
-
+            // 타입별 처리
             switch (element.getTargetType()) {
                 case ITEM:
                 case FOOD:
@@ -85,14 +82,45 @@ public class ChronicleService {
                         data.put("icon", item.getIconPath());
                         data.put("desc", item.getDescription());
                     });
+
+                    UserChronicle uc1 = userMap.get(element.getId());
+                    progress = uc1 != null ? uc1.getProgressCount() : 0;
+                    completed = uc1 != null && uc1.isCompleted();
                     break;
+
                 case QUEST:
                     questRepository.findById(element.getTargetId()).ifPresent(quest -> {
                         data.put("name", quest.getName());
                         data.put("desc", quest.getDescription());
                     });
+
+                    UserChronicle uc2 = userMap.get(element.getId());
+                    progress = uc2 != null ? uc2.getProgressCount() : 0;
+                    completed = uc2 != null && uc2.isCompleted();
                     break;
+
+                case MONSTER:
+                    monsterRepository.findById(element.getTargetId()).ifPresent(monster -> {
+                        data.put("name", monster.getName());
+                        data.put("icon", monster.getImagePath());
+                        data.put("desc", monster.getDesc());
+
+                        Optional<UserCounterDetail> counter = userCounterDetailRepository
+                                .findByUserIdAndCounterTypeAndTargetId(userId, CounterType.MONSTER_KILL, monster.getId());
+
+                        int monsterProgress = counter.map(UserCounterDetail::getCounterValue).orElse(0);
+                        data.put("progressCount", monsterProgress);
+                        data.put("completed", monsterProgress >= element.getRequiredCount());
+                        data.put("percent", Math.min(monsterProgress, element.getRequiredCount()) * 100.0 / element.getRequiredCount());
+                    });
+                    result.add(data);
+                    continue;
             }
+
+            // 공통 계산 처리
+            data.put("progressCount", progress);
+            data.put("completed", completed);
+            data.put("percent", Math.min(progress, element.getRequiredCount()) * 100.0 / element.getRequiredCount());
 
             result.add(data);
         }
@@ -111,11 +139,12 @@ public class ChronicleService {
                         uc -> uc
                 ));
 
-        // 가중치 설정 (비율: 수집품 40, 퀘스트 20, 요리 40)
+        // 가중치 설정 (비율: 몬스터 25, 수집품 25, 퀘스트 25, 요리 25)
         Map<String, Double> weightMap = Map.of(
-                "ITEM", 0.4,
-                "QUEST", 0.2,
-                "FOOD", 0.4
+                "MONSTER", 0.25,
+                "ITEM", 0.25,
+                "QUEST", 0.25,
+                "FOOD", 0.25
         );
 
         double totalWeightedProgress = 0;

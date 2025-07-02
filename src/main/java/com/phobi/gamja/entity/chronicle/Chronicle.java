@@ -15,7 +15,7 @@ import javax.persistence.*;
 public class Chronicle {
 
     public enum ChronicleTargetType {
-        ITEM, QUEST, FOOD
+        ITEM, QUEST, FOOD, MONSTER
     }
 
     @Id

@@ -5,6 +5,7 @@ import com.phobi.gamja.entity.user.CounterType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserCounterDetailRepository extends JpaRepository<UserCounterDetail, UserCounterDetail.PK> {
 
@@ -13,4 +14,6 @@ public interface UserCounterDetailRepository extends JpaRepository<UserCounterDe
     boolean existsByUserIdAndCounterTypeAndTargetId(Long userId, CounterType counterType, Long targetId);
 
     List<UserCounterDetail> findByUserId(Long userId);
+    Optional<UserCounterDetail> findByUserIdAndCounterTypeAndTargetId(Long userId, CounterType counterType, Long targetId);
+
 }

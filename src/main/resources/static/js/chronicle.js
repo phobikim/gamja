@@ -33,8 +33,11 @@ async function fetchChronicleList(mapId) {
 function renderChronicleList(data) {
     const collectList = document.getElementById('chronicleCollectList');
     const cookList = document.getElementById('chronicleCookList');
+    const monsterList = document.getElementById('chronicleMonsterList');
+
     const collectDesc = document.getElementById('collectDescBoard');
     const cookDesc = document.getElementById('foodDescBoard');
+    const monsterDesc = document.getElementById('monsterDescBoard');
 
     const barFill = document.querySelector('.chronicle-progress-fill');
     const barText = document.querySelector('.chronicle-progress-text');
@@ -43,11 +46,16 @@ function renderChronicleList(data) {
     const collectText = document.getElementById('collectProgressText');
     const foodFill = document.getElementById('foodProgressFill');
     const foodText = document.getElementById('foodProgressText');
+    const monsterFill = document.getElementById('monsterProgressFill');
+    const monsterText = document.getElementById('monsterProgressText');
 
+    // 초기화
     collectList.innerHTML = '';
     cookList.innerHTML = '';
+    monsterList.innerHTML = '';
     collectDesc.textContent = '';
     cookDesc.textContent = '';
+    monsterDesc.textContent = '';
 
     const summary = data.summary;
     const list = data.list;
@@ -65,23 +73,22 @@ function renderChronicleList(data) {
         } else if (detail.type === 'FOOD') {
             foodFill.style.width = `${percent}%`;
             foodText.textContent = `진행률 ${percent}%`;
+        } else if (detail.type === 'MONSTER') {
+            monsterFill.style.width = `${percent}%`;
+            monsterText.textContent = `진행률 ${percent}%`;
         }
     });
 
     let firstItemCard = null;
     let firstFoodCard = null;
+    let firstMonsterCard = null;
 
     list.forEach(item => {
         const card = document.createElement('div');
         card.className = 'chronicle-card';
 
-        // 조건별 스타일
-        if (item.progressCount === 0) {
-            card.classList.add('no-progress');
-        }
-        if (item.completed) {
-            card.classList.add('completed');
-        }
+        if (item.progressCount === 0) card.classList.add('no-progress');
+        if (item.completed) card.classList.add('completed');
 
         card.innerHTML = `
             <img src="${basePath}/${item.icon}" alt="${item.name}" class="chronicle-card-icon">
@@ -97,6 +104,8 @@ function renderChronicleList(data) {
                 collectDesc.innerText = desc;
             } else if (item.type === 'FOOD') {
                 cookDesc.innerText = desc;
+            } else if (item.type === 'MONSTER') {
+                monsterDesc.innerText = desc;
             }
         };
 
@@ -106,12 +115,15 @@ function renderChronicleList(data) {
         } else if (item.type === 'FOOD') {
             cookList.appendChild(card);
             if (!firstFoodCard) firstFoodCard = card;
+        } else if (item.type === 'MONSTER') {
+            monsterList.appendChild(card);
+            if (!firstMonsterCard) firstMonsterCard = card;
         }
     });
 
-    // 첫 항목 자동 선택
     if (firstItemCard) firstItemCard.click();
     if (firstFoodCard) firstFoodCard.click();
+    if (firstMonsterCard) firstMonsterCard.click();
 }
 
 
