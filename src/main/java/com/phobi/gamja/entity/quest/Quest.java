@@ -48,6 +48,9 @@ public class Quest {
     @Column(name = "main_order")
     private Integer mainOrder;
 
+    @Column(name = "chronicle_flag", nullable = false)
+    private boolean chronicleFlag;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
