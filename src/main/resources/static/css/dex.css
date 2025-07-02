@@ -193,8 +193,9 @@
 .detail-effects {
     background: var(--dark-3-color);
     border-radius: 8px;
+    max-height : 120px;
     padding: 0;
-    overflow: hidden;
+    overflow: auto;
     /* 하단 입체감 */
     box-shadow:
             0 4px 0 rgba(0, 0, 0, 0.6),     /* 하단 진한 그림자 */

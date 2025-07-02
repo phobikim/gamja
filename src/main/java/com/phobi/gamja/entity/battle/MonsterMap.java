@@ -26,5 +26,8 @@ public class MonsterMap {
     @Column(name = "recommended_level")
     private String recommendedLevel;
 
+    @Column(name = "chronicle_flag", nullable = false)
+    private boolean chronicleFlag;
+
     private boolean enabled;
 }
