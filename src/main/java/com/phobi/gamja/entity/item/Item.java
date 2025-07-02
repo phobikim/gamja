@@ -39,6 +39,8 @@ public class Item {
     @Column(name = "icon_path", length = 255)
     private String iconPath;
 
+    @Column(name = "chronicle_flag", nullable = false)
+    private boolean chronicleFlag;
 
 
     // enum 선언
