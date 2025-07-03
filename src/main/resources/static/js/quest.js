@@ -4,7 +4,30 @@ const questModal = document.getElementById('questModal');
 const questTabBtns = document.querySelectorAll('.quest-tab-btn');
 const questListContainer = document.getElementById('questList');
 let currentQuestType = 'MAIN';
-let currentDifficulty = 'EASY';
+let currentSubType = null;
+
+function getSubFilterOptions(type) {
+    switch (type) {
+        case 'DAILY':
+            return ['HUNT', 'REQUEST'];
+        case 'CHRONICLE':
+            return ['FIELD1', 'FIELD2', 'FIELD3']; // 예: 야생들판, 고산지대, 도둑쥐소굴
+        default:
+            return [];
+    }
+}
+
+function getSubFilterLabel(sub) {
+    switch (sub) {
+        case 'HUNT': return '토벌';
+        case 'REQUEST': return '납품';
+        case 'FIELD1': return '야생들판';
+        case 'FIELD2': return '고산지대';
+        case 'FIELD3': return '도둑쥐소굴';
+        default: return sub;
+    }
+}
+
 async function handleQuestClick() {
     const valid = await checkSessionValid();
     if (!valid) return;
@@ -40,26 +63,58 @@ async function getQuestList() {
     }
 }
 
-function renderQuestTabs(questList) {
+function setupSubFilter(type) {
+    const filterWrapper = document.getElementById('difficultyFilter');
+    filterWrapper.innerHTML = '';
+
+    const subOptions = getSubFilterOptions(type);
+
+    if (!subOptions.length) {
+        filterWrapper.classList.add('hidden');
+        return;
+    }
+
+    filterWrapper.classList.remove('hidden');
+
+    subOptions.forEach((sub, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'difficulty-btn';
+        btn.dataset.sub = sub;
+        btn.textContent = getSubFilterLabel(sub);
+        btn.onclick = async () => {
+            document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentSubType = sub;
+
+            const res = await apiRequest(`/api/quest/list`, 'GET');
+            if (res.code === 'SUCCESS' && res.data) {
+                renderQuestList(res.data, currentQuestType);
+            }
+        };
+        filterWrapper.appendChild(btn);
+
+        // ✅ 첫 버튼은 자동 클릭 (탭 클릭 시)
+        if (idx === 0) btn.click();
+    });
+
+    currentSubType = subOptions[0]; // 자동 선택 상태 설정
+}
+function renderQuestTabs() {
     questTabBtns.forEach(btn => {
         btn.removeEventListener('click', btn.clickHandler);
-        btn.clickHandler = () => {
+        btn.clickHandler = async () => {
             questTabBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentQuestType = btn.dataset.type;
 
             const diffFilter = document.getElementById('difficultyFilter');
 
-            // ✅ HUNT나 REQUEST일 경우 난이도 필터 보임
-            if (currentQuestType === 'REQUEST' || currentQuestType === 'HUNT') {
-                diffFilter.classList.remove('hidden');
-                currentDifficulty = 'EASY';
-                setupDifficultyFilter(questList);
-            } else {
+            if (currentQuestType === 'MAIN') {
                 diffFilter.classList.add('hidden');
+                await getQuestList(); // ✅ MAIN은 즉시 API 호출
+            } else {
+                setupSubFilter(currentQuestType); // ✅ DAILY/CHRONICLE은 하위탭에서 호출
             }
-
-            renderQuestList(questList, currentQuestType);
         };
         btn.addEventListener('click', btn.clickHandler);
     });
@@ -70,9 +125,8 @@ function renderQuestList(list, type) {
 
     let filtered = list.filter(q => q.type === type);
 
-    // ⬇️ REQUEST 타입일 때만 난이도 필터 추가
-    if (type === 'REQUEST' || type === 'HUNT') {
-        filtered = filtered.filter(q => q.difficulty === currentDifficulty);
+    if ((type === 'DAILY' || type === 'CHRONICLE') && currentSubType) {
+        filtered = filtered.filter(q => q.subType === currentSubType);
     }
 
     if (filtered.length === 0) {
@@ -87,6 +141,13 @@ function renderQuestList(list, type) {
         const title = document.createElement('div');
         title.className = 'quest-title';
         title.textContent = quest.name;
+
+        if (quest.difficulty) {
+            const label = document.createElement('span');
+            label.className = `quest-difficulty-label ${quest.difficulty.toLowerCase()}`;
+            label.textContent = getDifficultyText(quest.difficulty);
+            title.appendChild(label);
+        }
 
         const desc = document.createElement('div');
         desc.className = 'quest-desc';
@@ -201,57 +262,4 @@ function getRewardText(reward) {
         case 'COIN': return `코인 +${reward.amount}`;
         default: return `보상 +${reward.amount}`;
     }
-}
-// 난이도 버튼 클릭 핸들러 세팅
-function setupDifficultyFilter(fullList) {
-    const difficultyWrapper = document.getElementById('difficultyFilter');
-    const diffBtns = difficultyWrapper.querySelectorAll('.difficulty-btn');
-
-    // 항상 쉬움으로 초기화
-    currentDifficulty = 'EASY';
-    diffBtns.forEach(b => b.classList.remove('active'));
-    const easyBtn = difficultyWrapper.querySelector('[data-diff="EASY"]');
-    easyBtn?.classList.add('active');
-
-    diffBtns.forEach(btn => {
-        btn.onclick = async () => {
-            diffBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentDifficulty = btn.dataset.diff;
-
-            // 🔥 최신 퀘스트 리스트 다시 렌더링
-            try {
-                const res = await apiRequest(`/api/quest/list`, 'GET');
-                if (res.code === 'SUCCESS' && res.data) {
-                    renderQuestList(res.data, currentQuestType); // ✅ REQUEST 고정 제거
-                }
-            } catch (e) {
-                console.error(e);
-                showMessageModal("퀘스트 목록을 갱신하지 못했습니다.");
-            }
-        };
-    });
-}
-
-// 퀘스트 탭 클릭 핸들러
-function renderQuestTabs(questList) {
-    questTabBtns.forEach(btn => {
-        btn.removeEventListener('click', btn.clickHandler);
-        btn.clickHandler = () => {
-            questTabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentQuestType = btn.dataset.type;
-
-            const diffFilter = document.getElementById('difficultyFilter');
-            if (currentQuestType === 'REQUEST' || currentQuestType === 'HUNT') {
-                diffFilter.classList.remove('hidden');
-                setupDifficultyFilter(questList); // ✅ 필터 초기화 및 바인딩
-            } else {
-                diffFilter.classList.add('hidden');
-            }
-
-            renderQuestList(questList, currentQuestType);
-        };
-        btn.addEventListener('click', btn.clickHandler);
-    });
 }
