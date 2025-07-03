@@ -258,7 +258,12 @@ async function completeQuest(questId) {
     try {
         const res = await apiRequestJson('/api/quest/complete-quest', 'POST', { questId });
         if (res.code === 'SUCCESS') {
-            showMessageModal('보상을 받았습니다!');
+            const random = res.data?.rewards?.find(r => r.rewardType === 'RANDOM_ITEM');
+            if (random) {
+                showMessageModal(`${random.message}`);
+            } else {
+                showMessageModal('보상을 받았습니다!');
+            }
             getQuestList();
             await loadCharacterBasicInfo?.(); // 메인 상태 갱신
         } else {
@@ -274,7 +279,7 @@ function getRewardText(reward) {
     switch (reward.rewardType) {
         case 'ITEM': return `${reward.itemName} x ${reward.amount} `;
         case 'EXP': return `경험치 +${reward.amount}`;
-        case 'COIN': return `코인 +${reward.amount}`;
+        case 'RANDOM_ITEM': return `운에 따라 ${reward.itemName} x1 획득 가능`;
         default: return `보상 +${reward.amount}`;
     }
 }

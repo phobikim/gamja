@@ -90,6 +90,7 @@
 
 .quest-desc {
     font-size: 0.85rem;
+    font-weight: bold;
     color: #d9c7a3;
     line-height: 1.4;
 }

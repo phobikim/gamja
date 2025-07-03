@@ -77,10 +77,8 @@ public class QuestService {
         Long userId = (Long) request.getAttribute("userId");
         LocalDate today = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDate();
 
-        // ✅ 연대기용 퀘스트만 필터링
         List<Quest> allChronicleQuests = questRepository.findByChronicleFlagTrueAndEnabledIsTrue();
 
-        // ✅ 오늘 완료한 퀘스트 제외
         Set<Long> completedIds = userDailyQuestLogRepository.findByUserIdAndLogDate(userId, today).stream()
                 .map(UserDailyQuestLog::getQuestId)
                 .collect(Collectors.toSet());
@@ -89,8 +87,16 @@ public class QuestService {
                 .filter(q -> !completedIds.contains(q.getId()))
                 .toList();
 
+        // ✅ 몬스터 잡은 로그 조회
+        Map<Long, Integer> huntKillMap = userDailyActionLogRepository.findByUserIdAndLogDate(userId, today).stream()
+                .collect(Collectors.toMap(
+                        UserDailyActionLog::getMonsterId,
+                        UserDailyActionLog::getCount,
+                        Integer::sum
+                ));
+
         List<QuestDto> chronicleQuests = filtered.stream()
-                .map(q -> buildQuestDto(userId, q, null, 0, null))
+                .map(q -> buildQuestDto(userId, q, null, 0, huntKillMap)) // ✅ 여기에 huntKillMap 추가
                 .toList();
 
         return ResponseEntity.ok(GamJaResponse.success("연대기 퀘스트 조회 성공", chronicleQuests));
@@ -214,14 +220,26 @@ public class QuestService {
                     targetName = null;
                 }
                 case MONSTER_KILL -> {
-                    if (quest.getType() == Quest.QuestType.HUNT) {
+                    if (quest.isChronicleFlag()) {
+                        // 연대기 퀘스트일 경우 map_id → 몬스터 리스트 → 총 킬 수 합산
+                        List<Long> monsterIds = monsterRepository.findByMapId(cond.getTargetId()).stream()
+                                .map(Monster::getId)
+                                .toList();
+                        current = monsterIds.stream()
+                                .mapToInt(id -> huntKillMap != null ? huntKillMap.getOrDefault(id, 0) : 0)
+                                .sum();
+                        targetName = monsterRepository.findFirstByMapId(cond.getTargetId())
+                                .map(m -> m.getMap().getName())
+                                .orElse("해당 지역");
+                    } else if (quest.getType() == Quest.QuestType.HUNT) {
                         current = huntKillMap != null
                                 ? huntKillMap.getOrDefault(cond.getTargetId(), 0) : 0;
+                        targetName = monsterRepository.findById(cond.getTargetId()).map(Monster::getName).orElse("???");
                     } else {
                         String key = "MONSTER_KILL:" + cond.getTargetId();
                         current = counterMap != null ? counterMap.getOrDefault(key, 0) : 0;
+                        targetName = monsterRepository.findById(cond.getTargetId()).map(Monster::getName).orElse("???");
                     }
-                    targetName = monsterRepository.findById(cond.getTargetId()).map(Monster::getName).orElse("???");
                 }
                 case ITEM_CRAFT -> {
                     String key = "ITEM_CRAFT:" + cond.getTargetId();
@@ -329,15 +347,33 @@ public class QuestService {
             }
         }
 
+        List<Map<String, Object>> rewardResults = new ArrayList<>();
         // 2. 보상 처리
         List<QuestReward> rewards = questRewardRepository.findByQuestId(questId);
         for (QuestReward reward : rewards) {
-            if (reward.getRewardType() == QuestReward.RewardType.ITEM) {
-                userInventoryRepository.upsertItem(userId, reward.getItemId(), reward.getAmount());
-            } else if (reward.getRewardType() == QuestReward.RewardType.EXP) {
-                Long dexId = userDtlRepository.findCharacterDexIdByUserId(userId);
-                if (dexId != null) {
-                    levelService.updateCharacterExp(userId, dexId, reward.getAmount());
+            switch (reward.getRewardType()) {
+                case ITEM -> {
+                    userInventoryRepository.upsertItem(userId, reward.getItemId(), reward.getAmount());
+                }
+                case EXP -> {
+                    Long dexId = userDtlRepository.findCharacterDexIdByUserId(userId);
+                    if (dexId != null) {
+                        levelService.updateCharacterExp(userId, dexId, reward.getAmount());
+                    }
+                }
+                case RANDOM_ITEM -> {
+                    boolean win = Math.random() < 0.5; //확률 50%
+                    Map<String, Object> rewardInfo = new HashMap<>();
+                    rewardInfo.put("rewardType", "RANDOM_ITEM");
+                    rewardInfo.put("itemId", reward.getItemId());
+                    rewardInfo.put("itemName", itemRepository.findById(reward.getItemId())
+                            .map(Item::getName).orElse("???"));
+                    rewardInfo.put("acquired", win);
+                    rewardInfo.put("message", win ? " 뭔가 바스락… 오잉 풀잎 득템!" : "풀향기만 스쳐갔다.");
+                    rewardResults.add(rewardInfo);
+                    if (win) {
+                        userInventoryRepository.upsertItem(userId, reward.getItemId(), 1);
+                    }
                 }
             }
         }
@@ -370,6 +406,10 @@ public class QuestService {
         }
 
         corpsTierService.updateCorpsXp(userId, 5);
-        return ResponseEntity.ok(GamJaResponse.success("보상 처리 완료", null));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("rewards", rewardResults); // 랜덤 보상만 포함됨
+
+        return ResponseEntity.ok(GamJaResponse.success("보상 처리 완료", response));
     }
 }
