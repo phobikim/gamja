@@ -90,6 +90,7 @@
 
 .quest-desc {
     font-size: 0.85rem;
+    font-weight: bold;
     color: #d9c7a3;
     line-height: 1.4;
 }
@@ -250,7 +251,7 @@
 
 
 .difficulty-btn {
-    flex: 1; /* 💡 동일한 너비로 퍼지게 */
+    flex: 1;
     padding: 6px 14px;
     border-radius: 8px;
     background: var(--baige-color);
@@ -264,4 +265,28 @@
 
 .difficulty-btn.active {
     background: var(--orange-color);
+    color: white;
+    font-weight: bold;
 }
+.quest-difficulty-label {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    border-radius: 6px;
+    color: white;
+    vertical-align: middle;
+}
+
+/* 난이도별 색상 */
+.quest-difficulty-label.easy {
+    background: #5cb85c; /* 연한 녹색 */
+}
+.quest-difficulty-label.normal {
+    background: #f0ad4e; /* 주황빛 */
+}
+.quest-difficulty-label.hard {
+    background: #d9534f; /* 진한 빨강 */
+}
+

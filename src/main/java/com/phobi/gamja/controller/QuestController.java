@@ -21,6 +21,11 @@ public class QuestController {
         return questService.getQuestList(request);
     }
 
+    @GetMapping("/chronicle/list")
+    public ResponseEntity<GamJaResponse> getChronicleQuestList(HttpServletRequest request) {
+        return questService.getChronicleQuestList(request);
+    }
+
     @PostMapping("/complete-quest")
     public ResponseEntity<GamJaResponse> completeQuest(HttpServletRequest request, @RequestBody Map<String, Object> payload) {
         return questService.completeQuest(request, payload);

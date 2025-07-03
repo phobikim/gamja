@@ -22,4 +22,6 @@ public class QuestDto {
     private List<QuestConditionDto> conditions;
     private List<QuestRewardDto> rewards;
     private boolean achieved;
+    private boolean chronicleFlag;
+    private Long mapId;
 }

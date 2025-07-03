@@ -9,4 +9,5 @@ public interface QuestRepository extends JpaRepository<Quest, Long> {
     List<Quest> findByType(Quest.QuestType questType);
     List<Quest> findByTypeAndEnabledIsTrue(Quest.QuestType type);
     List<Quest> findByTypeAndEnabledIsTrueOrderByMainOrderAsc(Quest.QuestType type);
+    List<Quest> findByChronicleFlagTrueAndEnabledIsTrue();
 }

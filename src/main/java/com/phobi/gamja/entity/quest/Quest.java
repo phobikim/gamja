@@ -3,6 +3,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.phobi.gamja.entity.battle.MonsterMap;
 @Entity
 @Table(name = "quest")
 @Getter
@@ -59,4 +60,8 @@ public class Quest {
 
     @OneToMany(mappedBy = "quest", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestReward> rewards;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "map_id")
+    private MonsterMap monsterMap;
 }
