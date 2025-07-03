@@ -72,6 +72,30 @@ public class QuestService {
         return ResponseEntity.ok(GamJaResponse.success("퀘스트 조회 성공", combined));
     }
 
+    @Transactional(readOnly = true)
+    public ResponseEntity<GamJaResponse> getChronicleQuestList(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        LocalDate today = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDate();
+
+        // ✅ 연대기용 퀘스트만 필터링
+        List<Quest> allChronicleQuests = questRepository.findByChronicleFlagTrueAndEnabledIsTrue();
+
+        // ✅ 오늘 완료한 퀘스트 제외
+        Set<Long> completedIds = userDailyQuestLogRepository.findByUserIdAndLogDate(userId, today).stream()
+                .map(UserDailyQuestLog::getQuestId)
+                .collect(Collectors.toSet());
+
+        List<Quest> filtered = allChronicleQuests.stream()
+                .filter(q -> !completedIds.contains(q.getId()))
+                .toList();
+
+        List<QuestDto> chronicleQuests = filtered.stream()
+                .map(q -> buildQuestDto(userId, q, null, 0, null))
+                .toList();
+
+        return ResponseEntity.ok(GamJaResponse.success("연대기 퀘스트 조회 성공", chronicleQuests));
+    }
+
     public List<QuestDto> getQuestListByType(Long userId, Quest.QuestType type, int limit) {
         return switch (type) {
             case MAIN -> getMainQuestList(userId, limit);
@@ -264,6 +288,8 @@ public class QuestService {
                 .conditions(conditionDtos)
                 .rewards(rewardDtos)
                 .achieved(achieved)
+                .chronicleFlag(quest.isChronicleFlag())
+                .mapId(quest.getMonsterMap() != null ? quest.getMonsterMap().getId() : null)
                 .build();
     }
 

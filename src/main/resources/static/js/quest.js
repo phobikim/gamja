@@ -5,25 +5,31 @@ const questTabBtns = document.querySelectorAll('.quest-tab-btn');
 const questListContainer = document.getElementById('questList');
 let currentQuestType = 'MAIN';
 let currentSubType = null;
+const CHRONICLE_MAPS = {
+    1: '야생들판',
+    2: '고산지대',
+    3: '도둑쥐소굴'
+};
 
 function getSubFilterOptions(type) {
     switch (type) {
         case 'DAILY':
-            return ['HUNT', 'REQUEST'];
+            return ['REQUEST', 'HUNT'];
         case 'CHRONICLE':
-            return ['FIELD1', 'FIELD2', 'FIELD3']; // 예: 야생들판, 고산지대, 도둑쥐소굴
+            return Object.keys(CHRONICLE_MAPS); // [1, 2, 3]
         default:
             return [];
     }
 }
 
 function getSubFilterLabel(sub) {
+    if (currentQuestType === 'CHRONICLE') {
+        return CHRONICLE_MAPS[sub] || sub;
+    }
+
     switch (sub) {
         case 'HUNT': return '토벌';
         case 'REQUEST': return '납품';
-        case 'FIELD1': return '야생들판';
-        case 'FIELD2': return '고산지대';
-        case 'FIELD3': return '도둑쥐소굴';
         default: return sub;
     }
 }
@@ -86,7 +92,9 @@ function setupSubFilter(type) {
             btn.classList.add('active');
             currentSubType = sub;
 
-            const res = await apiRequest(`/api/quest/list`, 'GET');
+            // ✅ API 호출 경로 분기
+            const endpoint = currentQuestType === 'CHRONICLE' ? '/api/quest/chronicle/list' : '/api/quest/list';
+            const res = await apiRequest(endpoint, 'GET');
             if (res.code === 'SUCCESS' && res.data) {
                 renderQuestList(res.data, currentQuestType);
             }
@@ -123,10 +131,14 @@ function renderQuestTabs() {
 function renderQuestList(list, type) {
     questListContainer.innerHTML = '';
 
-    let filtered = list.filter(q => q.type === type);
+    let filtered = [];
 
-    if ((type === 'DAILY' || type === 'CHRONICLE') && currentSubType) {
-        filtered = filtered.filter(q => q.subType === currentSubType);
+    if (currentQuestType === 'MAIN') {
+        filtered = list.filter(q => q.type === 'MAIN');
+    } else if (currentQuestType === 'DAILY') {
+        filtered = list.filter(q => !q.chronicleFlag && q.type === currentSubType);
+    } else if (currentQuestType === 'CHRONICLE') {
+        filtered = list.filter(q => q.chronicleFlag && String(q.mapId) === String(currentSubType));
     }
 
     if (filtered.length === 0) {
@@ -142,6 +154,7 @@ function renderQuestList(list, type) {
         title.className = 'quest-title';
         title.textContent = quest.name;
 
+        // 난이도 라벨 붙이기
         if (quest.difficulty) {
             const label = document.createElement('span');
             label.className = `quest-difficulty-label ${quest.difficulty.toLowerCase()}`;
@@ -201,6 +214,7 @@ function renderQuestList(list, type) {
         });
 
         statusArea.appendChild(rewardsArea);
+
         const buttonWrapper = document.createElement('div');
         if (quest.achieved) {
             const btn = document.createElement('button');
@@ -214,6 +228,7 @@ function renderQuestList(list, type) {
             progress.textContent = '진행중';
             buttonWrapper.appendChild(progress);
         }
+
         actionArea.appendChild(statusArea);
         actionArea.appendChild(buttonWrapper);
 
@@ -261,5 +276,14 @@ function getRewardText(reward) {
         case 'EXP': return `경험치 +${reward.amount}`;
         case 'COIN': return `코인 +${reward.amount}`;
         default: return `보상 +${reward.amount}`;
+    }
+}
+
+function getDifficultyText(grade) {
+    switch (grade) {
+        case 'EASY': return '쉬움';
+        case 'NORMAL': return '중간';
+        case 'HARD': return '어려움';
+        default: return '';
     }
 }
