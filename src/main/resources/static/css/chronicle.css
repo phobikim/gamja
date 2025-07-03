@@ -23,8 +23,8 @@
 
 /* 섹션 타이틀 */
 .chronicle-section-title {
-    flex: 0 0 30%;
-    font-size: 1rem;
+    flex: 0 0 25%;
+    font-size: 1.2rem;
     font-weight: bold;
     color: #5e340e;
     white-space: nowrap;
@@ -174,7 +174,7 @@
 
 .chronicle-progress-fill {
     height: 100%;
-    background: var(--baige-color);
+    background: #18571d;
     width: 0%;
     transition: width 0.3s;
 }
@@ -199,6 +199,11 @@
 /* 완료 처리 (CLEAR) 강조 */
 .chronicle-card.completed {
     position: relative;
+}
+.chronicle-card.completed .chronicle-card-progress {
+    color: var(--green-hignlight);
+    font-weight: bold;
+    text-shadow: 0 0 1px #ffffff80;
 }
 .chronicle-card.completed::after {
     content: 'CLEAR';

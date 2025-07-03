@@ -62,6 +62,6 @@ public class ItemRecipe {
     }
 
     public enum StationCategory {
-        KITCHEN, WOODSHOP, FURNANCE, POTION, GATHER, BATTLE, LEATHER
+        KITCHEN, WOODSHOP, FURNANCE, POTION, GATHER, BATTLE, LEATHER, GLAB
     }
 }

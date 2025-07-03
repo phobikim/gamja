@@ -94,7 +94,7 @@ function renderChronicleList(data) {
             <img src="${basePath}/${item.icon}" alt="${item.name}" class="chronicle-card-icon">
             <div class="chronicle-card-name">${item.name}</div>
             <div class="chronicle-card-progress">
-                ${item.completed ? 'CLEAR' : `${item.progressCount} / ${item.requiredCount}`}
+                ${item.progressCount} / ${item.requiredCount}
             </div>
         `;
 
