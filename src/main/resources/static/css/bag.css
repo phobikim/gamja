@@ -213,7 +213,7 @@
     justify-content: center;
     gap: 1rem;
     padding-top: 1rem;
-    padding-bottom: 2vh;
+    padding-bottom: 3vh;
     background: var(--dark-1-color);
     position: sticky;
     bottom: 0;

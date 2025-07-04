@@ -40,7 +40,26 @@ async function handleQuestClick() {
 
     playEffect("se_click2");
     questModal.classList.remove('hidden');
-    getQuestList();
+
+    currentQuestType = 'MAIN';
+    currentSubType = null;
+
+    const res = await apiRequest('/api/quest/list', 'GET');
+    if (res.code !== 'SUCCESS' || !res.data) {
+        showMessageModal('퀘스트 리스트를 불러오지 못했습니다.');
+        return;
+    }
+    const filterWrapper = document.getElementById('difficultyFilter');
+    filterWrapper.innerHTML = '';
+
+    renderQuestTabs(res.data); // 여기서 clickHandler 바인딩됨
+    renderQuestList(res.data, 'MAIN'); // 메인 퀘스트 바로 보여줌
+
+
+    // 탭 UI 상태도 반영
+    questTabBtns.forEach(b => b.classList.remove('active'));
+    const mainBtn = [...questTabBtns].find(btn => btn.dataset.type === 'MAIN');
+    mainBtn?.classList.add('active');
 }
 
 questModal.addEventListener('click', (e) => {
@@ -138,9 +157,8 @@ function renderQuestList(list, type) {
     } else if (currentQuestType === 'DAILY') {
         filtered = list.filter(q => !q.chronicleFlag && q.type === currentSubType);
     } else if (currentQuestType === 'CHRONICLE') {
-        filtered = list.filter(q => q.chronicleFlag && String(q.mapId) === String(currentSubType));
+        filtered = list.filter(q => String(q.mapId) === String(currentSubType));
     }
-
     if (filtered.length === 0) {
         questListContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #ccc;">해당 타입의 퀘스트가 없습니다.</div>';
         return;
@@ -179,17 +197,55 @@ function renderQuestList(list, type) {
 
             const bar = document.createElement('div');
             bar.className = 'quest-progress-bar';
+            bar.style.position = 'relative';
 
             const fill = document.createElement('div');
             fill.className = 'quest-progress-fill';
-            const percentage = Math.min((cond.currentCount / cond.requiredCount) * 100, 100);
+
+            // ✅ 기준 값 분기
+            let effectiveCount = cond.currentCount;
+
+            if (cond.counterType === 'DELIVER_ITEM') {
+                if (quest.allowPartialDelivery) {
+                    effectiveCount = cond.currentCount; // 연대기 전용: 저장된 납품 진행도 기준
+                } else {
+                    effectiveCount = cond.deliverableCount; // 일반 퀘스트: 가방 보유량 기준
+                }
+            }
+
+            const percentage = Math.min((effectiveCount / cond.requiredCount) * 100, 100);
             fill.style.width = `${percentage}%`;
+            bar.appendChild(fill);
+
+            // ✅ ghost-fill (조건부)
+            const showGhost = (
+                quest.allowPartialDelivery &&
+                currentQuestType === 'CHRONICLE' &&
+                cond.counterType === 'DELIVER_ITEM' &&
+                cond.deliverableCount > 0 &&
+                (cond.currentCount + cond.deliverableCount) < cond.requiredCount
+            );
+
+            if (showGhost) {
+                const ghost = document.createElement('div');
+                ghost.className = 'quest-progress-ghost-fill';
+                const ghostPercentage = Math.min(((cond.currentCount + cond.deliverableCount) / cond.requiredCount) * 100, 100);
+                ghost.style.width = `${ghostPercentage}%`;
+                bar.appendChild(ghost);
+            }
 
             const text = document.createElement('div');
             text.className = 'quest-progress-text';
-            text.textContent = `${cond.currentCount}/${cond.requiredCount}`;
+            const effectiveTextCount = (
+                quest.allowPartialDelivery && cond.counterType === 'DELIVER_ITEM'
+                    ? cond.currentCount
+                    : (!quest.allowPartialDelivery && cond.counterType === 'DELIVER_ITEM'
+                        ? cond.deliverableCount
+                        : cond.currentCount)
+            );
 
-            bar.appendChild(fill);
+            text.textContent = `${effectiveTextCount}/${cond.requiredCount}`;
+
             row.appendChild(label);
             row.appendChild(bar);
             row.appendChild(text);
@@ -216,13 +272,43 @@ function renderQuestList(list, type) {
         statusArea.appendChild(rewardsArea);
 
         const buttonWrapper = document.createElement('div');
+
         if (quest.achieved) {
-            const btn = document.createElement('button');
-            btn.className = 'quest-claim-btn';
-            btn.textContent = '보상 받기';
-            btn.onclick = () => completeQuest(quest.id);
+            const isChronicle = currentQuestType === 'CHRONICLE';
+            const btn = createButton(
+                '보상 받기',
+                'quest-claim-btn',
+                () => isChronicle
+                    ? completeChronicleQuest(quest.id)
+                    : completeQuest(quest.id)
+            );
             buttonWrapper.appendChild(btn);
+        } else if (
+            currentQuestType === 'CHRONICLE' &&
+            !quest.allowPartialDelivery &&
+            (quest.conditions || []).every(cond =>
+                cond.counterType === 'DELIVER_ITEM' &&
+                cond.deliverableCount >= cond.requiredCount
+            )
+        ) {
+            // ✅ 중간납품 안되는 퀘스트지만 → 납품만으로 완료 가능한 경우
+            const btn = createButton('보상 받기', 'quest-claim-btn', () => completeChronicleQuest(quest.id));
+            buttonWrapper.appendChild(btn);
+        } else if (
+            currentQuestType === 'CHRONICLE' &&
+            quest.allowPartialDelivery &&
+            (quest.conditions || []).some(cond =>
+                cond.counterType === 'DELIVER_ITEM' &&
+                cond.deliverableCount >= 1 &&
+                (cond.currentCount + cond.deliverableCount) < cond.requiredCount
+            )
+        ) {
+            // ⏳ 중간납품 가능
+            const btn = createButton('중간납품', 'quest-partial-submit-btn', () => progressChronicleQuest(quest.id));
+            buttonWrapper.appendChild(btn);
+
         } else {
+            // 🕐 진행중
             const progress = document.createElement('span');
             progress.className = 'quest-in-progress';
             progress.textContent = '진행중';
@@ -291,4 +377,57 @@ function getDifficultyText(grade) {
         case 'HARD': return '어려움';
         default: return '';
     }
+}
+
+async function progressChronicleQuest(questId) {
+    try {
+        const res = await apiRequestJson('/api/quest/chronicle/progress-quest', 'POST', { questId });
+        if (res.code === 'SUCCESS') {
+            showMessageModal('납품 처리되었습니다.');
+
+            const endpoint = currentQuestType === 'CHRONICLE' ? '/api/quest/chronicle/list' : '/api/quest/list';
+            const res2 = await apiRequest(endpoint, 'GET');
+            if (res2.code === 'SUCCESS' && res2.data) {
+                renderQuestList(res2.data, currentQuestType);
+            }
+
+        } else {
+            showMessageModal(res.message || '납품 처리 실패');
+        }
+    } catch (err) {
+        console.error(err);
+        showMessageModal('서버 오류로 납품 처리에 실패했습니다.');
+    }
+}
+
+async function completeChronicleQuest(questId) {
+    try {
+        const res = await apiRequestJson('/api/quest/chronicle/complete-quest', 'POST', { questId });
+        if (res.code === 'SUCCESS') {
+            const random = res.data?.rewards?.find(r => r.rewardType === 'RANDOM_ITEM');
+            if (random) {
+                showMessageModal(`${random.message}`);
+            } else {
+                showMessageModal('보상을 받았습니다!');
+            }
+            const endpoint = currentQuestType === 'CHRONICLE' ? '/api/quest/chronicle/list' : '/api/quest/list';
+            const res2 = await apiRequest(endpoint, 'GET');
+            if (res2.code === 'SUCCESS' && res2.data) {
+                renderQuestList(res2.data, currentQuestType);
+            }
+        } else {
+            showMessageModal(res.message || '보상 처리 실패');
+        }
+    } catch (err) {
+        console.error(err);
+        showMessageModal('서버 오류로 보상을 받지 못했습니다.');
+    }
+}
+
+function createButton(text, className, onClick) {
+    const btn = document.createElement('button');
+    btn.className = className;
+    btn.textContent = text;
+    btn.onclick = onClick;
+    return btn;
 }

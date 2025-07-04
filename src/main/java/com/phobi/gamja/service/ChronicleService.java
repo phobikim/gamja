@@ -66,7 +66,7 @@ public class ChronicleService {
         for (Chronicle element : elements) {
             Map<String, Object> data = new HashMap<>();
             data.put("id", element.getId());
-            data.put("type", element.getTargetType().name());
+            data.put("type", element.getCategory().name());
             data.put("requiredCount", element.getRequiredCount());
             data.put("order", element.getOrderInUi());
 
@@ -76,7 +76,6 @@ public class ChronicleService {
             // 타입별 처리
             switch (element.getTargetType()) {
                 case ITEM:
-                case FOOD:
                     itemRepository.findById(element.getTargetId()).ifPresent(item -> {
                         data.put("name", item.getName());
                         data.put("icon", item.getIconPath());
@@ -148,18 +147,17 @@ public class ChronicleService {
                 ));
         // 가중치 설정 (비율: 몬스터 25, 수집품 25, 퀘스트 25, 요리 25)
         Map<String, Double> weightMap = Map.of(
-                "MONSTER", 0.25,
-                "ITEM", 0.25,
-                "QUEST", 0.25,
-                "FOOD", 0.25
+                "MONSTER", 0.20,
+                "DROP", 0.40,
+                "FOOD", 0.40
         );
 
         double totalWeightedProgress = 0;
         List<Map<String, Object>> typeList = new ArrayList<>();
 
-        for (Chronicle.ChronicleTargetType type : Chronicle.ChronicleTargetType.values()) {
+        for (Chronicle.ChronicleCategory type : Chronicle.ChronicleCategory.values()) {
             List<Chronicle> group = all.stream()
-                    .filter(c -> c.getTargetType() == type)
+                    .filter(c -> c.getCategory() == type)
                     .toList();
 
             int requiredTotal = group.stream()
@@ -168,7 +166,7 @@ public class ChronicleService {
 
             int userTotal = group.stream()
                     .mapToInt(c -> {
-                        if (type == Chronicle.ChronicleTargetType.MONSTER) {
+                        if (type == Chronicle.ChronicleCategory.MONSTER) {
                             int count = monsterKillMap.getOrDefault(c.getTargetId(), 0);
                             return Math.min(count, c.getRequiredCount());
                         } else {

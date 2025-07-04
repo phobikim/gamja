@@ -1,7 +1,6 @@
 const chronicleModal = document.getElementById('chronicleModal');
 const closeChronicleBtn = document.getElementById('closeChronicleBtn');
 
-// 모달 열기 (어디선가 호출)
 async function openChronicleModal(map) {
     battleMapSelectModal.classList.add('hidden');
     chronicleModal.classList.remove('hidden');
@@ -67,7 +66,7 @@ function renderChronicleList(data) {
     // 세부 진행률 바
     summary.details.forEach(detail => {
         const percent = Math.floor(detail.percent);
-        if (detail.type === 'ITEM') {
+        if (detail.type === 'DROP') {
             collectFill.style.width = `${percent}%`;
             collectText.textContent = `진행률 ${percent}%`;
         } else if (detail.type === 'FOOD') {
@@ -100,7 +99,7 @@ function renderChronicleList(data) {
 
         card.onclick = () => {
             const desc = item.desc || '설명이 없습니다.';
-            if (item.type === 'ITEM') {
+            if (item.type === 'DROP') {
                 collectDesc.innerText = desc;
             } else if (item.type === 'FOOD') {
                 cookDesc.innerText = desc;
@@ -109,7 +108,7 @@ function renderChronicleList(data) {
             }
         };
 
-        if (item.type === 'ITEM') {
+        if (item.type === 'DROP') {
             collectList.appendChild(card);
             if (!firstItemCard) firstItemCard = card;
         } else if (item.type === 'FOOD') {

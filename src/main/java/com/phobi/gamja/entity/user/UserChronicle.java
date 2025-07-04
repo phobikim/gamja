@@ -1,6 +1,7 @@
 package com.phobi.gamja.entity.user;
 
 import com.phobi.gamja.entity.chronicle.Chronicle;
+import com.phobi.gamja.entity.quest.Quest;
 import lombok.*;
 
 import javax.persistence.*;
@@ -24,6 +25,10 @@ public class UserChronicle {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chronicle_id")
     private Chronicle chronicle;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "quest_id") // nullable 허용
+    private Quest quest;
 
     @Column(name = "progress_count", nullable = false)
     private int progressCount;

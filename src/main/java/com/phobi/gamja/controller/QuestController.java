@@ -21,13 +21,26 @@ public class QuestController {
         return questService.getQuestList(request);
     }
 
+    @PostMapping("/complete-quest")
+    public ResponseEntity<GamJaResponse> completeQuest(HttpServletRequest request, @RequestBody Map<String, Object> payload) {
+        return questService.completeQuest(request, payload);
+    }
+
     @GetMapping("/chronicle/list")
     public ResponseEntity<GamJaResponse> getChronicleQuestList(HttpServletRequest request) {
         return questService.getChronicleQuestList(request);
     }
 
-    @PostMapping("/complete-quest")
-    public ResponseEntity<GamJaResponse> completeQuest(HttpServletRequest request, @RequestBody Map<String, Object> payload) {
-        return questService.completeQuest(request, payload);
+    @PostMapping("/chronicle/progress-quest")
+    public ResponseEntity<GamJaResponse> progressChronicleQuest(HttpServletRequest request, @RequestBody Map<String, Object> payload) {
+        return questService.progressChronicleQuest(request, payload);
     }
+
+
+    @PostMapping("/chronicle/complete-quest")
+    public ResponseEntity<GamJaResponse> completeChronicleQuest(HttpServletRequest request, @RequestBody Map<String, Object> payload) {
+        return questService.completeChronicleQuest(request, payload);
+    }
+
+
 }

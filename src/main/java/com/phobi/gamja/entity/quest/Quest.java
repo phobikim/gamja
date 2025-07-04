@@ -52,6 +52,9 @@ public class Quest {
     @Column(name = "chronicle_flag", nullable = false)
     private boolean chronicleFlag;
 
+    @Column(name = "allow_partial_delivery")
+    private boolean allowPartialDelivery;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
