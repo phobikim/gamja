@@ -1,22 +1,21 @@
 package com.phobi.gamja.service;
 
 import com.phobi.gamja.entity.chronicle.Chronicle;
-import com.phobi.gamja.entity.user.CounterType;
-import com.phobi.gamja.entity.user.UserChronicle;
-import com.phobi.gamja.entity.user.UserCounterDetail;
+import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.battle.MonsterRepository;
 import com.phobi.gamja.repository.chronicle.ChronicleRepository;
 import com.phobi.gamja.repository.item.ItemRepository;
 import com.phobi.gamja.repository.quest.QuestRepository;
+import com.phobi.gamja.repository.user.UserChronicleCompleteRepository;
 import com.phobi.gamja.repository.user.UserChronicleRepository;
 import com.phobi.gamja.repository.user.UserCounterDetailRepository;
+import com.phobi.gamja.repository.user.UserInventoryRepository;
 import com.phobi.gamja.util.CommonUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,8 +30,11 @@ public class ChronicleService {
     private final QuestRepository questRepository;
     private final MonsterRepository monsterRepository;
     private final UserCounterDetailRepository userCounterDetailRepository;
+    private final UserChronicleCompleteRepository userChronicleCompleteRepository;
+    private final UserInventoryRepository userInventoryRepository;
 
     private final CommonUtil commonUtil;
+    private final CorpsTierService corpsTierService;
 
     public ResponseEntity<GamJaResponse> getChronicleList(Long mapId, HttpSession session) {
         Long userId = commonUtil.getUserId(session);
@@ -47,13 +49,54 @@ public class ChronicleService {
         // 요약 퍼센트 계산
         Map<String, Object> summary = calculateChronicleProgressGrouped(userId, mapId);
 
+        String mapName = elements.get(0).getMap().getName();;
         Map<String, Object> result = Map.of(
                 "list", list,
-                "summary", summary
+                "summary", summary,
+                "mapName", mapName
         );
 
         return ResponseEntity.ok(GamJaResponse.success("감자 연대기 조회 성공", result));
     }
+    public ResponseEntity<GamJaResponse> completeChronicle(HttpSession session, Map<String, Object> request) {
+        Long userId = commonUtil.getUserId(session);
+        Long mapId = ((Number) request.get("mapId")).longValue();
+        boolean alreadyDone = userChronicleCompleteRepository.existsByUserIdAndMapId(userId, mapId);
+        if (alreadyDone) {
+            return ResponseEntity.ok(GamJaResponse.fail("이미 완료된 연대기입니다."));
+        }
+        // 기존 함수로 퍼센트 계산
+        Map<String, Object> progressMap = calculateChronicleProgressGrouped(userId, mapId);
+        double totalPercent = (double) progressMap.get("totalPercent");
+
+        if (totalPercent < 100.0) {
+            throw new IllegalStateException("연대기 진행률이 100%가 아닙니다.");
+        }
+        // 완료 기록 저장
+        UserChronicleComplete complete = new UserChronicleComplete(userId, mapId);
+        userChronicleCompleteRepository.save(complete);
+
+        // 탐험 뱃지 지급
+        Long badgeItemId = CHRONICLE_BADGE_ITEM_MAP.get(mapId);
+        if (badgeItemId == null) {
+            throw new IllegalArgumentException("해당 연대기 맵에 대한 보상 아이템이 등록되지 않았습니다.");
+        }
+
+        UserInventory inv = userInventoryRepository.findByUserIdAndItemId(userId, badgeItemId)
+                .orElseGet(() -> new UserInventory(userId, badgeItemId, 0));
+
+        inv.setQuantity(inv.getQuantity() + 1);
+        userInventoryRepository.save(inv);
+
+        // 감자단 원정대 보상
+        corpsTierService.updateCorpsXp(userId, 500);
+        return ResponseEntity.ok(GamJaResponse.success("연대기 완료 보상을 수령했습니다.", null));
+    }
+    private static final Map<Long, Long> CHRONICLE_BADGE_ITEM_MAP = Map.of(
+            1L, 134L  // 야생들판: mapId 1 → itemId 134
+            // 2L, 135L, // 고산지대: mapId 2 → itemId 135
+            // 3L, 136L  // 도둑쥐소굴: mapId 3 → itemId 136
+    );
 
     private List<Map<String, Object>> buildChronicleDetailList(Long userId, List<Chronicle> elements) {
         Map<Long, UserChronicle> userMap = userChronicleRepository
@@ -191,9 +234,10 @@ public class ChronicleService {
                     "percent", percent
             ));
         }
-
+        boolean completed = userChronicleCompleteRepository.existsByUserIdAndMapId(userId, mapId);
         return Map.of(
                 "totalPercent", Math.round(totalWeightedProgress * 10) / 10.0,
+                "completed", completed,
                 "details", typeList
         );
     }

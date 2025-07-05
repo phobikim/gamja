@@ -3,6 +3,7 @@ package com.phobi.gamja.service;
 import com.phobi.gamja.dto.quest.*;
 import com.phobi.gamja.entity.battle.Monster;
 import com.phobi.gamja.entity.chronicle.Chronicle;
+import com.phobi.gamja.entity.user.UserChronicle;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.quest.*;
 import com.phobi.gamja.entity.title.*;
@@ -17,7 +18,6 @@ import com.phobi.gamja.repository.title.TitleRepository;
 import com.phobi.gamja.repository.title.UserTitleRepository;
 import com.phobi.gamja.repository.user.*;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -606,17 +606,19 @@ public class QuestService {
             long itemId = condition.getTargetId();
             int required = condition.getRequiredCount();
 
-            // 먼저 인벤토리 차감 처리
+            //  현재 인벤토리 수량
             int owned = userInventoryRepository.getQuantity(userId, itemId);
-            if (owned < required) {
+            // 누적 납품 수량 (없으면 0)
+            int alreadyDelivered = userChronicleRepository.findProgressCountByUserIdAndItemId(userId, itemId).orElse(0);
+            if ((owned + alreadyDelivered) < required) {
                 throw new IllegalArgumentException("아이템 수량이 부족합니다.");
             }
 
-            int updated = userInventoryRepository.consumeItem(userId, itemId, required);
+            int toConsume = Math.min(required - alreadyDelivered, owned);
+            int updated = userInventoryRepository.consumeItem(userId, itemId, toConsume);
             if (updated == 0) {
                 throw new IllegalArgumentException("아이템 차감에 실패했습니다.");
             }
-
             // 연대기 기록은 repeatable이 아닐 때만 수행
             if (quest.isRepeatable()) continue;
 

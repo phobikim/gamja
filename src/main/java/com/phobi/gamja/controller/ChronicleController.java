@@ -4,12 +4,10 @@ import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.service.ChronicleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/chronicle")
@@ -21,5 +19,10 @@ public class ChronicleController {
     @GetMapping("/list")
     public ResponseEntity<GamJaResponse> getChronicleList(@RequestParam Long mapId, HttpSession session) {
         return chronicleService.getChronicleList(mapId, session);
+    }
+
+    @PostMapping("/complete")
+    public ResponseEntity<GamJaResponse> completeChronicle(HttpSession session, @RequestBody Map<String, Object> request) {
+        return chronicleService.completeChronicle(session, request);
     }
 }

@@ -222,8 +222,7 @@ function renderQuestList(list, type) {
                 quest.allowPartialDelivery &&
                 currentQuestType === 'CHRONICLE' &&
                 cond.counterType === 'DELIVER_ITEM' &&
-                cond.deliverableCount > 0 &&
-                (cond.currentCount + cond.deliverableCount) < cond.requiredCount
+                cond.deliverableCount > 0
             );
 
             if (showGhost) {
@@ -236,13 +235,15 @@ function renderQuestList(list, type) {
 
             const text = document.createElement('div');
             text.className = 'quest-progress-text';
-            const effectiveTextCount = (
-                quest.allowPartialDelivery && cond.counterType === 'DELIVER_ITEM'
-                    ? cond.currentCount
-                    : (!quest.allowPartialDelivery && cond.counterType === 'DELIVER_ITEM'
-                        ? cond.deliverableCount
-                        : cond.currentCount)
-            );
+            let effectiveTextCount = cond.currentCount;
+
+            if (cond.counterType === 'DELIVER_ITEM') {
+                if (quest.allowPartialDelivery) {
+                    effectiveTextCount = cond.currentCount + cond.deliverableCount;
+                } else {
+                    effectiveTextCount = cond.deliverableCount;
+                }
+            }
 
             text.textContent = `${effectiveTextCount}/${cond.requiredCount}`;
 
@@ -274,6 +275,7 @@ function renderQuestList(list, type) {
         const buttonWrapper = document.createElement('div');
 
         if (quest.achieved) {
+            // ✅ 이미 완료된 퀘스트 → 보상 받기 버튼 노출
             const isChronicle = currentQuestType === 'CHRONICLE';
             const btn = createButton(
                 '보상 받기',
@@ -283,6 +285,7 @@ function renderQuestList(list, type) {
                     : completeQuest(quest.id)
             );
             buttonWrapper.appendChild(btn);
+
         } else if (
             currentQuestType === 'CHRONICLE' &&
             !quest.allowPartialDelivery &&
@@ -291,9 +294,24 @@ function renderQuestList(list, type) {
                 cond.deliverableCount >= cond.requiredCount
             )
         ) {
-            // ✅ 중간납품 안되는 퀘스트지만 → 납품만으로 완료 가능한 경우
+            // ✅ 연대기 퀘스트인데 중간납품 불가, 그리고 가방에 충분히 있음 → 즉시 완료 가능 → 보상 받기
             const btn = createButton('보상 받기', 'quest-claim-btn', () => completeChronicleQuest(quest.id));
             buttonWrapper.appendChild(btn);
+
+        } else if (
+            currentQuestType === 'CHRONICLE' &&
+            quest.allowPartialDelivery &&
+            !quest.repeated &&
+            !quest.achieved &&
+            (quest.conditions || []).every(cond =>
+                cond.counterType === 'DELIVER_ITEM' &&
+                (cond.currentCount + cond.deliverableCount) >= cond.requiredCount
+            )
+        ) {
+            // ✅ 중간납품 가능한 연대기 퀘스트인데, 현재 수량 + 가방 수량 합치면 완료 가능함 → 보상 받기
+            const btn = createButton('보상 받기', 'quest-claim-btn', () => completeChronicleQuest(quest.id));
+            buttonWrapper.appendChild(btn);
+
         } else if (
             currentQuestType === 'CHRONICLE' &&
             quest.allowPartialDelivery &&
@@ -303,12 +321,12 @@ function renderQuestList(list, type) {
                 (cond.currentCount + cond.deliverableCount) < cond.requiredCount
             )
         ) {
-            // ⏳ 중간납품 가능
+            // ⏳ 연대기 퀘스트이고 중간납품 가능 + 아직 전부는 못 채웠지만 일부 납품 가능 → 중간납품 버튼
             const btn = createButton('중간납품', 'quest-partial-submit-btn', () => progressChronicleQuest(quest.id));
             buttonWrapper.appendChild(btn);
 
         } else {
-            // 🕐 진행중
+            // 🕐 그 외 모든 경우 → 퀘스트 진행중 (버튼 없음, 텍스트만 표시)
             const progress = document.createElement('span');
             progress.className = 'quest-in-progress';
             progress.textContent = '진행중';

@@ -256,3 +256,43 @@
 .deliver-btn:hover {
     background: #e2550e;
 }
+
+.chronicle-complete-btn {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    font-weight: bold;
+    border: none;
+    border-radius: 2px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s ease-in-out;
+}
+
+/*  보상 수령 가능 상태 */
+.chronicle-btn-ready {
+    background: linear-gradient(to bottom, #2b8f35, #18571d);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 3px 0 #0f3a13, 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.chronicle-btn-ready:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #0f3a13;
+}
+
+/* ✅ 이미 보상 수령한 상태 */
+.chronicle-btn-done {
+    background-color: var(--dark-1-color);
+    color: var(--white-color);
+    cursor: default;
+    opacity: 0.6;
+    box-shadow: none;
+    transform: none;
+    pointer-events: none;
+}

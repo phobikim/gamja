@@ -344,8 +344,11 @@ public class ActionService {
             logService.recordCounter(userId, CounterType.LIFE_ACTION, actionId);
         }
 
-        // 5. 부가 보상
-        corpsTierService.updateCorpsXp(userId, 1);
+        // stage 5 이상부터 보상 시작, 10단위로 1씩 증가
+        int corpsXp = (stage >= 5) ? ((stage - 1) / 10) + 1 : 0;
+        if (corpsXp > 0) {
+            corpsTierService.updateCorpsXp(userId, corpsXp);
+        }
 
         // 6. 세션 초기화
         session.removeAttribute("explorationSession");

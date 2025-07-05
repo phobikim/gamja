@@ -1,6 +1,7 @@
 const chronicleModal = document.getElementById('chronicleModal');
 const closeChronicleBtn = document.getElementById('closeChronicleBtn');
-
+let currentChronicleMapId = null;
+let currentChronicleMapName = '';
 async function openChronicleModal(map) {
     battleMapSelectModal.classList.add('hidden');
     chronicleModal.classList.remove('hidden');
@@ -12,6 +13,7 @@ async function openChronicleModal(map) {
 
 async function fetchChronicleList(mapId) {
     try {
+        currentChronicleMapId = mapId;
         const res = await apiRequest(`/api/chronicle/list?mapId=${mapId}`, 'GET');
         if (!res.data) {
             showMessageModal("이 맵에는 등록된 연대기 항목이 없습니다!");
@@ -19,6 +21,7 @@ async function fetchChronicleList(mapId) {
             return;
         }
         if (res.code === 'SUCCESS') {
+            currentChronicleMapName = res.data.mapName;
             renderChronicleList(res.data);
         } else {
             showMessageModal(res.message || '연대기 항목을 불러오지 못했습니다.');
@@ -38,15 +41,14 @@ function renderChronicleList(data) {
     const cookDesc = document.getElementById('foodDescBoard');
     const monsterDesc = document.getElementById('monsterDescBoard');
 
-    const barFill = document.querySelector('.chronicle-progress-fill');
-    const barText = document.querySelector('.chronicle-progress-text');
-
     const collectFill = document.getElementById('collectProgressFill');
     const collectText = document.getElementById('collectProgressText');
     const foodFill = document.getElementById('foodProgressFill');
     const foodText = document.getElementById('foodProgressText');
     const monsterFill = document.getElementById('monsterProgressFill');
     const monsterText = document.getElementById('monsterProgressText');
+
+
 
     // 초기화
     collectList.innerHTML = '';
@@ -59,10 +61,7 @@ function renderChronicleList(data) {
     const summary = data.summary;
     const list = data.list;
 
-    // 전체 진행률 바
-    barFill.style.width = `${summary.totalPercent}%`;
-    barText.textContent = `총 진행률 ${Math.floor(summary.totalPercent)}%`;
-
+    updateChronicleProgressUI(summary);
     // 세부 진행률 바
     summary.details.forEach(detail => {
         const percent = Math.floor(detail.percent);
@@ -123,6 +122,67 @@ function renderChronicleList(data) {
     if (firstItemCard) firstItemCard.click();
     if (firstFoodCard) firstFoodCard.click();
     if (firstMonsterCard) firstMonsterCard.click();
+}
+
+
+function updateChronicleProgressUI(summary) {
+    const summaryTitle = document.querySelector('.chronicle-summary-text');
+    summaryTitle.textContent = '';
+    summaryTitle.textContent = `감자 연대기 [${currentChronicleMapName}] 진행률`;
+
+    const totalPercent = Math.floor(summary.totalPercent);
+    const isCompleted = summary.completed === true;
+
+    const barFill = document.querySelector('.chronicle-progress-fill');
+    const barText = document.querySelector('.chronicle-progress-text');
+    const completeBtn = document.getElementById('chronicleCompleteBtn');
+
+    completeBtn.classList.remove('hidden', 'chronicle-btn-ready', 'chronicle-btn-done');
+    completeBtn.disabled = false;
+    completeBtn.onclick = null;
+
+    if (isCompleted) {
+        // ✅ 보상 이미 수령함
+        barFill.style.display = 'none';
+        barText.style.display = 'none';
+        completeBtn.textContent = `${currentChronicleMapName} 전문가 등록 완료`;
+        completeBtn.classList.add('chronicle-btn-done');
+        completeBtn.disabled = true;
+
+    } else if (totalPercent >= 100) {
+        barFill.style.display = 'none';
+        barText.style.display = 'none';
+        completeBtn.textContent = `${currentChronicleMapName} 탐험 뱃지 받기`;
+        completeBtn.classList.add('chronicle-btn-ready');
+
+        completeBtn.onclick = async () => {
+            try {
+                const res = await apiRequestJson('/api/chronicle/complete', 'POST', {
+                    mapId: currentChronicleMapId,
+                });
+                if (res.code === 'SUCCESS') {
+                    showMessageModal(
+                        `[${currentChronicleMapName}] 탐험 뱃지를 획득했습니다!\n\n` +
+                        `캐릭터를 클릭하여 장비창을 열고,\n` +
+                        `생활 탭의 [뱃지] 슬롯을 눌러 [탐험 뱃지]를 장착해보세요!`
+                    );
+                    fetchChronicleList(currentChronicleMapId);
+                } else {
+                    showMessageModal(res.message || '보상 수령에 실패했습니다.');
+                }
+            } catch (err) {
+                console.error(err);
+                showMessageModal('서버 오류가 발생했습니다.');
+            }
+        };
+    } else {
+        // 진행 중
+        barFill.style.display = 'block';
+        barText.style.display = 'block';
+        barFill.style.width = `${totalPercent}%`;
+        barText.textContent = `총 진행률 ${totalPercent}%`;
+        completeBtn.classList.add('hidden');
+    }
 }
 
 

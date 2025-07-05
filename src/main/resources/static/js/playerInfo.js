@@ -196,7 +196,8 @@ function setCharacterLifeInfo(data) {
         FISHING_ROD: 'lifeSlotFISHING_ROD',
         AXE: 'lifeSlotAXE',
         PICKAXE: 'lifeSlotPICKAXE',
-        KNIFE: 'lifeSlotKNIFE'
+        KNIFE: 'lifeSlotKNIFE',
+        BADGE: 'lifeSlotBADGE'
     }
     data.equippedItems.forEach(item => {
         const slotId = slotMap[item.equipSlot];
