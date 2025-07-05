@@ -16,7 +16,7 @@ async function fetchChronicleList(mapId) {
         currentChronicleMapId = mapId;
         const res = await apiRequest(`/api/chronicle/list?mapId=${mapId}`, 'GET');
         if (!res.data) {
-            showMessageModal("이 맵에는 등록된 연대기 항목이 없습니다!");
+            showMessageModal("앗! 이 연대기는 아직 먼지 털고 있는 중이에요… 조금만 기다려줘요!");
             closeChronicleModal();  // 모달 닫기 추가
             return;
         }
@@ -162,9 +162,7 @@ function updateChronicleProgressUI(summary) {
                 });
                 if (res.code === 'SUCCESS') {
                     showMessageModal(
-                        `[${currentChronicleMapName}] 탐험 뱃지를 획득했습니다!\n\n` +
-                        `캐릭터를 클릭하여 장비창을 열고,\n` +
-                        `생활 탭의 [뱃지] 슬롯을 눌러 [탐험 뱃지]를 장착해보세요!`
+                        `[${currentChronicleMapName}] 탐험 뱃지를 획득했습니다!`
                     );
                     fetchChronicleList(currentChronicleMapId);
                 } else {

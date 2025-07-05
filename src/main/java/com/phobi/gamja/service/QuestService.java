@@ -531,7 +531,7 @@ public class QuestService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 퀘스트입니다."));
 
         if (!quest.isChronicleFlag() || quest.isRepeatable()) {
-            return ResponseEntity.ok(GamJaResponse.fail("중간납품이 불가능한 퀘스트입니다."));
+            return ResponseEntity.ok(GamJaResponse.fail("등록 불가능한 퀘스트입니다."));
         }
 
         List<QuestCondition> conditions = questConditionRepository.findByQuestId(questId);
@@ -582,7 +582,7 @@ public class QuestService {
             userChronicleRepository.save(userChronicle);
         }
 
-        return ResponseEntity.ok(GamJaResponse.success("중간납품 완료", null));
+        return ResponseEntity.ok(GamJaResponse.success("등록 완료", null));
     }
 
     @Transactional
@@ -658,7 +658,7 @@ public class QuestService {
                     }
                 }
                 case RANDOM_ITEM -> {
-                    boolean win = Math.random() < 0.5;
+                    boolean win = Math.random() < 0.4;
                     Map<String, Object> rewardInfo = new HashMap<>();
                     rewardInfo.put("rewardType", "RANDOM_ITEM");
                     rewardInfo.put("itemId", reward.getItemId());

@@ -294,7 +294,7 @@ function renderQuestList(list, type) {
                 cond.deliverableCount >= cond.requiredCount
             )
         ) {
-            // ✅ 연대기 퀘스트인데 중간납품 불가, 그리고 가방에 충분히 있음 → 즉시 완료 가능 → 보상 받기
+            // ✅ 연대기 퀘스트인데 등록 불가, 그리고 가방에 충분히 있음 → 즉시 완료 가능 → 보상 받기
             const btn = createButton('보상 받기', 'quest-claim-btn', () => completeChronicleQuest(quest.id));
             buttonWrapper.appendChild(btn);
 
@@ -308,7 +308,7 @@ function renderQuestList(list, type) {
                 (cond.currentCount + cond.deliverableCount) >= cond.requiredCount
             )
         ) {
-            // ✅ 중간납품 가능한 연대기 퀘스트인데, 현재 수량 + 가방 수량 합치면 완료 가능함 → 보상 받기
+            // ✅ 등록 가능한 연대기 퀘스트인데, 현재 수량 + 가방 수량 합치면 완료 가능함 → 보상 받기
             const btn = createButton('보상 받기', 'quest-claim-btn', () => completeChronicleQuest(quest.id));
             buttonWrapper.appendChild(btn);
 
@@ -321,8 +321,8 @@ function renderQuestList(list, type) {
                 (cond.currentCount + cond.deliverableCount) < cond.requiredCount
             )
         ) {
-            // ⏳ 연대기 퀘스트이고 중간납품 가능 + 아직 전부는 못 채웠지만 일부 납품 가능 → 중간납품 버튼
-            const btn = createButton('중간납품', 'quest-partial-submit-btn', () => progressChronicleQuest(quest.id));
+            // ⏳ 연대기 퀘스트이고 등록 가능 + 아직 전부는 못 채웠지만 일부 납품 가능 → 등록 버튼
+            const btn = createButton('등록', 'quest-partial-submit-btn', () => progressChronicleQuest(quest.id));
             buttonWrapper.appendChild(btn);
 
         } else {
@@ -401,7 +401,7 @@ async function progressChronicleQuest(questId) {
     try {
         const res = await apiRequestJson('/api/quest/chronicle/progress-quest', 'POST', { questId });
         if (res.code === 'SUCCESS') {
-            showMessageModal('납품 처리되었습니다.');
+            showMessageModal('연대기에 무사히 등록했어요!');
 
             const endpoint = currentQuestType === 'CHRONICLE' ? '/api/quest/chronicle/list' : '/api/quest/list';
             const res2 = await apiRequest(endpoint, 'GET');
@@ -410,11 +410,11 @@ async function progressChronicleQuest(questId) {
             }
 
         } else {
-            showMessageModal(res.message || '납품 처리 실패');
+            showMessageModal(res.message || '등록 처리 실패');
         }
     } catch (err) {
         console.error(err);
-        showMessageModal('서버 오류로 납품 처리에 실패했습니다.');
+        showMessageModal('서버 오류로 등록 처리에 실패했습니다.');
     }
 }
 
