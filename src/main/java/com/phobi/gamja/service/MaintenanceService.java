@@ -9,6 +9,7 @@ import com.phobi.gamja.repository.server.ServerNoticePatchRepository;
 import com.phobi.gamja.repository.server.ServerNoticeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -24,14 +25,28 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class MaintenanceService {
+    private final ServerMaintenanceRepository serverMaintenanceRepository;
+    private final Environment environment;
     private final ServerMaintenanceRepository maintenanceRepository;
     private final ServerNoticeRepository serverNoticeRepository;
     private final ServerNoticePatchRepository serverNoticePatchRepository;
 
     public boolean isUnderMaintenance() {
+        if (isLocalProfileActive()) {
+            return false; // ✅ 로컬은 점검 무시
+        }
+
         LocalDateTime now = LocalDateTime.now();
-        boolean result = maintenanceRepository.existsByStartTimeBeforeAndEndTimeAfter(now, now);
-        return result;
+        return serverMaintenanceRepository.existsByStartTimeBeforeAndEndTimeAfter(now, now);
+    }
+
+    private boolean isLocalProfileActive() {
+        for (String profile : environment.getActiveProfiles()) {
+            if ("local".equalsIgnoreCase(profile)) {
+                return true;
+            }
+        }
+        return false;
     }
     public Optional<ServerMaintenance> getCurrentMaintenance() {
         LocalDateTime now = LocalDateTime.now();

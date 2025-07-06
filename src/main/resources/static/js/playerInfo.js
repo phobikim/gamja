@@ -54,6 +54,17 @@ function updateStatValue(statId, detail, max = 100) {
 
 async function openInfoModal() {
     window.readOnlyMode = false;
+    // 탭 초기화
+    battleTabBtn.classList.add('active');
+    lifeTabBtn.classList.remove('active');
+    battleTabBtn.style.pointerEvents = 'auto';
+    lifeTabBtn.style.pointerEvents = 'auto';
+
+    combatStats.classList.remove('hidden');
+    combatEquipment.classList.remove('hidden');
+    lifeStats.classList.add('hidden');
+    lifeEquipment.classList.add('hidden');
+
     const valid = await checkSessionValid();
     if (!valid) return;
     characterModal.classList.remove('hidden');
