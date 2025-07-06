@@ -304,8 +304,11 @@ public class QuestService {
         if (!quest.isEnabled()) {
             return ResponseEntity.ok(GamJaResponse.fail("비활성화된 퀘스트입니다."));
         }
-        if (!quest.isChronicleFlag() || quest.isRepeatable()) {
+        if (!quest.isChronicleFlag() && quest.getType() != Quest.QuestType.MAIN) {
             return ResponseEntity.ok(GamJaResponse.fail("등록 불가능한 퀘스트입니다."));
+        }
+        if (quest.isRepeatable()) {
+            return ResponseEntity.ok(GamJaResponse.fail("반복 퀘스트는 등록할 수 없습니다."));
         }
 
         List<QuestCondition> conditions = questConditionRepository.findByQuestId(questId);
@@ -335,9 +338,18 @@ public class QuestService {
                     }
                 }
                 case MONSTER_KILL -> {
-                    int killCount = Optional.ofNullable(
-                            userDailyActionLogRepository.sumMonsterKillToday(userId, targetId, LocalDate.now())
-                    ).orElse(0);
+                    int killCount;
+                    if (quest.getType() == Quest.QuestType.MAIN) {
+                        killCount = userCounterDetailRepository
+                                .findByUserIdAndCounterTypeAndTargetId(userId, CounterType.MONSTER_KILL, targetId)
+                                .map(UserCounterDetail::getCounterValue)
+                                .orElse(0);
+                    } else {
+                        killCount = Optional.ofNullable(
+                                userDailyActionLogRepository.sumMonsterKillToday(userId, targetId, LocalDate.now())
+                        ).orElse(0);
+                    }
+
                     if (killCount < required) {
                         return ResponseEntity.badRequest().body(GamJaResponse.fail("몬스터 처치 수가 부족합니다."));
                     }
@@ -747,7 +759,7 @@ public class QuestService {
             userLogService.recordDailyQuest(userId, questId);
         }
 
-        corpsTierService.updateCorpsXp(userId, 5);
+        corpsTierService.updateCorpsXp(userId, 10);
 
         Map<String, Object> response = new HashMap<>();
         response.put("rewards", rewardResults); // 랜덤 보상만 포함됨

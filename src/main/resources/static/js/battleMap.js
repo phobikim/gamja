@@ -36,7 +36,6 @@ function renderMapList(mapList) {
         card.innerHTML = `<img src="${basePath}/${map.imagePath}" class="map-thumbnail" alt="${map.name}">`;
 
         card.addEventListener('click', (e) => {
-            // ✅ 이벤트 전파 차단
             e.stopPropagation();
 
             selectedMap = map;
