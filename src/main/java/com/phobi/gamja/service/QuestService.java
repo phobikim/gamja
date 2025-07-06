@@ -301,6 +301,13 @@ public class QuestService {
         // 0. 퀘스트 및 조건 조회
         Quest quest = questRepository.findById(questId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 퀘스트입니다."));
+        if (!quest.isEnabled()) {
+            return ResponseEntity.ok(GamJaResponse.fail("비활성화된 퀘스트입니다."));
+        }
+        if (!quest.isChronicleFlag() || quest.isRepeatable()) {
+            return ResponseEntity.ok(GamJaResponse.fail("등록 불가능한 퀘스트입니다."));
+        }
+
         List<QuestCondition> conditions = questConditionRepository.findByQuestId(questId);
 
         if (quest.getType() == Quest.QuestType.REQUEST || quest.getType() == Quest.QuestType.HUNT) {
@@ -311,21 +318,49 @@ public class QuestService {
             }
         }
 
-        // 1. 납품 퀘스트일 경우, 아이템 수량 차감
         for (QuestCondition cond : conditions) {
-            if (cond.getCounterType() == CounterType.DELIVER_ITEM) {
-                int owned = Optional.ofNullable(userInventoryRepository.getQuantity(userId, cond.getTargetId()))
-                        .orElse(0);
-                if (owned < cond.getRequiredCount()) {
-                    return ResponseEntity.badRequest().body(GamJaResponse.fail("납품에 필요한 아이템이 부족합니다."));
+
+            CounterType type = cond.getCounterType();
+            long targetId = cond.getTargetId();
+            int required = cond.getRequiredCount();
+            switch (type) {
+                case DELIVER_ITEM -> {
+                    int owned = Optional.ofNullable(userInventoryRepository.getQuantity(userId, targetId)).orElse(0);
+                    if (owned < required) {
+                        return ResponseEntity.badRequest().body(GamJaResponse.fail("납품에 필요한 아이템이 부족합니다."));
+                    }
+                    int result = userInventoryRepository.consumeItem(userId, targetId, required);
+                    if (result == 0) {
+                        return ResponseEntity.badRequest().body(GamJaResponse.fail("아이템 차감 실패: 수량 부족"));
+                    }
+                }
+                case MONSTER_KILL -> {
+                    int killCount = Optional.ofNullable(
+                            userDailyActionLogRepository.sumMonsterKillToday(userId, targetId, LocalDate.now())
+                    ).orElse(0);
+                    if (killCount < required) {
+                        return ResponseEntity.badRequest().body(GamJaResponse.fail("몬스터 처치 수가 부족합니다."));
+                    }
+                }
+                case EQUIP_ITEM -> {
+                    boolean equipped = userEquipmentRepository.existsByUserIdAndItemId(userId, targetId);
+                    if (!equipped) {
+                        return ResponseEntity.badRequest().body(GamJaResponse.fail("지정된 아이템을 장착해야 완료할 수 있습니다."));
+                    }
                 }
 
-                int result = userInventoryRepository.consumeItem(userId, cond.getTargetId(), cond.getRequiredCount());
-                if (result == 0) {
-                    return ResponseEntity.badRequest().body(GamJaResponse.fail("아이템 차감 실패: 수량 부족"));
+                case EQUIP_TITLE -> {
+                    boolean equipped = userTitleRepository.existsEquippedTitle(userId, targetId);
+                    if (!equipped) {
+                        return ResponseEntity.badRequest().body(GamJaResponse.fail("지정된 칭호를 장착해야 완료할 수 있습니다."));
+                    }
+                }
+                default -> {
+                    // 다른 조건 처리 생기면 여기에 추가
                 }
             }
         }
+
 
         List<Map<String, Object>> rewardResults = new ArrayList<>();
         // 2. 보상 처리
@@ -529,7 +564,9 @@ public class QuestService {
         // 1. 퀘스트 조회
         Quest quest = questRepository.findById(questId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 퀘스트입니다."));
-
+        if (!quest.isEnabled()) {
+            return ResponseEntity.ok(GamJaResponse.fail("비활성화된 퀘스트입니다."));
+        }
         if (!quest.isChronicleFlag() || quest.isRepeatable()) {
             return ResponseEntity.ok(GamJaResponse.fail("등록 불가능한 퀘스트입니다."));
         }
@@ -560,7 +597,9 @@ public class QuestService {
 
             // 납품 가능한 수량
             int deliverAmount = Math.min(required - progress, owned);
-            if (deliverAmount <= 0) continue;
+            if (deliverAmount <= 0) {
+                return ResponseEntity.ok(GamJaResponse.fail("등록에 필요한 아이템이 부족합니다."));
+            };
 
             // 3. 인벤토리 차감
             userInventoryRepository.consumeItem(userId, itemId, deliverAmount);
@@ -595,6 +634,9 @@ public class QuestService {
         Quest quest = questRepository.findById(questId)
                 .orElseThrow(() -> new IllegalArgumentException("퀘스트가 존재하지 않습니다."));
 
+        if (!quest.isEnabled()) {
+            return ResponseEntity.ok(GamJaResponse.fail("비활성화된 퀘스트입니다."));
+        }
         if (!quest.isChronicleFlag()) {
             throw new IllegalArgumentException("연대기 퀘스트가 아닙니다.");
         }
@@ -607,11 +649,11 @@ public class QuestService {
             int required = condition.getRequiredCount();
 
             //  현재 인벤토리 수량
-            int owned = userInventoryRepository.getQuantity(userId, itemId);
+            int owned = Optional.ofNullable(userInventoryRepository.getQuantity(userId, itemId)).orElse(0);
             // 누적 납품 수량 (없으면 0)
             int alreadyDelivered = userChronicleRepository.findProgressCountByUserIdAndItemId(userId, itemId).orElse(0);
             if ((owned + alreadyDelivered) < required) {
-                throw new IllegalArgumentException("아이템 수량이 부족합니다.");
+                return ResponseEntity.ok(GamJaResponse.fail("완료에 필요한 아이템이 부족합니다."));
             }
 
             int toConsume = Math.min(required - alreadyDelivered, owned);
