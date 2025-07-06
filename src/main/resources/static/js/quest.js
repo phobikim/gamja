@@ -41,25 +41,28 @@ async function handleQuestClick() {
     playEffect("se_click2");
     questModal.classList.remove('hidden');
 
-    currentQuestType = 'MAIN';
-    currentSubType = null;
+    const filterWrapper = document.getElementById('difficultyFilter');
+    filterWrapper.innerHTML = '';
 
-    const res = await apiRequest('/api/quest/list', 'GET');
+    // ✅ API 호출 경로 분기
+    const endpoint = currentQuestType === 'CHRONICLE' ? '/api/quest/chronicle/list' : '/api/quest/list';
+    const res = await apiRequest(endpoint, 'GET');
     if (res.code !== 'SUCCESS' || !res.data) {
         showMessageModal('퀘스트 리스트를 불러오지 못했습니다.');
         return;
     }
-    const filterWrapper = document.getElementById('difficultyFilter');
-    filterWrapper.innerHTML = '';
 
-    renderQuestTabs(res.data); // 여기서 clickHandler 바인딩됨
-    renderQuestList(res.data, 'MAIN'); // 메인 퀘스트 바로 보여줌
+    renderQuestTabs(res.data); // 탭 바인딩
+    if (currentQuestType === 'MAIN') {
+        renderQuestList(res.data, 'MAIN');
+    } else {
+        setupSubFilter(currentQuestType); // 자동 클릭 포함
+    }
 
-
-    // 탭 UI 상태도 반영
+    // ✅ 탭 UI 상태 반영
     questTabBtns.forEach(b => b.classList.remove('active'));
-    const mainBtn = [...questTabBtns].find(btn => btn.dataset.type === 'MAIN');
-    mainBtn?.classList.add('active');
+    const activeBtn = [...questTabBtns].find(btn => btn.dataset.type === currentQuestType);
+    activeBtn?.classList.add('active');
 }
 
 questModal.addEventListener('click', (e) => {
