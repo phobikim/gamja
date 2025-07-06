@@ -437,12 +437,17 @@ public class QuestService {
 
         List<Quest> allChronicleQuests = questRepository.findByChronicleFlagTrueAndEnabledIsTrue();
 
-        Set<Long> completedIds = userDailyQuestLogRepository.findByUserIdAndLogDate(userId, today).stream()
-                .map(UserDailyQuestLog::getQuestId)
-                .collect(Collectors.toSet());
-
         List<Quest> filtered = allChronicleQuests.stream()
-                .filter(q -> !completedIds.contains(q.getId()))
+                .filter(q -> {
+                    UserQuest uq = userQuestRepository.findById(new UserQuestId(userId, q.getId())).orElse(null);
+
+                    if (q.isRepeatable()) {
+                        if (uq == null || uq.getCompletedAt() == null) return true;
+                        return !uq.getCompletedAt().toLocalDate().isEqual(today); // 오늘 안했으면 출력
+                    } else {
+                        return uq == null || !Boolean.TRUE.equals(uq.isCompleted()); // 한번도 안했으면 출력
+                    }
+                })
                 .toList();
 
         // 몬스터 잡은 로그 조회
