@@ -304,12 +304,7 @@ public class QuestService {
         if (!quest.isEnabled()) {
             return ResponseEntity.ok(GamJaResponse.fail("비활성화된 퀘스트입니다."));
         }
-        if (!quest.isChronicleFlag() && quest.getType() != Quest.QuestType.MAIN) {
-            return ResponseEntity.ok(GamJaResponse.fail("등록 불가능한 퀘스트입니다."));
-        }
-        if (quest.isRepeatable()) {
-            return ResponseEntity.ok(GamJaResponse.fail("반복 퀘스트는 등록할 수 없습니다."));
-        }
+
 
         List<QuestCondition> conditions = questConditionRepository.findByQuestId(questId);
 
