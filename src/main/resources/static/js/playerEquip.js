@@ -20,6 +20,7 @@ document.querySelectorAll('#combatEquipment .inventoryCell, #lifeEquipment .inve
 });
 
 async function openEquipModal(itemType, equipSlot) {
+    if (window.readOnlyMode) return;
     playEffect("se_click2");
     equipItemModal.classList.remove('hidden');
 
@@ -128,7 +129,7 @@ async function equipSelectedItem() {
         });
 
         closeEquipModal();
-        openInfoModal();
+        await openInfoModal();
 
     } catch (e) {
         showMessageModal("장착 중 오류가 발생했습니다.");

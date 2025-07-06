@@ -10,7 +10,7 @@ const lifeStats = document.getElementById('lifeStats');
 const combatEquipment = document.getElementById('combatEquipment');
 const lifeEquipment = document.getElementById('lifeEquipment');
 
-
+window.readOnlyMode = false;
 // 수치 조정
 function updateStatValue(statId, detail, max = 100) {
     const block = document.getElementById(`stat-${statId}`);
@@ -53,6 +53,7 @@ function updateStatValue(statId, detail, max = 100) {
 }
 
 async function openInfoModal() {
+    window.readOnlyMode = false;
     const valid = await checkSessionValid();
     if (!valid) return;
     characterModal.classList.remove('hidden');
@@ -274,7 +275,8 @@ function applyRarityToEachSlot(slotMap, equippedItems) {
     });
 }
 
-function openCharacterModal(data) {
+function openCharacterModal(data, readOnly = false) {
+    window.readOnlyMode = readOnly;
     characterModal.classList.remove('hidden');
 
     // 탭 숨기기 / 간판 영역 표시
@@ -323,6 +325,22 @@ function openCharacterModal(data) {
     combatEquipment.classList.remove('hidden');
     lifeStats.classList.add('hidden');
     lifeEquipment.classList.add('hidden');
+
+    if (readOnly) {
+        document.querySelectorAll('.equip-slot').forEach(slot => {
+            slot.style.pointerEvents = 'none';
+            slot.style.opacity = '0.6'; // 시각적으로 구분도 가능
+        });
+        battleTabBtn.style.pointerEvents = 'none';
+        lifeTabBtn.style.pointerEvents = 'none';
+    } else {
+        document.querySelectorAll('.equip-slot').forEach(slot => {
+            slot.style.pointerEvents = 'auto';
+            slot.style.opacity = '1';
+        });
+        battleTabBtn.style.pointerEvents = 'auto';
+        lifeTabBtn.style.pointerEvents = 'auto';
+    }
 }
 
 function getSlotLabel(equipSlot) {

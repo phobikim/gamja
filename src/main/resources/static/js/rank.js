@@ -30,30 +30,30 @@ async function getRankData() {
             const clone = template.content.cloneNode(true);
             const rankItem = clone.querySelector('.rank-item');
 
-            // rankItem.addEventListener('click', async () => {
-            //     const username = entry.username;
-            //     try {
-            //         const [basicRes, battleRes] = await Promise.all([
-            //             fetch(`/api/char/${encodeURIComponent(username)}`),
-            //             fetch(`/api/char/${encodeURIComponent(username)}/battle`)
-            //         ]);
-            //         const basicData = await basicRes.json();
-            //         const battleData = await battleRes.json();
-            //         if (basicData.code !== 'SUCCESS' || battleData.code !== 'SUCCESS') {
-            //             showMessageModal('캐릭터 정보를 불러올 수 없습니다.');
-            //             return;
-            //         }
-            //         const charData = {
-            //             ...basicData.data,
-            //             battleStat: battleData.data
-            //         };
-            //
-            //         openCharacterModal(charData);
-            //     } catch (e) {
-            //         console.error(e);
-            //         showMessageModal('캐릭터 정보 조회 중 오류가 발생했습니다.');
-            //     }
-            // });
+            rankItem.addEventListener('click', async () => {
+                const username = entry.username;
+                try {
+                    const [basicRes, battleRes] = await Promise.all([
+                        fetch(`/api/char/${encodeURIComponent(username)}`),
+                        fetch(`/api/char/${encodeURIComponent(username)}/battle`)
+                    ]);
+                    const basicData = await basicRes.json();
+                    const battleData = await battleRes.json();
+                    if (basicData.code !== 'SUCCESS' || battleData.code !== 'SUCCESS') {
+                        showMessageModal('캐릭터 정보를 불러올 수 없습니다.');
+                        return;
+                    }
+                    const charData = {
+                        ...basicData.data,
+                        battleStat: battleData.data
+                    };
+
+                    openCharacterModal(charData, true);
+                } catch (e) {
+                    console.error(e);
+                    showMessageModal('캐릭터 정보 조회 중 오류가 발생했습니다.');
+                }
+            });
 
             const rankNumEl = clone.querySelector('.rank-number');
             const charImagePath = `${basePath_image}`+ /character/;
