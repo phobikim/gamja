@@ -16,7 +16,7 @@ function getSubFilterOptions(type) {
         case 'DAILY':
             return ['REQUEST', 'HUNT'];
         case 'CHRONICLE':
-            return Object.keys(CHRONICLE_MAPS); // [1, 2, 3]
+            return Object.keys(CHRONICLE_MAPS);
         default:
             return [];
     }
@@ -96,7 +96,6 @@ function setupSubFilter(type) {
     filterWrapper.innerHTML = '';
 
     const subOptions = getSubFilterOptions(type);
-
     if (!subOptions.length) {
         filterWrapper.classList.add('hidden');
         return;
@@ -113,7 +112,9 @@ function setupSubFilter(type) {
             document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentSubType = sub;
-
+            if (currentQuestType === 'CHRONICLE') {
+                renderChronicleSummary(currentSubType); // ✅ 여기에 추가
+            }
             // ✅ API 호출 경로 분기
             const endpoint = currentQuestType === 'CHRONICLE' ? '/api/quest/chronicle/list' : '/api/quest/list';
             const res = await apiRequest(endpoint, 'GET');
@@ -128,6 +129,11 @@ function setupSubFilter(type) {
     });
 
     currentSubType = subOptions[0]; // 자동 선택 상태 설정
+
+    if (type !== 'CHRONICLE') {
+        const summaryContainer = document.getElementById('chronicleSummaryBarContainer');
+        summaryContainer.innerHTML = '';
+    }
 }
 function renderQuestTabs() {
     questTabBtns.forEach(btn => {
@@ -138,6 +144,8 @@ function renderQuestTabs() {
             currentQuestType = btn.dataset.type;
 
             const diffFilter = document.getElementById('difficultyFilter');
+            const summaryContainer = document.getElementById('chronicleSummaryBarContainer');
+            summaryContainer.innerHTML = '';
 
             if (currentQuestType === 'MAIN') {
                 diffFilter.classList.add('hidden');
@@ -196,7 +204,7 @@ function renderQuestList(list, type) {
 
             const label = document.createElement('span');
             label.className = 'condition-label';
-            label.textContent = getConditionLabel(cond);
+            label.innerHTML = getConditionLabel(cond);
 
             const bar = document.createElement('div');
             bar.className = 'quest-progress-bar';
@@ -349,17 +357,29 @@ function renderQuestList(list, type) {
 }
 
 function getConditionLabel(cond) {
+    const name = cond.targetName;
+    const nameSpan = `<span class="condition-target">${name}</span>`; // 색상 적용용
+
     switch (cond.counterType) {
-        case 'CHARACTER_DRAW': return '동료 모집';
-        case 'MONSTER_KILL': return `몬스터 처치 (${cond.targetName})`;
-        case 'ITEM_CRAFT': return `아이템 제작 (${cond.targetName})`;
-        case 'LIFE_ACTION': return `${cond.targetName}`;
-        case 'EQUIP_ITEM' : return `아이템 장착 (${cond.targetName})`;
-        case 'EQUIP_TITLE' : return `칭호 장착 (${cond.targetName})`;
-        case 'DELIVER_ITEM' : return `아이템 배달 (${cond.targetName})`;
-        default: return '기타 조건';
+        case 'CHARACTER_DRAW':
+            return `[동료 모집]<br>${nameSpan}`;
+        case 'MONSTER_KILL':
+            return `[몬스터 처치]<br>${nameSpan}`;
+        case 'ITEM_CRAFT':
+            return `[아이템 제작]<br>${nameSpan}`;
+        case 'LIFE_ACTION':
+            return `${name}`; // ✅ 예외: 한 줄
+        case 'EQUIP_ITEM':
+            return `[아이템 장착]<br>${nameSpan}`;
+        case 'EQUIP_TITLE':
+            return `[칭호 장착]<br>${nameSpan}`;
+        case 'DELIVER_ITEM':
+            return `[아이템 배달]<br>${nameSpan}`;
+        default:
+            return '기타 조건';
     }
 }
+
 
 async function completeQuest(questId) {
     try {
@@ -443,6 +463,61 @@ async function completeChronicleQuest(questId) {
         console.error(err);
         showMessageModal('서버 오류로 보상을 받지 못했습니다.');
     }
+}
+
+async function renderChronicleSummary(mapId) {
+    mapId = Number(mapId);
+    const container = document.getElementById('chronicleSummaryBarContainer');
+    container.innerHTML = ''; // 초기화
+
+    const res = await apiRequest(`/api/chronicle/list?mapId=${mapId}`, 'GET');
+    if (res.code !== 'SUCCESS' || !res.data?.summary) return;
+
+    const percent = res.data.summary.totalPercent ?? 0;
+
+    // 전체 wrapper
+    const wrapper = document.createElement('div');
+    wrapper.className = 'quest-chronicle-summary-bar';
+
+    // 텍스트 라벨 + 아이콘
+    const label = document.createElement('div');
+    label.className = 'quest-chronicle-summary-text';
+
+    const icon = document.createElement('img');
+    icon.src = 'https://phobi.me/gamja.img/images/icons/chronicle_book.png';
+    icon.alt = 'progress';
+    icon.className = 'quest-chronicle-summary-icon';
+
+    const mapName = CHRONICLE_MAPS[mapId] || '???';
+    const spanText = document.createElement('span');
+    spanText.textContent = `감자 연대기 [${mapName}] 진행률`;
+
+    label.appendChild(icon);
+    label.appendChild(spanText);
+
+    // 진행률 바
+    const bar = document.createElement('div');
+    bar.className = 'quest-chronicle-progress-bar';
+
+    const fill = document.createElement('div');
+    fill.className = 'quest-chronicle-progress-fill';
+    fill.style.width = `${Math.min(percent, 100)}%`;
+
+    const textSpan = document.createElement('span');
+    textSpan.className = 'quest-chronicle-progress-text';
+    textSpan.textContent = `${percent.toFixed(1)}%`;
+
+    bar.appendChild(fill);
+    bar.appendChild(textSpan);
+
+    // 최종 조립
+    wrapper.appendChild(label);
+    wrapper.appendChild(bar);
+    container.appendChild(wrapper);
+
+    container.onclick = () => {
+        openChronicleModal(mapId);
+    };
 }
 
 function createButton(text, className, onClick) {

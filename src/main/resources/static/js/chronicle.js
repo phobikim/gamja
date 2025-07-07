@@ -2,12 +2,13 @@ const chronicleModal = document.getElementById('chronicleModal');
 const closeChronicleBtn = document.getElementById('closeChronicleBtn');
 let currentChronicleMapId = null;
 let currentChronicleMapName = '';
-async function openChronicleModal(map) {
+async function openChronicleModal(mapId) {
     battleMapSelectModal.classList.add('hidden');
     chronicleModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-
-    await fetchChronicleList(map.id);  // 연대기 API 호출 및 렌더링
+    const content = document.querySelector('#chronicleModal .chronicle-modal-content');
+    if (content) content.scrollTop = 0;
+    await fetchChronicleList(mapId);  // 연대기 API 호출 및 렌더링
 }
 
 
@@ -187,6 +188,6 @@ function updateChronicleProgressUI(summary) {
 closeChronicleBtn.onclick = closeChronicleModal;
 function closeChronicleModal() {
     chronicleModal.classList.add('hidden');
-    battleMapSelectModal.classList.remove('hidden');
+    // battleMapSelectModal.classList.remove('hidden');
     document.body.style.overflow = '';
 }
