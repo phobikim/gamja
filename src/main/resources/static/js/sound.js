@@ -45,7 +45,7 @@ function tryResumeAudioContext() {
         });
     }
 }
-
+let activeEffectSources = [];
 async function playEffect(name) {
     const url = audioMap[name];
     if (!url) return;
@@ -60,6 +60,8 @@ async function playEffect(name) {
             buffer = await audioContext.decodeAudioData(arrayBuffer);
             audioBufferCache[name] = buffer;
         }
+        activeEffectSources.forEach(source => source.stop());
+        activeEffectSources = [];
 
         const source = audioContext.createBufferSource();
         source.buffer = buffer;
@@ -77,7 +79,7 @@ async function playEffect(name) {
 async function toggleBGM(name) {
     const src = audioMap[name];
     if (!src) return console.warn(`BGM "${name}" 없음`);
-
+    tryResumeAudioContext();
     // 새로 실행 or 다른 BGM으로 전환
     if (!currentBGM || currentBGMName !== name) {
         stopBGM(currentBGM);
@@ -87,14 +89,19 @@ async function toggleBGM(name) {
         currentBGM.volume = 1;
         currentBGM.playsInline = true;
 
-        try {
-            await currentBGM.play();
-            isBGMMuted = false;
-            updateBGMButton(true);
-        } catch (e) {
-            console.warn("BGM play 실패:", e);
+        if (isBGMMuted) {
+            try {
+                await currentBGM.play();
+                isBGMMuted = false;
+                updateBGMButton(true);
+            } catch (e) {
+                console.warn("BGM play 실패:", e);
+            }
+        } else {
+            stopBGM(currentBGM);
+            isBGMMuted = true;
+            updateBGMButton(false);
         }
-        return;
     }
 
     // 토글: 음소거 ↔ 재생
@@ -118,8 +125,9 @@ function stopBGM(audio) {
     if (!audio) return;
     try {
         audio.pause();
+        audio.currentTime = 0;
         audio.src = "";
-        audio.load(); // 안전 정지
+        audio.load();
     } catch (e) {
         console.warn("stop 실패:", e);
     }

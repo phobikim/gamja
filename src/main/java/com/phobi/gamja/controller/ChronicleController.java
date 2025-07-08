@@ -21,6 +21,12 @@ public class ChronicleController {
         return chronicleService.getChronicleList(mapId, session);
     }
 
+    @GetMapping("/progress")
+    public ResponseEntity<GamJaResponse> getChronicleProgress(@RequestParam Long mapId, HttpSession session) {
+        return chronicleService.getChronicleProgress(mapId, session);
+    }
+
+
     @PostMapping("/complete")
     public ResponseEntity<GamJaResponse> completeChronicle(HttpSession session, @RequestBody Map<String, Object> request) {
         return chronicleService.completeChronicle(session, request);

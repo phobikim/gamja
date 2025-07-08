@@ -58,6 +58,27 @@ public class ChronicleService {
 
         return ResponseEntity.ok(GamJaResponse.success("감자 연대기 조회 성공", result));
     }
+
+    public ResponseEntity<GamJaResponse> getChronicleProgress(Long mapId, HttpSession session) {
+        Long userId = commonUtil.getUserId(session);
+        List<Chronicle> elements = chronicleRepository.findByMapIdAndUseFlagTrue(mapId);
+        // 연대기 요소가 없다면 바로 null 응답
+        if (elements == null || elements.isEmpty()) {
+            return ResponseEntity.ok(GamJaResponse.success("연대기 항목이 없습니다.", null));
+        }
+
+        // 요약 퍼센트 계산
+        Map<String, Object> summary = calculateChronicleProgressGrouped(userId, mapId);
+
+        String mapName = elements.get(0).getMap().getName();;
+        Map<String, Object> result = Map.of(
+                "summary", summary,
+                "mapName", mapName
+        );
+
+        return ResponseEntity.ok(GamJaResponse.success("감자 연대기 조회 성공", result));
+    }
+
     public ResponseEntity<GamJaResponse> completeChronicle(HttpSession session, Map<String, Object> request) {
         Long userId = commonUtil.getUserId(session);
         Long mapId = ((Number) request.get("mapId")).longValue();
@@ -241,8 +262,5 @@ public class ChronicleService {
                 "details", typeList
         );
     }
-
-
-
 
 }

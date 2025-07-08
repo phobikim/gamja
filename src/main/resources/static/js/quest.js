@@ -430,6 +430,7 @@ async function progressChronicleQuest(questId) {
             const res2 = await apiRequest(endpoint, 'GET');
             if (res2.code === 'SUCCESS' && res2.data) {
                 renderQuestList(res2.data, currentQuestType);
+                await renderChronicleSummary(currentSubType);
             }
 
         } else {
@@ -455,6 +456,7 @@ async function completeChronicleQuest(questId) {
             const res2 = await apiRequest(endpoint, 'GET');
             if (res2.code === 'SUCCESS' && res2.data) {
                 renderQuestList(res2.data, currentQuestType);
+                await renderChronicleSummary(currentSubType);
             }
         } else {
             showMessageModal(res.message || '보상 처리 실패');
@@ -470,7 +472,7 @@ async function renderChronicleSummary(mapId) {
     const container = document.getElementById('chronicleSummaryBarContainer');
     container.innerHTML = ''; // 초기화
 
-    const res = await apiRequest(`/api/chronicle/list?mapId=${mapId}`, 'GET');
+    const res = await apiRequest(`/api/chronicle/progress?mapId=${mapId}`, 'GET');
     if (res.code !== 'SUCCESS' || !res.data?.summary) return;
 
     const percent = res.data.summary.totalPercent ?? 0;
