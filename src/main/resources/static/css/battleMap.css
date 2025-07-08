@@ -222,22 +222,24 @@
     background: var(--dark-1-color); /* ✅ 배경 안 겹치게 */
 }
 
-.potato-chronicle {
+#difficultyTabBox {
     display: flex;
-    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
     justify-content: center;
-    gap: 6px;
-    font-size: 0.85rem;
+}
+
+.difficulty-tab {
+    padding: 5px 14px;
+    border: 2px solid #5e340e;
+    background-color: #fff8dc;
+    color: #5e340e;
+    border-radius: 16px;
     font-weight: bold;
-    color: #ffe7a0;
-    margin-top: -0.5rem;
-    margin-bottom: 0.1rem;
     cursor: pointer;
 }
 
-#chronicleIconContainer img {
-    width: 35px;
-    height: 35px;
-    object-fit: contain;
-    filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.3));
+.difficulty-tab.active {
+    background-color: #fa6719;
+    color: white;
 }

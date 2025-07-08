@@ -4,7 +4,7 @@ const mapListContainer = document.getElementById('mapListScroll');
 const startBattleBtn = document.getElementById('startBattleBtn');
 const closeBattleBtn = document.getElementById('closeBattleBtn');
 let selectedMap = null;
-
+let currentDifficulty = 'NORMAL';
 async function handleAttackClick() {
     const valid = await checkSessionValid();
     if (!valid) return;
@@ -22,13 +22,39 @@ async function handleAttackClick() {
         return;
     }
 
-    renderMapList(mapRes.data);
+    window.cachedMapList = mapRes.data;
+
+    // 모든 group 내부 map에 groupId 주입
+    mapRes.data.forEach(group => {
+        group.maps.forEach(m => m.groupId = group.groupId);
+    });
+
+    // 상단엔 NORMAL만 보여줌
+    const normalMaps = [];
+    mapRes.data.forEach(group => {
+        const normalMap = group.maps.find(m => m.difficulty === 'NORMAL');
+        if (normalMap) {
+            normalMaps.push(normalMap);
+        }
+    });
+    renderMapList(normalMaps);
 
 }
 
+document.querySelectorAll('.difficulty-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentDifficulty = btn.dataset.difficulty;
+
+        const originalList = window.cachedMapList || [];
+        const filtered = originalList.filter(m => m.difficulty === currentDifficulty);
+        renderMapList(filtered);
+    });
+});
+
 function renderMapList(mapList) {
     mapListContainer.innerHTML = '';
-    battleMapSelectModal.classList.remove('hidden');
 
     mapList.forEach((map, idx) => {
         const card = document.createElement('div');
@@ -37,19 +63,18 @@ function renderMapList(mapList) {
 
         card.addEventListener('click', (e) => {
             e.stopPropagation();
-
             selectedMap = map;
             updateMapDetail(map);
-            injectChronicleIcon();
+
             document.querySelectorAll('.map-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
         });
+
         mapListContainer.appendChild(card);
 
         if (idx === 0) {
             selectedMap = map;
             updateMapDetail(map);
-            injectChronicleIcon();
             card.classList.add('selected');
         }
     });
@@ -57,7 +82,7 @@ function renderMapList(mapList) {
     startBattleBtn.onclick = () => {
         if (selectedMap) {
             battleMapSelectModal.classList.add('hidden');
-            document.body.style.overflow = ''; // body 스크롤 복원
+            document.body.style.overflow = '';
             window.selectedMap = selectedMap;
             window.startBattleFromMap(selectedMap);
         }
@@ -68,7 +93,37 @@ closeBattleBtn.onclick = () => {
     battleMapSelectModal.classList.add('hidden');
 };
 
-function updateMapDetail(map) {
+function updateMapDetail(map, triggeredByTabClick = false) {
+    const group = window.cachedMapList.find(g => g.groupId === map.groupId);
+    const normalMap = group.maps.find(m => m.difficulty === 'NORMAL');
+    const hardMap = group.maps.find(m => m.difficulty === 'HARD');
+
+
+    // 탭 렌더링
+    const tabBox = document.getElementById('difficultyTabBox');
+    if (hardMap) {
+        tabBox.innerHTML = `
+            <button class="difficulty-tab ${map.difficulty === 'NORMAL' ? 'active' : ''}" data-type="NORMAL">일반</button>
+            <button class="difficulty-tab ${map.difficulty === 'HARD' ? 'active' : ''}" data-type="HARD">시험</button>
+        `;
+
+        tabBox.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const selected = group.maps.find(m => m.difficulty === btn.dataset.type);
+                if (selected) {
+                    selectedMap = selected;
+                    updateMapDetail(selected, true);
+                }
+
+                tabBox.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+    } else {
+        tabBox.innerHTML = '';
+    }
+
     document.getElementById('battleSelectMapName').textContent = map.name;
     document.getElementById('battleSelectMapLevel').textContent = `Level ${map.recommendedLevel || '-'}`;
     document.getElementById('battleSelectMapDesc').textContent = map.desc || '-';
@@ -129,6 +184,13 @@ function updateMapDetail(map) {
         wrapper.appendChild(tooltip);
         rewardBox.appendChild(wrapper);
     });
+    if (triggeredByTabClick) {
+        const selectedCard = document.querySelector('.map-card.selected img');
+        if (selectedCard) {
+            selectedCard.src = `${basePath}/${map.imagePath}`;
+            selectedCard.alt = map.name;
+        }
+    }
 }
 
 function injectChronicleIcon() {

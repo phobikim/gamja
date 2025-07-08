@@ -70,8 +70,17 @@ public class BattleService {
                 .filter(MonsterMap::isEnabled)
                 .collect(Collectors.toList());
 
-        List<Map<String, Object>> result = new ArrayList<>();
+        Map<Long, Map<String, Object>> groupedMap = new LinkedHashMap<>();
         for (MonsterMap map : maps) {
+            Long groupId = map.getMapGroupId();
+            // group 정보 없으면 초기화
+            if (!groupedMap.containsKey(groupId)) {
+                Map<String, Object> groupEntry = new HashMap<>();
+                groupEntry.put("groupId", groupId);
+                groupEntry.put("maps", new ArrayList<>());
+                groupedMap.put(groupId, groupEntry);
+            }
+
             List<Monster> monsters = monsterRepository.findByMapAndEnabledIsTrue(map);
             List<MonsterDto> monsterDtos = monsters.stream()
                     .map(this::toMonsterDtoWithDropItems)
@@ -99,13 +108,14 @@ public class BattleService {
             mapData.put("desc", map.getDesc());
             mapData.put("imagePath", map.getBackgroundImagePath());
             mapData.put("recommendedLevel", map.getRecommendedLevel());
+            mapData.put("difficulty", map.getMapDifficulty().name());
             mapData.put("monsters", monsterList);
             mapData.put("rewards", uniqueDrops);
 
-            result.add(mapData);
+            ((List<Map<String, Object>>) groupedMap.get(groupId).get("maps")).add(mapData);
         }
 
-        return GamJaResponse.success("맵 리스트 조회 성공", result);
+        return GamJaResponse.success("맵 리스트 조회 성공", new ArrayList<>(groupedMap.values()));
     }
 
     @Transactional(readOnly = true)

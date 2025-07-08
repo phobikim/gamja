@@ -26,8 +26,17 @@ public class MonsterMap {
     @Column(name = "recommended_level")
     private String recommendedLevel;
 
-    @Column(name = "chronicle_flag", nullable = false)
-    private boolean chronicleFlag;
-
     private boolean enabled;
+
+    @Column(name = "map_group_id", nullable = false)
+    private Long mapGroupId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "map_difficulty", nullable = false)
+    private MapDifficulty mapDifficulty;
+
+    public enum MapDifficulty {
+        NORMAL,
+        HARD
+    }
 }
