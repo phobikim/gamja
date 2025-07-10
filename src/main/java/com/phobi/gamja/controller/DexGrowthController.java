@@ -1,6 +1,7 @@
 package com.phobi.gamja.controller;
 
 import com.phobi.gamja.message.GamJaResponse;
+import com.phobi.gamja.service.DexGrowthService;
 import com.phobi.gamja.service.DexService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,19 +14,14 @@ import javax.servlet.http.HttpSession;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/dex")
-public class DexController {
+@RequestMapping("/api/dex/growth")
+public class DexGrowthController {
 
-    private final DexService dexService;
+    private final DexGrowthService dexGrowthService;
 
-    @GetMapping("/list")
-    public ResponseEntity<GamJaResponse> getDexMeta(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(403).body(GamJaResponse.fail("로그인이 필요합니다."));
-        }
-
-        return ResponseEntity.ok(dexService.getDexMeta(userId));
+    @GetMapping("/item-list")
+    public ResponseEntity<GamJaResponse> getGrowthItemList(HttpSession request) {
+        return dexGrowthService.getGrowthItemList(request);
     }
 
 }

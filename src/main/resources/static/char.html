@@ -30,6 +30,7 @@
     <link rel="stylesheet" href="css/rank.css">
     <link rel="stylesheet" href="css/notice.css">
     <link rel="stylesheet" href="css/chronicle.css">
+    <link rel="stylesheet" href="css/growth.css">
     <!--    <link rel="stylesheet" href="css/playerDexSelect.css">-->
 <!--    <link rel="stylesheet" href="css/dexParty.css">-->
 </head>
@@ -316,7 +317,7 @@
                 </div>
                 <div id="detailEquip" class="dex-button-box">
                     <button id="dexEquipBtn" class="dex-button">장착</button>
-<!--                    <button id="dexEnforceBtn" class="dex-button">강화</button>-->
+                    <button id="dexGrowthBtn" class="dex-button">성장</button>
                 </div>
             </div>
 
@@ -347,6 +348,49 @@
         <div class="rarity-stars"></div>
     </div>
 </template>
+
+<!-- 성장 모달 -->
+<div id="growthModal" class="modal hidden">
+    <div class="growth-modal-container">
+        <div class="growth-header">
+            <h2>성장</h2>
+        </div>
+
+        <!-- 선택 캐릭터 요약 -->
+        <div class="growth-detail-top">
+            <img id="growthImage" class="growth-image" src="" alt="캐릭터 이미지" />
+            <div class="growth-info">
+                <div id="growthName" class="growth-name">이름</div>
+                <div class="growth-level">LV <span id="growthLevel">1</span></div>
+                <div class="growth-xp">
+                    <div class="xp-bar">
+                        <div id="growthXpFill" class="xp-fill" style="width: 0%"></div>
+                    </div>
+                    <div id="growthXpText">0 / 100</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 강화 재료 -->
+        <div class="growth-materials-section">
+            <div class="materials-list" id="growthMaterialList">
+                <!-- 재료 아이템 카드가 여기에 들어감 -->
+            </div>
+        </div>
+
+        <!-- 수량 슬라이더 -->
+        <div class="growth-slider-section">
+            <input type="range" id="growthSlider" min="1" max="10" value="1" />
+            <div class="slider-value">선택 수량: <span id="growthSliderValue">1</span></div>
+        </div>
+
+        <!-- 닫기 버튼 -->
+        <div class="growth-footer">
+            <button id="growthExecuteBtn" class="growth-confirm-btn">성장</button>
+            <button class="dex-close-btn" onclick="closeGrowthModal()">닫기</button>
+        </div>
+    </div>
+</div>
 
 
 <!-- 📌 메시지 모달 -->
@@ -1101,6 +1145,7 @@
 <script src="js/rank.js"></script>
 <script src="js/notice.js"></script>
 <script src="js/chronicle.js"></script>
+<script src="js/growth.js"></script>
 <!--<script src="js/playerDexSelect.js"></script>-->
 <!--<script src="js/dexParty.js"></script>-->
 

@@ -327,7 +327,11 @@ function renderCardsByType(type, list) {
         }
     });
 }
+document.getElementById("dexGrowthBtn").addEventListener("click", () => {
+    if (!selectedCharacterInDetail) return;
 
+    openGrowthModal(selectedCharacterInDetail);
+});
 
 function showDexDetail(type, item) {
     document.getElementById("dexDetailPanel").classList.remove("hidden");
@@ -399,14 +403,28 @@ function showDexDetail(type, item) {
         // 캐릭터 장착, 강화 버튼 표시
         detailEquip.style.display = "flex";
         const equipBtn = document.getElementById("dexEquipBtn");
-        if (item.id === currentDexData.equippedDexId) {
-            equipBtn.textContent = "장착중";
-            equipBtn.disabled = true;
-            equipBtn.classList.add("equipped");
+        const growthBtn = document.getElementById("dexGrowthBtn");
+
+        if (item.owned === false) {
+            // 미보유일 경우 버튼 숨김
+            detailEquip.style.display = "none";
+            notOwnedOverlay.classList.remove("hidden");
         } else {
-            equipBtn.textContent = "장착";
-            equipBtn.disabled = false;
-            equipBtn.classList.remove("equipped");
+            notOwnedOverlay.classList.add("hidden");
+
+            // 장착 버튼
+            if (item.id === currentDexData.equippedDexId) {
+                equipBtn.textContent = "장착중";
+                equipBtn.disabled = true;
+                equipBtn.classList.add("equipped");
+            } else {
+                equipBtn.textContent = "장착";
+                equipBtn.disabled = false;
+                equipBtn.classList.remove("equipped");
+            }
+
+            growthBtn.textContent = "성장";
+            growthBtn.disabled = false;
         }
 
         // 미보유 오버레이 설정 (캐릭터 탭에만 적용)

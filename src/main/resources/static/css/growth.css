@@ -1,0 +1,225 @@
+/* 성장 모달 컨테이너 */
+.growth-modal-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 5vh auto;
+    background: var(--dark-1-color);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 상단 제목 */
+.growth-header h2 {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--dark-1-font-color);
+}
+
+/* 선택 캐릭터 요약 정보 */
+.growth-detail-top {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    background: var(--dark-2-color);
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.growth-image {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    background: var(--baige-color);
+    object-fit: contain;
+    padding: 4px;
+}
+
+.growth-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.growth-name {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--dark-1-font-color);
+}
+
+.growth-level {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #a0ff8a;
+}
+
+.growth-xp .xp-bar {
+    height: 10px;
+    background: #2a2a2a;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+}
+
+.growth-xp .xp-fill {
+    height: 100%;
+    background: #4CAF50;
+    transition: width 0.3s ease;
+}
+
+.growth-xp #growthXpText {
+    font-size: 0.7rem;
+    color: var(--white-color);
+    margin-top: 4px;
+    font-weight: bold;
+}
+
+/* 강화 재료 카드 영역 */
+.growth-materials-section {
+    background: var(--dark-2-color);
+    border-radius: 12px;
+    padding: 10px;
+    max-height: 170px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.material-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--dark-3-color);
+    border-radius: 10px;
+    padding: 8px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+}
+
+.material-card.selected {
+    background: rgba(250, 103, 25, 0.25); /* 오렌지 강조 배경 */
+    outline: 2px solid var(--orange-color);
+}
+
+.material-img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    background: var(--dark-2-color);
+    border-radius: 8px;
+    image-rendering: pixelated;
+}
+
+.material-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.material-name {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--dark-1-font-color);
+}
+
+.material-count {
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #ccc;
+    margin-left: 6px;
+}
+
+/* 슬라이더 영역 */
+.growth-slider-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    background: var(--dark-2-color);
+    padding: 10px;
+    border-radius: 12px;
+}
+
+.growth-slider-section input[type="range"] {
+    width: 100%;
+    accent-color: var(--dark-1-font-color);
+}
+
+.slider-value {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--white-color);
+}
+
+
+.material-desc {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--white-color);
+    margin-top: 4px;
+    line-height: 1.2;
+}
+
+.material-exp {
+    background: #fa6719;
+    color: var(--white-color);
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-top: 4px;
+    font-weight: bold;
+}
+
+.exp-small {
+    background: #5b94ff;
+    width: 30%;
+}
+
+.exp-medium {
+    background: #ffae00;
+    width: 50%;
+}
+
+.exp-large {
+    background: #ff4d4d;
+    width: 80%;
+}
+
+
+.growth-footer {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 12px;
+}
+
+.growth-footer .dex-close-btn {
+    background: var(--orange-color);
+    color: var(--white-color);
+    border: 2px solid var(--char-border-color);
+    padding: 10px 28px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+
+.growth-confirm-btn {
+    background: var(--orange-color);
+    color: var(--white-color);
+    border: 2px solid var(--char-border-color);
+    padding: 10px 28px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}

@@ -42,6 +42,8 @@ public class Item {
     @Column(name = "chronicle_flag", nullable = false)
     private boolean chronicleFlag;
 
+    @OneToOne(mappedBy = "item", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
+    private ItemExpBonus expBonus;
 
     // enum 선언
     public enum Rarity {
@@ -51,7 +53,7 @@ public class Item {
 
     public enum ItemType {
         GATHER_MATERIAL, CRAFT_MATERIAL, COMPOSITE,
-        EQUIP_GATHER, EQUIP_BATTLE, DROP, EQUIP_POTION
+        EQUIP_GATHER, EQUIP_BATTLE, DROP, EQUIP_POTION, GROWTH
     }
 
 }

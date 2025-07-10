@@ -63,8 +63,11 @@ function renderMapList(mapList) {
 
         card.addEventListener('click', (e) => {
             e.stopPropagation();
-            selectedMap = map;
-            updateMapDetail(map);
+            const group = window.cachedMapList.find(g => g.groupId === map.groupId);
+            const targetMap = group.maps.find(m => m.difficulty === currentDifficulty) || map;
+
+            selectedMap = targetMap;
+            updateMapDetail(targetMap);
 
             document.querySelectorAll('.map-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
@@ -73,8 +76,11 @@ function renderMapList(mapList) {
         mapListContainer.appendChild(card);
 
         if (idx === 0) {
-            selectedMap = map;
-            updateMapDetail(map);
+            const group = window.cachedMapList.find(g => g.groupId === map.groupId);
+            const targetMap = group.maps.find(m => m.difficulty === currentDifficulty) || map;
+
+            selectedMap = targetMap;
+            updateMapDetail(targetMap);
             card.classList.add('selected');
         }
     });
@@ -112,9 +118,9 @@ function updateMapDetail(map, triggeredByTabClick = false) {
                 const selected = group.maps.find(m => m.difficulty === btn.dataset.type);
                 if (selected) {
                     selectedMap = selected;
+                    currentDifficulty = btn.dataset.type;
                     updateMapDetail(selected, true);
                 }
-
                 tabBox.querySelectorAll('button').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             });
