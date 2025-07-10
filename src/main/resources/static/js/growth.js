@@ -33,6 +33,8 @@ function openGrowthModal(character) {
 
 // 성장 모달 닫기
 function closeGrowthModal() {
+    loadCharacterBasicInfo();
+    handleDexClick()
     document.getElementById("growthModal").classList.add("hidden");
 }
 
@@ -90,14 +92,24 @@ async function renderGrowthMaterialList() {
 
             // 슬라이더 max 설정
             const slider = document.getElementById("growthSlider");
-            slider.max = item.quantity;
-            slider.value = 1;
-            document.getElementById("growthSliderValue").textContent = "1";
+            const sliderValue = document.getElementById("growthSliderValue");
 
-            // 기존 선택 해제
-            const allCards = container.querySelectorAll(".material-card");
-            allCards.forEach(c => c.classList.remove("selected"));
+            slider.max = item.quantity;
+            slider.value = 0;
+            sliderValue.textContent = "0";
+
+            document.getElementById("growthLevel").textContent = currentGrowthCharacter.level || 1;
+            document.getElementById("growthXpText").textContent = `${currentGrowthCharacter.currentXp || 0} / ${currentGrowthCharacter.maxXp || 100}`;
+            document.getElementById("growthXpFill").style.width = `${
+                (currentGrowthCharacter.currentXp / currentGrowthCharacter.maxXp) * 100 || 0
+            }%`;
+            document.getElementById("growthXpFill").style.background = "#fa6719";
+
+            // 선택 표시
+            container.querySelectorAll(".material-card").forEach(c => c.classList.remove("selected"));
             el.classList.add("selected");
+
+
         });
 
         container.appendChild(el);
@@ -145,3 +157,42 @@ function updateGrowthPreview() {
     fillEl.style.width = `${percent}%`;
     fillEl.style.background = level > baseLevel ? "#f54291" : "#fa6719";
 }
+
+document.getElementById("growthExecuteBtn").addEventListener("click", async () => {
+    if (!selectedGrowthItem) {
+        showMessageModal("먼저 강화 재료를 선택해주세요!");
+        return;
+    }
+
+    const qty = parseInt(document.getElementById("growthSlider").value || "0");
+    if (qty <= 0) {
+        showMessageModal("사용할 수량을 설정해주세요!");
+        return;
+    }
+
+    const payload = {
+        dexId: currentGrowthCharacter.id,
+        itemId: selectedGrowthItem.itemId,
+        quantity: qty
+    };
+
+    const res = await apiRequestJson("/api/dex/growth/execute", "POST", payload);
+    if (res.code === "SUCCESS") {
+        showMessageModal("감자가 강해졌다!");
+        const xpDto = res.data; // level, xp, maxXp
+        currentGrowthCharacter.level = xpDto.level;
+        currentGrowthCharacter.currentXp = xpDto.xp;
+        currentGrowthCharacter.maxXp = xpDto.maxXp;
+
+        await renderGrowthMaterialList();
+
+        selectedGrowthItem = null;
+        document.getElementById("growthSlider").value = 0;
+        document.getElementById("growthSliderValue").textContent = "0";
+
+        updateGrowthPreview();
+    } else {
+        showMessageModal(res.message || "성장에 실패했습니다.");
+    }
+});
+
