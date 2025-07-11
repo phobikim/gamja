@@ -91,20 +91,25 @@ function renderShopItemCard(item, type) {
         document.getElementById('shopSelectedQuantity').textContent = `x1`;
         document.getElementById('shopConfirmButton').textContent = currentTab === 'buy' ? '구매' : '판매';
 
+        const bottomRow = document.getElementById('shopBottomRow');
         // 초기 예상 금액 표시
         const unitPrice = type === 'buy' ? item.price : item.sellPrice;
         let total = unitPrice * 1;
         document.getElementById('shopTotalPrice').textContent = `${total} G`;
         warningEl.classList.add('hidden');
+        bottomRow.classList.remove('hidden');
         confirmBtn.disabled = false;
+
         if (currentTab === 'buy' && currentUserGold < total) {
             confirmBtn.disabled = true;
             warningEl.textContent = '골드가 부족합니다!';
             warningEl.classList.remove('hidden');
+            bottomRow.classList.add('hidden');
         } else if (currentTab === 'sell' && 1 > (item.quantity ?? 0)) {
             confirmBtn.disabled = true;
             warningEl.textContent = '보유 수량이 부족합니다!';
             warningEl.classList.remove('hidden');
+            bottomRow.classList.add('hidden');
         } else {
             confirmBtn.disabled = false;
             warningEl.classList.add('hidden');
@@ -115,18 +120,20 @@ function renderShopItemCard(item, type) {
             total = unitPrice * count;
             document.getElementById('shopSelectedQuantity').textContent = `x${count}`;
             document.getElementById('shopTotalPrice').textContent = `${total} G`;
-
             warningEl.classList.add('hidden');
+            bottomRow.classList.remove('hidden');
             confirmBtn.disabled = false;
 
             if (currentTab === 'buy' && currentUserGold < total) {
                 confirmBtn.disabled = true;
                 warningEl.textContent = '골드가 부족합니다!';
                 warningEl.classList.remove('hidden');
-            } else if (currentTab === 'sell' && count > (item.quantity ?? 0)) {
+                bottomRow.classList.add('hidden');
+            } else if (currentTab === 'sell' && 1 > (item.quantity ?? 0)) {
                 confirmBtn.disabled = true;
                 warningEl.textContent = '보유 수량이 부족합니다!';
                 warningEl.classList.remove('hidden');
+                bottomRow.classList.add('hidden');
             } else {
                 confirmBtn.disabled = false;
                 warningEl.classList.add('hidden');
