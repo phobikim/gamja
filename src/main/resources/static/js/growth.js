@@ -66,6 +66,8 @@ async function renderGrowthMaterialList() {
         return;
     }
 
+    const materialElements = [];
+
     itemList.forEach(item => {
         const el = document.createElement("div");
         el.className = "material-card";
@@ -108,13 +110,13 @@ async function renderGrowthMaterialList() {
             // 선택 표시
             container.querySelectorAll(".material-card").forEach(c => c.classList.remove("selected"));
             el.classList.add("selected");
-
-
         });
-
         container.appendChild(el);
+        materialElements.push({ el, item });
     });
-
+    if (materialElements.length > 0) {
+        materialElements[0].el.click();
+    }
 
 }
 
@@ -158,6 +160,21 @@ function updateGrowthPreview() {
     fillEl.style.background = level > baseLevel ? "#f54291" : "#fa6719";
 }
 
+function renderGrowthResult() {
+    if (!currentGrowthCharacter) return;
+
+    const level = currentGrowthCharacter.level || 1;
+    const xp = currentGrowthCharacter.currentXp || 0;
+    const maxXp = currentGrowthCharacter.maxXp || 0;
+    const percent = (xp / maxXp) * 100;
+
+    document.getElementById("growthLevel").textContent = level;
+    document.getElementById("growthXpText").textContent = `${xp} / ${maxXp}`;
+    const fillEl = document.getElementById("growthXpFill");
+    fillEl.style.width = `${percent}%`;
+    fillEl.style.background = "#fa6719";
+}
+
 document.getElementById("growthExecuteBtn").addEventListener("click", async () => {
     if (!selectedGrowthItem) {
         showMessageModal("먼저 강화 재료를 선택해주세요!");
@@ -182,7 +199,7 @@ document.getElementById("growthExecuteBtn").addEventListener("click", async () =
         const xpDto = res.data; // level, xp, maxXp
         currentGrowthCharacter.level = xpDto.level;
         currentGrowthCharacter.currentXp = xpDto.xp;
-        currentGrowthCharacter.maxXp = xpDto.maxXp;
+        currentGrowthCharacter.maxXp = xpDto.maxExp;
 
         await renderGrowthMaterialList();
 
@@ -190,7 +207,7 @@ document.getElementById("growthExecuteBtn").addEventListener("click", async () =
         document.getElementById("growthSlider").value = 0;
         document.getElementById("growthSliderValue").textContent = "0";
 
-        updateGrowthPreview();
+        renderGrowthResult();
     } else {
         showMessageModal(res.message || "성장에 실패했습니다.");
     }

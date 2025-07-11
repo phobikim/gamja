@@ -32,7 +32,6 @@ public class DexGrowthService {
         Long userId = commonUtil.getUserId(session);
         List<UserInventory> inventories = userInventoryRepository.findByUserId(userId);
         List<GrowthItemDto> result = inventories.stream()
-                .filter(inv -> inv.getQuantity() > 0) // 수량 필터
                 .filter(inv -> inv.getItem().getItemType() == Item.ItemType.GROWTH) // GROWTH 타입 필터
                 .map(inv -> {
                     var item = inv.getItem();
