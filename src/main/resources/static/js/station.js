@@ -60,7 +60,12 @@ function renderWorkshopCards(stations) {
         card.addEventListener('click', () => {
             playEffect("se_click2");
             document.getElementById('workshopSelectModal').classList.add('hidden');
-            openCraftModal(station.category);
+
+            if (station.category === 'SHOP') {
+                openShopModal(); // 상점 열기
+            } else {
+                openCraftModal(station.category);
+            }
         });
 
         // 이름 div
@@ -75,27 +80,7 @@ function renderWorkshopCards(stations) {
     });
 }
 
-// 선택 처리
-function selectWorkshopCard(cardEl, category) {
-    currentWorkshopType = category;
-    // 모든 카드에서 선택 해제
-    document.querySelectorAll('.workshop-card').forEach(card => {
-        card.classList.remove('selected');
-    });
 
-    cardEl.classList.add('selected');
-    selectedStation = category;
-    // goToWorkshopBtn.disabled = false;
-    // goToWorkshopBtn.classList.remove('disabled');
-}
-// 이동 버튼 클릭
-// goToWorkshopBtn.addEventListener('click', () => {
-//     if (!selectedStation) return;
-//     workshopSelectModal.classList.add('hidden');
-//
-//     openCraftModal(selectedStation);
-//
-// });
 
 async function openCraftModal(stationCategory, preselectedRecipe = null) {
     const valid = await checkSessionValid();
@@ -124,13 +109,6 @@ document.querySelectorAll('#equipmentTabRow .craft-tab-btn').forEach(btn => {
         renderRecipeList(filtered);
     });
 });
-function filterRecipeListByEquipType(type) {
-    fetchRecipes(selectedStation).then(() => {
-        // 선택된 탭 타입을 기반으로 필터링 렌더링
-        renderRecipeList(window.lastFetchedRecipes || [], selectedRecipe);
-    });
-}
-
 
 async function fetchRecipes(stationCategory, preselectedRecipe = null) {
     try {
@@ -162,7 +140,6 @@ function renderRecipeList(recipeList, preselectedRecipe = null) {
 
     recipeList.forEach(recipe => {
         const card = document.createElement('div');
-        // card.className = `recipe-card ${getRarityBackgroundClass(recipe.grade)}`;
         card.className = `recipe-card`;
         // ▶ 분리된 이미지 아이콘
         const icon = document.createElement('img');

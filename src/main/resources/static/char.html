@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="css/notice.css">
     <link rel="stylesheet" href="css/chronicle.css">
     <link rel="stylesheet" href="css/growth.css">
+    <link rel="stylesheet" href="css/shop.css">
     <!--    <link rel="stylesheet" href="css/playerDexSelect.css">-->
 <!--    <link rel="stylesheet" href="css/dexParty.css">-->
 </head>
@@ -1112,6 +1113,55 @@
     </div>
 </div>
 
+<!-- 상점 모달 -->
+<div id="shopModal" class="modal hidden">
+    <div class="shop-modal-content">
+
+        <!-- 🔹 타이틀 -->
+        <div class="shop-title">상점</div>
+        <!-- 🔸 탭 -->
+        <div class="shop-tab-container">
+            <button class="shop-tab active" data-tab="buy">구매</button>
+            <button class="shop-tab" data-tab="sell">판매</button>
+        </div>
+
+        <!-- 🔸 골드 표시 -->
+        <div class="shop-gold-display">
+            <img class="shop-gold-icon" src="https://phobi.me/gamja.img/images/items/money.png" alt="gold" />
+            <span id="goldDisplay">0 G</span>
+        </div>
+        <!-- 🔸 아이템 리스트 -->
+        <div class="shop-scroll-area">
+            <div id="shopItemList" class="shop-item-list"></div>
+        </div>
+
+        <!-- ✅ 수량 선택 영역 -->
+        <div id="shopSliderArea" class="shop-slider-area hidden">
+
+            <!-- 상단: 이름 + 수량 한 줄 -->
+            <div class="shop-slider-top-row">
+                <span id="shopSelectedItemName" class="shop-selected-name">-</span>
+                <span id="shopSelectedQuantity" class="shop-selected-qty">x1</span>
+            </div>
+
+            <!-- 슬라이더 -->
+            <input id="shopQuantitySlider" type="range" min="1" max="99" value="1" />
+
+            <!-- 하단: 총금액 + 버튼 한 줄 -->
+            <div class="shop-slider-bottom-row">
+                <span id="shopTotalPrice" class="shop-total-price">-</span>
+                <button id="shopConfirmButton" class="shop-confirm-button">구매</button>
+            </div>
+
+        </div>
+        <!-- 닫기 버튼 -->
+        <div class="workshop-button-box">
+            <button id="closeShopModal" class="start-battle-button">닫기</button>
+        </div>
+
+    </div>
+</div>
+
 <div id="sessionExpiredModal" class="modal hidden">
     <div class="session-modal-content">
         <p class="message-text">
@@ -1146,6 +1196,7 @@
 <script src="js/notice.js"></script>
 <script src="js/chronicle.js"></script>
 <script src="js/growth.js"></script>
+<script src="js/shop.js"></script>
 <!--<script src="js/playerDexSelect.js"></script>-->
 <!--<script src="js/dexParty.js"></script>-->
 

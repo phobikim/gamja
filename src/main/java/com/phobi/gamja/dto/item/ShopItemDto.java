@@ -14,6 +14,7 @@ public class ShopItemDto {
     private String iconPath;
     private int rank;
     private int price;
+    private int stock;
 
     public static ShopItemDto from(ItemShop shop) {
         Item item = shop.getItem();
@@ -24,6 +25,7 @@ public class ShopItemDto {
                 .iconPath(item.getIconPath())
                 .rank(item.getRank())
                 .price(shop.getPrice())
+                .stock(shop.getStock())
                 .build();
     }
 }
