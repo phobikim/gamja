@@ -35,4 +35,6 @@ public class UserDtl {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(nullable = false)
+    private Long gold = 0L;
 }

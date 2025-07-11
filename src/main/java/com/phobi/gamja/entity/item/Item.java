@@ -45,6 +45,12 @@ public class Item {
     @OneToOne(mappedBy = "item", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     private ItemExpBonus expBonus;
 
+    @Column(name = "buy_price")
+    private Integer buyPrice;
+
+    @Column(name = "sell_price")
+    private Integer sellPrice;
+
     // enum 선언
     public enum Rarity {
         COMMON, UNCOMMON, RARE, EPIC, LEGENDARY;
@@ -53,7 +59,7 @@ public class Item {
 
     public enum ItemType {
         GATHER_MATERIAL, CRAFT_MATERIAL, COMPOSITE,
-        EQUIP_GATHER, EQUIP_BATTLE, DROP, EQUIP_POTION, GROWTH
+        EQUIP_GATHER, EQUIP_BATTLE, DROP, EQUIP_POTION, GROWTH, CURRENCY
     }
 
 }
