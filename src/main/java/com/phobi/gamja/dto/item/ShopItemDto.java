@@ -15,17 +15,22 @@ public class ShopItemDto {
     private int rank;
     private int price;
     private int stock;
+    private Integer availableQuantity;
 
-    public static ShopItemDto from(ItemShop shop) {
-        Item item = shop.getItem();
+    public static ShopItemDto from(ItemShop shopItem, int boughtToday) {
+        int maxPerDay = shopItem.getStock() != null ? shopItem.getStock() : 99;
+        int remaining = Math.max(0, maxPerDay - boughtToday);
+
+        Item item = shopItem.getItem();
         return ShopItemDto.builder()
                 .itemId(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .iconPath(item.getIconPath())
                 .rank(item.getRank())
-                .price(shop.getPrice())
-                .stock(shop.getStock())
+                .price(shopItem.getPrice())
+                .stock(shopItem.getStock())
+                .availableQuantity(remaining)
                 .build();
     }
 }

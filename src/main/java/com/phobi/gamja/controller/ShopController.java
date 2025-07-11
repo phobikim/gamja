@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,5 +30,19 @@ public class ShopController {
     public ResponseEntity<GamJaResponse> getUserInventory(HttpServletRequest request) {
         return shopService.getUserInventoryForSale(request);
     }
+
+    @PostMapping("/buy")
+    public ResponseEntity<GamJaResponse> buyItem(HttpServletRequest request,
+                                                 @RequestBody Map<String, Long> payload) {
+        return shopService.buyItem(request, payload);
+    }
+
+    @PostMapping("/sell")
+    public ResponseEntity<GamJaResponse> sellItem(HttpServletRequest request,
+                                                  @RequestBody Map<String, Long> payload) {
+        return shopService.sellItem(request, payload);
+    }
+
+
 
 }

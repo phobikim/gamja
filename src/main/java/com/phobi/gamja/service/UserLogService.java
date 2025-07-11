@@ -63,18 +63,17 @@ public class UserLogService {
         }
     }
 
-    // ✅ 아이템 제작 기록 (+1 누적)
-
+    // 아이템 구매 로그
     @Transactional
-    public void recordDailyItem(Long userId, Long itemId) {
+    public void recordDailyItemBuy(Long userId, Long itemId, int quantity) {
         LocalDate date = today();
 
         Optional<UserDailyActionLog> optional = userDailyActionLogRepository
-                .findByUserIdAndLogDateAndMonsterIdAndItemId(userId, date, null, itemId); // ✅ monsterId=null
+                .findByUserIdAndLogDateAndMonsterIdAndItemId(userId, date, null, itemId);
 
         if (optional.isPresent()) {
             UserDailyActionLog log = optional.get();
-            log.setCount(log.getCount() + 1);
+            log.setCount(log.getCount() + quantity);
             userDailyActionLogRepository.save(log);
         } else {
             UserDailyActionLog log = UserDailyActionLog.builder()
@@ -82,9 +81,10 @@ public class UserLogService {
                     .logDate(date)
                     .monsterId(null)
                     .itemId(itemId)
-                    .count(1)
+                    .count(quantity)
                     .build();
             userDailyActionLogRepository.save(log);
         }
     }
+
 }

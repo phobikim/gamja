@@ -25,7 +25,7 @@ public class UserSellableItemDto {
                 .iconPath(item.getIconPath())
                 .rank(item.getRank())
                 .quantity(inv.getQuantity())
-                .sellPrice(item.getSellPrice())
+                .sellPrice(item.getPrice())
                 .build();
     }
 }
