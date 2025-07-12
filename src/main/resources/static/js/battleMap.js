@@ -109,26 +109,32 @@ function updateMapDetail(map, triggeredByTabClick = false) {
     const tabBox = document.getElementById('difficultyTabBox');
     if (hardMap) {
         tabBox.innerHTML = `
-            <button class="difficulty-tab ${map.difficulty === 'NORMAL' ? 'active' : ''}" data-type="NORMAL">일반</button>
-            <button class="difficulty-tab ${map.difficulty === 'HARD' ? 'active' : ''}" data-type="HARD">시험</button>
+            <button class="difficulty-tab" data-type="NORMAL">일반</button>
+            <button class="difficulty-tab" data-type="HARD">시험</button>
         `;
 
-        tabBox.querySelectorAll('button').forEach(btn => {
+        const tabButtons = tabBox.querySelectorAll('button');
+        tabButtons.forEach(btn => {
+            const type = btn.dataset.type;
+
+            if (type === currentDifficulty) {
+                btn.classList.add('active');
+            }
+
             btn.addEventListener('click', () => {
-                const selected = group.maps.find(m => m.difficulty === btn.dataset.type);
+                const selected = group.maps.find(m => m.difficulty === type);
                 if (selected) {
+                    playEffect("se_click2");
                     selectedMap = selected;
-                    currentDifficulty = btn.dataset.type;
+                    currentDifficulty = type;
                     updateMapDetail(selected, true);
                 }
-                tabBox.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
             });
         });
-
     } else {
         tabBox.innerHTML = '';
     }
+    applyMapEntryRequirement(map);
 
     document.getElementById('battleSelectMapName').textContent = map.name;
     document.getElementById('battleSelectMapLevel').textContent = `Level ${map.recommendedLevel || '-'}`;
@@ -199,22 +205,26 @@ function updateMapDetail(map, triggeredByTabClick = false) {
     }
 }
 
-function injectChronicleIcon() {
-    const container = document.getElementById('chronicleIconContainer');
-    if (!container) return;
+function applyMapEntryRequirement(map) {
+    const mapDetailPanel = document.getElementById('mapDetailPanel');
+    const startBtn = document.getElementById('startBattleBtn');
 
-    if (container.querySelector('img')) return;
+    // 초기화
+    mapDetailPanel.classList.remove('locked');
+    startBtn.classList.remove('disabled');
+    startBtn.disabled = false;
+    const oldOverlay = mapDetailPanel.querySelector('.lock-overlay');
+    if (oldOverlay) oldOverlay.remove();
 
-    const icon = document.createElement('img');
-    icon.src = `${basePath_image}/icons/chronicle_book.png`;
-    icon.alt = '감자연대기';
-    icon.classList.add('chronicle-icon');
+    // 조건 처리
+    if (map.difficulty === 'HARD' && map.entryAllowed === false) {
+        mapDetailPanel.classList.add('locked');
+        startBtn.classList.add('disabled');
+        startBtn.disabled = true;
 
-    icon.addEventListener('click', (e) => {
-        e.stopPropagation();
-        playEffect("se_click2");
-        openChronicleModal(selectedMap.id);
-    });
-
-    container.appendChild(icon);
+        const overlay = document.createElement('div');
+        overlay.className = 'lock-overlay';
+        overlay.textContent = map.requiredMessage || '입장 조건을 충족해야 합니다';
+        mapDetailPanel.appendChild(overlay);
+    }
 }

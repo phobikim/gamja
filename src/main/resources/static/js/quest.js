@@ -475,7 +475,11 @@ async function renderChronicleSummary(mapId) {
     const res = await apiRequest(`/api/chronicle/progress?mapId=${mapId}`, 'GET');
     if (res.code !== 'SUCCESS' || !res.data?.summary) return;
 
-    const percent = res.data.summary.totalPercent ?? 0;
+    const summary = res.data.summary;
+    const percent = summary.totalPercent ?? 0;
+    const isCompleted = summary.completed === true;
+    const isReady = !isCompleted && percent >= 100;
+
 
     // 전체 wrapper
     const wrapper = document.createElement('div');
@@ -508,6 +512,21 @@ async function renderChronicleSummary(mapId) {
     const textSpan = document.createElement('span');
     textSpan.className = 'quest-chronicle-progress-text';
     textSpan.textContent = `${percent.toFixed(1)}%`;
+    wrapper.classList.add(
+        isCompleted ? 'done' : isReady ? 'ready' : 'progress'
+    );
+    if (isCompleted) {
+        fill.style.display = 'none';
+        textSpan.textContent = `감자 연대기 [${mapName}] 완료됨`;
+        textSpan.style.color = '#9cffb2';
+    } else if (isReady) {
+        fill.style.display = 'none';
+        textSpan.textContent = `[${mapName}] 탐험 뱃지 수령 가능`;
+        textSpan.style.color = '#ffd54f';
+    } else {
+        fill.style.width = `${Math.min(percent, 100)}%`;
+        textSpan.textContent = `${percent.toFixed(1)}%`;
+    }
 
     bar.appendChild(fill);
     bar.appendChild(textSpan);

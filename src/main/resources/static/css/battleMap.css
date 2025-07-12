@@ -240,6 +240,50 @@
 }
 
 .difficulty-tab.active {
-    background-color: #fa6719;
-    color: white;
+    background-color: #ffcf3f;
+    border-color: #d4a100;
+    color: #000;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* 입장 제한 상태일 때 전체 패널 흐리게 + 클릭 막기 */
+#mapDetailPanel.locked::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5); /* 반투명 블러 배경 */
+    z-index: 1;
+    pointer-events: auto;
+    filter: grayscale(80%);
+    border-radius: 12px;
+}
+#mapDetailPanel .lock-overlay {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffe87b;
+    font-size: 0.95rem;
+    font-weight: bold;
+    padding: 10px 16px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 2; /* 블러 레이어보다 위에 */
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+#mapDetailPanel.locked {
+    position: relative;
+    pointer-events: none;
+}
+
+/* 버튼 비활성화 스타일 */
+#startBattleBtn.disabled,
+.start-battle-button.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    cursor: not-allowed;
 }

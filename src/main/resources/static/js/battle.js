@@ -31,6 +31,9 @@ window.startBattleFromMap = async function(map) {
 
     if (res.code !== 'SUCCESS') {
         showMessageModal(res.message || "전투 시작에 실패했습니다.");
+        battleModal.classList.add('hidden');
+        document.body.style.overflow = 'hidden'; // 스크롤 잠금 유지
+        battleMapSelectModal.classList.remove('hidden');
         return;
     }
 

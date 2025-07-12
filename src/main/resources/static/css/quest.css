@@ -321,7 +321,7 @@
     flex-shrink: 0;
     display: block;
     cursor: pointer;
-    animation: pulseIcon 1.5s infinite ease-in-out;
+    /*animation: pulseIcon 1.5s infinite ease-in-out;*/
     transition: transform 0.2s;
 }
 
@@ -387,4 +387,11 @@
 .condition-target {
     color: #fa6719;
     font-weight: bold;
+}
+
+.quest-chronicle-summary-bar.done .quest-chronicle-progress-text {
+    color: #9cffb2;
+}
+.quest-chronicle-summary-bar.ready .quest-chronicle-progress-text {
+    color: #ffd54f;
 }

@@ -66,6 +66,8 @@ public class BattleService {
 
     @Transactional(readOnly = true)
     public GamJaResponse getMapList(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+
         List<MonsterMap> maps = monsterMapRepository.findAll().stream()
                 .filter(MonsterMap::isEnabled)
                 .collect(Collectors.toList());
@@ -112,6 +114,15 @@ public class BattleService {
             mapData.put("monsters", monsterList);
             mapData.put("rewards", uniqueDrops);
 
+            // ✅ 입장 조건 추가 (예: 야생 들판 : 변이지역)
+            if (map.getId() == 4 && map.getMapDifficulty().name().equals("HARD")) {
+                boolean hasWildBadge = userEquipmentRepository.existsByUserIdAndItemId(
+                        userId, 134L
+                );
+                mapData.put("requiredItemName", "야생들판 탐험 뱃지");
+                mapData.put("requiredMessage", "야생들판 탐험뱃지 착용 시 입장 가능");
+                mapData.put("entryAllowed", hasWildBadge);
+            }
             ((List<Map<String, Object>>) groupedMap.get(groupId).get("maps")).add(mapData);
         }
 
@@ -262,6 +273,16 @@ public class BattleService {
         // 몬스터 랜덤 선택
         MonsterMap map = monsterMapRepository.findById(mapId)
                 .orElseThrow(() -> new IllegalArgumentException("맵을 찾을 수 없습니다."));
+        if (map.getMapDifficulty() == MonsterMap.MapDifficulty.HARD) {
+            // 야생들판 : 변이지역 입장 조건 검사
+            if ( map.getMapGroupId() == 1L) {
+                boolean hasWildBadge = userEquipmentRepository.existsByUserIdAndItemId(userId, 134L);
+                if (!hasWildBadge) {
+                    return GamJaResponse.fail("입장 조건을 충족하지 않았습니다. 야생들판 탐험 뱃지를 장착해야 합니다.");
+                }
+            }
+
+        }
         List<Monster> monsters = monsterRepository.findByMapAndEnabledIsTrue(map);
         if (monsters.isEmpty()) return GamJaResponse.fail("해당 맵에 몬스터가 없습니다.");
 
