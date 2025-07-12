@@ -159,9 +159,12 @@
     margin-top: 0.3rem;
     box-shadow: 0 2px 0 #3b240c;
     border: 1px solid #3b240c;
-    white-space: nowrap;
+
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: normal;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
 .craft-detail-panel {

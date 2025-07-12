@@ -384,20 +384,6 @@ public class QuestService {
                         levelService.updateCharacterExp(userId, dexId, reward.getAmount());
                     }
                 }
-                case RANDOM_ITEM -> {
-                    boolean win = Math.random() < 0.5; //확률 50%
-                    Map<String, Object> rewardInfo = new HashMap<>();
-                    rewardInfo.put("rewardType", "RANDOM_ITEM");
-                    rewardInfo.put("itemId", reward.getItemId());
-                    rewardInfo.put("itemName", itemRepository.findById(reward.getItemId())
-                            .map(Item::getName).orElse("???"));
-                    rewardInfo.put("acquired", win);
-                    rewardInfo.put("message", win ? " 뭔가 바스락… 오잉 풀잎 득템!" : "풀향기만 스쳐갔다.");
-                    rewardResults.add(rewardInfo);
-                    if (win) {
-                        userInventoryRepository.upsertItem(userId, reward.getItemId(), 1);
-                    }
-                }
             }
         }
 
@@ -722,7 +708,7 @@ public class QuestService {
                     rewardInfo.put("itemName", itemRepository.findById(reward.getItemId())
                             .map(Item::getName).orElse("???"));
                     rewardInfo.put("acquired", win);
-                    rewardInfo.put("message", win ? " 뭔가 바스락… 오잉 풀잎 득템!" : "풀향기만 스쳐갔다.");
+                    rewardInfo.put("message", win ? "감자신이 웃으셨어! 득템!" : "으응...? 아무것도 없었다... 아쉽또감...");
                     rewardResults.add(rewardInfo);
                     if (win) {
                         userInventoryRepository.upsertItem(userId, reward.getItemId(), 1);
