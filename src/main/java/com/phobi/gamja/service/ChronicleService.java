@@ -115,9 +115,9 @@ public class ChronicleService {
         return ResponseEntity.ok(GamJaResponse.success("연대기 완료 보상을 수령했습니다.", null));
     }
     private static final Map<Long, Long> CHRONICLE_BADGE_ITEM_MAP = Map.of(
-            1L, 134L  // 야생들판: mapId 1 → itemId 134
-            // 2L, 135L, // 고산지대: mapId 2 → itemId 135
-            // 3L, 136L  // 도둑쥐소굴: mapId 3 → itemId 136
+            1L, 134L  // 야생들판
+             , 2L, 159L // 고산지대
+            // 3L, 136L  // 도둑쥐소굴
     );
 
     private List<Map<String, Object>> buildChronicleDetailList(Long userId, List<Chronicle> elements) {

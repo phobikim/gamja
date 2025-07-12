@@ -11,6 +11,7 @@ const combatEquipment = document.getElementById('combatEquipment');
 const lifeEquipment = document.getElementById('lifeEquipment');
 
 window.readOnlyMode = false;
+
 // 수치 조정
 function updateStatValue(statId, detail, max = 100) {
     const block = document.getElementById(`stat-${statId}`);
@@ -204,25 +205,50 @@ function setCharacterLifeInfo(data) {
     updateStatValue('lifeMining', data.mining);
     // updateStatValue('lifeMaking', data.making);
 
+    const badgeSlots = [
+        document.getElementById('lifeSlotBADGE_1'),
+        document.getElementById('lifeSlotBADGE_2'),
+        document.getElementById('lifeSlotBADGE_3'),
+        document.getElementById('lifeSlotBADGE_4')
+    ];
+    badgeSlots.forEach(slot => (slot.innerHTML = '뱃지'));
     // 슬롯 설정
     const slotMap = {
         FISHING_ROD: 'lifeSlotFISHING_ROD',
         AXE: 'lifeSlotAXE',
         PICKAXE: 'lifeSlotPICKAXE',
-        KNIFE: 'lifeSlotKNIFE',
-        BADGE: 'lifeSlotBADGE'
-    }
+        KNIFE: 'lifeSlotKNIFE'
+    };
+    Object.values(slotMap).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = el.textContent; // 기본 텍스트 유지
+    });
+    let badgeIndex = 0;
+
     data.equippedItems.forEach(item => {
-        const slotId = slotMap[item.equipSlot];
-        if (slotId) {
-            const slot = document.getElementById(slotId);
-            slot.innerHTML = '';
-            const img = document.createElement('img');
-            img.src = `${window.basePath}${item.iconPath}`;
-            img.alt = item.name;
-            img.title = item.name;
-            img.dataset.item = JSON.stringify(item);
-            slot.appendChild(img);
+        if (item.equipSlot === 'BADGE') {
+            if (badgeIndex < badgeSlots.length) {
+                const slot = badgeSlots[badgeIndex++];
+                const img = document.createElement('img');
+                img.src = `${window.basePath}${item.iconPath}`;
+                img.alt = item.name;
+                img.title = item.name;
+                img.dataset.item = JSON.stringify(item);
+                slot.innerHTML = '';
+                slot.appendChild(img);
+            }
+        } else {
+            const slotId = slotMap[item.equipSlot];
+            if (slotId) {
+                const slot = document.getElementById(slotId);
+                slot.innerHTML = '';
+                const img = document.createElement('img');
+                img.src = `${window.basePath}${item.iconPath}`;
+                img.alt = item.name;
+                img.title = item.name;
+                img.dataset.item = JSON.stringify(item);
+                slot.appendChild(img);
+            }
         }
     });
 }

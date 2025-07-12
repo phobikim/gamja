@@ -207,6 +207,9 @@ public class CharService {
 
         try {
             itemType = Item.ItemType.valueOf(itemTypeStr);
+            if (equipSlotStr.startsWith("BADGE")) {
+                equipSlotStr = "BADGE";
+            }
             equipSlot = EquipmentSlot.valueOf(equipSlotStr);
         } catch (IllegalArgumentException e) {
             return GamJaResponse.fail("itemType 또는 equipSlot 값이 잘못되었습니다.");
