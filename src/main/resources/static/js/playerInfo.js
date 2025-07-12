@@ -73,6 +73,7 @@ async function openInfoModal() {
     document.getElementById('charTab').classList.remove('hidden');
     // ✅ 유저네임 헤더 숨기기
     document.getElementById('charUsernameHeader').classList.add('hidden');
+    document.getElementById('dexNameLabel').classList.add('hidden');
 
     loadCharacterBasicInfo();
     loadCharacterBattleInfo();

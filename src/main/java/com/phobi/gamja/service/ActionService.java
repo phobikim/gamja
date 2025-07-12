@@ -432,13 +432,26 @@ public class ActionService {
 
     private void checkQuestCompleteConditions(Long userId, List<TitleCondition> conditions) {
         for (TitleCondition cond : conditions) {
-            Long questId = cond.getTargetId();
-            UserQuestId uqId = new UserQuestId(userId, questId);
-            UserQuest userQuest = userQuestRepository.findById(uqId).orElse(null);
+            Long targetId = cond.getTargetId();
+            int required = cond.getRequiredCount();
 
-            boolean completed = userQuest != null && userQuest.isCompleted();
-            if (!completed) {
-                throw new IllegalStateException("칭호 획득 조건 미달: 퀘스트 미완료");
+            if (targetId != 0) {
+                // 특정 퀘스트 완료 여부 확인
+                UserQuestId uqId = new UserQuestId(userId, targetId);
+                UserQuest userQuest = userQuestRepository.findById(uqId).orElse(null);
+                boolean completed = userQuest != null && userQuest.isCompleted();
+                if (!completed) {
+                    throw new IllegalStateException("칭호 획득 조건 미달: 퀘스트 미완료");
+                }
+            } else {
+                // 전체 퀘스트 수행 누적 횟수 확인
+                int totalCompleted = userCounterDetailRepository.findById(
+                        new UserCounterDetail.PK(userId, CounterType.QUEST_COMPLETE, 0L)
+                ).map(UserCounterDetail::getCounterValue).orElse(0);
+
+                if (totalCompleted < required) {
+                    throw new IllegalStateException("칭호 획득 조건 미달: 퀘스트 수행 횟수 부족");
+                }
             }
         }
     }
