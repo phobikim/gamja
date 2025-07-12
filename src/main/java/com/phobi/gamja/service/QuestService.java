@@ -713,7 +713,7 @@ public class QuestService {
                     }
                 }
                 case RANDOM_ITEM -> {
-                    boolean win = Math.random() < 0.4;
+                    boolean win = Math.random() < 0.5;
                     Map<String, Object> rewardInfo = new HashMap<>();
                     rewardInfo.put("rewardType", "RANDOM_ITEM");
                     rewardInfo.put("itemId", reward.getItemId());

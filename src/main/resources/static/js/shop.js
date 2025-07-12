@@ -57,6 +57,9 @@ function renderShopItemCard(item, type) {
     if (type === 'sell' && (!item.quantity || item.quantity === 0)) {
         card.classList.add('disabled');
     }
+    if (type === 'buy' && (!item.availableQuantity || item.availableQuantity === 0)) {
+        card.classList.add('disabled');
+    }
 
     card.innerHTML = `
         <img class="shop-item-thumb" src="${basePath}${item.iconPath}" alt="${item.name}" />
@@ -74,7 +77,7 @@ function renderShopItemCard(item, type) {
             <div class="shop-item-desc">${item.description}</div>
         </div>
         <div class="shop-item-price">
-            ${type === 'buy' ? item.price : item.sellPrice} G
+            ${(type === 'buy' ? item.price : item.sellPrice).toLocaleString()} G
         </div>
     `;
 
@@ -88,7 +91,7 @@ function renderShopItemCard(item, type) {
 
         slider.value = 1;
         slider.max = type === 'buy'
-            ? item.stock ?? 99
+            ? item.availableQuantity ?? 99
             : item.quantity ?? 99;
 
         document.getElementById('shopSelectedItemName').textContent = item.name;
@@ -99,7 +102,7 @@ function renderShopItemCard(item, type) {
         // 초기 예상 금액 표시
         const unitPrice = type === 'buy' ? item.price : item.sellPrice;
         let total = unitPrice * 1;
-        document.getElementById('shopTotalPrice').textContent = `${total} G`;
+        document.getElementById('shopTotalPrice').textContent = `${total.toLocaleString()} G`;
         warningEl.classList.add('hidden');
         bottomRow.classList.remove('hidden');
         confirmBtn.disabled = false;
@@ -123,7 +126,7 @@ function renderShopItemCard(item, type) {
             const count = parseInt(slider.value);
             total = unitPrice * count;
             document.getElementById('shopSelectedQuantity').textContent = `x${count}`;
-            document.getElementById('shopTotalPrice').textContent = `${total} G`;
+            document.getElementById('shopTotalPrice').textContent = `${total.toLocaleString()} G`;
             warningEl.classList.add('hidden');
             bottomRow.classList.remove('hidden');
             confirmBtn.disabled = false;
@@ -181,7 +184,7 @@ document.getElementById('shopConfirmButton').addEventListener('click', async () 
 
 function updateGoldDisplay(amount) {
     const el = document.getElementById('goldDisplay');
-    if (el) el.textContent = `${amount} G`;
+    if (el) el.textContent = `${amount.toLocaleString()} G`;
 }
 
 document.getElementById('closeShopModal').addEventListener('click', () => {
