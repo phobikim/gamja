@@ -54,6 +54,10 @@ function renderShopItemCard(item, type) {
     card.className = 'shop-item-card';
     card.dataset.itemId = item.itemId;
 
+    if (type === 'sell' && (!item.quantity || item.quantity === 0)) {
+        card.classList.add('disabled');
+    }
+
     card.innerHTML = `
         <img class="shop-item-thumb" src="${basePath}${item.iconPath}" alt="${item.name}" />
         <div class="shop-item-info">

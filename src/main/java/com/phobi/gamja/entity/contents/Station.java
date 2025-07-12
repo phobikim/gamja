@@ -20,5 +20,10 @@ public class Station {
     private String category;
     private String description;
     private String imagePath;
+    @Column(name = "order_num", nullable = false)
+    private Integer orderNum;
+
+    @Column(name = "use_flag", nullable = false)
+    private Boolean useFlag; // true: 사용, false: 미사용
 
 }

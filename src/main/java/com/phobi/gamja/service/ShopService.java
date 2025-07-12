@@ -74,14 +74,17 @@ public class ShopService {
                 .map(user -> user.getGold())
                 .orElse(0L);
 
-        List<UserSellableItemDto> list = userInventoryRepository.findByUserId(userId).stream()
-                .filter(inv -> {
-                    Item item = inv.getItem();
-                    return item.getPrice() != null && item.getPrice() > 0;
-                })
-                .sorted(Comparator.comparing(inv -> inv.getItem().getPrice()))
-                .map(UserSellableItemDto::from)
-                .collect(Collectors.toList());
+        List<UserSellableItemDto> list = itemRepository.findSellableItemsWithUserQuantity(userId).stream()
+                .map(proj -> UserSellableItemDto.builder()
+                        .itemId(proj.getItemId())
+                        .name(proj.getName())
+                        .description(proj.getDescription())
+                        .iconPath(proj.getIconPath())
+                        .rank(proj.getRank())
+                        .quantity(proj.getQuantity())
+                        .sellPrice(proj.getSellPrice())
+                        .build())
+                .toList();
 
         return ResponseEntity.ok(GamJaResponse.success("보유 아이템 조회 완료", Map.of(
                 "gold", gold,

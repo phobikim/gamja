@@ -264,6 +264,13 @@
 }
 
 .shop-confirm-button:disabled {
+    pointer-events: none;
     opacity: 0.5;
+    cursor: not-allowed;
+}
+.shop-item-card.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    filter: grayscale(80%);
     cursor: not-allowed;
 }

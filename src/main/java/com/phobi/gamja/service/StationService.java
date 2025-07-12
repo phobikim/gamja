@@ -34,7 +34,7 @@ public class StationService {
     private final LogService logService;
 
     public List<StationDto> getStationList() {
-        return stationRepository.findAll().stream()
+        return stationRepository.findByUseFlagTrueOrderByOrderNumAsc().stream()
                 .map(s -> StationDto.builder()
                         .name(s.getName())
                         .category(s.getCategory())

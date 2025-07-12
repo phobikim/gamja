@@ -17,7 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,21 +32,23 @@ public class DexGrowthService {
 
     public ResponseEntity<GamJaResponse> getGrowthItemList(HttpSession session) {
         Long userId = commonUtil.getUserId(session);
+        List<Item> growthItems = itemRepository.findByItemType(Item.ItemType.GROWTH);
         List<UserInventory> inventories = userInventoryRepository.findByUserId(userId);
-        List<GrowthItemDto> result = inventories.stream()
-                .filter(inv -> inv.getItem().getItemType() == Item.ItemType.GROWTH) // GROWTH 타입 필터
-                .map(inv -> {
-                    var item = inv.getItem();
-                    var expBonus = item.getExpBonus(); // 연관된 경험치 효과
-                    return GrowthItemDto.builder()
-                            .itemId(item.getId())
-                            .name(item.getName())
-                            .description(item.getDescription())
-                            .iconPath(item.getIconPath())
-                            .quantity(inv.getQuantity())
-                            .bonusExp(expBonus != null ? expBonus.getBonusExp() : 0)
-                            .build();
-                })
+        Map<Long, Integer> itemIdToQuantity = inventories.stream()
+                .collect(Collectors.toMap(
+                        inv -> inv.getItem().getId(),
+                        UserInventory::getQuantity
+                ));
+
+        List<GrowthItemDto> result = growthItems.stream()
+                .map(item -> GrowthItemDto.builder()
+                        .itemId(item.getId())
+                        .name(item.getName())
+                        .description(item.getDescription())
+                        .iconPath(item.getIconPath())
+                        .quantity(itemIdToQuantity.getOrDefault(item.getId(), 0))
+                        .bonusExp(item.getExpBonus() != null ? item.getExpBonus().getBonusExp() : 0)
+                        .build())
                 .toList();
 
         return ResponseEntity.ok(GamJaResponse.success("정상 조회", result));

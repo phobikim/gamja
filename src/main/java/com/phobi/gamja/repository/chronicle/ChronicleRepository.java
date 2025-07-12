@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface ChronicleRepository extends JpaRepository<Chronicle, Long> {
     List<Chronicle> findByMapIdAndUseFlagTrue(Long mapId);
     Optional<Chronicle> findByTargetTypeAndTargetId(Chronicle.ChronicleTargetType targetType, Long targetId);
+    List<Chronicle> findByMapIdAndUseFlagOrderByOrderInUiAsc(Long mapId, boolean useFlag);
 }

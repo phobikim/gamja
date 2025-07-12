@@ -1,5 +1,6 @@
 package com.phobi.gamja.repository.user;
 
+import com.phobi.gamja.dto.user.UserSellableItemDto;
 import com.phobi.gamja.entity.user.UserInventory;
 import com.phobi.gamja.entity.user.UserInventoryId;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,4 +32,5 @@ public interface UserInventoryRepository extends JpaRepository<UserInventory, Us
     int consumeItem(@Param("userId") Long userId,
                     @Param("itemId") Long itemId,
                     @Param("amount") int amount);
+
 }

@@ -99,7 +99,6 @@ function renderSpotList(spots, level, exp, maxCombo) {
 }
 
 function updateSpotDetail(spot) {
-    console.log("spotSelectDescription" , spot);
     document.getElementById('spotSelectName').textContent = spot.displayName;
     document.getElementById('spotSelectDescription').textContent = spot.description || '-';
     document.getElementById('spotRequiredLevel').textContent = spot.requiredLevel

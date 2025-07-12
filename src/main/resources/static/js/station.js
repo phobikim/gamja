@@ -52,7 +52,13 @@ function renderWorkshopCards(stations) {
         const card = document.createElement('div');
         card.className = 'workshop-card';
         card.dataset.category = station.category;
+
+        const labelHtml = (station.category === 'SHOP')
+            ? `<div class="workshop-label">상점</div>`
+            : '';
+
         card.innerHTML = `
+          ${labelHtml}
           <img src="${basePath}/${station.imagePath}" class="workshop-thumb" alt="${station.name}" />
         `;
 

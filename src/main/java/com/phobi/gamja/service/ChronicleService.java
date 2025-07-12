@@ -38,7 +38,8 @@ public class ChronicleService {
 
     public ResponseEntity<GamJaResponse> getChronicleList(Long mapId, HttpSession session) {
         Long userId = commonUtil.getUserId(session);
-        List<Chronicle> elements = chronicleRepository.findByMapIdAndUseFlagTrue(mapId);
+        List<Chronicle> elements = chronicleRepository.findByMapIdAndUseFlagOrderByOrderInUiAsc(mapId, true);
+
         // 연대기 요소가 없다면 바로 null 응답
         if (elements == null || elements.isEmpty()) {
             return ResponseEntity.ok(GamJaResponse.success("연대기 항목이 없습니다.", null));
@@ -61,7 +62,7 @@ public class ChronicleService {
 
     public ResponseEntity<GamJaResponse> getChronicleProgress(Long mapId, HttpSession session) {
         Long userId = commonUtil.getUserId(session);
-        List<Chronicle> elements = chronicleRepository.findByMapIdAndUseFlagTrue(mapId);
+        List<Chronicle> elements = chronicleRepository.findByMapIdAndUseFlagOrderByOrderInUiAsc(mapId, true);
         // 연대기 요소가 없다면 바로 null 응답
         if (elements == null || elements.isEmpty()) {
             return ResponseEntity.ok(GamJaResponse.success("연대기 항목이 없습니다.", null));
@@ -191,7 +192,7 @@ public class ChronicleService {
         return result;
     }
     public Map<String, Object> calculateChronicleProgressGrouped(Long userId, Long mapId) {
-        List<Chronicle> all = chronicleRepository.findByMapIdAndUseFlagTrue(mapId);
+        List<Chronicle> all = chronicleRepository.findByMapIdAndUseFlagOrderByOrderInUiAsc(mapId, true);
 
         // 유저 진행도 불러오기 (한 번에)
         Map<Long, UserChronicle> userMap = userChronicleRepository
