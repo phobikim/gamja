@@ -195,6 +195,10 @@ function renderQuestList(list, type) {
         desc.className = 'quest-desc';
         desc.textContent = quest.description;
 
+        const conditionText = document.createElement('div');
+        conditionText.className = 'quest-conditionText';
+        conditionText.textContent = quest.conditionText || '';
+
         const conditionGroup = document.createElement('div');
         conditionGroup.className = 'quest-conditions';
 
@@ -349,6 +353,22 @@ function renderQuestList(list, type) {
 
         wrapper.appendChild(title);
         wrapper.appendChild(desc);
+        if (quest.conditionText) {
+            const container = document.createElement('div');
+            container.className = 'quest-conditionText';
+
+            const label = document.createElement('div');
+            label.className = 'quest-conditionText-badge';
+            label.textContent = '수행 방법';
+
+            const text = document.createElement('div');
+            text.className = 'quest-conditionText-body';
+            text.textContent = quest.conditionText;
+
+            container.appendChild(label);
+            container.appendChild(text);
+            wrapper.appendChild(container);
+        }
         wrapper.appendChild(conditionGroup);
         wrapper.appendChild(actionArea);
 

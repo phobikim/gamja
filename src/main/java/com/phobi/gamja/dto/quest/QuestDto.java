@@ -17,6 +17,7 @@ public class QuestDto {
     private Long id;
     private String name;
     private String description;
+    private String conditionText;
     private QuestType type;
     private QuestDifficulty difficulty;
     private List<QuestConditionDto> conditions;

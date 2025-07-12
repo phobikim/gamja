@@ -67,4 +67,6 @@ public class Quest {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "map_id")
     private MonsterMap monsterMap;
+    @Column(name = "condition_text", columnDefinition = "text")
+    private String conditionText;
 }
