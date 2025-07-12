@@ -15,6 +15,7 @@ public class ChronicleQuestDto {
     private String name;
     private String description;
     private Long mapId;
+    private Long mapGroupId;
     private Quest.QuestDifficulty difficulty;
 
     private boolean achieved;

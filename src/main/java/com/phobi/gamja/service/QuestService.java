@@ -559,6 +559,7 @@ public class QuestService {
                 .name(quest.getName())
                 .description(quest.getDescription())
                 .mapId(quest.getMonsterMap() != null ? quest.getMonsterMap().getId() : null)
+                .mapGroupId(quest.getMonsterMap() != null ? quest.getMonsterMap().getMapGroupId() : null)
                 .difficulty(quest.getGrade())
                 .achieved(achieved)
                 .repeated(quest.isRepeatable())

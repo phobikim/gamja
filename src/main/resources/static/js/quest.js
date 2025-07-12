@@ -168,7 +168,7 @@ function renderQuestList(list, type) {
     } else if (currentQuestType === 'DAILY') {
         filtered = list.filter(q => !q.chronicleFlag && q.type === currentSubType);
     } else if (currentQuestType === 'CHRONICLE') {
-        filtered = list.filter(q => String(q.mapId) === String(currentSubType));
+        filtered = list.filter(q => String(q.mapGroupId) === String(currentSubType))
     }
     if (filtered.length === 0) {
         questListContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #ccc;">해당 타입의 퀘스트가 없습니다.</div>';

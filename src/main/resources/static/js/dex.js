@@ -231,6 +231,8 @@ function renderCardsByType(type, list) {
                 btn.textContent = "미획득";
                 btn.disabled = !item.achieved;
                 if (item.achieved) {
+                    btn.textContent = "획득";
+                    btn.classList.add("equipped");
                     btn.addEventListener("click", async () => {
                         await claimTitle(item.id);
                     });

@@ -498,6 +498,7 @@
     cursor: pointer;
 }
 
+
 .title-btn:disabled:not(.equipped) {
     background: #666;
     cursor: not-allowed;
