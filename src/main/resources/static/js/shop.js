@@ -154,6 +154,7 @@ function renderShopItemCard(item, type) {
 }
 
 document.getElementById('shopConfirmButton').addEventListener('click', async () => {
+    playEffect("se_craft");
     const itemName = document.getElementById('shopSelectedItemName').textContent;
     const quantity = parseInt(document.getElementById('shopQuantitySlider').value);
     const selectedCard = document.querySelector('.shop-item-card.selected');
