@@ -116,8 +116,8 @@ public class ChronicleService {
     }
     private static final Map<Long, Long> CHRONICLE_BADGE_ITEM_MAP = Map.of(
             1L, 134L  // 야생들판
-             , 2L, 159L // 고산지대
-            // 3L, 136L  // 도둑쥐소굴
+            ,2L, 159L // 고산지대
+            ,3L, 160L  // 도둑쥐소굴
     );
 
     private List<Map<String, Object>> buildChronicleDetailList(Long userId, List<Chronicle> elements) {
