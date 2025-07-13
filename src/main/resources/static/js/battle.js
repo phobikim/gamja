@@ -116,13 +116,17 @@ function initializeBattleScene(player, monster) {
     window.currentDexImage = charImagePath;
     waitForAllBattleImagesToLoad(() => {
         removeBattleSkeleton();
-
-        setTimeout(() => {
-            isPlayerTurn = true;
-            isProcessingTurn = false;
-            battleEnded = false;
+        isPlayerTurn = true;
+        isProcessingTurn = false;
+        battleEnded = false;
+        requestAnimationFrame(() => {
             updateButtonStates();
-        }, 0);
+        });
+        setTimeout(() => {
+            if (!document.getElementById('attackBtn')?.disabled && isPlayerTurn && !isProcessingTurn && !battleEnded) return;
+            console.warn('[Fallback] 버튼 상태 재설정 실행됨');
+            updateButtonStates();
+        }, 2000);
     });
 }
 
@@ -431,6 +435,11 @@ function showCriticalText() {
 function updateButtonStates() {
     const attackBtn = document.getElementById('attackBtn');
     const healBtn = document.getElementById('healBtn');
+    if (!attackBtn || !healBtn) {
+        console.warn('[Retry] 버튼 DOM 아직 생성 안 됨. 재시도');
+        setTimeout(updateButtonStates, 100); // 재귀 1회
+        return;
+    }
     const canAct = isPlayerTurn && !isProcessingTurn && !battleEnded;
     disableBattleButtons(!canAct);
 }
@@ -582,13 +591,18 @@ function disableBattleButtons(disabled) {
     const attackBtn = document.getElementById('attackBtn');
     const healBtn = document.getElementById('healBtn');
     const potionBtn = document.getElementById('potionBtn');
+    const btnList = [attackBtn, healBtn, potionBtn];
 
-    if (attackBtn) attackBtn.disabled = disabled;
-    if (healBtn) healBtn.disabled = disabled;
+    btnList.forEach(btn => {
+        if (!btn) return;
+        btn.disabled = disabled || false;
+        btn.classList.toggle('disabled', btn.disabled);
+    });
 
     if (potionBtn) {
         const quantity = window.currentPotionQuantity ?? 0;
         potionBtn.disabled = disabled || quantity <= 0 || potionUsed;
+        potionBtn.classList.toggle('disabled', potionBtn.disabled);
     }
 }
 
