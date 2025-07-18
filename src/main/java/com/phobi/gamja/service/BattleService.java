@@ -6,7 +6,7 @@ import com.phobi.gamja.dto.item.EquipmentSlot;
 import com.phobi.gamja.dto.battle.BattleStatDto;
 import com.phobi.gamja.dto.item.ItemDto;
 import com.phobi.gamja.dto.user.UserDexXpDto;
-import com.phobi.gamja.dto.user.UserEquipment;
+import com.phobi.gamja.entity.user.UserEquipment;
 import com.phobi.gamja.entity.battle.*;
 import com.phobi.gamja.entity.dex.*;
 import com.phobi.gamja.entity.item.Item;

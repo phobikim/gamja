@@ -5,13 +5,9 @@ package com.phobi.gamja.service;
 import com.phobi.gamja.dto.item.EquipmentType;
 import com.phobi.gamja.dto.user.LifeStatDto;
 import com.phobi.gamja.dto.user.UserCharInfoDto;
-import com.phobi.gamja.dto.user.UserDexXpDto;
-import com.phobi.gamja.dto.user.UserEquipment;
-import com.phobi.gamja.entity.battle.Monster;
-import com.phobi.gamja.entity.battle.MonsterDrop;
+import com.phobi.gamja.entity.user.UserEquipment;
 import com.phobi.gamja.entity.contents.*;
 import com.phobi.gamja.entity.item.Item;
-import com.phobi.gamja.entity.item.ItemReward;
 import com.phobi.gamja.entity.item.ItemSkillBonus;
 import com.phobi.gamja.entity.quest.UserQuest;
 import com.phobi.gamja.entity.quest.UserQuestId;
@@ -36,8 +32,6 @@ import com.phobi.gamja.util.StatCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 import java.util.*;

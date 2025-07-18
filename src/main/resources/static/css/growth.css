@@ -12,13 +12,28 @@
     gap: 20px;
 }
 
-/* 상단 제목 */
-.growth-header h2 {
-    text-align: center;
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: var(--dark-1-font-color);
+
+.growth-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 10px;
 }
+.growth-tab {
+    background-color: var(--dark-2-color);
+    border: none;
+    color: var(--dark-1-font-color);
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-bottom: 3px solid transparent;
+    transition: border-color 0.2s;
+}
+.growth-tab.selected {
+    border-color: var(--dark-1-font-color);
+}
+
 
 /* 선택 캐릭터 요약 정보 */
 .growth-detail-top {
@@ -28,6 +43,7 @@
     background: var(--dark-2-color);
     border-radius: 12px;
     padding: 10px;
+    margin-bottom: 1rem;
 }
 
 .growth-image {
@@ -222,4 +238,188 @@
     font-weight: bold;
     cursor: pointer;
     transition: all 0.2s ease;
+}
+
+/* 강화 모달 */
+.enhance-item-slot-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.enhance-slot {
+    width: 64px;
+    aspect-ratio: 1 / 1;
+    background-color: var(--dark-2-color);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    box-shadow:
+            0 4px 8px rgba(0, 0, 0, 0.3),
+            inset 0 1px 2px rgba(255, 255, 255, 0.05);
+}
+
+.enhance-slot .plus-icon {
+    font-size: 2rem;
+    color: var(--white-color);
+    font-weight: bold;
+}
+.enhance-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.enhance-item-modal-container {
+    background: var(--dark-1-color);
+    padding: 20px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 420px;
+    margin: 5vh auto;
+    box-shadow: 0 0 20px rgba(0,0,0,0.6);
+}
+
+.enhance-item-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    justify-items: center;
+    margin-bottom: 16px;
+}
+
+.enhance-item-cell {
+    position: relative;
+    width: 80%;
+    aspect-ratio: 1 / 1;
+    background-color: var(--dark-orange-color);
+    border: 3px solid #5d2f0a;
+    border-radius: 12px;
+    padding: 6px;
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.1);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.enhance-item-cell img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+.enhance-item-label {
+    margin-top: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: var(--white-color);
+    text-align: center;
+    line-height: 1.2;
+}
+
+.enhance-modal-title {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--white-color);
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.enhance-item-sticker {
+    position: absolute;
+    bottom: 6px;
+    left: 6px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    pointer-events: none;
+}
+
+.enhance-item-slot-wrap {
+    width: 64px;
+    flex-shrink: 0;
+}
+
+.enhance-item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
+    padding-left: 12px;
+}
+
+.enhance-item-level {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #a0ff8a;
+}
+
+.enhance-xp .xp-bar {
+    height: 10px;
+    background: #2a2a2a;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+}
+
+.enhance-xp .xp-fill {
+    height: 100%;
+    background: #4CAF50;
+    transition: width 0.3s ease;
+}
+
+.enhance-xp .xp-text {
+    font-size: 0.7rem;
+    color: var(--white-color);
+    margin-top: 4px;
+    font-weight: bold;
+}
+
+.enhance-name-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.enhance-item-name {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--white-color);
+}
+
+.enhance-item-lv {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--orange-color);
+}
+
+.enhance-item-stat-line {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.enhance-stat-label {
+    font-size: 0.75rem;
+    color: #bbb;
+    font-weight: bold;
+}
+
+.enhance-stat-value {
+    font-size: 0.75rem;
+    color: var(--white-color);
+    font-weight: bold;
 }

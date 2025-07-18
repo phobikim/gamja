@@ -1,6 +1,22 @@
 let selectedGrowthItem = null;
 let currentGrowthCharacter = null;
+// 탭
+const tabGrowth = document.getElementById("tab-growth");
+const tabEnhance = document.getElementById("tab-enhance");
+const growthContent = document.getElementById("growthContent");
+const enhanceContent = document.getElementById("enhanceContent");
+const enhanceInfoMessage = document.getElementById("enhanceInfoMessage");
+
+const enhanceItemSlot = document.getElementById("enhanceItemSlot");
+const enhanceItemModal = document.getElementById("enhanceItemModal");
+const enhanceItemGrid = document.getElementById("enhanceItemGrid");
+
+
+
 function openGrowthModal(character) {
+    tabGrowth.addEventListener("click", switchToGrowthTab);
+    tabEnhance.addEventListener("click", switchToEnhanceTab);
+
     // 캐릭터 정보 바인딩
     currentGrowthCharacter = character;
     document.getElementById("growthImage").src = `${basePath_image}/character/${character.imagePath}`;
@@ -207,3 +223,126 @@ document.getElementById("growthExecuteBtn").addEventListener("click", async () =
     }
 });
 
+function switchToGrowthTab() {
+    tabGrowth.classList.add("selected");
+    tabEnhance.classList.remove("selected");
+    growthContent.classList.remove("hidden");
+    enhanceContent.classList.add("hidden");
+}
+
+function switchToEnhanceTab() {
+    tabEnhance.classList.add("selected");
+    tabGrowth.classList.remove("selected");
+    growthContent.classList.add("hidden");
+    enhanceContent.classList.remove("hidden");
+    enhanceInfoMessage.textContent = "강화할 아이템을 선택해주세요.";
+
+}
+
+
+// 강화 슬롯 클릭 → 아이템 모달 열기
+enhanceItemSlot.addEventListener("click", () => {
+    openEnhanceItemModal();
+});
+
+async function openEnhanceItemModal() {
+    try {
+        const res = await apiRequest('/api/char/battle', 'GET');
+
+        if (res.code !== 'SUCCESS') {
+            showMessageModal(res.message || "장착 아이템 정보를 불러오지 못했습니다.");
+            return;
+        }
+
+        const equippedItems = res.data?.equippedItems || [];
+        renderEnhanceItemGrid(equippedItems);
+        enhanceItemModal.classList.remove("hidden");
+
+    } catch (err) {
+        console.error("장착 아이템 불러오기 실패:", err);
+        showMessageModal("서버 오류로 아이템을 불러오지 못했습니다.");
+    }
+}
+
+function renderEnhanceItemGrid(items) {
+    enhanceItemGrid.innerHTML = "";
+
+    const filteredItems = items.filter(item => item.equipSlot !== 'POTION');
+
+    filteredItems.forEach(item => {
+        const cell = document.createElement("div");
+        cell.className = "enhance-item-cell";
+
+        const img = document.createElement("img");
+        img.src = `${basePath}${item.iconPath}`;
+        img.alt = item.name;
+
+        // rarity 등급 클래스 부여
+        const rarityClass = `rarity-background-${item.rarity?.toLowerCase()}`;
+        img.classList.add(rarityClass);
+        img.style.borderRadius = "12px";
+
+        // 장비 슬롯 라벨
+        const labelText = getEquipSlotLabel(item.equipSlot);
+        const label = document.createElement("div");
+        label.className = "enhance-item-sticker";
+        label.textContent = labelText;
+
+        // 구성
+        cell.appendChild(img);
+        cell.appendChild(label);
+
+        cell.addEventListener("click", () => {
+            selectEnhanceItem(item);
+            closeEnhanceItemModal();
+        });
+
+        enhanceItemGrid.appendChild(cell);
+    });
+}
+
+function selectEnhanceItem(item) {
+    // 슬롯 아이콘 갱신
+    enhanceItemSlot.innerHTML = `
+        <img src="${basePath}${item.iconPath}" alt="${item.name}">
+    `;
+    const img = enhanceItemSlot.querySelector("img");
+    const rarityClass = `rarity-background-${item.rarity?.toLowerCase()}`;
+    img.classList.add(rarityClass);
+    img.style.borderRadius = "12px";
+    enhanceItemSlot.classList.remove("empty-slot");
+
+    // 정보 표시
+    document.getElementById("enhanceItemInfo").classList.remove("hidden");
+    document.querySelector(".enhance-item-name").textContent = item.name;
+    document.querySelector(".enhance-item-lv").textContent = `+${item.enhancementLevel || 0}`;
+
+    // 스탯
+    document.getElementById("enhanceItemAtk").textContent = item.bonusPower || 0;
+    document.getElementById("enhanceItemHp").textContent = item.bonusHp || 0;
+
+    // XP 바
+    const xp = item.enhancementXp || 0;
+    const maxXp = 100;
+    const percent = (xp / maxXp) * 100;
+
+    document.getElementById("enhanceXpFill").style.width = `${percent}%`;
+    document.getElementById("enhanceXpText").textContent = `${xp} / ${maxXp}`;
+}
+
+function closeEnhanceItemModal() {
+    enhanceItemModal.classList.add("hidden");
+}
+
+function getEquipSlotLabel(slot) {
+    switch (slot?.toUpperCase()) {
+        case 'WEAPON': return '무기';
+        case 'HELMET': return '모자';
+        case 'ARMOR': return '상의';
+        case 'PANTS': return '하의';
+        case 'SHOES': return '신발';
+        case 'RING': return '반지';
+        case 'NECK': return '목걸이';
+        default: return '';
+    }
+}

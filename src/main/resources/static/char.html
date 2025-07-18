@@ -353,36 +353,72 @@
 <!-- 성장 모달 -->
 <div id="growthModal" class="modal hidden">
     <div class="growth-modal-container">
+        <!-- 1. 탭 영역 -->
         <div class="growth-header">
-            <h2>성장</h2>
+            <div class="growth-tabs">
+                <button id="tab-growth" class="growth-tab selected">성장</button>
+                <button id="tab-enhance" class="growth-tab">강화</button>
+            </div>
         </div>
 
-        <!-- 선택 캐릭터 요약 -->
-        <div class="growth-detail-top">
-            <img id="growthImage" class="growth-image" src="" alt="캐릭터 이미지" />
-            <div class="growth-info">
-                <div id="growthName" class="growth-name">이름</div>
-                <div class="growth-level">LV <span id="growthLevel">1</span></div>
-                <div class="growth-xp">
-                    <div class="xp-bar">
-                        <div id="growthXpFill" class="xp-fill" style="width: 0%"></div>
+        <!-- 2. 성장 콘텐츠 영역 -->
+        <div id="growthContent" class="growth-content-section">
+            <div class="growth-detail-top">
+                <img id="growthImage" class="growth-image" src="" alt="캐릭터 이미지" />
+                <div class="growth-info">
+                    <div id="growthName" class="growth-name">이름</div>
+                    <div class="growth-level">LV <span id="growthLevel">1</span></div>
+                    <div class="growth-xp">
+                        <div class="xp-bar">
+                            <div id="growthXpFill" class="xp-fill" style="width: 0%"></div>
+                        </div>
+                        <div id="growthXpText">0 / 100</div>
                     </div>
-                    <div id="growthXpText">0 / 100</div>
                 </div>
             </div>
-        </div>
+            <div class="growth-materials-section">
+                <div class="materials-list" id="growthMaterialList"></div>
+            </div>
 
-        <!-- 강화 재료 -->
-        <div class="growth-materials-section">
-            <div class="materials-list" id="growthMaterialList">
-                <!-- 재료 아이템 카드가 여기에 들어감 -->
+            <div class="growth-slider-section">
+                <input type="range" id="growthSlider" min="1" max="10" value="1" />
+                <div class="slider-value">선택 수량: <span id="growthSliderValue">1</span></div>
             </div>
         </div>
 
-        <!-- 수량 슬라이더 -->
-        <div class="growth-slider-section">
-            <input type="range" id="growthSlider" min="1" max="10" value="1" />
-            <div class="slider-value">선택 수량: <span id="growthSliderValue">1</span></div>
+
+        <!-- 3. 강화 콘텐츠 영역 -->
+        <div id="enhanceContent" class="enhance-content-section hidden">
+            <div class="growth-detail-top">
+
+                <!-- 1. 강화 아이템 슬롯: 좌측 고정 -->
+                <div class="enhance-item-slot-wrap">
+                    <div id="enhanceItemSlot" class="enhance-slot empty-slot">
+                        <span class="plus-icon">+</span>
+                    </div>
+                </div>
+
+                <!-- 2. 아이템 정보: 우측 -->
+                <div class="enhance-item-info" id="enhanceItemInfo">
+                    <div class="enhance-name-line">
+                        <div class="enhance-item-name">아이템명</div>
+                        <div class="enhance-item-lv">+0</div>
+                    </div>
+
+                    <div class="enhance-item-stat-line">
+                        <span class="enhance-stat-label">ATK</span><span id="enhanceItemAtk" class="enhance-stat-value">0</span>
+                        <span class="enhance-stat-label">HP</span><span id="enhanceItemHp" class="enhance-stat-value">0</span>
+                    </div>
+
+                    <div class="enhance-xp">
+                        <div class="xp-bar">
+                            <div id="enhanceXpFill" class="xp-fill" style="width: 0%"></div>
+                        </div>
+                        <div id="enhanceXpText" class="xp-text">0 / 100</div>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
         <!-- 닫기 버튼 -->
@@ -393,6 +429,16 @@
     </div>
 </div>
 
+<!-- 아이템 선택 모달 -->
+<div id="enhanceItemModal" class="modal hidden">
+    <div class="enhance-item-modal-container">
+        <div class="enhance-modal-title">강화할 아이템을 선택하세요</div>
+        <div class="enhance-item-grid" id="enhanceItemGrid"></div>
+        <div class="growth-footer">
+            <button class="dex-close-btn" onclick="closeEnhanceItemModal()">닫기</button>
+        </div>
+    </div>
+</div>
 
 <!-- 📌 메시지 모달 -->
 <div id="messageModal" class="modal hidden">

@@ -1,7 +1,8 @@
-package com.phobi.gamja.dto.user;
+package com.phobi.gamja.entity.user;
 
 import com.phobi.gamja.dto.item.EquipmentSlot;
 import com.phobi.gamja.dto.item.EquipmentType;
+import com.phobi.gamja.dto.user.UserEquipmentId;
 import com.phobi.gamja.entity.item.Item;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,11 +24,11 @@ public class UserEquipment {
     @Id
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EquipmentSlot slot;;  // WEAPON, HELMET, ARMOR, PANTS, SHOES, RING, NECK, POTION
+    private EquipmentSlot slot;;
 
     @Id
     @Enumerated(EnumType.STRING)
-    private EquipmentType type;  // BATTLE or GATHER
+    private EquipmentType type;
 
     @Column(name = "item_id")
     private Long itemId;
@@ -38,6 +39,4 @@ public class UserEquipment {
 
     @Column(name = "equipped_at")
     private LocalDateTime equippedAt;
-
-    // getter, setter 생략
 }

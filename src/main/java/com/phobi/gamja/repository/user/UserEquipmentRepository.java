@@ -2,9 +2,8 @@ package com.phobi.gamja.repository.user;
 
 import com.phobi.gamja.dto.item.EquipmentSlot;
 import com.phobi.gamja.dto.item.EquipmentType;
-import com.phobi.gamja.dto.user.UserEquipment;
+import com.phobi.gamja.entity.user.UserEquipment;
 import com.phobi.gamja.dto.user.UserEquipmentId;
-import com.phobi.gamja.entity.item.Item;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

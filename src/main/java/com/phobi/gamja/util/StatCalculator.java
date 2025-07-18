@@ -41,7 +41,7 @@ public class StatCalculator {
     private final UserTitleRepository userTitleRepository;
     private final TitleEffectRepository titleEffectRepository;
     private final UserCorpsRepository userCorpsRepository;
-
+    private final UserEnhancementRepository userEnhancementRepository;
 
     public BattleStatDto calculateBattleStat(Long userId) {
         // 1. 유저 상세정보 + 착용 캐릭터 ID
@@ -74,7 +74,10 @@ public class StatCalculator {
         List<ItemDto> itemDtoList = new ArrayList<>();
         for (UserEquipment eq : battleEquipments) {
             Item item = eq.getItem();
-            itemDtoList.add(toItemDto(item));
+            UserEnhancementId enhanceId = new UserEnhancementId(userId, item.getId());
+            UserEnhancement enhancement = userEnhancementRepository.findById(enhanceId).orElse(null);
+
+            itemDtoList.add(toItemDto(item,enhancement));
             ItemStatBonus bonus = itemStatBonusRepository.findById(eq.getItemId()).orElse(null);
             if (bonus != null) {
                 equipHp += bonus.getBonusHp();
@@ -153,7 +156,12 @@ public class StatCalculator {
         List<ItemDto> itemDtoList = new ArrayList<>();
         for (UserEquipment eq : gatherEquipments) {
             Item item = eq.getItem();
-            itemDtoList.add(toItemDto(item));
+            // 강화 이력 조회
+            UserEnhancementId enhanceId = new UserEnhancementId(userId, item.getId());
+            UserEnhancement enhancement = userEnhancementRepository.findById(enhanceId).orElse(null);
+
+            // 아이템 DTO 구성 (강화 수치 포함)
+            itemDtoList.add(toItemDto(item, enhancement));
             ItemSkillBonus bonus = itemSkillBonusRepository.findById(eq.getItemId()).orElse(null);
             if (bonus != null) {
                 equipFishing += bonus.getFishing();
@@ -173,16 +181,15 @@ public class StatCalculator {
                 itemDtoList);
     }
 
-    private ItemDto toItemDto(Item item) {
-        return new ItemDto(
-                item.getId(),
-                item.getName(),
-                item.getDescription(),
-                item.getRank(),
-                item.getRarity(),
-                item.getItemType().name(),
-                item.getEquipSlot().name(),
-                item.getIconPath()
-        );
+    public ItemDto toItemDto(Item item, UserEnhancement enhancement) {
+        return ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .iconPath(item.getIconPath())
+                .rarity(item.getRarity())
+                .equipSlot(item.getEquipSlot().name())
+                .enhancementLevel(enhancement != null ? enhancement.getEnhancementLevel() : 0)
+                .enhancementXp(enhancement != null ? enhancement.getEnhancementXp() : 0)
+                .build();
     }
 }
