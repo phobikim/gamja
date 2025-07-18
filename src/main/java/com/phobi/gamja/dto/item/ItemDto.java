@@ -20,5 +20,9 @@ public class ItemDto {
 
     private int enhancementLevel;
     private int enhancementXp;
+    private int bonusHp;
+    private int bonusPower;
+    private int bonusSpeed;
+
 }
 

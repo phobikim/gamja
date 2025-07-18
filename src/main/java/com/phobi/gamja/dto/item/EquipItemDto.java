@@ -22,4 +22,5 @@ public class EquipItemDto {
     private Integer bonusSkillWoodCutting;
     private Integer bonusSkillGathering;
     private Integer bonusSkillMaking;
+    private Integer enhancementLevel;
 }

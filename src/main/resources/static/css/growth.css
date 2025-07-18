@@ -423,3 +423,8 @@
     color: var(--white-color);
     font-weight: bold;
 }
+
+.material-card.insufficient {
+    border: 1px solid #ff5252;
+    background: rgba(255, 82, 82, 0.1);
+}

@@ -14,4 +14,6 @@ public interface UserEnhancementRepository extends JpaRepository<UserEnhancement
     List<UserEnhancement> findAllByUserId(Long userId);
 
     void deleteByUserIdAndItemId(Long userId, Long itemId);
+
+    List<UserEnhancement> findByUserId(Long userId);
 }

@@ -6,5 +6,5 @@ public enum EquipmentSlot {
     /* 생활용 */
     FISHING_ROD, AXE, PICKAXE, KNIFE, BADGE,
     /* 기본값 */
-    NONE
+    NONE, ALL
 }

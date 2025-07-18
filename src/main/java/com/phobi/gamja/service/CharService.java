@@ -70,6 +70,7 @@ public class CharService {
     private final UserBackgroundRepository userBackgroundRepository;
     private final CorpsTierRepository corpsTierRepository;
     private final UserCorpsRepository userCorpsRepository;
+    private final UserEnhancementRepository userEnhancementRepository;
 
     @Transactional(readOnly = true)
     public GamJaResponse getUserInfo(HttpServletRequest request) {
@@ -262,28 +263,53 @@ public class CharService {
                     .toList();
             return GamJaResponse.success("정상 조회", result);
         } else if(itemType == Item.ItemType.EQUIP_BATTLE){
-            // 4. 스탯 보너스 정보 로딩
+
+            List<UserEnhancement> enhancementList = userEnhancementRepository.findByUserId(userId);
+            Map<Long, UserEnhancement> enhanceMap = enhancementList.stream()
+                    .collect(Collectors.toMap(UserEnhancement::getItemId, e -> e));
+
             statBonusList = itemStatBonusRepository.findByItemIdIn(itemMap.keySet());
-            Map<Long, ItemStatBonus> statMap = statBonusList.stream()
+            Map<Long, ItemStatBonus> baseStatMap = statBonusList.stream()
                     .collect(Collectors.toMap(ItemStatBonus::getItemId, b -> b));
+
+
             // 5. 최종 DTO 조합
             result = inventoryList.stream()
                     .filter(inv -> itemMap.containsKey(inv.getItemId()) && inv.getQuantity() > 0)
                     .map(inv -> {
                         Item item = itemMap.get(inv.getItemId());
-                        ItemStatBonus stat = statMap.getOrDefault(inv.getItemId(), new ItemStatBonus());
+                        Long itemId = item.getId();
 
+                        // 강화 정보가 있다면 우선 사용
+                        if (enhanceMap.containsKey(itemId)) {
+                            UserEnhancement enh = enhanceMap.get(itemId);
+                            return EquipItemDto.builder()
+                                    .itemId(itemId)
+                                    .itemName(item.getName())
+                                    .itemPath(item.getIconPath())
+                                    .description(item.getDescription())
+                                    .bonusPower(enh.getBonusPower())
+                                    .bonusHp(enh.getBonusHp())
+                                    .bonusSpeed(enh.getBonusSpeed())
+                                    .enhancementLevel(enh.getEnhancementLevel())
+                                    .build();
+                        }
+
+                        // 없으면 기본 스탯 사용
+                        ItemStatBonus stat = baseStatMap.getOrDefault(itemId, new ItemStatBonus());
                         return EquipItemDto.builder()
-                                .itemId(item.getId())
+                                .itemId(itemId)
                                 .itemName(item.getName())
                                 .itemPath(item.getIconPath())
                                 .description(item.getDescription())
                                 .bonusPower(stat.getBonusPower())
                                 .bonusHp(stat.getBonusHp())
                                 .bonusSpeed(stat.getBonusSpeed())
+                                .enhancementLevel(0)
                                 .build();
                     })
                     .toList();
+
             return GamJaResponse.success("정상 조회", result);
         }
         else if(itemType == Item.ItemType.EQUIP_GATHER) {

@@ -74,16 +74,34 @@ public class StatCalculator {
         List<ItemDto> itemDtoList = new ArrayList<>();
         for (UserEquipment eq : battleEquipments) {
             Item item = eq.getItem();
-            UserEnhancementId enhanceId = new UserEnhancementId(userId, item.getId());
-            UserEnhancement enhancement = userEnhancementRepository.findById(enhanceId).orElse(null);
+            Long itemId = item.getId();
 
-            itemDtoList.add(toItemDto(item,enhancement));
-            ItemStatBonus bonus = itemStatBonusRepository.findById(eq.getItemId()).orElse(null);
-            if (bonus != null) {
-                equipHp += bonus.getBonusHp();
-                equipPower += bonus.getBonusPower();
-                equipSpeed += bonus.getBonusSpeed();
+
+            // 1. 강화 정보 먼저 조회
+            UserEnhancementId enhanceId = new UserEnhancementId(userId, itemId);
+            UserEnhancement enhancement = userEnhancementRepository.findById(enhanceId).orElse(null);
+            int bonusHp = 0, bonusPower = 0, bonusSpeed = 0;
+
+            if (enhancement != null) {
+                // 강화된 스탯 사용
+                bonusHp = enhancement.getBonusHp();
+                bonusPower = enhancement.getBonusPower();
+                bonusSpeed = enhancement.getBonusSpeed();
+            } else {
+                // 기본 아이템 스탯 사용
+                ItemStatBonus bonus = itemStatBonusRepository.findById(itemId).orElse(null);
+                if (bonus != null) {
+                    bonusHp = bonus.getBonusHp();
+                    bonusPower = bonus.getBonusPower();
+                    bonusSpeed = bonus.getBonusSpeed();
+                }
             }
+
+            equipHp += bonusHp;
+            equipPower += bonusPower;
+            equipSpeed += bonusSpeed;
+
+            itemDtoList.add(toItemDto(item, enhancement));
         }
 
         // 5. 착용 칭호 스탯 추가
@@ -182,14 +200,37 @@ public class StatCalculator {
     }
 
     public ItemDto toItemDto(Item item, UserEnhancement enhancement) {
+        int bonusHp = 0, bonusPower = 0, bonusSpeed = 0;
+        int enhancementLevel = 0, enhancementXp = 0;
+
+        if (enhancement != null) {
+            bonusHp = enhancement.getBonusHp();
+            bonusPower = enhancement.getBonusPower();
+            bonusSpeed = enhancement.getBonusSpeed();
+            enhancementLevel = enhancement.getEnhancementLevel();
+            enhancementXp = enhancement.getEnhancementXp();
+        } else {
+            ItemStatBonus bonus = itemStatBonusRepository.findById(item.getId()).orElse(null);
+            if (bonus != null) {
+                bonusHp = bonus.getBonusHp();
+                bonusPower = bonus.getBonusPower();
+                bonusSpeed = bonus.getBonusSpeed();
+            }
+        }
         return ItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
-                .iconPath(item.getIconPath())
+                .description(item.getDescription())
+                .rank(item.getRank())
                 .rarity(item.getRarity())
-                .equipSlot(item.getEquipSlot().name())
-                .enhancementLevel(enhancement != null ? enhancement.getEnhancementLevel() : 0)
-                .enhancementXp(enhancement != null ? enhancement.getEnhancementXp() : 0)
+                .itemType(item.getItemType().name())
+                .equipSlot(item.getEquipSlot() != null ? item.getEquipSlot().name() : null)
+                .iconPath(item.getIconPath())
+                .enhancementLevel(enhancementLevel)
+                .enhancementXp(enhancementXp)
+                .bonusHp(bonusHp)
+                .bonusPower(bonusPower)
+                .bonusSpeed(bonusSpeed)
                 .build();
     }
 }

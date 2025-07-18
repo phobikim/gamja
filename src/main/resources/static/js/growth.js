@@ -328,6 +328,8 @@ function selectEnhanceItem(item) {
 
     document.getElementById("enhanceXpFill").style.width = `${percent}%`;
     document.getElementById("enhanceXpText").textContent = `${xp} / ${maxXp}`;
+
+    loadEnhanceMaterials(item.id);
 }
 
 function closeEnhanceItemModal() {
@@ -344,5 +346,72 @@ function getEquipSlotLabel(slot) {
         case 'RING': return '반지';
         case 'NECK': return '목걸이';
         default: return '';
+    }
+}
+
+async function loadEnhanceMaterials(itemId) {
+    try {
+        const res = await apiRequestJson('/api/enhance/material', 'POST', {
+            itemId: itemId
+        });
+        if (res.code !== 'SUCCESS') {
+            showMessageModal(res.message || "강화 재료를 불러오지 못했습니다.");
+            return;
+        }
+
+        const data = res.data;
+        const materialList = data.materials || [];
+
+        // 골드 표시
+        const needGold = data.gold;
+        const ownedGold = data.goldOwned;
+        const goldTextEl = document.getElementById("enhanceNeedGold");
+
+        goldTextEl.textContent = `필요: ${needGold.toLocaleString()} G / 보유: ${ownedGold.toLocaleString()} G`;
+
+        if (ownedGold < needGold) {
+            goldTextEl.style.color = "#ff5252"; // 빨간색
+            goldTextEl.style.opacity = 0.8;
+        } else {
+            goldTextEl.style.color = "gold";
+            goldTextEl.style.opacity = 1;
+        }
+
+        // 성공 확률 표시
+        document.getElementById("enhanceSuccessRate").textContent = data.successRate + " %";
+        // 재료 목록 렌더링
+        const container = document.getElementById("enhanceMaterialList");
+        container.innerHTML = "";
+
+        materialList.forEach(mat => {
+            const el = document.createElement("div");
+            el.className = "material-card";
+
+            const isInsufficient = mat.owned < mat.quantity;
+            if (isInsufficient) {
+                el.classList.add("insufficient");
+                el.style.opacity = 0.6;
+            }
+            el.innerHTML = `
+                <img src="${basePath}${mat.iconPath}" class="material-img" alt="${mat.name}">
+                <div class="material-info">
+                    <div class="material-name">${mat.name}</div>
+                    <div class="material-count" style="color: ${isInsufficient ? '#ff5252' : '#ccc'};">
+                        보유: ${mat.owned} / 필요: ${mat.quantity}
+                    </div>
+                </div>
+            `;
+
+            if (isInsufficient) {
+                el.style.opacity = 0.6;
+            }
+
+            container.appendChild(el);
+        });
+
+
+    } catch (err) {
+        console.error("강화 재료 불러오기 실패:", err);
+        showMessageModal("서버 오류로 강화 재료를 불러오지 못했습니다.");
     }
 }
