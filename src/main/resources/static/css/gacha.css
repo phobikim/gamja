@@ -56,7 +56,7 @@
     border: none;
     border-radius: 8px;
     padding: 12px 24px;
-    font-size: 1.1rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -81,16 +81,16 @@
     background: rgba(0, 0, 0, 0.8);
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
     opacity: 0;
     visibility: hidden;
     transition: all 0.4s ease;
     border-radius: 20px;
     gap: 20px;
-    padding: 20px 12px 80px;
+    padding: 20px 12px;
     min-height: 100%;
-    overflow-y: auto;
+    overflow-y: hidden;
 }
 
 .result-card-overlay.show {
@@ -229,7 +229,6 @@
     font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-bottom: 3rem;
 }
 
 .confirm-button:hover {
@@ -424,7 +423,6 @@
     text-align: center;
 }
 
-
 .multi-gacha-grid .star {
     font-size: 0.8rem;
 }
@@ -454,9 +452,18 @@
 
 /* 10개 감정 시 height 자동 확장 */
 .gacha-modal-content.multi-gacha-mode {
-    height: auto !important;
+    height: auto;
     min-height: 100vh;
     max-height: none;
-    overflow-y: auto;
+    /*overflow-y: auto;*/
     padding-bottom: 100px;
+}
+
+.confirm-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.result-card-overlay.multi-gacha-mode .confirm-button {
+    margin-bottom: 40px;
 }

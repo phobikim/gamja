@@ -60,11 +60,13 @@ function updatePotatoCountDisplay(count) {
 // 감정하기 버튼 상태 업데이트
 function updateGachaButtonState(count) {
     const gachaButton = document.getElementById("gachaButton");
+    const multiButton = document.getElementById("multiGachaButton");
+
 
     if (count === 0) {
         // 감자가 없을 때 - 버튼 비활성화
         gachaButton.disabled = true;
-        gachaButton.textContent = "감자가 없습니다";
+        gachaButton.textContent = "감자 부족(1)";
         gachaButton.style.backgroundColor = "#666";
         gachaButton.style.cursor = "not-allowed";
         gachaButton.style.opacity = "0.6";
@@ -76,6 +78,22 @@ function updateGachaButtonState(count) {
         gachaButton.style.cursor = "pointer";
         gachaButton.style.opacity = "1";
 
+    }
+
+    if (multiButton) {
+        if (count < 10) {
+            multiButton.disabled = true;
+            multiButton.textContent = "감자 부족(10)";
+            multiButton.style.backgroundColor = "#666";
+            multiButton.style.cursor = "not-allowed";
+            multiButton.style.opacity = "0.6";
+        } else {
+            multiButton.disabled = false;
+            multiButton.textContent = "10개 감정하기";
+            multiButton.style.backgroundColor = "#fa6719";
+            multiButton.style.cursor = "pointer";
+            multiButton.style.opacity = "1";
+        }
     }
 }
 
@@ -122,10 +140,9 @@ async function handleGachaClick() {
 
     // 1. 버튼 상태 변경
     button.disabled = true;
-    button.textContent = "감정중...";
-
-    // 2. "감자 깎는중" 라벨 표시
+    peelingLabel.textContent = "감자 깎는 중...";
     peelingLabel.classList.remove("hidden");
+
 
     try {
         // 3. API 호출 (비동기)
@@ -175,6 +192,8 @@ function showGachaResult(resultData) {
     const card = document.getElementById("resultCard");
     const typeLabel = document.getElementById("resultTypeLabel");
 
+    overlay.classList.add("show");
+    overlay.classList.remove("multi-gacha-mode");
     // 1. 완전한 카드 초기화
     card.className = "result-card-reset";
     card.style.animation = "none";
@@ -253,34 +272,52 @@ async function handleMultiGachaClick() {
     const count = parseInt(document.getElementById("unappraisedCountLabel").textContent.replace("x ", ""));
     if (count < 10) {
         showMessageModal("감자가 10개 이상 있어야 해!");
+        const multiButton = document.getElementById("multiGachaButton");
+        multiButton.disabled = true;
+        multiButton.textContent = "감자 부족(10)";
+        multiButton.style.backgroundColor = "#666";
+        multiButton.style.cursor = "not-allowed";
+        multiButton.style.opacity = "0.6";
         return;
     }
 
     isGachaInProgress = true;
-    document.getElementById("multiGachaButton").disabled = true;
-    document.getElementById("peelingLabel").classList.remove("hidden");
+
+    const peelingLabel = document.getElementById("peelingLabel");
+    const multiButton = document.getElementById("multiGachaButton");
+    const modalContent = document.querySelector(".gacha-modal-content");
+
+    peelingLabel.textContent = "감자를 정신없이 깎는 중...";
+    peelingLabel.classList.remove("hidden");
+
+    multiButton.disabled = true;
 
     try {
         const res = await apiRequest("/api/char/gacha/multi", "GET");
         if (res.code !== "SUCCESS") throw new Error(res.message || "감정 실패");
 
-        const results = res.data; // 배열 형태
-
         for (let i = 0; i < 10; i++) decreasePotatoCount();
 
+        const results = res.data;
         const highest = getHighestRarity(results.map(r => r.rarity.rarity));
-        const modalContent = document.querySelector(".gacha-modal-content");
-        modalContent.className = `gacha-modal-content ${getBackgroundByRarity(highest)}`;
-        modalContent.style.backgroundImage = getBackgroundImageByRarity(highest);
 
-        setTimeout(() => showMultiGachaResults(results), 2000);
+        // ✅ 라벨 2초 보여주고 나서 배경 바꾸기 + 결과 보여주기
+        setTimeout(() => {
+            peelingLabel.classList.add("hidden");
+
+            // 배경은 이때 변경
+            modalContent.className = `gacha-modal-content ${getBackgroundByRarity(highest)}`;
+            modalContent.style.backgroundImage = getBackgroundImageByRarity(highest);
+
+            // 카드 보여주기
+            showMultiGachaResults(results);
+        }, 2000);
 
     } catch (e) {
+        peelingLabel.classList.add("hidden");
         showMessageModal(e.message || "서버 오류 발생");
         resetGachaButton();
     } finally {
-        document.getElementById("peelingLabel").classList.add("hidden");
-        isGachaInProgress = false;
         await checkPotatoCount();
     }
 }
@@ -296,32 +333,35 @@ function showMultiGachaResults(resultList) {
 
     const overlay = document.getElementById("resultCardOverlay");
     overlay.innerHTML = ""; // 기존 카드 제거
-    overlay.classList.add("show");
+    overlay.classList.add("show", "multi-gacha-mode");
 
     const grid = document.createElement("div");
     grid.className = "multi-gacha-grid";
     overlay.appendChild(grid);
-    // 확인 버튼 추가
+
+    // ✅ 확인 버튼 먼저 그려놓기
     const confirm = document.createElement("button");
     confirm.className = "confirm-button";
     confirm.textContent = "확인";
+    confirm.disabled = true; // ✅ 처음엔 비활성화
     confirm.onclick = () => {
         overlay.classList.remove("show");
         modalContent.classList.remove("multi-gacha-mode");
         resetGachaButton();
-        checkPotatoCount(); // 다시 감자 수 체크
+        checkPotatoCount();
     };
+    overlay.appendChild(confirm); // ✅ 버튼은 카드보다 먼저 append
+
+    // 카드 순차 등장
     resultList.forEach((result, index) => {
         const card = createResultCardElement(result);
-        card.style.opacity = "0"; // 최초 숨김
+        card.style.opacity = "0";
         grid.appendChild(card);
 
-        // 순차 flip
         setTimeout(() => {
             card.style.opacity = "1";
             card.style.animation = "cardFlip 0.8s ease-out forwards";
 
-            // flare 추가
             setTimeout(() => {
                 const flare = document.createElement("div");
                 flare.className = "flare-effect";
@@ -330,10 +370,12 @@ function showMultiGachaResults(resultList) {
         }, index * 250);
     });
 
-
+    // ✅ 마지막 카드 등장 후 버튼 활성화
+    const totalDelay = resultList.length * 250 + 1000;
     setTimeout(() => {
-        overlay.appendChild(confirm);
-    }, resultList.length * 350 + 400);
+        confirm.disabled = false;
+        confirm.textContent = "확인";
+    }, totalDelay);
 }
 
 function createResultCardElement(resultData) {
@@ -406,6 +448,25 @@ function resetGachaButton() {
 
     updateGachaButtonState(count);
 
+    const overlay = document.getElementById("resultCardOverlay");
+
+    // ✅ 단일 카드용 기본 구조 복원
+    overlay.innerHTML = `
+        <div id="resultCard" class="result-card">
+            <div class="flare-effect"></div>
+            <div id="resultTypeLabel" class="result-type-label new">NEW</div>
+            <div class="character-image-container">
+                <img id="characterImage" class="character-image">
+                <div class="attribute-icon-wrapper">
+                    <img id="characterAttributeIcon" class="attribute-icon" />
+                </div>
+                <span class="character-name" id="gachaDexName">???</span>
+            </div>
+            <div class="star-rating" id="starRating"></div>
+            <button class="confirm-button" onclick="closeResultCardOnly()">확인</button>
+        </div>
+    `;
+
     // ✅ 단일 감정 버튼
     const gachaButton = document.getElementById("gachaButton");
     gachaButton.disabled = false;
@@ -422,7 +483,7 @@ function resetGachaButton() {
             multiButton.style.cursor = "pointer";
         } else {
             multiButton.disabled = true;
-            multiButton.textContent = "감자 부족";
+            multiButton.textContent = "감자 부족(10)";
             multiButton.style.backgroundColor = "#666";
             multiButton.style.opacity = "0.6";
             multiButton.style.cursor = "not-allowed";
