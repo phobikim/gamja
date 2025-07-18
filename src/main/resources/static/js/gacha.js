@@ -247,17 +247,191 @@ function showGachaResult(resultData) {
     }, 200);
 }
 
-function resetGachaButton() {
-    // 현재 감자 개수를 확인해서 버튼 상태 결정
-    const counterSpan = document.getElementById("unappraisedCountLabel");
-    const currentCount = parseInt(counterSpan.textContent.replace('x ', '')) || 0;
-    updateGachaButtonState(currentCount);
+async function handleMultiGachaClick() {
+    if (isGachaInProgress) return;
 
-    document.getElementById("gachaButton").disabled = false;
-    document.getElementById("gachaButton").textContent = "감정하기";
+    const count = parseInt(document.getElementById("unappraisedCountLabel").textContent.replace("x ", ""));
+    if (count < 10) {
+        showMessageModal("감자가 10개 이상 있어야 해!");
+        return;
+    }
+
+    isGachaInProgress = true;
+    document.getElementById("multiGachaButton").disabled = true;
+    document.getElementById("peelingLabel").classList.remove("hidden");
+
+    try {
+        const res = await apiRequest("/api/char/gacha/multi", "GET");
+        if (res.code !== "SUCCESS") throw new Error(res.message || "감정 실패");
+
+        const results = res.data; // 배열 형태
+
+        for (let i = 0; i < 10; i++) decreasePotatoCount();
+
+        const highest = getHighestRarity(results.map(r => r.rarity.rarity));
+        const modalContent = document.querySelector(".gacha-modal-content");
+        modalContent.className = `gacha-modal-content ${getBackgroundByRarity(highest)}`;
+        modalContent.style.backgroundImage = getBackgroundImageByRarity(highest);
+
+        setTimeout(() => showMultiGachaResults(results), 2000);
+
+    } catch (e) {
+        showMessageModal(e.message || "서버 오류 발생");
+        resetGachaButton();
+    } finally {
+        document.getElementById("peelingLabel").classList.add("hidden");
+        isGachaInProgress = false;
+        await checkPotatoCount();
+    }
+}
+
+function getHighestRarity(rarities) {
+    const order = ["COMMON", "UNCOMMON", "RARE", "EPIC", "LEGENDARY"];
+    return rarities.sort((a, b) => order.indexOf(b) - order.indexOf(a))[0];
+}
+
+function showMultiGachaResults(resultList) {
+    const modalContent = document.querySelector(".gacha-modal-content");
+    modalContent.classList.add("multi-gacha-mode");
+
+    const overlay = document.getElementById("resultCardOverlay");
+    overlay.innerHTML = ""; // 기존 카드 제거
+    overlay.classList.add("show");
+
+    const grid = document.createElement("div");
+    grid.className = "multi-gacha-grid";
+    overlay.appendChild(grid);
+    // 확인 버튼 추가
+    const confirm = document.createElement("button");
+    confirm.className = "confirm-button";
+    confirm.textContent = "확인";
+    confirm.onclick = () => {
+        overlay.classList.remove("show");
+        modalContent.classList.remove("multi-gacha-mode");
+        resetGachaButton();
+        checkPotatoCount(); // 다시 감자 수 체크
+    };
+    resultList.forEach((result, index) => {
+        const card = createResultCardElement(result);
+        card.style.opacity = "0"; // 최초 숨김
+        grid.appendChild(card);
+
+        // 순차 flip
+        setTimeout(() => {
+            card.style.opacity = "1";
+            card.style.animation = "cardFlip 0.8s ease-out forwards";
+
+            // flare 추가
+            setTimeout(() => {
+                const flare = document.createElement("div");
+                flare.className = "flare-effect";
+                card.appendChild(flare);
+            }, 100);
+        }, index * 250);
+    });
+
+
+    setTimeout(() => {
+        overlay.appendChild(confirm);
+    }, resultList.length * 350 + 400);
+}
+
+function createResultCardElement(resultData) {
+    const card = document.createElement("div");
+    const rarityStr = resultData.rarity.rarity;
+    const rarityClass = getBackgroundByRarity(rarityStr);
+    card.className = `result-card ${rarityClass}`;
+
+    // resultType 라벨
+    const typeLabel = document.createElement("div");
+    typeLabel.className = `result-type-label ${resultData.resultType === 'NEW' ? 'new' : 'duplicate'}`;
+    typeLabel.textContent = resultData.resultType;
+    card.appendChild(typeLabel);
+
+    // 캐릭터 이미지
+    const imgWrapper = document.createElement("div");
+    imgWrapper.className = "character-image-container";
+
+    const img = document.createElement("img");
+    img.src = `${basePath_image}/character/${resultData.image}`;
+    img.className = "character-image";
+    imgWrapper.appendChild(img);
+
+    // 속성 아이콘
+    if (resultData.attributeIconPath) {
+        const attrWrap = document.createElement("div");
+        attrWrap.className = "attribute-icon-wrapper";
+        const attrImg = document.createElement("img");
+        attrImg.className = "attribute-icon";
+        attrImg.src = `${basePath}/${resultData.attributeIconPath}`;
+        attrImg.alt = resultData.attribute;
+        attrWrap.appendChild(attrImg);
+        imgWrapper.appendChild(attrWrap);
+    }
+
+    card.appendChild(imgWrapper);
+
+    // 이름
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "character-name";
+    nameSpan.textContent = resultData.name;
+    card.appendChild(nameSpan);
+
+    // 별점
+    const starWrap = document.createElement("div");
+    starWrap.className = "star-rating";
+
+    const stars = {
+        common: 1,
+        uncommon: 2,
+        rare: 3,
+        epic: 4,
+        legendary: 5
+    };
+    const count = stars[rarityStr.toLowerCase()] || 1; // ✅ 안전하게 처리
+    for (let i = 0; i < count; i++) {
+        const star = document.createElement("span");
+        star.className = "star";
+        star.textContent = "★";
+        starWrap.appendChild(star);
+    }
+    card.appendChild(starWrap);
+
+    return card;
+}
+
+
+function resetGachaButton() {
+    const count = parseInt(document.getElementById("unappraisedCountLabel").textContent.replace('x ', '')) || 0;
+
+    updateGachaButtonState(count);
+
+    // ✅ 단일 감정 버튼
+    const gachaButton = document.getElementById("gachaButton");
+    gachaButton.disabled = false;
+    gachaButton.textContent = "감정하기";
+
+    // ✅ 10개 감정 버튼도 같이 활성화
+    const multiButton = document.getElementById("multiGachaButton");
+    if (multiButton) {
+        if (count >= 10) {
+            multiButton.disabled = false;
+            multiButton.textContent = "10개 감정하기";
+            multiButton.style.backgroundColor = "#fa6719";
+            multiButton.style.opacity = "1";
+            multiButton.style.cursor = "pointer";
+        } else {
+            multiButton.disabled = true;
+            multiButton.textContent = "감자 부족";
+            multiButton.style.backgroundColor = "#666";
+            multiButton.style.opacity = "0.6";
+            multiButton.style.cursor = "not-allowed";
+        }
+    }
 
     const modalContent = document.querySelector('.gacha-modal-content');
     modalContent.style.backgroundImage = "url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_enter.png')";
+    modalContent.classList.remove("multi-gacha-mode");
     isGachaInProgress = false;
 }
 

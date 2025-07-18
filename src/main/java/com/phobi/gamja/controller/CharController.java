@@ -83,6 +83,11 @@ public class CharController {
         return ResponseEntity.ok(charService.getGacha(request));
     }
 
+    @GetMapping("/gacha/multi")
+    public ResponseEntity<GamJaResponse> getMultiGacha(HttpServletRequest request) {
+        return ResponseEntity.ok(charService.getMultiGacha(request));
+    }
+
     /*
      * desc : 보유 미감정 감자 수
      * */

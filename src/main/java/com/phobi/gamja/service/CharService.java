@@ -444,6 +444,102 @@ public class CharService {
 
     @Transactional
     @SanitizeInput
+    public GamJaResponse getMultiGacha(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        final Long UNAPPRAISED_POTATO_ID = 53L;
+        final int GACHA_COUNT = 10;
+
+        // 인벤토리 확인
+        UserInventory unappraised = userInventoryRepository.findByUserIdAndItemId(userId, UNAPPRAISED_POTATO_ID)
+                .orElse(null);
+
+        if (unappraised == null || unappraised.getQuantity() < GACHA_COUNT) {
+            return GamJaResponse.fail("미감정 감자가 10개 이상 필요합니다.");
+        }
+
+        // 감자 수량 차감
+        unappraised.setQuantity(unappraised.getQuantity() - GACHA_COUNT);
+        userInventoryRepository.save(unappraised);
+
+        List<Map<String, Object>> results = new ArrayList<>();
+
+        for (int i = 0; i < GACHA_COUNT; i++) {
+            // 확률 추첨
+            DexRarityStat.Rarity selectedRarity = DexRarityStat.Rarity.roll();
+            DexRarityStat selectedRarityStat = dexRarityStatRepository.findById(selectedRarity)
+                    .orElseThrow(() -> new IllegalStateException("해당 rarity가 존재하지 않습니다: " + selectedRarity));
+
+            List<Dex> candidates = dexRepository.getGachaCandidates(selectedRarity);
+            if (candidates.isEmpty()) continue; // 없으면 스킵
+
+            Dex selected = candidates.get(new Random().nextInt(candidates.size()));
+
+            boolean isDuplicate = userDexRepository.existsByUserIdAndDexId(userId, selected.getId());
+            int gainedFragments = 0;
+
+            logService.recordCounter(userId, CounterType.CHARACTER_DRAW, selected.getId());
+
+            if (isDuplicate) {
+                UserDexStatId statId = new UserDexStatId(userId, selected.getId());
+                UserDexStat stat = userDexStatRepository.findById(statId)
+                        .orElseGet(() -> UserDexStat.builder()
+                                .id(statId)
+                                .user(userRepository.getReferenceById(userId))
+                                .dex(dexRepository.getReferenceById(selected.getId()))
+                                .level(1)
+                                .xp(0)
+                                .maxExp(100)
+                                .power(0)
+                                .hp(0)
+                                .speed(0)
+                                .affinity(0)
+                                .build());
+
+                stat.setAffinity(stat.getAffinity() + 1);
+                userDexStatRepository.save(stat);
+            } else {
+                UserDex newDex = UserDex.of(userId, selected);
+                userDexRepository.save(newDex);
+
+                UserDexStatId statId = new UserDexStatId(userId, selected.getId());
+                UserDexStat newStat = UserDexStat.builder()
+                        .id(statId)
+                        .user(userRepository.getReferenceById(userId))
+                        .dex(dexRepository.getReferenceById(selected.getId()))
+                        .level(1)
+                        .xp(0)
+                        .maxExp(100)
+                        .power(0)
+                        .hp(0)
+                        .speed(0)
+                        .affinity(0)
+                        .build();
+                userDexStatRepository.save(newStat);
+            }
+
+            // 결과 구성
+            DexAttribute attr = selected.getAttribute();
+            Map<String, Object> result = new HashMap<>();
+            result.put("resultType", isDuplicate ? "DUPLICATE" : "NEW");
+            result.put("dexId", selected.getId());
+            result.put("name", selected.getName());
+            result.put("rarity", selected.getRarity());
+            result.put("image", selected.getImage());
+            result.put("attribute", attr.getName());
+            result.put("attributeIconPath", attr.getIconPath());
+            result.put("desc", selected.getDescription());
+            result.put("pieceGained", gainedFragments);
+            results.add(result);
+        }
+
+        // 경험치 10개 → 100 누적
+        corpsTierService.updateCorpsXp(userId, GACHA_COUNT * 10);
+
+        return GamJaResponse.success("10개 감정 성공", results);
+    }
+
+    @Transactional
+    @SanitizeInput
     public GamJaResponse ticketCount(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         // 1. 인벤토리에서 미감정 감자 확인

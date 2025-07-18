@@ -81,13 +81,16 @@
     background: rgba(0, 0, 0, 0.8);
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     opacity: 0;
     visibility: hidden;
     transition: all 0.4s ease;
     border-radius: 20px;
     gap: 20px;
+    padding: 20px 12px 80px;
+    min-height: 100%;
+    overflow-y: auto;
 }
 
 .result-card-overlay.show {
@@ -217,7 +220,7 @@
 }
 /* 확인 버튼 */
 .confirm-button {
-    background: var(--dark-2-color);
+    background: var(--orange-color);
     color: white;
     font-weight: bold;
     border: none;
@@ -226,7 +229,7 @@
     font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-top: 0;
+    margin-bottom: 3rem;
 }
 
 .confirm-button:hover {
@@ -383,4 +386,77 @@
     object-fit: cover;
     width: 16px;
     height: 16px;
+}
+
+.multi-gacha-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px 8px;
+    justify-items: center;
+    padding: 12px;
+    max-width: 100%;
+    overflow-y: auto;
+}
+.multi-gacha-grid .character-image-container {
+    display: flex;
+    flex-direction: column;      /* ✅ 세로 정렬 */
+    align-items: center;         /* ✅ 카드 기준 가운데 정렬 */
+    justify-content: center;
+}
+.multi-gacha-grid .result-card {
+    width: 100px;
+    padding: 6px;
+    border-radius: 10px;
+}
+
+.multi-gacha-grid .character-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    padding: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+    margin-bottom: 4px;
+}
+.multi-gacha-grid .character-name {
+    display: block;       /* ✅ 확실히 줄바꿈 */
+    margin-top: 4px;
+    font-size: 0.75rem;
+    text-align: center;
+}
+
+
+.multi-gacha-grid .star {
+    font-size: 0.8rem;
+}
+
+.multi-gacha-grid .attribute-icon-wrapper {
+    width: 20px;
+    height: 20px;
+}
+.multi-gacha-grid .attribute-icon {
+    width: 14px;
+    height: 14px;
+}
+
+.multi-gacha-grid .result-type-label {
+    top: -4px;
+    left: -4px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 0.6rem;
+}
+
+/* 기본 모달 height는 유지 */
+.gacha-modal-content {
+    height: 55vh;
+    overflow: hidden;
+}
+
+/* 10개 감정 시 height 자동 확장 */
+.gacha-modal-content.multi-gacha-mode {
+    height: auto !important;
+    min-height: 100vh;
+    max-height: none;
+    overflow-y: auto;
+    padding-bottom: 100px;
 }
