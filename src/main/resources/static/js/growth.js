@@ -66,8 +66,6 @@ async function renderGrowthMaterialList() {
         return;
     }
 
-    const materialElements = [];
-
     itemList.forEach(item => {
         const el = document.createElement("div");
         el.className = "material-card";
@@ -88,37 +86,32 @@ async function renderGrowthMaterialList() {
             </div>
         `;
 
-        // 클릭 시: 선택 처리 + 슬라이더 값 변경
-        el.addEventListener("click", () => {
-            selectedGrowthItem = item;
+        if (item.quantity <= 0) {
+            el.classList.add("disabled");
+            el.style.opacity = 0.4;
+            el.style.pointerEvents = "none";
+        } else {
+            el.addEventListener("click", () => {
+                selectedGrowthItem = item;
 
-            // 슬라이더 max 설정
-            const slider = document.getElementById("growthSlider");
-            const sliderValue = document.getElementById("growthSliderValue");
+                const slider = document.getElementById("growthSlider");
+                const sliderValue = document.getElementById("growthSliderValue");
 
-            slider.max = item.quantity;
-            slider.value = 0;
-            sliderValue.textContent = "0";
+                slider.max = item.quantity;
+                slider.value = 1;
+                sliderValue.textContent = "1";
 
-            document.getElementById("growthLevel").textContent = currentGrowthCharacter.level || 1;
-            document.getElementById("growthXpText").textContent = `${currentGrowthCharacter.currentXp || 0} / ${currentGrowthCharacter.maxXp || 100}`;
-            document.getElementById("growthXpFill").style.width = `${
-                (currentGrowthCharacter.currentXp / currentGrowthCharacter.maxXp) * 100 || 0
-            }%`;
-            document.getElementById("growthXpFill").style.background = "#fa6719";
+                container.querySelectorAll(".material-card").forEach(c => c.classList.remove("selected"));
+                el.classList.add("selected");
 
-            // 선택 표시
-            container.querySelectorAll(".material-card").forEach(c => c.classList.remove("selected"));
-            el.classList.add("selected");
-        });
+                updateGrowthPreview(); // ghost fill 정상 반영됨!
+            });
+        }
+
         container.appendChild(el);
-        materialElements.push({ el, item });
     });
-    if (materialElements.length > 0) {
-        materialElements[0].el.click();
-    }
-
 }
+
 
 function getExpClass(bonusExp) {
     if (bonusExp >= 300) return 'exp-large'; // 대
@@ -134,7 +127,7 @@ function updateGrowthPreview() {
     const baseXp = currentGrowthCharacter.currentXp || 0;
     let maxXp = currentGrowthCharacter.maxXp || 100;
     const bonusXp = selectedGrowthItem.bonusExp || 0;
-    const qty = parseInt(document.getElementById("growthSlider").value || 1);
+    const qty = Math.max(1, parseInt(document.getElementById("growthSlider").value || "1"));
 
     let totalXp = baseXp + bonusXp * qty;
     let level = baseLevel;
@@ -157,7 +150,8 @@ function updateGrowthPreview() {
     const fillEl = document.getElementById("growthXpFill");
 
     fillEl.style.width = `${percent}%`;
-    fillEl.style.background = level > baseLevel ? "#f54291" : "#fa6719";
+    const changed = (level > baseLevel) || (totalXp !== baseXp);
+    fillEl.style.background = changed ? "#f54291" : "#fa6719";
 }
 
 function renderGrowthResult() {

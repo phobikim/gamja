@@ -2,7 +2,12 @@ let currentUserGold = 0;
 
 function openShopModal() {
     document.getElementById('shopModal').classList.remove('hidden');
-    loadShopItems('buy'); // 초기 탭: 구매
+    document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+    const buyTab = document.querySelector('.shop-tab[data-tab="buy"]');
+    if (buyTab) {
+        buyTab.classList.add('active');
+        buyTab.click();
+    }
 }
 
 document.querySelectorAll('.shop-tab').forEach(tab => {
