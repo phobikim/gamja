@@ -107,8 +107,8 @@ function renderDexTabs() {
 
             // 전체 아이템 목록 구성 (항상 _category 포함해서)
             const fullList = [
-                ...(currentDexData.battleEquipItemList || []).map(i => ({ ...i, _category: '전투템' })),
-                ...(currentDexData.lifeEquipItemsList || []).map(i => ({ ...i, _category: '생활템' })),
+                ...(currentDexData.battleEquipItemList || []).map(i => ({ ...i, _category: '전투' })),
+                ...(currentDexData.lifeEquipItemsList || []).map(i => ({ ...i, _category: '생활' })),
                 ...(currentDexData.itemList || []).map(i => ({ ...i, _category: '기타' }))
             ];
 
@@ -116,7 +116,7 @@ function renderDexTabs() {
             const filtered = fullList.filter(i => i._category === category);
             renderCardsByType("item", filtered);
 
-            // 👉 첫 번째 아이템 자동 클릭
+            // 첫 번째 아이템 자동 클릭
             if (filtered.length > 0) {
                 showDexDetail("item", filtered[0]);
             }
@@ -267,12 +267,12 @@ function renderCardsByType(type, list) {
 
     if (type === "item" && !list[0]?._category) {
         const fullList = [
-            ...(currentDexData.battleEquipItemList || []).map(i => ({ ...i, _category: '전투템' })),
-            ...(currentDexData.lifeEquipItemsList || []).map(i => ({ ...i, _category: '생활템' })),
+            ...(currentDexData.battleEquipItemList || []).map(i => ({ ...i, _category: '전투' })),
+            ...(currentDexData.lifeEquipItemsList || []).map(i => ({ ...i, _category: '생활' })),
             ...(currentDexData.itemList || []).map(i => ({ ...i, _category: '기타' }))
         ];
-        // 전투템만 필터링해서 list 에 할당
-        list = fullList.filter(i => i._category === '전투템');
+        // 전투만 필터링해서 list 에 할당
+        list = fullList.filter(i => i._category === '전투');
     }
 
 
@@ -464,19 +464,24 @@ function showDexDetail(type, item) {
         detailEquip.style.display = "none";
         // ✅ 미보유 오버레이 숨김
         notOwnedOverlay.classList.add("hidden");
+
         // detailEffects 영역 표시
         detailEffects.style.display = "block";
         document.getElementById("detailDesc").textContent = item.description || "";
         document.getElementById("detailCondition").textContent = item.condition || "";
         document.getElementById("detailRarity").textContent = item.rarity || "Common";
-        // document.getElementById("detailRarity").textContent =
-        //     type === "item" ? (item.rarity ?? "Common") : (item.rank ?? "Common");
-        if(type === "item") {
-            detailStat.style.display = "none";
-        } else {
-            detailStat.style.display = "flex";
-            document.getElementById("detailAtk").textContent = item.basePower || 0;
-            document.getElementById("detailHp").textContent = item.baseHp || 0;
+
+
+        if (type === "item") {
+            const activeItemTab = document.querySelector("#itemTypeTabs .active");
+            const selectedCategory = activeItemTab?.dataset?.category;
+            if (selectedCategory === "전투") {
+                detailStat.style.display = "flex";
+                document.getElementById("detailAtk").textContent = item.basePower || 0;
+                document.getElementById("detailHp").textContent = item.baseHp || 0;
+            } else {
+                detailStat.style.display = "none";
+            }
         }
     }
 }

@@ -55,26 +55,37 @@ public class ItemEnhanceService {
                 .orElse(null);
 
         int nextLevel = (enhancement != null ? enhancement.getEnhancementLevel() : 0) + 1;
-
-        // 재료
-        ItemEnhanceMaterial material = getRequiredMaterial(item, nextLevel);
-        List<Map<String, Object>> materials = new ArrayList<>();
-        addMaterialInfo(materials, material.getMaterialItemId1(), material.getMaterialQuantity1(), userId);
-        addMaterialInfo(materials, material.getMaterialItemId2(), material.getMaterialQuantity2(), userId);
-        addMaterialInfo(materials, material.getMaterialItemId3(), material.getMaterialQuantity3(), userId);
-
         // 유저 보유량
         Long goldOwned = userDtlRepository.findById(userId)
                 .map(u -> u.getGold())
                 .orElse(0L);
 
 
-        Map<String, Object> result = Map.of(
-                "gold", material.getGoldCost(),
-                "goldOwned", goldOwned,
-                "successRate", material.getSuccessRate(),
-                "materials", materials
-        );
+        ItemEnhanceMaterial material = getRequiredMaterial(item, nextLevel);
+        Map<String, Object> result;
+
+        if (material == null) {
+            // 강화 완료 상태 응답
+            result = Map.of(
+                    "materials", List.of(),
+                    "successRate", "-",
+                    "gold", 0,
+                    "goldOwned", goldOwned
+            );
+        } else {
+            // 재료 정보 구성
+            List<Map<String, Object>> materials = new ArrayList<>();
+            addMaterialInfo(materials, material.getMaterialItemId1(), material.getMaterialQuantity1(), userId);
+            addMaterialInfo(materials, material.getMaterialItemId2(), material.getMaterialQuantity2(), userId);
+            addMaterialInfo(materials, material.getMaterialItemId3(), material.getMaterialQuantity3(), userId);
+
+            result = Map.of(
+                    "materials", materials,
+                    "successRate", material.getSuccessRate(),
+                    "gold", material.getGoldCost(),
+                    "goldOwned", goldOwned
+            );
+        }
 
         return ResponseEntity.ok(GamJaResponse.success("조회 완료", result));
     }
@@ -122,16 +133,18 @@ public class ItemEnhanceService {
 
         userDtl.setGold(userDtl.getGold() - requirement.getGoldCost());
         // 5. 성공 여부 결정
-        boolean success = Math.random() * 100 < requirement.getSuccessRate();
+        boolean forceSuccess = enhancement.getEnhancementXp() >= 100;
+        boolean success = forceSuccess || Math.random() * 100 < requirement.getSuccessRate();
         if (success) {
             enhancement.setEnhancementLevel(nextLevel);
             enhancement.setBonusPower(enhancement.getBonusPower() + requirement.getBonusPower());
             enhancement.setBonusHp(enhancement.getBonusHp() + requirement.getBonusHp());
             enhancement.setBonusSpeed(enhancement.getBonusSpeed() + requirement.getBonusSpeed());
-
             enhancement.setEnhancementXp(0);
         } else {
-            enhancement.setEnhancementXp(enhancement.getEnhancementXp() + 10);
+            int xpGain = getXpGainByRarity(item.getRarity());
+            int newXp = enhancement.getEnhancementXp() + xpGain;
+            enhancement.setEnhancementXp(Math.min(100, newXp));
         }
 
         enhancement.setEnhancementAt(LocalDateTime.now());
@@ -147,6 +160,48 @@ public class ItemEnhanceService {
         );
         return ResponseEntity.ok(GamJaResponse.success("강화 완료", result));
     }
+
+    public ResponseEntity<GamJaResponse> executeFreeEnhance(HttpSession session, Map<String, Long> payload) {
+        Long userId = commonUtil.getUserId(session);
+        Long itemId = ((Number) payload.get("itemId")).longValue();
+
+        UserEnhancement enhancement = userEnhancementRepository.findById(new UserEnhancementId(userId, itemId))
+                .orElseThrow(() -> new IllegalArgumentException("강화 정보가 존재하지 않습니다."));
+
+        if (enhancement.getEnhancementXp() < 100) {
+            return ResponseEntity.ok(GamJaResponse.fail("무료 강화 조건이 충족되지 않았습니다."));
+        }
+
+        int nextLevel = enhancement.getEnhancementLevel() + 1;
+        Item item = itemRepository.findById(itemId).orElseThrow();
+        ItemEnhanceMaterial requirement = itemEnhanceMaterialRepository
+                .findWithAllSlotIncluded(item.getRarity(), item.getEquipSlot(), nextLevel)
+                .orElseThrow(() -> new IllegalStateException("요구 강화 정보가 없습니다."));
+
+        enhancement.setEnhancementLevel(nextLevel);
+        enhancement.setBonusPower(enhancement.getBonusPower() + requirement.getBonusPower());
+        enhancement.setBonusHp(enhancement.getBonusHp() + requirement.getBonusHp());
+        enhancement.setBonusSpeed(enhancement.getBonusSpeed() + requirement.getBonusSpeed());
+        enhancement.setEnhancementXp(0);
+        enhancement.setEnhancementAt(LocalDateTime.now());
+
+        userEnhancementRepository.save(enhancement);
+
+        Map<String, Object> result = Map.of(
+                "level", enhancement.getEnhancementLevel(),
+                "xp", enhancement.getEnhancementXp(),
+                "bonusPower", enhancement.getBonusPower(),
+                "bonusHp", enhancement.getBonusHp(),
+                "bonusSpeed", enhancement.getBonusSpeed(),
+                "success", true // 강제 성공 처리
+        );
+
+        return ResponseEntity.ok(GamJaResponse.success("무료 강화 성공", result));
+    }
+
+
+
+
 
     private void checkAndConsumeMaterial(Long userId, Long itemId, int requiredQty) {
         if (itemId == null || requiredQty <= 0) return;
@@ -164,7 +219,7 @@ public class ItemEnhanceService {
     public ItemEnhanceMaterial getRequiredMaterial(Item item, int nextEnhanceLevel) {
         return itemEnhanceMaterialRepository
                 .findWithAllSlotIncluded(item.getRarity(), item.getEquipSlot(), nextEnhanceLevel)
-                .orElseThrow(() -> new IllegalStateException("요구 강화 재료 정보가 없습니다."));
+                .orElse(null);
     }
 
     private void addMaterialInfo(List<Map<String, Object>> list, Long itemId, int quantity, Long userId) {
@@ -180,9 +235,25 @@ public class ItemEnhanceService {
         list.add(Map.of(
                 "itemId", itemId,
                 "name", item.getName(),
+                "condition", item.getCondition(),
                 "iconPath", item.getIconPath(),
                 "quantity", quantity,
                 "owned", owned
         ));
+    }
+
+    private int getXpGainByRarity(Item.Rarity rarity) {
+        switch (rarity) {
+            case COMMON:
+            case UNCOMMON:
+                return 10;
+            case RARE:
+            case EPIC:
+                return 5;
+            case LEGENDARY:
+                return 1;
+            default:
+                return 5;
+        }
     }
 }

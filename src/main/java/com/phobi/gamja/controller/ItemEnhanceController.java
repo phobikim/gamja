@@ -32,4 +32,12 @@ public class ItemEnhanceController {
     ) {
         return itemEnhanceService.executeEnhance(session, payload);
     }
+
+    @PostMapping("/execute-free")
+    public ResponseEntity<GamJaResponse> executeFreeEnhance(
+            HttpSession session,
+            @RequestBody Map<String, Long> payload
+    ) {
+        return itemEnhanceService.executeFreeEnhance(session, payload);
+    }
 }

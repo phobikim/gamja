@@ -131,6 +131,11 @@ function setCharacterBattleInfo(data) {
             img.title = item.name;
             img.dataset.item = JSON.stringify(item);
             slot.appendChild(img);
+
+            if (item.enhancementLevel && item.enhancementLevel > 0) {
+                const label = createEnhanceLabel(item.enhancementLevel);
+                slot.appendChild(label);
+            }
         }
     });
     applyRarityToEachSlot(slotMap, data.equippedItems);
@@ -177,6 +182,10 @@ function setOtherUserBattleInfo(data) {
             img.title = equippedItem.name;
             img.dataset.item = JSON.stringify(equippedItem);
             slot.appendChild(img);
+            if (equippedItem.enhancementLevel && equippedItem.enhancementLevel > 0) {
+                const label = createEnhanceLabel(equippedItem.enhancementLevel);
+                slot.appendChild(label);
+            }
         } else {
             // ✅ 장비 없음 → 텍스트만 유지
             slot.textContent = getSlotLabel(slotKey);
@@ -393,4 +402,16 @@ function getSlotLabel(equipSlot) {
         POTION: '물약'
     };
     return labels[equipSlot] || '';
+}
+
+function createEnhanceLabel(level) {
+    const label = document.createElement('div');
+    label.className = 'enhance-label';
+    label.textContent = `+${level}`;
+
+    if (level >= 15) label.classList.add('enhance-tier-15');
+    else if (level >= 10) label.classList.add('enhance-tier-10');
+    else if (level >= 5) label.classList.add('enhance-tier-5');
+
+    return label;
 }
