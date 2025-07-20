@@ -410,3 +410,14 @@
 #craftSlider::-moz-range-thumb:hover {
     transform: scale(1.1);
 }
+.ingredient-condition-box {
+    background-color: var(--dark-brown-font-color);
+    border-left: 6px solid var(--orange-color);
+    border-radius: 4px;
+    padding: 0.3rem 0.5rem;
+    margin: 0.3rem 0 0 0;
+    font-size: 0.7rem;
+    font-weight : bold;
+    color: var(--baige-color);
+    line-height: 1.3;
+}

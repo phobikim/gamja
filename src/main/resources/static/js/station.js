@@ -259,11 +259,15 @@ function renderRecipeDetail(selectedRecipe) {
     selectedRecipe.ingredients.forEach(ing => {
         const row = document.createElement('div');
         row.style.display = 'flex';
-        row.style.alignItems = 'center';
-        row.style.justifyContent = 'space-between';
+        row.style.flexDirection = 'column'; // ← 수직 정렬로 변경
         row.style.margin = '0.3rem 0';
         row.style.fontSize = '0.85rem';
         row.style.color = 'var(--dark-1-font-color)';
+
+        const topRow = document.createElement('div');
+        topRow.style.display = 'flex';
+        topRow.style.alignItems = 'center';
+        topRow.style.justifyContent = 'space-between';
 
         const left = document.createElement('div');
         left.style.display = 'flex';
@@ -272,8 +276,8 @@ function renderRecipeDetail(selectedRecipe) {
 
         const ingImg = document.createElement('img');
         ingImg.src = basePath + ing.itemIcon;
-        ingImg.style.width = '24px';
-        ingImg.style.height = '24px';
+        ingImg.style.width = '32px';
+        ingImg.style.height = '32px';
         ingImg.style.imageRendering = 'pixelated';
 
         const ingText = document.createElement('span');
@@ -288,8 +292,18 @@ function renderRecipeDetail(selectedRecipe) {
         owned.style.fontWeight = 'bold';
         owned.style.color = ing.userOwned >= ing.quantity ? 'lightgreen' : 'red';
 
-        row.appendChild(left);
-        row.appendChild(owned);
+        topRow.appendChild(left);
+        topRow.appendChild(owned);
+        row.appendChild(topRow);
+
+        // 획득경로 표시
+        if (ing.condition) {
+            const conditionDiv = document.createElement('div');
+            conditionDiv.className = 'ingredient-condition-box';
+            conditionDiv.textContent = ing.condition;
+            row.appendChild(conditionDiv);
+        }
+
         materialBox.appendChild(row);
 
         materialRows.push({ row, ing, ingText, owned });

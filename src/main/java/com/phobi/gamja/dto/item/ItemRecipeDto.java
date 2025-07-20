@@ -47,5 +47,6 @@ public class ItemRecipeDto {
         private String itemIcon;
         private int quantity;  // 제작 시 필요한 수량
         private int userOwned; // 유저가 보유 중인 수량
+        private String condition;
     }
 }

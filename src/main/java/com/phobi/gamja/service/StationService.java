@@ -188,6 +188,7 @@ public class StationService {
                 .itemIcon(item.getIconPath())
                 .quantity(qty)
                 .userOwned(inventoryMap.getOrDefault(item.getId(), 0))
+                .condition(item.getCondition())
                 .build());
     }
 
