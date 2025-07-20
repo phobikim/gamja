@@ -644,6 +644,9 @@ function resetEnhanceTab() {
     document.getElementById("enhanceXpFill").style.width = "0%";
     document.getElementById("enhanceXpText").textContent = "0 / 100";
 
+    document.getElementById("enhanceItemAtkNext").textContent = "";
+    document.getElementById("enhanceItemHpNext").textContent = "";
+
     // 강화 재료 / 골드 / 확률 초기화
     document.getElementById("enhanceNeedGold").textContent = "-";
     document.getElementById("enhanceSuccessRate").textContent = "-";

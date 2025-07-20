@@ -19,18 +19,13 @@ function renderItemsByType(typeString) {
         ? allItems
         : allItems.filter(item => typeArray.includes(item.itemType));
 
-
-    const isAllTab = typeString === "ALL";
-
-    // 보여줄 아이템 개수
+    // 🔹 보여줄 아이템 개수
     const itemCount = filtered.filter(item => item.quantity > 0).length;
 
-    // ALL 탭이면 5개 단위로 줄 수 맞춰 슬롯 생성
-    const slotCount = isAllTab
-        ? Math.ceil(itemCount / 5) * 5
-        : 30;
+    // 🔹 보유 수량에 맞춰 슬롯 개수 계산 (5칸씩 줄 맞춤)
+    const slotCount = Math.ceil(itemCount / 5) * 5;
 
-    // ✅ 고정 슬롯 수만큼 생성
+    // 슬롯 생성
     const slots = [];
     for (let i = 0; i < slotCount; i++) {
         const li = document.createElement('li');
@@ -38,7 +33,6 @@ function renderItemsByType(typeString) {
         slots.push(li);
         bagList.appendChild(li);
     }
-
 
     let insertIndex = 0;
     filtered.forEach(item => {
