@@ -13,6 +13,7 @@ public class UserCharInfoDto {
     private String characterImage;
     private int level;
     private int xp;
+    private Long gold;
 
     private String title;
     private String titleIconPath;
@@ -60,6 +61,7 @@ public class UserCharInfoDto {
         this.titleIconPath = equippedTitleIcon;
         this.affinity = stat.getAffinity();
         this.maxCombo = maxCombo;
+        this.gold = userDtl.getGold();
 
         DexAttribute attr = stat.getDex().getAttribute();
         this.attribute = attr != null ? attr.getName() : null;

@@ -74,8 +74,15 @@
             characterImage,
             dexName,
             backgroundImageUrl,
-            backgroundImageName
+            backgroundImageName,
+            gold
         } = data;
+
+        const goldValueEl = document.getElementById('playerGoldValue');
+        if (goldValueEl && typeof data.gold === 'number') {
+            goldValueEl.textContent = data.gold.toLocaleString();
+        }
+
 
         //배경 이미지 적용
         if (backgroundImageUrl || backgroundImageName) {

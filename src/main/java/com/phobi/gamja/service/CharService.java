@@ -194,7 +194,6 @@ public class CharService {
     @Transactional(readOnly = true)
     public GamJaResponse getEquipItems(HttpServletRequest request, Map<String, String> payload) {
         Long userId = (Long) request.getAttribute("userId");
-
         // 1. 요청 파라미터 파싱
         String itemTypeStr = payload.get("itemType");
         String equipSlotStr = payload.get("equipSlot");
@@ -280,6 +279,8 @@ public class CharService {
                         Item item = itemMap.get(inv.getItemId());
                         Long itemId = item.getId();
 
+                        boolean equipped = userEquipmentRepository.existsByUserIdAndItemId(userId, itemId);
+
                         // 강화 정보가 있다면 우선 사용
                         if (enhanceMap.containsKey(itemId)) {
                             UserEnhancement enh = enhanceMap.get(itemId);
@@ -292,6 +293,7 @@ public class CharService {
                                     .bonusHp(enh.getBonusHp())
                                     .bonusSpeed(enh.getBonusSpeed())
                                     .enhancementLevel(enh.getEnhancementLevel())
+                                    .equipped(equipped)
                                     .build();
                         }
 
@@ -306,6 +308,7 @@ public class CharService {
                                 .bonusHp(stat.getBonusHp())
                                 .bonusSpeed(stat.getBonusSpeed())
                                 .enhancementLevel(0)
+                                .equipped(equipped)
                                 .build();
                     })
                     .toList();

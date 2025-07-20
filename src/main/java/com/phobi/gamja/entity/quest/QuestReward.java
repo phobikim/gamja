@@ -14,7 +14,7 @@ import javax.persistence.*;
 public class QuestReward {
 
     public enum RewardType {
-        ITEM, EXP, RANDOM_ITEM
+        ITEM, EXP, RANDOM_ITEM, GOLD
     }
 
     @Id

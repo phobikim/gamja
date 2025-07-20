@@ -4,10 +4,7 @@ package com.phobi.gamja.service;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.item.ItemStatBonus;
 import com.phobi.gamja.entity.item.ItemEnhanceMaterial;
-import com.phobi.gamja.entity.user.UserDtl;
-import com.phobi.gamja.entity.user.UserEnhancement;
-import com.phobi.gamja.entity.user.UserEnhancementId;
-import com.phobi.gamja.entity.user.UserInventory;
+import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
 import com.phobi.gamja.repository.item.ItemEnhanceMaterialRepository;
 import com.phobi.gamja.repository.item.ItemRepository;
@@ -41,6 +38,8 @@ public class ItemEnhanceService {
 
     private final CommonUtil commonUtil;
     private final LevelService levelService;
+    private final LogService logService;
+    private final CorpsTierService corpsTierService;
     public ResponseEntity<GamJaResponse> getEnhanceItemList(HttpSession session, Map<String, Long> payload) {
         Long userId = commonUtil.getUserId(session);
         Long itemId = ((Number) payload.get("itemId")).longValue();
@@ -53,7 +52,7 @@ public class ItemEnhanceService {
 
         UserEnhancement enhancement = userEnhancementRepository.findById(new UserEnhancementId(userId, itemId))
                 .orElse(null);
-
+        int currentLevel = enhancement != null ? enhancement.getEnhancementLevel() : 0;
         int nextLevel = (enhancement != null ? enhancement.getEnhancementLevel() : 0) + 1;
         // 유저 보유량
         Long goldOwned = userDtlRepository.findById(userId)
@@ -70,9 +69,28 @@ public class ItemEnhanceService {
                     "materials", List.of(),
                     "successRate", "-",
                     "gold", 0,
+                    "currentLevel", currentLevel,
                     "goldOwned", goldOwned
             );
         } else {
+            int currPower, currHp, currSpd;
+
+            if (enhancement != null) {
+                currPower = enhancement.getBonusPower();
+                currHp = enhancement.getBonusHp();
+            } else {
+                ItemStatBonus baseStat = itemStatBonusRepository.findById(itemId)
+                        .orElseThrow(() -> new IllegalArgumentException("아이템 기본 스탯 없음"));
+                currPower = baseStat.getBonusPower();
+                currHp = baseStat.getBonusHp();
+            }
+
+            // 다음 스탯 = 현재 + material 에 있는 증가량
+            Map<String, Object> nextStat = Map.of(
+                    "bonusPower", currPower + material.getBonusPower(),
+                    "bonusHp", currHp + material.getBonusHp()
+            );
+
             // 재료 정보 구성
             List<Map<String, Object>> materials = new ArrayList<>();
             addMaterialInfo(materials, material.getMaterialItemId1(), material.getMaterialQuantity1(), userId);
@@ -83,7 +101,10 @@ public class ItemEnhanceService {
                     "materials", materials,
                     "successRate", material.getSuccessRate(),
                     "gold", material.getGoldCost(),
-                    "goldOwned", goldOwned
+                    "goldOwned", goldOwned,
+                    "nextStat", nextStat,
+                    "currentLevel", currentLevel,
+                    "nextLevel", nextLevel
             );
         }
 
@@ -150,6 +171,11 @@ public class ItemEnhanceService {
         enhancement.setEnhancementAt(LocalDateTime.now());
         userEnhancementRepository.save(enhancement);
 
+        // 강화 성공 여부 상관없이 로그 기록 (targetId: itemId, 또는 0)
+        logService.recordCounter(userId, CounterType.ITEM_ENHANCE, 0L);      // 전체 강화 누적
+        logService.recordCounter(userId, CounterType.ITEM_ENHANCE, itemId);  // 특정 아이템 강화 누적
+        corpsTierService.updateCorpsXp(userId, 10);
+
         Map<String, Object> result = Map.of(
                 "level", enhancement.getEnhancementLevel(),
                 "xp", enhancement.getEnhancementXp(),
@@ -158,6 +184,8 @@ public class ItemEnhanceService {
                 "bonusSpeed", enhancement.getBonusSpeed(),
                 "success", success
         );
+
+
         return ResponseEntity.ok(GamJaResponse.success("강화 완료", result));
     }
 
@@ -186,6 +214,11 @@ public class ItemEnhanceService {
         enhancement.setEnhancementAt(LocalDateTime.now());
 
         userEnhancementRepository.save(enhancement);
+
+        // 강화 성공 여부 상관없이 로그 기록 (targetId: itemId, 또는 0)
+        logService.recordCounter(userId, CounterType.ITEM_ENHANCE, 0L);      // 전체 강화 누적
+        logService.recordCounter(userId, CounterType.ITEM_ENHANCE, itemId);  // 특정 아이템 강화 누적
+        corpsTierService.updateCorpsXp(userId, 10);
 
         Map<String, Object> result = Map.of(
                 "level", enhancement.getEnhancementLevel(),

@@ -341,6 +341,17 @@ public class DexService {
                                 }
                                 yield targetName;
                             }
+                            case ITEM_ENHANCE -> {
+                                key = title.getCounterType().name() + "_" + cond.getTargetId(); // ITEM_ENHANCE_0 or ITEM_ENHANCE_123
+                                current = counterMap.getOrDefault(key, 0);
+                                pass = current >= cond.getRequiredCount();
+
+                                targetName = (cond.getTargetId() == 0)
+                                        ? "누적 강화 성공"
+                                        : itemRepository.findById(cond.getTargetId()).map(Item::getName).orElse("???");
+
+                                yield targetName;
+                            }
                             default -> {
                                 targetName = "???";
                                 pass = false;

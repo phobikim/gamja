@@ -63,7 +63,7 @@ public class BattleService {
     private final DexSkillRepository dexSkillRepository;
     private final DexSkillImageRepository dexSkillImageRepository;
     private final MonsterDropRepository monsterDropRepository;
-
+    private static final Long POTATO_COIN_ID = 166L;
     @Transactional(readOnly = true)
     public GamJaResponse getMapList(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
@@ -114,7 +114,7 @@ public class BattleService {
             mapData.put("monsters", monsterList);
             mapData.put("rewards", uniqueDrops);
 
-            // ✅ 입장 조건 추가 (예: 야생 들판 : 변이지역)
+            // 야생 들판 : 변이지역 입장 조건
             if (map.getId() == 4 && map.getMapDifficulty().name().equals("HARD")) {
                 boolean hasWildBadge = userEquipmentRepository.existsByUserIdAndItemId(
                         userId, 134L
@@ -123,6 +123,17 @@ public class BattleService {
                 mapData.put("requiredMessage", "야생들판 탐험뱃지 착용 시 입장 가능");
                 mapData.put("entryAllowed", hasWildBadge);
             }
+
+            // 고산지대 : 혹한의 절벽 입장 조건
+            if (map.getId() == 5 && map.getMapDifficulty().name().equals("HARD")) {
+                boolean hasMountainBadge = userEquipmentRepository.existsByUserIdAndItemId(
+                        userId, 159L
+                );
+                mapData.put("requiredItemName", "고산지대 탐험 뱃지");
+                mapData.put("requiredMessage", "고산지대 탐험뱃지 착용 시 입장 가능");
+                mapData.put("entryAllowed", hasMountainBadge);
+            }
+
             ((List<Map<String, Object>>) groupedMap.get(groupId).get("maps")).add(mapData);
         }
 
@@ -275,14 +286,23 @@ public class BattleService {
                 .orElseThrow(() -> new IllegalArgumentException("맵을 찾을 수 없습니다."));
         if (map.getMapDifficulty() == MonsterMap.MapDifficulty.HARD) {
             // 야생들판 : 변이지역 입장 조건 검사
-            if ( map.getMapGroupId() == 1L) {
+            if (map.getMapGroupId() == 1L) {
                 boolean hasWildBadge = userEquipmentRepository.existsByUserIdAndItemId(userId, 134L);
                 if (!hasWildBadge) {
                     return GamJaResponse.fail("입장 조건을 충족하지 않았습니다. 야생들판 탐험 뱃지를 장착해야 합니다.");
                 }
             }
 
+            // 고산지대 : 혹한의 절벽 입장 조건 검사
+            if (map.getMapGroupId() == 2L && map.getId() == 5L) {
+                boolean hasMountainBadge = userEquipmentRepository.existsByUserIdAndItemId(userId, 159L);
+                if (!hasMountainBadge) {
+                    return GamJaResponse.fail("입장 조건을 충족하지 않았습니다. 고산지대 탐험 뱃지를 장착해야 합니다.");
+                }
+            }
         }
+
+
         List<Monster> monsters = monsterRepository.findByMapAndEnabledIsTrue(map);
         if (monsters.isEmpty()) return GamJaResponse.fail("해당 맵에 몬스터가 없습니다.");
 
@@ -505,10 +525,16 @@ public class BattleService {
             Long itemId = reward.getItem().getId();
             int count = reward.getCount();
 
-            UserInventory inv = userInventoryRepository.findByUserIdAndItemId(userId, itemId)
-                    .orElseGet(() -> new UserInventory(userId, itemId, 0));
-            inv.setQuantity(inv.getQuantity() + count);
-            userInventoryRepository.save(inv);
+            if (itemId.equals(POTATO_COIN_ID)) {
+                // 감자코인은 골드로 전환
+                userDtlRepository.addGold(userId, (long) count);
+            } else {
+                // 일반 아이템은 인벤토리에 추가
+                UserInventory inv = userInventoryRepository.findByUserIdAndItemId(userId, itemId)
+                        .orElseGet(() -> new UserInventory(userId, itemId, 0));
+                inv.setQuantity(inv.getQuantity() + count);
+                userInventoryRepository.save(inv);
+            }
         }
     }
 

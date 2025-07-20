@@ -46,23 +46,35 @@
     </div>
     <!-- 플레이어 정보 -->
     <div class="player-info-card" id="playerInfoCard">
-        <div class="player-avatar-wrapper" id="playerAvatarWrapper">
-            <div class="player-avatar-xp-border" id="playerAvatarXpBorder"></div>
-            <div class="player-avatar-xp-fill" id="playerAvatarXpFill"></div>
-            <div class="player-avatar" id="playerAvatar">
-                <img id="playerAvatarImg" class="avatar-img" src="" alt="캐릭터 이미지">
+        <!-- 상단: 아바타 + 이름 + 칭호 -->
+        <div class="player-top">
+            <div class="player-avatar-wrapper" id="playerAvatarWrapper">
+                <div class="player-avatar-xp-border" id="playerAvatarXpBorder"></div>
+                <div class="player-avatar-xp-fill" id="playerAvatarXpFill"></div>
+                <div class="player-avatar" id="playerAvatar">
+                    <img id="playerAvatarImg" class="avatar-img" src="" alt="캐릭터 이미지">
+                </div>
             </div>
-        </div>
-        <div class="player-details" id="playerDetails">
-            <div class="player-name-row">
-                <div class="player-title" id="playerTitle">
-                    <img id="titleIcon" class="title-icon" src="" alt="칭호 아이콘" style="width: 24px; height: 24px; margin-right: 4px; vertical-align: middle; display: none;">
+            <div class="player-details" id="playerDetails">
+                <div class="player-title-main" id="playerTitle">
+                    <img id="titleIcon" class="title-icon-main" src="" alt="칭호 아이콘" />
                     <span id="playerTitleText">씨앗</span>
                 </div>
                 <div class="player-name" id="playerName">사용자</div>
             </div>
-            <hr style="border: none; border-top: 3px solid var(--dark-brown-font-color); margin: 4px 0;">
-            <div class="dex-name" id="dexName">흙감자 <span class="inline-level" id="inlineLevel">(Lv.1)</span></div>
+        </div>
+
+        <!-- 하단: 덱스 이름 + 골드 (한 줄) -->
+        <div class="player-bottom">
+            <div class="player-meta-row">
+                <div class="dex-name" id="dexName">
+                    감설 <span class="inline-level" id="inlineLevel">(Lv.1)</span>
+                </div>
+                <div class="player-gold" id="playerGold">
+                    <img id="goldIcon" src="https://phobi.me/gamja.img/images/items/money.png" alt="골드" class="gold-icon">
+                    <span id="playerGoldValue">0</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -74,7 +86,6 @@
      title="공지사항"
      class="notice-icon-btn"
 />
-
 
 <!-- 캐릭터 영역 -->
 <div class="game-content" onclick="openInfoModal()">
@@ -407,8 +418,13 @@
                     </div>
 
                     <div class="enhance-item-stat-line">
-                        <span class="enhance-stat-label">ATK</span><span id="enhanceItemAtk" class="enhance-stat-value">0</span>
-                        <span class="enhance-stat-label">HP</span><span id="enhanceItemHp" class="enhance-stat-value">0</span>
+                        <span class="enhance-stat-label">ATK</span>
+                        <span id="enhanceItemAtk" class="enhance-stat-value">0</span>
+                        <span id="enhanceItemAtkNext" class="enhance-stat-next-value"></span>
+
+                        <span class="enhance-stat-label">HP</span>
+                        <span id="enhanceItemHp" class="enhance-stat-value">0</span>
+                        <span id="enhanceItemHpNext" class="enhance-stat-next-value"></span>
                     </div>
 
                     <div class="enhance-xp">
@@ -1218,6 +1234,7 @@
 
     </div>
 </div>
+
 
 <div id="sessionExpiredModal" class="modal hidden">
     <div class="session-modal-content">

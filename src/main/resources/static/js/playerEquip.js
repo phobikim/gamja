@@ -66,6 +66,7 @@ function renderEquipItemList(itemList) {
         equipEffectDetail.classList.add('hidden');
         return;
     }
+    itemList.sort((a, b) => (b.equipped ? 1 : 0) - (a.equipped ? 1 : 0));
 
     itemList.forEach((item, index) => {
         const div = document.createElement('div');
@@ -77,6 +78,18 @@ function renderEquipItemList(itemList) {
             qtyLabel.className = 'equip-quantity';
             qtyLabel.textContent = `x${item.quantity}`;
             div.appendChild(qtyLabel);
+        }
+
+        if (item.enhancementLevel && item.enhancementLevel > 0) {
+            const enhanceLabel = createEnhanceLabel(item.enhancementLevel);
+            div.appendChild(enhanceLabel);
+        }
+
+        if (item.equipped) {
+            const equipLabel = document.createElement('div');
+            equipLabel.className = 'equip-equipped-label';
+            equipLabel.textContent = '장착중';
+            div.appendChild(equipLabel);
         }
 
         div.onclick = () => showEquipEffect(item);
@@ -136,12 +149,3 @@ async function equipSelectedItem() {
     }
 }
 
-function updatePotionCountLabel(quantity) {
-    const label = document.getElementById('potionCountLabel');
-    if (quantity > 0) {
-        label.textContent = `x${quantity}`;
-        label.classList.remove('hidden');
-    } else {
-        label.classList.add('hidden');
-    }
-}

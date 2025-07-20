@@ -16,6 +16,8 @@ public class EquipItemDto {
     private Integer bonusHp;
     private Integer bonusSpeed;
     private int quantity;
+    private boolean equipped;
+
     private Integer durationTurns;
     private Integer bonusSkillFish;
     private Integer bonusSkillMining;

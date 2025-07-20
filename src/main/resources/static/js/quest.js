@@ -395,6 +395,8 @@ function getConditionLabel(cond) {
             return `[칭호 장착]<br>${nameSpan}`;
         case 'DELIVER_ITEM':
             return `[아이템 배달]<br>${nameSpan}`;
+        case 'ITEM_ENHANCE':
+            return `[아이템 강화]<br>${nameSpan}`;
         default:
             return '기타 조건';
     }
@@ -427,6 +429,7 @@ function getRewardText(reward) {
         case 'ITEM': return `${reward.itemName} x ${reward.amount} `;
         case 'EXP': return `경험치 +${reward.amount}`;
         case 'RANDOM_ITEM': return `운에 따라 ${reward.itemName} x1 획득 가능`;
+        case 'GOLD': return `${reward.itemName} x ${reward.amount}`;
         default: return `보상 +${reward.amount}`;
     }
 }

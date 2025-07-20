@@ -16,7 +16,6 @@ function openGrowthModal(character) {
     tabGrowth.addEventListener("click", switchToGrowthTab);
     tabEnhance.addEventListener("click", switchToEnhanceTab);
 
-
     // 캐릭터 정보 바인딩
     currentGrowthCharacter = character;
     document.getElementById("growthImage").src = `${basePath_image}/character/${character.imagePath}`;
@@ -39,9 +38,10 @@ function openGrowthModal(character) {
         sliderValue.textContent = e.target.value;
         updateGrowthPreview();
     };
-
     // 추후 강화 재료 목록 렌더링
     renderGrowthMaterialList();
+
+    resetEnhanceTab();
 
     // 모달 표시
     document.getElementById("growthModal").classList.remove("hidden");
@@ -286,9 +286,19 @@ function switchToEnhanceTab() {
     growthContent.classList.add("hidden");
     enhanceContent.classList.remove("hidden");
 
-    document.getElementById("growthExecuteBtn").textContent = "강화";
+    const enhanceBtn = document.getElementById("growthExecuteBtn");
+    const isMax = document.getElementById("enhanceMaxMessage").classList.contains("hidden") === false;
 
-    // 버튼 상태는 현재 표시된 재료 + 골드 기준으로 다시 검사
+    if (isMax) {
+        enhanceBtn.textContent = "강화 완료";
+        enhanceBtn.classList.add("disabled");
+        enhanceBtn.disabled = true;
+        return;
+    }
+    enhanceBtn.textContent = "강화";
+    enhanceBtn.disabled = false;
+    enhanceBtn.classList.remove("disabled");
+
     const goldEl = document.getElementById("enhanceNeedGold").textContent;
     const goldMatch = goldEl.match(/필요:\s?([\d,]+)/);
     const ownedMatch = goldEl.match(/보유:\s?([\d,]+)/);
@@ -307,7 +317,6 @@ function switchToEnhanceTab() {
     });
 
     updateEnhanceButtonState(materials, ownedGold, needGold);
-
     enhanceInfoMessage.textContent = "강화할 아이템을 선택해주세요.";
 }
 
@@ -319,6 +328,7 @@ enhanceItemSlot.addEventListener("click", () => {
 });
 
 async function openEnhanceItemModal() {
+
     try {
         const res = await apiRequest('/api/char/battle', 'GET');
 
@@ -361,9 +371,13 @@ function renderEnhanceItemGrid(items) {
         label.className = "enhance-item-sticker";
         label.textContent = labelText;
 
-        // 구성
         cell.appendChild(img);
         cell.appendChild(label);
+
+        if (item.enhancementLevel && item.enhancementLevel > 0) {
+            const enhanceLabel = createEnhanceLabel(item.enhancementLevel);
+            cell.appendChild(enhanceLabel);
+        }
 
         cell.addEventListener("click", () => {
             selectEnhanceItem(item);
@@ -372,6 +386,12 @@ function renderEnhanceItemGrid(items) {
 
         enhanceItemGrid.appendChild(cell);
     });
+    const addSlot = document.createElement("div");
+    addSlot.className = "enhance-item-cell enhance-add-slot";
+    addSlot.innerHTML = `<div class="enhance-item-plus">+</div>`;
+    enhanceItemGrid.appendChild(addSlot);
+
+
 }
 
 function selectEnhanceItem(item) {
@@ -433,6 +453,7 @@ async function loadEnhanceMaterials(itemId) {
     const goldTextEl = document.getElementById("enhanceNeedGold");
     const rateEl = document.getElementById("enhanceSuccessRate");
     const maxMsgEl = document.getElementById("enhanceMaxMessage");
+    const itemLvEl = document.querySelector(".enhance-item-lv");
 
     try {
         const res = await apiRequestJson('/api/enhance/material', 'POST', {
@@ -452,6 +473,15 @@ async function loadEnhanceMaterials(itemId) {
             maxMsgEl.innerHTML = `감자단 인증! <strong>최대 강화 완료</strong>`;
             maxMsgEl.classList.remove("hidden");
 
+            // 🔹 레벨 표시를 +N (MAX) 로 바꿈
+            const currentLv = data.currentLevel ?? 0;
+            itemLvEl.innerHTML = `+${currentLv} <span style="color: gold;">(MAX)</span>`;
+
+            // 🔹 다음 스탯 미리보기 제거
+            document.getElementById("enhanceItemAtkNext").textContent = "";
+            document.getElementById("enhanceItemHpNext").textContent = "";
+
+            // 버튼도 비활성화
             enhanceBtn.disabled = true;
             enhanceBtn.textContent = "강화 완료";
             enhanceBtn.classList.add("disabled");
@@ -462,6 +492,33 @@ async function loadEnhanceMaterials(itemId) {
         goldTextEl.parentElement.classList.remove("hidden");
         rateEl.parentElement.classList.remove("hidden");
         maxMsgEl.classList.add("hidden");
+
+        const currPower = parseInt(document.getElementById("enhanceItemAtk").textContent) || 0;
+        const currHp = parseInt(document.getElementById("enhanceItemHp").textContent) || 0;
+
+        const nextPower = data.nextStat?.bonusPower ?? currPower;
+        const nextHp = data.nextStat?.bonusHp ?? currHp;
+
+        const currentLv = data.currentLevel ?? 0;
+        const nextLv = data.nextLevel ?? (currentLv + 1);
+
+        if (nextLv > currentLv) {
+            itemLvEl.innerHTML = `+${currentLv} → <span style="color:#7cf0ff;">+${nextLv}</span>`;
+        } else {
+            itemLvEl.textContent = `+${currentLv}`;
+        }
+
+        if (nextPower > currPower) {
+            document.getElementById("enhanceItemAtkNext").textContent = `→ ${nextPower}`;
+        } else {
+            document.getElementById("enhanceItemAtkNext").textContent = "";
+        }
+
+        if (nextHp > currHp) {
+            document.getElementById("enhanceItemHpNext").textContent = `→ ${nextHp}`;
+        } else {
+            document.getElementById("enhanceItemHpNext").textContent = "";
+        }
 
         // 골드 표시
         const needGold = data.gold;
@@ -569,4 +626,34 @@ function showEnhanceMessage(text, success) {
     parent.appendChild(msg);
 
     setTimeout(() => msg.remove(), 1000);
+}
+
+function resetEnhanceTab() {
+    // 슬롯 비우기
+    enhanceItemSlot.innerHTML = `<span class="plus-icon">+</span><div class="enhance-effect-layer"></div>`;
+    enhanceItemSlot.classList.add("empty-slot");
+
+    // 강화 정보 초기화
+    const infoBox = document.getElementById("enhanceItemInfo");
+    infoBox.classList.remove("hidden");
+
+    document.querySelector(".enhance-item-name").textContent = "아이템을 선택하세요.";
+    document.querySelector(".enhance-item-lv").textContent = "+0";
+    document.getElementById("enhanceItemAtk").textContent = "0";
+    document.getElementById("enhanceItemHp").textContent = "0";
+    document.getElementById("enhanceXpFill").style.width = "0%";
+    document.getElementById("enhanceXpText").textContent = "0 / 100";
+
+    // 강화 재료 / 골드 / 확률 초기화
+    document.getElementById("enhanceNeedGold").textContent = "-";
+    document.getElementById("enhanceSuccessRate").textContent = "-";
+    document.getElementById("enhanceMaterialList").innerHTML = "";
+    document.getElementById("enhanceMaxMessage").classList.add("hidden");
+
+    // 버튼 초기화
+    enhanceBtn.disabled = true;
+    enhanceBtn.textContent = "강화";
+    enhanceBtn.classList.add("disabled");
+    enhanceBtn.dataset.isFree = "false";
+    delete enhanceBtn.dataset.enhanceItemId;
 }
