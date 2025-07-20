@@ -38,11 +38,10 @@ function openGrowthModal(character) {
         sliderValue.textContent = e.target.value;
         updateGrowthPreview();
     };
-    // 추후 강화 재료 목록 렌더링
+
     renderGrowthMaterialList();
-
     resetEnhanceTab();
-
+    switchToGrowthTab();
     // 모달 표시
     document.getElementById("growthModal").classList.remove("hidden");
 }
@@ -276,8 +275,12 @@ function switchToGrowthTab() {
     growthContent.classList.remove("hidden");
     enhanceContent.classList.add("hidden");
 
-    document.getElementById("growthExecuteBtn").textContent = "성장";
-    document.getElementById("growthExecuteBtn").disabled = false;
+    const growthBtn = document.getElementById("growthExecuteBtn");
+    growthBtn.textContent = "성장";
+    growthBtn.disabled = false;
+    growthBtn.classList.remove("disabled");
+    growthBtn.removeAttribute("data-is-free");
+    delete growthBtn.dataset.enhanceItemId;
 }
 
 function switchToEnhanceTab() {

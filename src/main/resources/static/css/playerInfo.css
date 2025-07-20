@@ -274,8 +274,8 @@
 /* 강화 라벨 */
 .enhance-label {
     position: absolute;
-    top: 2px;
-    left: 2px;
+    top: 1px;
+    left: 1px;
     font-size: 0.75rem;
     font-weight: bold;
     color: white;
@@ -288,17 +288,22 @@
     position: relative;
 }
 .enhance-tier-5 {
-    box-shadow: 0 0 6px #78c7ff;
-    border: 2px solid #78c7ff;
+    box-shadow: 0 0 6px #6f8607;
+    border: 2px solid #72ff00;
     border-radius: 8px;
 }
 .enhance-tier-10 {
-    box-shadow: 0 0 8px #ffaa55;
-    border: 2px solid #ffaa55;
+    box-shadow: 0 0 8px #1f6df3;
+    border: 2px solid #cccefa;
     border-radius: 8px;
 }
 .enhance-tier-15 {
     box-shadow: 0 0 10px #ff5e5e;
     border: 2px solid #ff5e5e;
     border-radius: 8px;
+}
+.enhance-tier-20 {
+    box-shadow: 0 0 12px #ffd700;
+    border: 2px solid #ffd700; /* 황금색 느낌 */
+    border-radius: 10px;
 }

@@ -409,7 +409,8 @@ function createEnhanceLabel(level) {
     label.className = 'enhance-label';
     label.textContent = `+${level}`;
 
-    if (level >= 15) label.classList.add('enhance-tier-15');
+    if (level >= 20) label.classList.add('enhance-tier-20');
+    else if (level >= 15) label.classList.add('enhance-tier-15');
     else if (level >= 10) label.classList.add('enhance-tier-10');
     else if (level >= 5) label.classList.add('enhance-tier-5');
 
