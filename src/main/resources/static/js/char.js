@@ -136,7 +136,7 @@
         window.addEventListener('resize', adjustCharacterPosition);
         // 이름
         const playerNameEl = document.getElementById('playerName');
-        playerNameEl.textContent = username;
+        playerNameEl.innerHTML = '<span style="color: #f38212;">단장</span> : ' + username;
 
         // 칭호
         const titleTextEl = document.getElementById('playerTitleText');
