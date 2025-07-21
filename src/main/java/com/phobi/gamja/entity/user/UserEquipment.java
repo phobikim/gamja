@@ -12,25 +12,26 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user_equipment")
-@IdClass(UserEquipmentId.class)
 @Getter
 @Setter
 public class UserEquipment {
 
     @Id
-    @Column(name = "user_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Id
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EquipmentSlot slot;;
+    private EquipmentSlot slot;
 
-    @Id
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private EquipmentType type;
 
-    @Column(name = "item_id")
+    @Column(name = "item_id", nullable = false)
     private Long itemId;
 
     @ManyToOne(fetch = FetchType.LAZY)

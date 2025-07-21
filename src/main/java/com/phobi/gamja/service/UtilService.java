@@ -75,8 +75,10 @@ public class UtilService {
         if (!(itemTypeName.startsWith("EQUIP") || slotTypeName.equals("POTION"))) {
             throw new IllegalArgumentException("장착할 수 없는 아이템입니다.");
         }
+
         EquipmentType type;
         EquipmentSlot slot;
+
         // 3. 타입, 슬롯 변환
         if (slotTypeName.equals("POTION")) {
             type = EquipmentType.EQUIP_BATTLE;
@@ -86,20 +88,42 @@ public class UtilService {
             slot = EquipmentSlot.valueOf(item.getEquipSlot().name());
         }
 
-        // 4. 기존 장착 제거 → 동일 (userId + slot + type)
-        userEquipmentRepository.deleteByUserIdAndSlotAndType(userId, slot, type);
+        boolean isBadge = slot.name().startsWith("BADGE");
+        if (isBadge) {
+            // ✅ 뱃지 중복 장착 방지
+            boolean alreadyEquipped = userEquipmentRepository.existsByUserIdAndItemIdAndType(userId, itemId, type);
+            if (alreadyEquipped) {
+                throw new IllegalStateException("이미 장착한 뱃지입니다.");
+            }
 
-        // 5. 새 장비 저장
-        UserEquipment equip = new UserEquipment();
-        equip.setUserId(userId);
-        equip.setSlot(slot);
-        equip.setType(type);
-        equip.setItemId(itemId);
-        equip.setEquippedAt(LocalDateTime.now());
+            // ✅ 뱃지 최대 개수 제한 (예: 4개)
+            long badgeCount = userEquipmentRepository.countByUserIdAndSlotAndType(userId, EquipmentSlot.BADGE, type);
+            if (badgeCount >= 4) {
+                throw new IllegalStateException("뱃지는 최대 4개까지만 장착할 수 있습니다.");
+            }
 
-        userEquipmentRepository.save(equip);
+            // ✅ 뱃지는 기존 장비 제거 없이 바로 추가
+            UserEquipment equip = new UserEquipment();
+            equip.setUserId(userId);
+            equip.setSlot(EquipmentSlot.BADGE);
+            equip.setType(type);
+            equip.setItemId(itemId);
+            equip.setEquippedAt(LocalDateTime.now());
+            userEquipmentRepository.save(equip);
+        } else {
+            // ✅ 일반 장비는 기존 장비 제거 후 교체
+            userEquipmentRepository.deleteByUserIdAndSlotAndType(userId, slot, type);
 
-        // 6. 변경된 인벤토리 전체 반환
+            UserEquipment equip = new UserEquipment();
+            equip.setUserId(userId);
+            equip.setSlot(slot);
+            equip.setType(type);
+            equip.setItemId(itemId);
+            equip.setEquippedAt(LocalDateTime.now());
+            userEquipmentRepository.save(equip);
+        }
+
+        // 5. 변경된 인벤토리 전체 반환
         return getUserInventoryWithEquipStatus(userId);
     }
 

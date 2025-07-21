@@ -347,7 +347,7 @@ public class DexService {
                                 pass = current >= cond.getRequiredCount();
 
                                 targetName = (cond.getTargetId() == 0)
-                                        ? "누적 강화 성공"
+                                        ? "강화 시도"
                                         : itemRepository.findById(cond.getTargetId()).map(Item::getName).orElse("???");
 
                                 yield targetName;

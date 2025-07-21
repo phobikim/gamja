@@ -141,11 +141,15 @@ async function equipSelectedItem() {
             equipSlot: currentEquipSlot
         });
 
+        if (res.code !== 'SUCCESS') {
+            showMessageModal(res.message || "장착에 실패했습니다.");
+            return;
+        }
         closeEquipModal();
         await openInfoModal();
 
     } catch (e) {
-        showMessageModal("장착 중 오류가 발생했습니다.");
+        showMessageModal(e.message || "장착 중 오류가 발생했습니다.");
     }
 }
 

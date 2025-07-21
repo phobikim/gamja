@@ -49,19 +49,26 @@ async function apiRequestJson(url, method = 'POST', data = null) {
 
     try {
         const response = await fetch(url, options);
+        const resJson = await response.json(); // ⭐ 먼저 응답 JSON 파싱
+
         if (!response.ok) {
-            const error = new Error('API 요청 실패');
-            error.status = response.status;
-            throw error;
+            // ⭐ 실패 응답도 그대로 throw (message 포함)
+            throw resJson;
         }
 
-        return await response.json();
+        return resJson;
     } catch (err) {
         console.error('API 호출 에러:', err);
-        throw err;
+
+        // ✅ JSON 에러(message 포함)면 그대로 던지고
+        if (err && err.message) {
+            throw err;
+        }
+
+        // ✅ 그 외 네트워크/기타 에러는 fallback 처리
+        throw new Error('알 수 없는 오류가 발생했습니다.');
     }
 }
-
 async function checkSessionValid() {
     try {
         const res = await fetch('/api/session-check', {

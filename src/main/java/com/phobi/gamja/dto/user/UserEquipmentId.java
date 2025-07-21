@@ -10,5 +10,4 @@ public class UserEquipmentId implements Serializable {
     private EquipmentSlot slot;
     private EquipmentType type;
 
-    // equals, hashCode 필수 구현
 }

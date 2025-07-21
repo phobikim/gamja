@@ -164,7 +164,14 @@ function showExplorationResultModal(stage, exp, items) {
         itemList.appendChild(row);
     });
 
-    const closeBtn = document.getElementById('closeResultBtn');
+    let closeBtn = document.getElementById('closeResultBtn');
+    if (!closeBtn) {
+        closeBtn = document.createElement('button');
+        closeBtn.id = 'closeResultBtn';
+        closeBtn.textContent = '닫기';
+        closeBtn.classList.add('result-close-button');
+        modal.appendChild(closeBtn);
+    }
     closeBtn.onclick = () => {
         closeExploration();
     };

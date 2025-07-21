@@ -179,6 +179,7 @@ document.getElementById('shopConfirmButton').addEventListener('click', async () 
             showMessageModal(`${itemName} ${currentTab === 'buy' ? '구매' : '판매'} 완료!`);
             // 데이터 새로고침
             loadShopItems(currentTab);
+            loadCharacterBasicInfo();
         } else {
             showMessageModal(`처리 실패: ${res.message}`);
         }
