@@ -26,9 +26,6 @@ public class ItemPotionEffect {
     @Column(name = "bonus_power")
     private Integer bonusPower;
 
-    @Column(name = "duration_turns")
-    private Integer durationTurns;
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", insertable = false, updatable = false)
     private Item item; // item 테이블과 연결

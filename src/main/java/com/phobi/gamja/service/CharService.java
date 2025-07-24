@@ -255,7 +255,6 @@ public class CharService {
                                 .description(item.getDescription())
                                 .bonusPower(stat.getBonusPower())
                                 .bonusHp(stat.getHealHp())
-                                .durationTurns(stat.getDurationTurns())
                                 .quantity(inv.getQuantity())
                                 .build();
                     })

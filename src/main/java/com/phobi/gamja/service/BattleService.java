@@ -198,7 +198,6 @@ public class BattleService {
                 if (effect != null) {
                     bonusPower = effect.getBonusPower();
                     bonusHp = effect.getHealHp();
-                    durationTurns = effect.getDurationTurns();
                 }
             }
         }
