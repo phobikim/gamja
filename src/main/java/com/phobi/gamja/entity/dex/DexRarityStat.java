@@ -36,12 +36,13 @@ public class DexRarityStat {
         COMMON, UNCOMMON, RARE, EPIC, LEGENDARY;
 
         private static final List<RarityRate> rateTable = List.of(
-                new RarityRate(COMMON, 63.4),
-                new RarityRate(UNCOMMON, 25.5),
+                new RarityRate(COMMON, 62.74),
+                new RarityRate(UNCOMMON, 25.16),
                 new RarityRate(RARE, 10.0),
-                new RarityRate(EPIC, 1.5),
-                new RarityRate(LEGENDARY, 0.05)
+                new RarityRate(EPIC, 2.0),
+                new RarityRate(LEGENDARY, 0.1)
         );
+
 
         public static Rarity roll() {
             double rand = Math.random() * 100;
