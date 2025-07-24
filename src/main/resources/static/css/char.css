@@ -30,7 +30,7 @@ html, body {
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    padding: 0 20px;
+    padding: 0 15px;
     box-sizing: border-box;
 }
 
@@ -39,16 +39,16 @@ html, body {
     /*background: #18571d;*/
     /*border: 4px solid var(--baige-color);*/
     border-radius: 16px;
-    padding: 10px;
+    padding: 5px;
     /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);*/
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     flex: 1;
-    max-width: 220px;
+    max-width: 230px;
     min-height: 10vh;
     box-sizing: border-box;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 .player-top {
     flex: 2;
@@ -61,7 +61,8 @@ html, body {
     flex: 1;
     display: flex;
     align-items: center;
-    background-color:var(--dark-1-font-color);
+    border : 3px solid var(--white-color);
+    background-color: var(--dark-2-color);
     border-radius: 12px;
     box-sizing: border-box;
     width: 100%;
@@ -191,8 +192,8 @@ html, body {
 }
 
 .dex-name {
-    font-size: 0.95rem;
-    color: var(--dark-brown-font-color);
+    font-size: 0.85rem;
+    color: var(--baige-color);
     font-weight: bold;
     text-align: center;
     white-space: nowrap;
@@ -229,7 +230,7 @@ html, body {
 }
 
 .tier-name-large {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: bold;
     color: var(--baige-color);
     background-color: #5d3c1a; /* 짙은 나무 라벨 느낌 */
@@ -292,7 +293,7 @@ html, body {
     height: 30vh; /* 화면의 30% */
 
     /* 모바일 환경을 고려한 패딩 */
-    padding: 20px 20px 12px 20px;
+    padding: 20px 15px 12px 15px;
     background-color: #131e09;
     box-sizing: border-box;
 }
@@ -302,7 +303,7 @@ html, body {
     aspect-ratio: 1 / 1;
     background-color: var(--dark-orange-color);
     border: 3px solid #5d2f0a;
-    border-radius: 12px;
+    border-radius: 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -378,20 +379,44 @@ html, body {
 .notice-icon-btn:hover {
     transform: scale(1.05);
 }
-.player-gold {
-    font-size: 0.85rem;
-    font-weight: bold;
-    color: var(--dark-brown-font-color);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-}
+
 
 .gold-icon {
     width: 30px;
     height: 30px;
+    flex-shrink: 0;
+    object-fit: contain;
     image-rendering: pixelated;
-    min-width: 0;
+}
+
+.player-gold {
+    width: 100px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #37bc1e;
+    white-space: normal;
+    word-break: break-word;
+    flex-wrap: nowrap;
+    box-sizing: border-box;
+}
+
+.player-gold img,
+.gold-icon {
+    width: 30px;
+    height: 30px;
+    image-rendering: pixelated;
+    object-fit: contain;
+    flex-shrink: 0;
+    max-width: 30px;
+}
+
+.player-gold span {
+    display: inline-block;
     flex: 1;
+    word-break: break-word;
+    white-space: normal;
+    min-width: 0;
 }

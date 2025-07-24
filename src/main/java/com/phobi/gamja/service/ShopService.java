@@ -54,7 +54,7 @@ public class ShopService {
                         UserDailyActionLog::getCount
                 ));
 
-        List<ShopItemDto> list = itemShopRepository.findByOnSaleTrue().stream()
+        List<ShopItemDto> list = itemShopRepository.findByOnSaleTrueOrderByDisplayOrderAsc().stream()
                 .map(shopItem -> {
                     int bought = boughtMap.getOrDefault(shopItem.getItem().getId(), 0);
                     return ShopItemDto.from(shopItem, bought);

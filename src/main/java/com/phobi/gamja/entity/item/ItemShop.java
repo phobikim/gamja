@@ -29,6 +29,9 @@ public class ItemShop {
     @Column(name = "on_sale", nullable = false)
     private boolean onSale;
 
+    @Column(name = "display_order", nullable = false)
+    private int displayOrder = 0;
+
     public enum ShopType {
         NORMAL,
         EVENT,
