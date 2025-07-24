@@ -493,7 +493,7 @@ public class BattleService {
             UserDexXpDto xpDto = levelService.updateCharacterExp(userId, dexId, gainedXp);
 
             // 드랍 아이템
-            DropResult dropResult = getDropResult(bs.getMonsterId());
+            DropResult dropResult = getDropResult(bs.getMonsterId(), userId);
             List<Map<String, Object>> visibleDrops = dropResult.visibleRewards();
             List<ItemReward> internalRewards = dropResult.internalRewards();
             processItemRewards(userId, internalRewards);
@@ -537,15 +537,27 @@ public class BattleService {
         }
     }
 
-    public DropResult getDropResult(Long monsterId) {
+    public DropResult getDropResult(Long monsterId, Long userId) {
         List<MonsterDrop> drops = monsterDropRepository.findByMonsterId(monsterId);
+        Set<Long> ownedEquipItemIds =
+                userInventoryRepository.findOwnedItemIdsByItemType(userId, Item.ItemType.EQUIP_BATTLE);
+
         List<Map<String, Object>> visible = new ArrayList<>();
         List<ItemReward> internal = new ArrayList<>();
 
+
         for (MonsterDrop drop : drops) {
+            Item item = drop.getItem();
+
+            // ✅ 보유한 EQUIP_BATTLE 아이템은 드롭 제외
+            if (item.getItemType() == Item.ItemType.EQUIP_BATTLE &&
+                    ownedEquipItemIds.contains(item.getId())) {
+                continue;
+            }
+
+            // 드롭 확률 계산
             if (Math.random() * 100 <= drop.getDropRate()) {
                 int count = drop.getMinCount() + new Random().nextInt(drop.getMaxCount() - drop.getMinCount() + 1);
-                Item item = drop.getItem();
 
                 // 클라이언트용
                 visible.add(Map.of(

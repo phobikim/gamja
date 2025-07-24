@@ -279,12 +279,12 @@ public class ItemEnhanceService {
         switch (rarity) {
             case COMMON:
             case UNCOMMON:
-                return 10;
+                return 25;
             case RARE:
             case EPIC:
-                return 5;
+                return 10;
             case LEGENDARY:
-                return 1;
+                return 5;
             default:
                 return 5;
         }

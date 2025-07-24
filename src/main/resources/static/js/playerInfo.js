@@ -30,20 +30,10 @@ function updateStatValue(statId, detail, max = 100) {
     const total = fromUser + fromBase + fromEquip + fromTier;
     valueSpan.textContent = total;
 
-    let levelClass = 'level-1';
-    let relativeValue = total;
-
-    if (total > 300) {
-        levelClass = 'level-4';
-        relativeValue = total - 300;
-    } else if (total > 200) {
-        levelClass = 'level-3';
-        relativeValue = total - 200;
-    } else if (total > 100) {
-        levelClass = 'level-2';
-        relativeValue = total - 100;
-    }
-
+    // 순환 구조 적용 (100 단위 순환)
+    const levelIndex = Math.floor(total / 100) % 4; // 0 ~ 3
+    const levelClass = `level-${levelIndex + 1}`;
+    const relativeValue = total % 100;
 
     const percent = Math.min(100, (relativeValue / max) * 100);
 

@@ -1,6 +1,7 @@
 package com.phobi.gamja.repository.user;
 
 import com.phobi.gamja.dto.user.UserSellableItemDto;
+import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.user.UserInventory;
 import com.phobi.gamja.entity.user.UserInventoryId;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface UserInventoryRepository extends JpaRepository<UserInventory, UserInventoryId> {
 
@@ -32,5 +34,11 @@ public interface UserInventoryRepository extends JpaRepository<UserInventory, Us
     int consumeItem(@Param("userId") Long userId,
                     @Param("itemId") Long itemId,
                     @Param("amount") int amount);
+
+    @Query("SELECT ui.itemId FROM UserInventory ui " +
+            "JOIN Item i ON ui.itemId = i.id " +
+            "WHERE ui.userId = :userId AND ui.quantity > 0 AND i.itemType = :itemType")
+    Set<Long> findOwnedItemIdsByItemType(@Param("userId") Long userId,
+                                         @Param("itemType") Item.ItemType itemType);
 
 }
