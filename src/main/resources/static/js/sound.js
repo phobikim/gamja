@@ -53,28 +53,42 @@ async function playEffect(name) {
     try {
         let buffer = audioBufferCache[name];
 
-        // 아직 없으면 fetch 후 decode
         if (!buffer) {
             const res = await fetch(url);
             const arrayBuffer = await res.arrayBuffer();
             buffer = await audioContext.decodeAudioData(arrayBuffer);
             audioBufferCache[name] = buffer;
         }
-        activeEffectSources.forEach(source => source.stop());
-        activeEffectSources = [];
 
         const source = audioContext.createBufferSource();
         source.buffer = buffer;
 
         const gain = audioContext.createGain();
-        gain.gain.value = 0.3; // 볼륨 설정
+        gain.gain.value = 0.3;
 
         source.connect(gain).connect(audioContext.destination);
         source.start();
+
+        // 재생 완료 후 연결 해제 및 소스 정리
+        source.onended = () => {
+            source.disconnect();
+            gain.disconnect();
+        };
+
     } catch (e) {
         console.warn("Web Audio 효과음 실패:", e);
     }
 }
+
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        // 백그라운드로 갔을 때 재생 중인 효과음 멈춤
+        activeEffectSources.forEach(source => {
+            try { source.stop(); } catch {}
+        });
+        activeEffectSources = [];
+    }
+});
 
 async function toggleBGM(name) {
     const src = audioMap[name];
