@@ -2,10 +2,12 @@ package com.phobi.gamja.service;
 
 import com.phobi.gamja.dto.item.ItemRecipeDto;
 import com.phobi.gamja.dto.contents.StationDto;
+import com.phobi.gamja.entity.chronicle.Chronicle;
 import com.phobi.gamja.entity.item.*;
 import com.phobi.gamja.entity.user.CounterType;
 import com.phobi.gamja.entity.user.UserInventory;
 import com.phobi.gamja.message.CraftRequest;
+import com.phobi.gamja.repository.chronicle.ChronicleRepository;
 import com.phobi.gamja.repository.contents.StationRepository;
 import com.phobi.gamja.repository.item.*;
 import com.phobi.gamja.repository.user.UserInventoryRepository;
@@ -31,6 +33,7 @@ public class StationService {
     private final ItemStatBonusRepository itemStatBonusRepository;
     private final ItemSkillBonusRepository itemSkillBonusRepository;
     private final ItemPotionEffectRepository itemPotionEffectRepository;
+    private final ChronicleRepository chronicleRepository;
     private final LogService logService;
 
     public List<StationDto> getStationList() {
@@ -48,7 +51,31 @@ public class StationService {
         List<ItemRecipe> recipes = itemRecipeRepository.findByStationCategory(categoryEnum);
         Map<Long, Item> itemMap = getAllRelatedItems(recipes);
         Map<Long, Integer> inventoryMap = getInventoryMap(userId);
-        return toRecipeDtos(recipes, itemMap, inventoryMap);
+        // 연대기 정보
+        Map<Long, Long> chronicleMap = Map.of();
+        if (categoryEnum == ItemRecipe.StationCategory.GLAB) {
+            Set<Long> resultItemIds = recipes.stream()
+                    .map(ItemRecipe::getResultItemId)
+                    .collect(Collectors.toSet());
+            chronicleMap = getChronicleMap(resultItemIds);
+        }
+        return toRecipeDtos(recipes, itemMap, inventoryMap, chronicleMap);
+    }
+
+    private Map<Long, Long> getChronicleMap(Set<Long> itemIds) {
+        Map<Long, Long> map = new HashMap<>();
+        if (itemIds.contains(133L)) map.put(133L, 1L); // 야생들판
+        if (itemIds.contains(156L)) map.put(156L, 2L); // 고산지대
+        if (itemIds.contains(183L)) map.put(183L, 3L); // 도둑쥐의 소굴
+
+        List<Chronicle> chronicleList = chronicleRepository.findByTargetTypeAndTargetIdIn(
+                Chronicle.ChronicleTargetType.ITEM, itemIds
+        );
+        for (Chronicle ch : chronicleList) {
+            map.putIfAbsent(ch.getTargetId(), ch.getMap().getId());
+        }
+
+        return map;
     }
 
     @Transactional
@@ -106,15 +133,10 @@ public class StationService {
     }
 
 
-    private ItemRecipeDto toRecipeDto(ItemRecipe recipe,
-                                      Map<Long, Item> itemMap,
-                                      Map<Long, Integer> inventoryMap) {
-        return toRecipeDtos(List.of(recipe), itemMap, inventoryMap).get(0);
-    }
-
     private List<ItemRecipeDto> toRecipeDtos(List<ItemRecipe> recipes,
                                              Map<Long, Item> itemMap,
-                                             Map<Long, Integer> inventoryMap) {
+                                             Map<Long, Integer> inventoryMap,
+                                             Map<Long, Long> chronicleMap) {
         List<ItemRecipeDto> dtoList = recipes.stream()
                 .map(recipe -> {
                     Item resultItem = itemMap.get(recipe.getResultItemId());
@@ -135,7 +157,8 @@ public class StationService {
                             .resultItemName(resultItem.getName())
                             .resultItemIcon(resultItem.getIconPath())
                             .resultItemUserOwned(inventoryMap.getOrDefault(resultItem.getId(), 0))
-                            .ingredients(ingredients);
+                            .ingredients(ingredients)
+                            .chronicleMapId(chronicleMap.get(resultItem.getId()));
 
                     if (resultItem.getItemType() == Item.ItemType.EQUIP_BATTLE) {
                         ItemStatBonus stat = itemStatBonusRepository.findById(resultItem.getId()).orElse(null);

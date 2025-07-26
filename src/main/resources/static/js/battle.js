@@ -334,24 +334,30 @@ function updateLootItemsDisplay(items) {
     const lootItemsList = document.getElementById('lootItemsList');
     lootItemsList.innerHTML = '';
     items.forEach((item, index) => {
+        const rarityClass = item.rarity ? 'rarity-' + item.rarity.toLowerCase() : 'rarity-common';
+        const chronicleClass = item.chronicle ? 'chronicle-item' : '';
         const itemCard = document.createElement('div');
-        itemCard.className = `loot-item-card ${item.rarity ? 'rarity-' + item.rarity.toLowerCase() : 'rarity-common'}`;
+        itemCard.className = `loot-item-card ${rarityClass} ${chronicleClass}`;
+
         const imgSrc = (typeof basePath !== 'undefined' && item.iconPath)
             ? basePath + item.iconPath
             : `placeholder_${item.iconPath || 'item.png'}`;
+
         itemCard.innerHTML = `
             <img src="${imgSrc}" alt="${item.name}" class="loot-item-image">
             <div class="loot-item-name">${item.name}</div>
             <div class="loot-item-count">x${item.count}</div>
         `;
+
         itemCard.style.opacity = '0';
         itemCard.style.transform = 'translateY(20px)';
         itemCard.style.transition = 'all 0.5s ease';
         lootItemsList.appendChild(itemCard);
+
         setTimeout(() => {
             itemCard.style.opacity = '1';
             itemCard.style.transform = 'translateY(0)';
-        }, 300 + (index * 80)); // 약 0.08초 간격
+        }, 300 + (index * 80));
     });
 }
 

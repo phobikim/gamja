@@ -1,8 +1,9 @@
 const workshopSelectModal = document.getElementById('workshopSelectModal');
 const craftModal = document.getElementById("craftModal");
 const workshopDetailPanel = document.getElementById('workshopDetailPanel');
-// const goToWorkshopBtn = document.getElementById('goToWorkshop');
 const closeWorkshopSelect = document.getElementById('closeWorkshopSelect');
+const glabRegionTabRow = document.getElementById('glabRegionTabRow');
+
 let selectedStation = null;
 let selectedRecipe = null;
 let currentWorkshopType = null;
@@ -94,12 +95,16 @@ async function openCraftModal(stationCategory, preselectedRecipe = null) {
 
     selectedStation = stationCategory;
     document.getElementById('craftModal').classList.remove('hidden');
-    // BATTLE일 경우 탭 보여주기
-    const tabRow = document.getElementById('equipmentTabRow');
-    if (stationCategory === 'BATTLE') {
-        tabRow.style.display = 'flex';
-    } else {
-        tabRow.style.display = 'none';
+
+    const isBattle = stationCategory === 'BATTLE';
+    const isGlab = stationCategory === 'GLAB';
+
+    document.getElementById('equipmentTabRow').style.display = isBattle ? 'flex' : 'none';
+    document.getElementById('glabRegionTabRow').style.display = isGlab ? 'flex' : 'none';
+
+    if (stationCategory === 'GLAB') {
+        document.querySelectorAll('#glabRegionTabRow .craft-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('#glabRegionTabRow .craft-tab-btn[data-map-id="1"]')?.classList.add('active');
     }
 
     fetchRecipes(stationCategory, preselectedRecipe);
@@ -112,6 +117,17 @@ document.querySelectorAll('#equipmentTabRow .craft-tab-btn').forEach(btn => {
 
         currentEquipFilter = btn.dataset.type;
         const filtered = cachedRecipeList.filter(r => r.slotType === currentEquipFilter);
+        renderRecipeList(filtered);
+    });
+});
+
+document.querySelectorAll('#glabRegionTabRow .craft-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('#glabRegionTabRow .craft-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const selectedMapId = parseInt(btn.dataset.mapId);
+        const filtered = cachedRecipeList.filter(r => r.chronicleMapId === selectedMapId);
         renderRecipeList(filtered);
     });
 });
@@ -138,6 +154,12 @@ function renderRecipeList(recipeList, preselectedRecipe = null) {
         if (activeTab) {
             const type = activeTab.dataset.type;
             recipeList = recipeList.filter(r => r.slotType === type);
+        }
+    } else if (selectedStation === 'GLAB') {
+        const activeTab = document.querySelector('#glabRegionTabRow .craft-tab-btn.active');
+        if (activeTab) {
+            const mapId = parseInt(activeTab.dataset.mapId);
+            recipeList = recipeList.filter(r => r.chronicleMapId === mapId);
         }
     }
 

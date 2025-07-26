@@ -4,6 +4,7 @@ import com.phobi.gamja.entity.chronicle.Chronicle;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,4 +12,6 @@ public interface ChronicleRepository extends JpaRepository<Chronicle, Long> {
     List<Chronicle> findByMapIdAndUseFlagTrue(Long mapId);
     Optional<Chronicle> findByTargetTypeAndTargetId(Chronicle.ChronicleTargetType targetType, Long targetId);
     List<Chronicle> findByMapIdAndUseFlagOrderByOrderInUiAsc(Long mapId, boolean useFlag);
+    List<Chronicle> findByTargetTypeAndTargetIdIn(Chronicle.ChronicleTargetType type, Collection<Long> targetIds);
+
 }

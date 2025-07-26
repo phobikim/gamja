@@ -564,7 +564,8 @@ public class BattleService {
                         "name", item.getName(),
                         "iconPath", item.getIconPath(),
                         "rarity", item.getRarity().name(),
-                        "count", count
+                        "count", count,
+                        "chronicle", item.isChronicleFlag()
                 ));
 
                 // 내부 처리용

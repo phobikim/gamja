@@ -20,7 +20,7 @@ public class ItemRecipeDto {
     private String resultItemIcon;
     private int resultItemUserOwned; // 결과아이템 user 보유 수량
     private List<IngredientDto> ingredients;
-
+    private Long chronicleMapId;
     // 전투 장비 전용
     private Integer baseHp;
     private Integer basePower;
