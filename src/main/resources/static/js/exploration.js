@@ -99,9 +99,8 @@ async function choosePath(direction) {
         gainedItems.push({ itemId, count, itemName, itemImg: iconPath });
 
         const log = document.createElement('div');
-
-        log.textContent = `🎁 ${itemName} x${count} 획득!`;
         log.classList.add('exploration-log-entry', 'log-resource');
+        log.innerHTML = `<img src="${basePath}${iconPath}" alt="${itemName}"> ${itemName} x${count} 획득!`;
         document.getElementById('logMessages').prepend(log);
     }
 
