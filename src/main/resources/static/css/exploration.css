@@ -241,3 +241,12 @@
     50%  { color: red; transform: scale(1.15); }
     100% { color: orange; transform: scale(1); }
 }
+
+.log-resource img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    margin-right: 6px;
+    vertical-align: middle;
+    border-radius: 4px;
+}

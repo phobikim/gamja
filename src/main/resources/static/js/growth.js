@@ -1,6 +1,8 @@
 let selectedGrowthItem = null;
 let currentGrowthCharacter = null;
 // 탭
+const executeBtn = document.getElementById("growthExecuteBtn");
+const enhanceBtn = document.getElementById("growthExecuteBtn");
 const tabGrowth = document.getElementById("tab-growth");
 const tabEnhance = document.getElementById("tab-enhance");
 const growthContent = document.getElementById("growthContent");
@@ -10,7 +12,11 @@ const enhanceInfoMessage = document.getElementById("enhanceInfoMessage");
 const enhanceItemSlot = document.getElementById("enhanceItemSlot");
 const enhanceItemModal = document.getElementById("enhanceItemModal");
 const enhanceItemGrid = document.getElementById("enhanceItemGrid");
-const enhanceBtn = document.getElementById("growthExecuteBtn");
+
+
+// 연금
+const tabAlchemy = document.getElementById("tab-alchemy");
+const alchemyContent = document.getElementById("alchemyContent");
 
 function openGrowthModal(character) {
     tabGrowth.addEventListener("click", switchToGrowthTab);
@@ -52,6 +58,185 @@ function closeGrowthModal() {
     handleDexClick()
     document.getElementById("growthModal").classList.add("hidden");
 }
+
+
+executeBtn.addEventListener("click", async () => {
+    if (tabGrowth.classList.contains("selected")) {
+        await handleGrowthExecute();
+    } else if (tabEnhance.classList.contains("selected")) {
+        await handleEnhanceExecute();
+    } else if (tabAlchemy.classList.contains("selected")) {
+        await handleAlchemyExecute();
+    }
+});
+
+
+// 성장 실행
+async function handleGrowthExecute() {
+    if (!selectedGrowthItem) {
+        showMessageModal("먼저 강화 재료를 선택해주세요!");
+        return;
+    }
+    const qty = parseInt(document.getElementById("growthSlider").value || "0");
+    if (qty <= 0) {
+        showMessageModal("사용할 수량을 설정해주세요!");
+        return;
+    }
+
+    playEffect("se_craft");
+    const payload = {
+        dexId: currentGrowthCharacter.id,
+        itemId: selectedGrowthItem.itemId,
+        quantity: qty
+    };
+
+    const res = await apiRequestJson("/api/dex/growth/execute", "POST", payload);
+    if (res.code === "SUCCESS") {
+        showMessageModal("감자가 강해졌다!");
+        const xpDto = res.data;
+        currentGrowthCharacter.level = xpDto.level;
+        currentGrowthCharacter.currentXp = xpDto.xp;
+        currentGrowthCharacter.maxXp = xpDto.maxExp;
+
+        await renderGrowthMaterialList();
+        selectedGrowthItem = null;
+        document.getElementById("growthSlider").value = 0;
+        document.getElementById("growthSliderValue").textContent = "0";
+        renderGrowthResult();
+    } else {
+        showMessageModal(res.message || "성장에 실패했습니다.");
+    }
+}
+
+
+// 강화 실행
+async function handleEnhanceExecute() {
+    const img = enhanceItemSlot.querySelector("img");
+    if (!img) {
+        showMessageModal("강화할 아이템을 선택해주세요!");
+        return;
+    }
+    const itemId = parseInt(img.getAttribute("data-item-id"));
+    const isFree = executeBtn.dataset.isFree === "true";
+    if (!itemId) {
+        showMessageModal("강화할 아이템 정보가 유효하지 않습니다.");
+        return;
+    }
+    playEffect("se_craft");
+    const apiUrl = isFree ? "/api/enhance/execute-free" : "/api/enhance/execute";
+    const res = await apiRequestJson(apiUrl, "POST", { itemId });
+
+    if (res.code === "SUCCESS") {
+        const result = res.data;
+        playEnhanceEffect(result.success);
+        showEnhanceMessage(result.success ? "강화 성공!" : "강화 실패...", result.success);
+
+        await loadEnhanceMaterials(itemId);
+        document.querySelector(".enhance-item-lv").textContent = `+${result.level}`;
+        document.getElementById("enhanceItemAtk").textContent = result.bonusPower || 0;
+        document.getElementById("enhanceItemHp").textContent = result.bonusHp || 0;
+        document.getElementById("enhanceXpText").textContent = `${result.xp} / 100`;
+        document.getElementById("enhanceXpFill").style.width = `${(result.xp / 100) * 100}%`;
+
+        executeBtn.textContent = result.xp >= 100 ? "무료강화" : "강화";
+        executeBtn.dataset.isFree = result.xp >= 100 ? "true" : "false";
+    } else {
+        showMessageModal(res.message || "강화에 실패했습니다.");
+    }
+}
+
+
+// 연금 실행
+async function handleAlchemyExecute() {
+    const img = document.querySelector("#alchemyItemSlot img");
+    if (!img) {
+        showMessageModal("연금할 아이템을 선택해주세요!");
+        return;
+    }
+    const itemId = parseInt(img.getAttribute("data-item-id"));
+    if (!itemId) {
+        showMessageModal("연금 아이템 정보가 유효하지 않습니다.");
+        return;
+    }
+    playEffect("se_craft");
+    const res = await apiRequestJson("/api/alchemy/execute", "POST", { itemId });
+    if (res.code === "SUCCESS") {
+        showMessageModal("연금 완료!");
+        const optionList = res.data || [];
+        renderAlchemyOptionList(optionList);
+        await reloadAlchemyMaterialInfo(itemId); // 재료 다시 불러오기
+    } else {
+        showMessageModal(res.message || "연금에 실패했습니다.");
+    }
+}
+
+// 연금 재료 및 골드 정보 다시 불러오기
+async function reloadAlchemyMaterialInfo(itemId) {
+    try {
+        const res = await apiRequestJson("/api/alchemy/material", "POST", { itemId });
+        if (res.code !== "SUCCESS") {
+            showMessageModal(res.message || "연금 재료 정보를 불러올 수 없습니다.");
+            return;
+        }
+        const data = res.data;
+        renderAlchemyMaterialList(data.materials || []);
+        updateAlchemyGoldInfo(data.gold, data.goldOwned);
+    } catch (err) {
+        console.error("연금 재료 불러오기 실패:", err);
+        showMessageModal("서버 오류로 연금 재료 정보를 불러올 수 없습니다.");
+    }
+}
+
+function renderAlchemyOptionList(optionList) {
+    const container = document.getElementById("alchemyOptionList");
+    container.innerHTML = "";
+    optionList.forEach(opt => {
+        const el = document.createElement("div");
+        el.className = "material-desc";
+        el.textContent = `${opt.description || opt.optionType} +${opt.value ?? '??'}${opt.valueType === 'PERCENT' ? '%' : ''}`;
+        container.appendChild(el);
+    });
+}
+
+// 연금 재료 리스트 렌더링
+function renderAlchemyMaterialList(materials) {
+    const container = document.getElementById("alchemyMaterialList");
+    container.innerHTML = "";
+    materials.forEach(mat => {
+        const el = document.createElement("div");
+        el.className = "material-card";
+
+        const isInsufficient = mat.owned < mat.quantity;
+        if (isInsufficient) {
+            el.classList.add("insufficient");
+            el.style.opacity = 0.6;
+        }
+        el.innerHTML = `
+            <img src="${basePath}${mat.iconPath}" class="material-img" alt="${mat.name}">
+            <div class="material-info">
+                <div class="material-name">${mat.name}</div>
+                <div class="material-count" style="color: ${isInsufficient ? '#ff5252' : '#ccc'};">
+                    보유: ${mat.owned} / 필요: ${mat.quantity}
+                </div>
+            </div>
+        `;
+        container.appendChild(el);
+    });
+}
+
+// 연금 골드 정보 갱신
+function updateAlchemyGoldInfo(needGold, ownedGold) {
+    const el = document.getElementById("alchemyNeedGold");
+    el.textContent = `필요: ${needGold.toLocaleString()} G / 보유: ${ownedGold.toLocaleString()} G`;
+    if (ownedGold < needGold) {
+        el.style.color = "#ff5252";
+        el.style.opacity = 0.8;
+    } else {
+        el.style.color = "gold";
+        el.style.opacity = 1;
+    }
+}
+
 
 // 강화 재료 렌더링 (샘플 구조)
 async function fetchGrowthMaterialList() {
@@ -184,96 +369,18 @@ function renderGrowthResult() {
     fillEl.style.background = "#fa6719";
 }
 
-document.getElementById("growthExecuteBtn").addEventListener("click", async () => {
-    if (tabGrowth.classList.contains("selected")) {
-        // 🔸 성장 탭 로직 --------------------
-        if (!selectedGrowthItem) {
-            showMessageModal("먼저 강화 재료를 선택해주세요!");
-            return;
-        }
-        const qty = parseInt(document.getElementById("growthSlider").value || "0");
-        if (qty <= 0) {
-            showMessageModal("사용할 수량을 설정해주세요!");
-            return;
-        }
 
-        playEffect("se_craft");
-        const payload = {
-            dexId: currentGrowthCharacter.id,
-            itemId: selectedGrowthItem.itemId,
-            quantity: qty
-        };
 
-        const res = await apiRequestJson("/api/dex/growth/execute", "POST", payload);
-        if (res.code === "SUCCESS") {
-            showMessageModal("감자가 강해졌다!");
-            const xpDto = res.data; // level, xp, maxXp
-            currentGrowthCharacter.level = xpDto.level;
-            currentGrowthCharacter.currentXp = xpDto.xp;
-            currentGrowthCharacter.maxXp = xpDto.maxExp;
 
-            await renderGrowthMaterialList();
-
-            selectedGrowthItem = null;
-            document.getElementById("growthSlider").value = 0;
-            document.getElementById("growthSliderValue").textContent = "0";
-
-            renderGrowthResult();
-        } else {
-            showMessageModal(res.message || "성장에 실패했습니다.");
-        }
-    } else {
-        // 🔸 강화 탭 로직 --------------------
-        const img = enhanceItemSlot.querySelector("img");
-        if (!img) {
-            showMessageModal("강화할 아이템을 선택해주세요!");
-            return;
-        }
-
-        const itemId = parseInt(img.getAttribute("data-item-id"));
-        const isFree = document.getElementById("growthExecuteBtn").dataset.isFree === "true";
-        if (!itemId) {
-            showMessageModal("강화할 아이템 정보가 유효하지 않습니다.");
-            return;
-        }
-        playEffect("se_craft");
-        const apiUrl = isFree
-            ? "/api/enhance/execute-free"
-            : "/api/enhance/execute";
-
-        const res = await apiRequestJson(apiUrl, "POST", { itemId });
-
-        if (res.code === "SUCCESS") {
-            const result = res.data;
-            if (result.success) {
-                playEnhanceEffect(true);
-                showEnhanceMessage("강화 성공!", true);
-            } else {
-                playEnhanceEffect(false);
-                showEnhanceMessage("강화 실패...", false);
-            }
-            await loadEnhanceMaterials(itemId);
-            document.querySelector(".enhance-item-lv").textContent = `+${result.level}`;
-            document.getElementById("enhanceItemAtk").textContent = result.bonusPower || 0;
-            document.getElementById("enhanceItemHp").textContent = result.bonusHp || 0;
-            document.getElementById("enhanceXpText").textContent = `${result.xp} / 100`;
-            document.getElementById("enhanceXpFill").style.width = `${(result.xp / 100) * 100}%`;
-
-            const enhanceBtn = document.getElementById("growthExecuteBtn");
-            enhanceBtn.textContent = result.xp >= 100 ? "무료강화" : "강화";
-            enhanceBtn.dataset.isFree = result.xp >= 100 ? "true" : "false";
-
-        } else {
-            showMessageModal(res.message || "강화에 실패했습니다.");
-        }
-    }
-});
 
 function switchToGrowthTab() {
     tabGrowth.classList.add("selected");
     tabEnhance.classList.remove("selected");
+    tabAlchemy.classList.remove("selected");
+
     growthContent.classList.remove("hidden");
     enhanceContent.classList.add("hidden");
+    alchemyContent.classList.add("hidden");
 
     const growthBtn = document.getElementById("growthExecuteBtn");
     growthBtn.textContent = "성장";
@@ -289,7 +396,6 @@ function switchToEnhanceTab() {
     growthContent.classList.add("hidden");
     enhanceContent.classList.remove("hidden");
 
-    const enhanceBtn = document.getElementById("growthExecuteBtn");
     const isMax = document.getElementById("enhanceMaxMessage").classList.contains("hidden") === false;
 
     if (isMax) {
@@ -321,6 +427,22 @@ function switchToEnhanceTab() {
 
     updateEnhanceButtonState(materials, ownedGold, needGold);
     enhanceInfoMessage.textContent = "강화할 아이템을 선택해주세요.";
+}
+
+function switchToAlchemyTab() {
+    tabAlchemy.classList.add("selected");
+    tabGrowth.classList.remove("selected");
+    tabEnhance.classList.remove("selected");
+
+    growthContent.classList.add("hidden");
+    enhanceContent.classList.add("hidden");
+    alchemyContent.classList.remove("hidden");
+
+    const btn = document.getElementById("growthExecuteBtn");
+    btn.textContent = "연금";
+    btn.classList.add("disabled");
+    btn.disabled = true;
+    delete btn.dataset.itemId;
 }
 
 
@@ -425,7 +547,7 @@ function selectEnhanceItem(item) {
     document.getElementById("enhanceXpFill").style.width = `${percent}%`;
     document.getElementById("enhanceXpText").textContent = `${xp} / ${maxXp}`;
 
-    const enhanceBtn = document.getElementById("growthExecuteBtn");
+
     enhanceBtn.dataset.enhanceItemId = item.id;
     enhanceBtn.dataset.isFree = xp >= 100 ? "true" : "false";
     enhanceBtn.textContent = xp >= 100 ? "무료강화" : "강화";
