@@ -307,3 +307,24 @@
     border: 2px solid #ffd700; /* 황금색 느낌 */
     border-radius: 10px;
 }
+
+.character-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.action-btn {
+    background-color: var(--orange-color);
+    color: var(--white-color);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+.action-btn:hover {
+    background-color: var(--dark-1-font-color);
+    color: var(--brown-color);
+}

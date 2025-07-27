@@ -10,6 +10,11 @@ const lifeStats = document.getElementById('lifeStats');
 const combatEquipment = document.getElementById('combatEquipment');
 const lifeEquipment = document.getElementById('lifeEquipment');
 
+// 강화 영역
+let currentCharacter = null;
+const openGrowthModalBtn = document.getElementById('openGrowthModalBtn');
+const openEnhanceModalBtn = document.getElementById('openEnhanceModalBtn');
+const openAlchemyModalBtn = document.getElementById('openAlchemyModalBtn');
 window.readOnlyMode = false;
 
 // 수치 조정
@@ -81,7 +86,7 @@ function setCharacterBasicInfo(data) {
     }
     document.getElementById('combatLevelValue').textContent = data.level;
     document.getElementById('characterName').textContent = data.name;
-
+    currentCharacter = data;
 }
 
 function loadCharacterBattleInfo() {
@@ -252,6 +257,8 @@ function setCharacterLifeInfo(data) {
     });
 }
 
+
+
 // 탭 전환 핸들러
 battleTabBtn.addEventListener('click', () => {
     loadCharacterBattleInfo();
@@ -276,6 +283,20 @@ lifeTabBtn.addEventListener('click', () => {
     combatStats.classList.add('hidden');
     combatEquipment.classList.add('hidden');
 });
+
+// 성장 모달 클릭
+openGrowthModalBtn.addEventListener('click', () => {
+    characterModal.classList.add('hidden');
+    openGrowthModal(currentCharacter);
+});
+
+// 강화 모달 클릭
+openEnhanceModalBtn.addEventListener('click', () => {
+    characterModal.classList.add('hidden');
+    openEnhanceModal();
+});
+
+
 
 
 document.getElementById('characterModalClose').addEventListener('click', () => {
