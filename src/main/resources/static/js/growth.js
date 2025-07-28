@@ -86,9 +86,6 @@ async function handleGrowthExecute() {
 }
 
 
-// 강화 실행
-
-
 
 // 연금 실행
 async function handleAlchemyExecute() {
@@ -248,7 +245,7 @@ async function renderGrowthMaterialList() {
                 container.querySelectorAll(".material-card").forEach(c => c.classList.remove("selected"));
                 el.classList.add("selected");
 
-                updateGrowthPreview(); // ghost fill 정상 반영됨!
+                updateGrowthPreview();
             });
         }
 
@@ -268,8 +265,8 @@ function updateGrowthPreview() {
     if (!selectedGrowthItem || !currentGrowthCharacter) return;
 
     const baseLevel = currentGrowthCharacter.level || 1;
-    const baseXp = currentGrowthCharacter.currentXp || 0;
-    let maxXp = currentGrowthCharacter.maxXp || 100;
+    const baseXp = currentGrowthCharacter.xp || 0;
+    let maxXp = currentGrowthCharacter.maxExp || 100;
     const bonusXp = selectedGrowthItem.bonusExp || 0;
     const qty = Math.max(1, parseInt(document.getElementById("growthSlider").value || "1"));
 
@@ -302,8 +299,8 @@ function renderGrowthResult() {
     if (!currentGrowthCharacter) return;
 
     const level = currentGrowthCharacter.level || 1;
-    const xp = currentGrowthCharacter.currentXp || 0;
-    const maxXp = currentGrowthCharacter.maxXp || 0;
+    const xp = currentGrowthCharacter.xp || 0;
+    const maxXp = currentGrowthCharacter.maxExp || 0;
     const percent = (xp / maxXp) * 100;
 
     document.getElementById("growthLevel").textContent = level;

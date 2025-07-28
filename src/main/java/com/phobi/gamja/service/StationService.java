@@ -66,6 +66,7 @@ public class StationService {
         Map<Long, Long> map = new HashMap<>();
         if (itemIds.contains(133L)) map.put(133L, 1L); // 야생들판
         if (itemIds.contains(156L)) map.put(156L, 2L); // 고산지대
+        if (itemIds.contains(156L)) map.put(157L, 2L); // 고산지대
         if (itemIds.contains(183L)) map.put(183L, 3L); // 도둑쥐의 소굴
 
         List<Chronicle> chronicleList = chronicleRepository.findByTargetTypeAndTargetIdIn(

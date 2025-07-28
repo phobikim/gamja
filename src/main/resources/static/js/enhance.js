@@ -2,10 +2,11 @@ const enhanceModal = document.getElementById("enhanceModal");
 const enhanceExecuteBtn = document.getElementById("enhanceExecuteBtn");
 
 const enhanceContent = document.getElementById("enhanceContent");
-// const enhanceInfoMessage = document.getElementById("enhanceInfoMessage");
 const enhanceItemSlot = document.getElementById("enhanceItemSlot");
 const enhanceItemModal = document.getElementById("enhanceItemModal");
 const enhanceItemGrid = document.getElementById("enhanceItemGrid");
+
+
 
 async function openEnhanceModal() {
     const valid = await checkSessionValid();
@@ -41,8 +42,7 @@ async function openEnhanceModal() {
     });
 
     updateEnhanceButtonState(materials, ownedGold, needGold);
-    // enhanceInfoMessage.textContent = "강화할 아이템을 선택해주세요.";
-
+    resetEnhanceTab();
     enhanceModal.classList.remove('hidden');
 
 }
@@ -156,9 +156,6 @@ function selectEnhanceItem(item) {
     loadEnhanceMaterials(item.id);
 }
 
-
-
-
 enhanceExecuteBtn.addEventListener("click", async () => {
     await handleEnhanceExecute();
 });
@@ -183,9 +180,13 @@ async function handleEnhanceExecute() {
 
     if (res.code === "SUCCESS") {
         const result = res.data;
-        playEnhanceEffect(result.success);
-        showEnhanceMessage(result.success ? "강화 성공!" : "강화 실패...", result.success);
-
+        if (result.success) {
+            playEnhanceEffect(true);
+            showEnhanceMessage("강화 성공!", true);
+        } else {
+            playEnhanceEffect(false);
+            showEnhanceMessage("강화 실패...", false);
+        }
         await loadEnhanceMaterials(itemId);
         document.querySelector(".enhance-item-lv").textContent = `+${result.level}`;
         document.getElementById("enhanceItemAtk").textContent = result.bonusPower || 0;
@@ -193,8 +194,10 @@ async function handleEnhanceExecute() {
         document.getElementById("enhanceXpText").textContent = `${result.xp} / 100`;
         document.getElementById("enhanceXpFill").style.width = `${(result.xp / 100) * 100}%`;
 
-        enhanceExecuteBtn.textContent = result.xp >= 100 ? "무료강화" : "강화";
-        enhanceExecuteBtn.dataset.isFree = result.xp >= 100 ? "true" : "false";
+        const enhanceBtn = document.getElementById("growthExecuteBtn");
+        enhanceBtn.textContent = result.xp >= 100 ? "무료강화" : "강화";
+        enhanceBtn.dataset.isFree = result.xp >= 100 ? "true" : "false";
+
     } else {
         showMessageModal(res.message || "강화에 실패했습니다.");
     }
@@ -227,7 +230,7 @@ function playEnhanceEffect(success) {
 
 
 function showEnhanceMessage(text, success) {
-    const topArea = document.querySelector("#enhanceContent .growth-detail-top");
+    const topArea = document.querySelector("#enhanceContent .enhance-detail-top");
     const parent = topArea.parentElement;
 
     const msg = document.createElement("div");
@@ -419,7 +422,7 @@ async function loadEnhanceMaterials(itemId) {
 function closeEnhanceModal() {
     loadCharacterBasicInfo();
     enhanceModal.classList.add("hidden");
-    characterModal.classList.remove("hidden");
+    openInfoModal();
 }
 
 function getEquipSlotLabel(slot) {

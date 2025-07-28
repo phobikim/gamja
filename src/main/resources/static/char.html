@@ -154,14 +154,6 @@
                 <img src="https://phobi.me/gamja.img/images/icons/icon_fish.png" alt="낚시">
                 <span class="itemLabel">낚시</span>
             </div>
-<!--            <div class="inventoryCell" onclick="handleBagClick()">-->
-<!--                <img src="https://phobi.me/gamja.img/images/icons/icon_bag.png" alt="배낭">-->
-<!--                <span class="itemLabel">인벤토리</span>-->
-<!--            </div>-->
-<!--            <div class="inventoryCell" onclick="handleLaboratoryClick()">-->
-<!--                <img src="https://phobi.me/gamja.img/images/icons/icon_laboratory.png" alt="공방">-->
-<!--                <span class="itemLabel">감자감정소</span>-->
-<!--            </div>-->
         </div>
     </div>
 </div>
@@ -402,41 +394,42 @@
 <div id="enhanceModal" class="modal hidden">
     <div class="enhance-modal-container">
         <div class="enhance-title">아이템 강화</div>
-        <div class="enhance-detail-top">
-            <div class="enhance-item-slot-wrap">
-                <div id="enhanceItemSlot" class="enhance-slot empty-slot">
-                    <span class="plus-icon">+</span>
-                    <div class="enhance-effect-layer"></div>
-                </div>
-            </div>
-            <div class="enhance-item-info" id="enhanceItemInfo">
-                <div class="enhance-name-line">
-                    <div class="enhance-item-name">아이템을 선택하세요.</div>
-                    <div class="enhance-item-lv">+0</div>
-                </div>
-                <div class="enhance-item-stat-line">
-                    <span class="enhance-stat-label">ATK</span>
-                    <span id="enhanceItemAtk" class="enhance-stat-value">0</span>
-                    <span id="enhanceItemAtkNext" class="enhance-stat-next-value"></span>
-                    <span class="enhance-stat-label">HP</span>
-                    <span id="enhanceItemHp" class="enhance-stat-value">0</span>
-                    <span id="enhanceItemHpNext" class="enhance-stat-next-value"></span>
-                </div>
-                <div class="enhance-xp">
-                    <div class="xp-bar">
-                        <div id="enhanceXpFill" class="xp-fill" style="width: 0%"></div>
+        <div id="enhanceContent" class="enhance-content-section" style="position: relative;">
+            <div class="enhance-detail-top">
+                <div class="enhance-item-slot-wrap">
+                    <div id="enhanceItemSlot" class="enhance-slot empty-slot">
+                        <span class="plus-icon">+</span>
+                        <div class="enhance-effect-layer"></div>
                     </div>
-                    <div id="enhanceXpText" class="xp-text">0 / 100</div>
+                </div>
+                <div class="enhance-item-info" id="enhanceItemInfo">
+                    <div class="enhance-name-line">
+                        <div class="enhance-item-name">아이템을 선택하세요.</div>
+                        <div class="enhance-item-lv">+0</div>
+                    </div>
+                    <div class="enhance-item-stat-line">
+                        <span class="enhance-stat-label">ATK</span>
+                        <span id="enhanceItemAtk" class="enhance-stat-value">0</span>
+                        <span id="enhanceItemAtkNext" class="enhance-stat-next-value"></span>
+                        <span class="enhance-stat-label">HP</span>
+                        <span id="enhanceItemHp" class="enhance-stat-value">0</span>
+                        <span id="enhanceItemHpNext" class="enhance-stat-next-value"></span>
+                    </div>
+                    <div class="enhance-xp">
+                        <div class="xp-bar">
+                            <div id="enhanceXpFill" class="xp-fill" style="width: 0%"></div>
+                        </div>
+                        <div id="enhanceXpText" class="xp-text">0 / 100</div>
+                    </div>
                 </div>
             </div>
+            <div id="enhanceMaterialBox" class="enhance-material-section">
+                <div class="material-name">필요 골드: <span id="enhanceNeedGold" style="color: gold;">-</span></div>
+                <div class="material-name">강화 성공 확률: <span id="enhanceSuccessRate" style="color: #4caf50;">-</span></div>
+                <div id="enhanceMaxMessage" class="enhance-max-message hidden"></div>
+                <div id="enhanceMaterialList" class="materials-list"></div>
+            </div>
         </div>
-        <div id="enhanceMaterialBox" class="enhance-material-section">
-            <div class="material-name">필요 골드: <span id="enhanceNeedGold" style="color: gold;">-</span></div>
-            <div class="material-name">강화 성공 확률: <span id="enhanceSuccessRate" style="color: #4caf50;">-</span></div>
-            <div id="enhanceMaxMessage" class="enhance-max-message hidden"></div>
-            <div id="enhanceMaterialList" class="materials-list"></div>
-        </div>
-
         <div class="enhance-footer">
             <button id="enhanceExecuteBtn" class="enhance-confirm-btn">강화</button>
             <button class="enhance-close-btn" onclick="closeEnhanceModal()">닫기</button>
