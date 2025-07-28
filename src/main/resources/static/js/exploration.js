@@ -163,15 +163,34 @@ function showExplorationResultModal(stage, exp, items) {
         itemList.appendChild(row);
     });
 
-    const newBtn = closeBtn.cloneNode(true);
-    closeBtn.replaceWith(newBtn);
+    const oldBtn = document.getElementById('closeResultBtn');
+    const newBtn = oldBtn.cloneNode(true);
+    oldBtn.replaceWith(newBtn);
 
-    document.getElementById('closeResultBtn').onclick = () => {
+    newBtn.onclick = () => {
         closeExploration();
     };
 
     modal.classList.remove('hidden');
     modal.classList.add('show');
+
+    setTimeout(() => {
+        const btn = document.getElementById('closeResultBtn');
+        if (!btn || typeof btn.onclick !== 'function') {
+            console.warn('[Fallback] 탐험 결과 닫기 버튼 초기화 재시도');
+            const retryBtn = btn ? btn.cloneNode(true) : document.createElement('button');
+            retryBtn.id = 'closeResultBtn';
+            retryBtn.textContent = '닫기';
+            retryBtn.onclick = () => {
+                closeExploration();
+            };
+            if (btn) {
+                btn.replaceWith(retryBtn);
+            } else {
+                modal.appendChild(retryBtn);
+            }
+        }
+    }, 1500); // 1.5초 뒤에 확인
 }
 
 document.getElementById('closeResultBtn').onclick = () => {
