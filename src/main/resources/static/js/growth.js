@@ -7,6 +7,8 @@ const executeBtn = document.getElementById("growthExecuteBtn");
 async function openGrowthModal(character) {
     const valid = await checkSessionValid();
     if (!valid) return;
+    if (window.readOnlyMode) return;
+
     playEffect("se_click2");
 
     // 캐릭터 정보 바인딩
@@ -85,101 +87,7 @@ async function handleGrowthExecute() {
     }
 }
 
-
-
-// 연금 실행
-async function handleAlchemyExecute() {
-    const img = document.querySelector("#alchemyItemSlot img");
-    if (!img) {
-        showMessageModal("연금할 아이템을 선택해주세요!");
-        return;
-    }
-    const itemId = parseInt(img.getAttribute("data-item-id"));
-    if (!itemId) {
-        showMessageModal("연금 아이템 정보가 유효하지 않습니다.");
-        return;
-    }
-    playEffect("se_craft");
-    const res = await apiRequestJson("/api/alchemy/execute", "POST", { itemId });
-    if (res.code === "SUCCESS") {
-        showMessageModal("연금 완료!");
-        const optionList = res.data || [];
-        renderAlchemyOptionList(optionList);
-        await reloadAlchemyMaterialInfo(itemId); // 재료 다시 불러오기
-    } else {
-        showMessageModal(res.message || "연금에 실패했습니다.");
-    }
-}
-
-// 연금 재료 및 골드 정보 다시 불러오기
-async function reloadAlchemyMaterialInfo(itemId) {
-    try {
-        const res = await apiRequestJson("/api/alchemy/material", "POST", { itemId });
-        if (res.code !== "SUCCESS") {
-            showMessageModal(res.message || "연금 재료 정보를 불러올 수 없습니다.");
-            return;
-        }
-        const data = res.data;
-        renderAlchemyMaterialList(data.materials || []);
-        updateAlchemyGoldInfo(data.gold, data.goldOwned);
-    } catch (err) {
-        console.error("연금 재료 불러오기 실패:", err);
-        showMessageModal("서버 오류로 연금 재료 정보를 불러올 수 없습니다.");
-    }
-}
-
-function renderAlchemyOptionList(optionList) {
-    const container = document.getElementById("alchemyOptionList");
-    container.innerHTML = "";
-    optionList.forEach(opt => {
-        const el = document.createElement("div");
-        el.className = "material-desc";
-        el.textContent = `${opt.description || opt.optionType} +${opt.value ?? '??'}${opt.valueType === 'PERCENT' ? '%' : ''}`;
-        container.appendChild(el);
-    });
-}
-
-// 연금 재료 리스트 렌더링
-function renderAlchemyMaterialList(materials) {
-    const container = document.getElementById("alchemyMaterialList");
-    container.innerHTML = "";
-    materials.forEach(mat => {
-        const el = document.createElement("div");
-        el.className = "material-card";
-
-        const isInsufficient = mat.owned < mat.quantity;
-        if (isInsufficient) {
-            el.classList.add("insufficient");
-            el.style.opacity = 0.6;
-        }
-        el.innerHTML = `
-            <img src="${basePath}${mat.iconPath}" class="material-img" alt="${mat.name}">
-            <div class="material-info">
-                <div class="material-name">${mat.name}</div>
-                <div class="material-count" style="color: ${isInsufficient ? '#ff5252' : '#ccc'};">
-                    보유: ${mat.owned} / 필요: ${mat.quantity}
-                </div>
-            </div>
-        `;
-        container.appendChild(el);
-    });
-}
-
-// 연금 골드 정보 갱신
-function updateAlchemyGoldInfo(needGold, ownedGold) {
-    const el = document.getElementById("alchemyNeedGold");
-    el.textContent = `필요: ${needGold.toLocaleString()} G / 보유: ${ownedGold.toLocaleString()} G`;
-    if (ownedGold < needGold) {
-        el.style.color = "#ff5252";
-        el.style.opacity = 0.8;
-    } else {
-        el.style.color = "gold";
-        el.style.opacity = 1;
-    }
-}
-
-
-// 강화 재료 렌더링 (샘플 구조)
+// 강화 재료 렌더링
 async function fetchGrowthMaterialList() {
     const container = document.getElementById("growthMaterialList");
     container.innerHTML = "";
@@ -309,30 +217,3 @@ function renderGrowthResult() {
     fillEl.style.width = `${percent}%`;
     fillEl.style.background = "#fa6719";
 }
-
-
-function switchToAlchemyTab() {
-    tabAlchemy.classList.add("selected");
-    tabGrowth.classList.remove("selected");
-    tabEnhance.classList.remove("selected");
-
-    growthContent.classList.add("hidden");
-    enhanceContent.classList.add("hidden");
-    alchemyContent.classList.remove("hidden");
-
-    executeBtn.textContent = "연금";
-    executeBtn.classList.add("disabled");
-    executeBtn.disabled = true;
-    delete executeBtn.dataset.itemId;
-}
-
-
-
-
-
-
-
-
-
-
-

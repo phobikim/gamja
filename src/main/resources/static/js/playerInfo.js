@@ -67,6 +67,7 @@ async function openInfoModal() {
 
     // ✅ 탭 보이기
     document.getElementById('charTab').classList.remove('hidden');
+    document.getElementById('characterActions').classList.remove('hidden');
     // ✅ 유저네임 헤더 숨기기
     document.getElementById('charUsernameHeader').classList.add('hidden');
     document.getElementById('dexNameLabel').classList.add('hidden');
@@ -296,6 +297,11 @@ openEnhanceModalBtn.addEventListener('click', () => {
     openEnhanceModal();
 });
 
+// 연금 모달 클릭
+openAlchemyModalBtn.addEventListener('click', () => {
+    characterModal.classList.add('hidden');
+    openAlchemyModal();
+});
 
 
 
@@ -339,6 +345,7 @@ function openCharacterModal(data, readOnly = false) {
 
     // 탭 숨기기 / 간판 영역 표시
     document.getElementById('charTab').classList.add('hidden');
+    document.getElementById('characterActions').classList.add('hidden');
     document.getElementById('charUsernameHeader').classList.remove('hidden');
 
     // 유저 이름

@@ -11,6 +11,9 @@ const enhanceItemGrid = document.getElementById("enhanceItemGrid");
 async function openEnhanceModal() {
     const valid = await checkSessionValid();
     if (!valid) return;
+    if (window.readOnlyMode) return;
+
+
     playEffect("se_click2");
 
     const isMax = document.getElementById("enhanceMaxMessage").classList.contains("hidden") === false;
@@ -54,7 +57,6 @@ enhanceItemSlot.addEventListener("click", () => {
 });
 
 async function openEnhanceItemModal() {
-
     try {
         const res = await apiRequest('/api/char/battle', 'GET');
 
@@ -117,7 +119,6 @@ function renderEnhanceItemGrid(items) {
     addSlot.className = "enhance-item-cell enhance-add-slot";
     addSlot.innerHTML = `<div class="enhance-item-plus">+</div>`;
     enhanceItemGrid.appendChild(addSlot);
-
 }
 
 function selectEnhanceItem(item) {

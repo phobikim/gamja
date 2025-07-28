@@ -1,0 +1,217 @@
+/* 알케미 전체 컨테이너 */
+.alchemy-modal-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 5vh auto;
+    background: var(--dark-1-color);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.alchemy-title {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--white-color);
+}
+
+/* 슬롯 영역 */
+.alchemy-center-slot {
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.alchemy-slot {
+    width: 64px;
+    height: 64px;
+    background-color: var(--dark-2-color);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    box-shadow:
+            0 4px 8px rgba(0, 0, 0, 0.3),
+            inset 0 1px 2px rgba(255, 255, 255, 0.05);
+}
+
+.alchemy-slot.empty-slot {
+    border: 2px dashed #888;
+}
+
+.alchemy-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+    border-radius: 12px;
+}
+
+.plus-icon {
+    font-size: 2rem;
+    color: #aaa;
+    font-weight: bold;
+}
+
+/* 아이템 정보 */
+.alchemy-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--dark-2-color);
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.3); /* 시각적 분리 */
+}
+
+.alchemy-name-line {
+    background-color: rgba(255, 255, 255, 0.05); /* 살짝 밝게 */
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+}
+
+.alchemy-item-name {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--white-color);
+}
+
+/* 옵션 결과 영역 */
+.alchemy-option-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.alchemy-option {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--white-color);
+    padding: 4px 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.1); /* 옵션 구분선 */
+}
+
+.alchemy-option:last-child {
+    border-bottom: none;
+}
+
+/* 재료 + 골드 */
+.alchemy-material-section {
+    background: var(--dark-2-color);
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.material-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--dark-3-color);
+    border-radius: 10px;
+    padding: 8px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+}
+
+.material-card.insufficient {
+    position: relative;
+    border: 2px solid #ff4d4d;
+    background: linear-gradient(
+            to bottom right,
+            rgba(255, 50, 50, 0.2),
+            rgba(120, 0, 0, 0.1)
+    );
+    box-shadow: 0 0 6px rgba(255, 0, 0, 0.4);
+    filter: brightness(0.95);
+    opacity: 0.95;
+    transition: all 0.3s ease;
+    margin-bottom: 6px;
+}
+
+.material-card.insufficient::after {
+    content: "재료 부족";
+    position: absolute;
+    top: -10px;
+    right: 4px;
+    background-color: #ff1e1e;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.material-img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    background: var(--dark-2-color);
+    border-radius: 8px;
+    image-rendering: pixelated;
+}
+
+.material-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.material-name {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--dark-1-font-color);
+}
+
+.material-count {
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #ccc;
+}
+
+/* 골드 라벨 */
+.material-name span {
+    font-weight: bold;
+    color: gold;
+}
+
+/* 하단 버튼 */
+.alchemy-footer {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.alchemy-confirm-btn,
+.alchemy-close-btn {
+    background: var(--orange-color);
+    color: var(--white-color);
+    border: 2px solid var(--char-border-color);
+    padding: 10px 28px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.alchemy-confirm-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
