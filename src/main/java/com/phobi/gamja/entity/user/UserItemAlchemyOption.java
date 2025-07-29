@@ -19,7 +19,7 @@ public class UserItemAlchemyOption {
 
     private Long userId;
 
-    private Long userItemId;
+    private Long itemId;
 
     private Integer optionIndex; // 1부터 시작
 

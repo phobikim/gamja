@@ -37,7 +37,44 @@ async function selectAlchemyItem(item) {
     document.querySelector(".alchemy-item-name").textContent = item.name;
     alchemyItemInfo.style.display = "flex";
 
+    // 기존 옵션 표시
+    renderAlchemyOptions(item.alchemyOptions);
+    // 등장 가능한 옵션 리스트
+    await loadAvailableAlchemyOptions(item.id);
+    // 연금 재료
     await loadAlchemyMaterials(item.id);
+}
+
+async function loadAvailableAlchemyOptions(itemId) {
+    try {
+        const res = await apiRequestJson("/api/alchemy/available-options", "POST", {itemId});
+        const options = res.data || [];
+
+        const container = document.getElementById("alchemyAvailableOptionList");
+        container.innerHTML = "";
+
+        if (options.length === 0) {
+            container.innerHTML = `<div class="option-hint-text">등장 가능한 옵션 없음</div>`;
+            return;
+        }
+
+        options.forEach(opt => {
+            const label = getOptionLabel(opt.optionType);
+            const min = opt.min;
+            const max = opt.max;
+            const unit = opt.valueType === "PERCENT" ? "%" : "";
+            const el = document.createElement("div");
+            el.className = "available-option-row";
+            el.innerHTML = `
+                <span class="option-name">${label}</span>
+                <span class="option-range">+${min}~${max}${unit}</span>
+            `;
+            container.appendChild(el);
+        });
+    } catch (err) {
+        console.error("가능 옵션 불러오기 실패:", err);
+        showMessageModal("등장 가능한 옵션을 불러오지 못했습니다.");
+    }
 }
 
 async function loadAlchemyMaterials(itemId) {
@@ -109,12 +146,12 @@ function renderAlchemyOptions(optionList) {
     alchemyOptionList.innerHTML = "";
 
     if (!optionList || optionList.length === 0) {
-        alchemyOptionList.innerHTML = `<div style="color: #ccc;">옵션이 없습니다.</div>`;
+        alchemyOptionList.innerHTML = `<div class="alchemy-option-empty">옵션이 없습니다.</div>`;
         return;
     }
-
     optionList.forEach(opt => {
-        const valueText = opt.valueType === "PERCENT" ? `+${opt.value}%` : `+${opt.value}`;
+        const value = opt.optionValue ?? opt.value;
+        const valueText = (opt.valueType === "PERCENT") ? `+${value}%` : `+${value}`;
         const label = getOptionLabel(opt.optionType);
 
         const el = document.createElement("div");

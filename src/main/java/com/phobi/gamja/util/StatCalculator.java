@@ -2,9 +2,11 @@ package com.phobi.gamja.util;
 
 import com.phobi.gamja.dto.battle.BattleStatDetailDto;
 import com.phobi.gamja.dto.battle.BattleStatDto;
+import com.phobi.gamja.dto.item.AlchemyOptionDto;
 import com.phobi.gamja.dto.item.EquipmentType;
 import com.phobi.gamja.entity.battle.StatBonus;
 import com.phobi.gamja.entity.dex.DexRarityStat;
+import com.phobi.gamja.entity.item.ItemAlchemyOption;
 import com.phobi.gamja.entity.item.ItemSkillBonus;
 import com.phobi.gamja.entity.title.TitleEffect;
 import com.phobi.gamja.entity.title.UserTitle;
@@ -42,6 +44,7 @@ public class StatCalculator {
     private final TitleEffectRepository titleEffectRepository;
     private final UserCorpsRepository userCorpsRepository;
     private final UserEnhancementRepository userEnhancementRepository;
+    private final UserItemAlchemyOptionRepository userItemAlchemyOptionRepository;
 
     public BattleStatDto calculateBattleStat(Long userId) {
         // 1. 유저 상세정보 + 착용 캐릭터 ID
@@ -76,7 +79,6 @@ public class StatCalculator {
             Item item = eq.getItem();
             Long itemId = item.getId();
 
-
             // 1. 강화 정보 먼저 조회
             UserEnhancementId enhanceId = new UserEnhancementId(userId, itemId);
             UserEnhancement enhancement = userEnhancementRepository.findById(enhanceId).orElse(null);
@@ -97,11 +99,20 @@ public class StatCalculator {
                 }
             }
 
+            List<UserItemAlchemyOption> alchemyOptions = userItemAlchemyOptionRepository.findByUserIdAndItemId(userId, itemId);
+            for (UserItemAlchemyOption opt : alchemyOptions) {
+                if (!Objects.equals(opt.getValueType(), ItemAlchemyOption.ValueType.FLAT)) continue; // 퍼센트 제외
+                switch (opt.getOptionType()) {
+                    case HP -> bonusHp += opt.getOptionValue().intValue();
+                    case ATTACK -> bonusPower += opt.getOptionValue().intValue();
+                }
+            }
+
             equipHp += bonusHp;
             equipPower += bonusPower;
             equipSpeed += bonusSpeed;
 
-            itemDtoList.add(toItemDto(item, enhancement));
+            itemDtoList.add(toItemDto(item, enhancement, alchemyOptions));
         }
 
         // 5. 착용 칭호 스탯 추가
@@ -174,12 +185,13 @@ public class StatCalculator {
         List<ItemDto> itemDtoList = new ArrayList<>();
         for (UserEquipment eq : gatherEquipments) {
             Item item = eq.getItem();
+            Long userItemId = eq.getId();
             // 강화 이력 조회
             UserEnhancementId enhanceId = new UserEnhancementId(userId, item.getId());
             UserEnhancement enhancement = userEnhancementRepository.findById(enhanceId).orElse(null);
-
-            // 아이템 DTO 구성 (강화 수치 포함)
-            itemDtoList.add(toItemDto(item, enhancement));
+            List<UserItemAlchemyOption> alchemyOptions = userItemAlchemyOptionRepository.findByUserIdAndItemId(userId, userItemId);
+            // 아이템 DTO 구성 (강화 ,연금은 없지만 포함)
+            itemDtoList.add(toItemDto(item, enhancement, alchemyOptions));
             ItemSkillBonus bonus = itemSkillBonusRepository.findById(eq.getItemId()).orElse(null);
             if (bonus != null) {
                 equipFishing += bonus.getFishing();
@@ -199,7 +211,7 @@ public class StatCalculator {
                 itemDtoList);
     }
 
-    public ItemDto toItemDto(Item item, UserEnhancement enhancement) {
+    public ItemDto toItemDto(Item item, UserEnhancement enhancement, List<UserItemAlchemyOption> alchemyOptionList) {
         int bonusHp = 0, bonusPower = 0, bonusSpeed = 0;
         int enhancementLevel = 0, enhancementXp = 0;
 
@@ -217,6 +229,17 @@ public class StatCalculator {
                 bonusSpeed = bonus.getBonusSpeed();
             }
         }
+
+        List<AlchemyOptionDto> alchemyOptions = alchemyOptionList == null ? List.of() :
+                alchemyOptionList.stream()
+                        .map(opt -> new AlchemyOptionDto(
+                                opt.getOptionType(),
+                                opt.getValueType(),
+                                opt.getOptionValue(),
+                                opt.getDescription()
+                        ))
+                        .toList();
+
         return ItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
@@ -231,6 +254,7 @@ public class StatCalculator {
                 .bonusHp(bonusHp)
                 .bonusPower(bonusPower)
                 .bonusSpeed(bonusSpeed)
+                .alchemyOptions(alchemyOptions)
                 .build();
     }
 }

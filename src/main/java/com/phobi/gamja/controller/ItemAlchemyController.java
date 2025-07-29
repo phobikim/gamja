@@ -20,7 +20,13 @@ import java.util.Map;
 public class ItemAlchemyController {
 
     private final ItemAlchemyService itemAlchemyService;
-
+    @PostMapping("/available-options")
+    public ResponseEntity<GamJaResponse> getAvailableAlchemyOptions(
+            HttpSession session,
+            @RequestBody Map<String, Long> payload
+    ) {
+        return itemAlchemyService.getAvailableAlchemyOptions(session, payload);
+    }
     @PostMapping("/material")
     public ResponseEntity<GamJaResponse> getAlchemyMaterialInfo(
             HttpSession session,

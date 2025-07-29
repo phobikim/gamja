@@ -442,23 +442,39 @@
     <div class="alchemy-modal-container">
         <div class="alchemy-title">아이템 연금</div>
         <div class="alchemy-body">
-            <div class="alchemy-center-slot">
-                <div id="alchemyItemSlot" class="alchemy-slot empty-slot">
-                    <span class="plus-icon">+</span>
-                    <div class="alchemy-effect-layer"></div>
+            <div class="alchemy-info-row">
+                <!-- 슬롯 -->
+                <div class="alchemy-slot-wrap">
+                    <div id="alchemyItemSlot" class="alchemy-slot empty-slot">
+                        <span class="plus-icon">+</span>
+                        <div class="alchemy-effect-layer"></div>
+                    </div>
+                </div>
+
+                <!-- 이름 + 옵션 -->
+                <div class="alchemy-info-text">
+                    <div class="alchemy-name-line">
+                        <div class="alchemy-item-name">아이템을 선택하세요.</div>
+                    </div>
+
+                    <div class="alchemy-available-option-wrapper">
+                        <div class="alchemy-option-sticker">등장 옵션</div>
+                        <div id="alchemyAvailableOptionList" class="alchemy-available-option-list"></div>
+                    </div>
+
+                    <div class="alchemy-info" id="alchemyItemInfo" style="display: none;">
+                        <div class="alchemy-info-sticker">현재 옵션</div>
+                        <div id="alchemyOptionList" class="alchemy-option-list"></div>
+                    </div>
                 </div>
             </div>
-            <div class="alchemy-info" id="alchemyItemInfo" style="display: none;">
-                <div class="alchemy-name-line">
-                    <div class="alchemy-item-name">아이템을 선택하세요.</div>
-                </div>
-                <div id="alchemyOptionList" class="alchemy-option-list"></div>
-            </div>
+
             <div id="alchemyMaterialBox" class="alchemy-material-section">
                 <div class="material-name">필요 골드: <span id="alchemyNeedGold" style="color: gold;">-</span></div>
                 <div id="alchemyMaterialList" class="materials-list"></div>
             </div>
         </div>
+
         <div class="alchemy-footer">
             <button id="alchemyExecuteBtn" class="alchemy-confirm-btn">연금</button>
             <button class="alchemy-close-btn" onclick="closeAlchemyModal()">닫기</button>

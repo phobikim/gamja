@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @Builder
@@ -23,6 +25,7 @@ public class ItemDto {
     private int bonusHp;
     private int bonusPower;
     private int bonusSpeed;
-
+    private List<AlchemyOptionDto> alchemyOptions;
 }
+
 

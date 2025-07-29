@@ -1,5 +1,6 @@
 package com.phobi.gamja.service;
 
+import com.phobi.gamja.dto.item.EquipmentSlot;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.item.ItemAlchemyCost;
 import com.phobi.gamja.entity.item.ItemAlchemyOption;
@@ -35,6 +36,29 @@ public class ItemAlchemyService {
     private final ItemAlchemyOptionRepository itemAlchemyOptionRepository;
     private final UserItemAlchemyOptionRepository userItemAlchemyOptionRepository;
     private final ItemAlchemyCostRepository itemAlchemyCostRepository;
+
+    public ResponseEntity<GamJaResponse> getAvailableAlchemyOptions(HttpSession session, Map<String, Long> payload) {
+        Long userId = commonUtil.getUserId(session);
+        Long itemId = payload.get("itemId");
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("아이템 정보를 찾을 수 없습니다."));
+
+        List<ItemAlchemyOption> optionList = itemAlchemyOptionRepository
+                .findByRarityAndEquipSlot(item.getRarity(), item.getEquipSlot());
+
+        List<Map<String, Object>> result = optionList.stream()
+                .map(opt -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("optionType", opt.getOptionType().name());
+                    map.put("valueType", opt.getValueType().name());
+                    map.put("min", opt.getMinValue());
+                    map.put("max", opt.getMaxValue());
+                    return map;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(GamJaResponse.success("연금 옵션 조회 완료", result));
+    }
 
     public ResponseEntity<GamJaResponse> getAlchemyMaterialInfo(HttpSession session, Map<String, Long> payload) {
         Long userId = commonUtil.getUserId(session);
@@ -111,7 +135,7 @@ public class ItemAlchemyService {
         userDtl.setGold(userDtl.getGold() - cost.getGoldCost());
 
         // 기존 옵션 삭제
-        userItemAlchemyOptionRepository.deleteByUserIdAndUserItemId(userId, itemId);
+        userItemAlchemyOptionRepository.deleteByUserIdAndItemId(userId, itemId);
 
         // 등급에 따른 옵션 개수만큼 새로 뽑기
         int optionCount = getOptionCountByRarity(item.getRarity());
@@ -124,7 +148,7 @@ public class ItemAlchemyService {
 
             resultOptions.add(UserItemAlchemyOption.builder()
                     .userId(userId)
-                    .userItemId(itemId)
+                    .itemId(itemId)
                     .optionIndex(i)
                     .optionType(selected.getOptionType())
                     .valueType(selected.getValueType())

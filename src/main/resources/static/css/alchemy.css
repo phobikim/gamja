@@ -18,6 +18,35 @@
     font-weight: bold;
     color: var(--white-color);
 }
+.alchemy-info-row {
+    display: flex;
+    gap: 16px;
+    background: var(--dark-2-color);
+    padding: 12px;
+    border-radius: 12px;
+    align-items: flex-start;
+}
+.alchemy-slot-wrap {
+    flex-shrink: 0;
+}
+
+.alchemy-info-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.alchemy-name-line {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--white-color);
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
 
 /* 슬롯 영역 */
 .alchemy-center-slot {
@@ -60,8 +89,11 @@
     font-weight: bold;
 }
 
+
+
 /* 아이템 정보 */
 .alchemy-info {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -71,11 +103,19 @@
     box-shadow: inset 0 0 4px rgba(0,0,0,0.3); /* 시각적 분리 */
 }
 
-.alchemy-name-line {
-    background-color: rgba(255, 255, 255, 0.05); /* 살짝 밝게 */
-    padding: 6px 10px;
-    border-radius: 8px;
-    margin-bottom: 6px;
+.alchemy-info-sticker {
+    position: absolute;
+    top: -10px;
+    left: 8px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: white;
+    background: #1c6b2e;
+    padding: 2px 6px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    opacity: 0.85;
+    z-index: 2;
 }
 
 .alchemy-item-name {
@@ -89,7 +129,6 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    margin-top: 4px;
 }
 
 .alchemy-option {
@@ -111,6 +150,7 @@
     background: var(--dark-2-color);
     border-radius: 12px;
     padding: 10px;
+    margin-top: 1rem;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -173,6 +213,7 @@
 }
 
 .material-name {
+    padding : 8px;
     font-size: 0.75rem;
     font-weight: bold;
     color: var(--dark-1-font-color);
@@ -214,4 +255,53 @@
     opacity: 0.5;
     cursor: not-allowed;
     pointer-events: none;
+}
+
+.alchemy-available-option-wrapper {
+    position: relative;
+}
+.alchemy-option-sticker {
+    position: absolute;
+    top: -10px;
+    left: 8px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: white;
+    background: #3b5c9f;
+    padding: 2px 6px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    opacity: 0.85;
+    z-index: 2;
+}
+
+.alchemy-available-option-list {
+    background: var(--dark-1-color);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.available-option-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--dark-1-font-color);
+    font-weight: bold;
+}
+
+.option-hint-text {
+    font-size: 0.75rem;
+    color: #777;
+    font-style: italic;
+}
+
+.alchemy-option-empty {
+    color: var(--white-color);
+    font-size: 0.8rem;
+    padding: 6px 0;
 }
