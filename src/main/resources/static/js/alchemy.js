@@ -20,6 +20,7 @@ async function openAlchemyModal() {
 function closeAlchemyModal() {
     alchemyModal.classList.add("hidden");
     selectedAlchemyItem = null;
+    openInfoModal();
 }
 
 alchemyItemSlot.addEventListener("click", () => {
@@ -130,8 +131,9 @@ alchemyExecuteBtn.addEventListener("click", async () => {
         });
 
         if (res.code === "SUCCESS") {
-            showMessageModal("✨ 연금 성공!");
+            showAlchemyMessage("연금 완료");
             renderAlchemyOptions(res.data);
+            await loadAlchemyMaterials(selectedAlchemyItem.id);
         } else {
             showMessageModal(res.message || "연금에 실패했습니다.");
         }
@@ -141,6 +143,18 @@ alchemyExecuteBtn.addEventListener("click", async () => {
     }
 });
 
+function showAlchemyMessage(text) {
+    const container = document.querySelector("#alchemyModal .alchemy-body");
+
+    const msg = document.createElement("div");
+    msg.className = "alchemy-result-message";
+    msg.textContent = text;
+
+    container.style.position = "relative";
+    container.appendChild(msg);
+
+    setTimeout(() => msg.remove(), 1000);
+}
 // 7. 옵션 결과 표시
 function renderAlchemyOptions(optionList) {
     alchemyOptionList.innerHTML = "";
