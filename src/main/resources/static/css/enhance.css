@@ -11,6 +11,14 @@
     gap: 20px;
 }
 
+.enhance-title{
+    text-align : center;
+    color: var(--dark-1-font-color);
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 8px 16px;
+}
 
 .enhance-detail-top {
     display: flex;
@@ -379,3 +387,4 @@
     font-weight: bold;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
+

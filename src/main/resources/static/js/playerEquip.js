@@ -85,12 +85,12 @@ function renderEquipItemList(itemList) {
             div.appendChild(enhanceLabel);
         }
 
-        if (item.equipped) {
-            const equipLabel = document.createElement('div');
-            equipLabel.className = 'equip-equipped-label';
-            equipLabel.textContent = '장착중';
-            div.appendChild(equipLabel);
-        }
+        // if (item.equipped) {
+        //     const equipLabel = document.createElement('div');
+        //     equipLabel.className = 'equip-equipped-label';
+        //     equipLabel.textContent = '장착중';
+        //     div.appendChild(equipLabel);
+        // }
 
         div.onclick = () => showEquipEffect(item);
         equipItemList.appendChild(div);
@@ -126,7 +126,49 @@ function showEquipEffect(item) {
     if (item.bonusSkillGathering) effects.push(`채집 체력 +${item.bonusSkillGathering}`);
     if (effects.length === 0) effects.push("효과 없음");
 
-    equipEffectText.textContent = effects.join(' / ');
+    equipEffectText.innerHTML = ''; // 기존 제거
+
+    // 기본 옵션
+    const baseSection = document.createElement('div');
+    baseSection.className = 'equip-option-section';
+    baseSection.innerHTML = `<div class="equip-option-sticker">기본 옵션</div>`;
+    const baseEffects = [];
+
+    if (item.bonusPower) baseEffects.push(`공격력 +${item.bonusPower}`);
+    if (item.bonusHp) baseEffects.push(`체력 +${item.bonusHp}`);
+    if (item.bonusSpeed) baseEffects.push(`민첩 +${item.bonusSpeed}`);
+    if (item.bonusSkillFish) baseEffects.push(`낚시 체력 +${item.bonusSkillFish}`);
+    if (item.bonusSkillMining) baseEffects.push(`채광 체력 +${item.bonusSkillMining}`);
+    if (item.bonusSkillWoodCutting) baseEffects.push(`벌목 체력 +${item.bonusSkillWoodCutting}`);
+    if (item.bonusSkillGathering) baseEffects.push(`채집 체력 +${item.bonusSkillGathering}`);
+
+    if (baseEffects.length === 0) baseEffects.push("효과 없음");
+
+    baseEffects.forEach(effect => {
+        const row = document.createElement('div');
+        row.className = 'equip-option-row';
+        row.textContent = effect;
+        baseSection.appendChild(row);
+    });
+    equipEffectText.appendChild(baseSection);
+
+    // 특수 옵션
+    if (item.alchemyOptions && item.alchemyOptions.length > 0) {
+        const specialSection = document.createElement('div');
+        specialSection.className = 'equip-option-section';
+        specialSection.innerHTML = `<div class="equip-option-sticker special">특수 옵션</div>`;
+
+        item.alchemyOptions.forEach(opt => {
+            const row = document.createElement('div');
+            row.className = 'equip-option-row';
+            const label = getOptionLabel(opt.optionType); // 함수 따로 분리
+            const suffix = opt.valueType === 'PERCENT' ? '%' : '';
+            row.textContent = `${label} +${opt.optionValue}${suffix}`;
+            specialSection.appendChild(row);
+        });
+
+        equipEffectText.appendChild(specialSection);
+    }
 }
 
 async function equipSelectedItem() {
@@ -150,6 +192,18 @@ async function equipSelectedItem() {
 
     } catch (e) {
         showMessageModal(e.message || "장착 중 오류가 발생했습니다.");
+    }
+}
+
+function getOptionLabel(type) {
+    switch (type) {
+        case 'HP': return '체력';
+        case 'ATTACK': return '공격력';
+        case 'CRIT_RATE': return '치명타 확률';
+        case 'CRIT_DMG': return '치명타 피해';
+        case 'EXP_GAIN': return '경험치 획득량';
+        case 'GOLD_GAIN': return '골드 획득량';
+        default: return type;
     }
 }
 

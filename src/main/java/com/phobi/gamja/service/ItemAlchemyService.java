@@ -20,10 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -140,8 +137,19 @@ public class ItemAlchemyService {
         // 등급에 따른 옵션 개수만큼 새로 뽑기
         int optionCount = getOptionCountByRarity(item.getRarity());
         List<UserItemAlchemyOption> resultOptions = new ArrayList<>();
+
+        Set<ItemAlchemyOption.OptionType> usedTypes = new HashSet<>();
         for (int i = 1; i <= optionCount; i++) {
-            ItemAlchemyOption selected = pickRandomOption(options);
+            // 사용하지 않은 옵션만 필터링
+            List<ItemAlchemyOption> availableOptions = options.stream()
+                    .filter(opt -> !usedTypes.contains(opt.getOptionType()))
+                    .collect(Collectors.toList());
+
+            if (availableOptions.isEmpty()) break; // 후보 없음 → 조기 종료
+
+            ItemAlchemyOption selected = pickRandomOption(availableOptions);
+            usedTypes.add(selected.getOptionType());
+
             BigDecimal value = selected.getOptionType() == ItemAlchemyOption.OptionType.JUNK
                     ? null
                     : randomInRange(selected.getMinValue(), selected.getMaxValue());
@@ -188,10 +196,18 @@ public class ItemAlchemyService {
 
     private BigDecimal randomInRange(BigDecimal min, BigDecimal max) {
         if (min == null || max == null) return null;
+
         int minInt = min.intValue();
         int maxInt = max.intValue();
-        int randomInt = minInt + (int)(Math.random() * (maxInt - minInt + 1));
-        return BigDecimal.valueOf(randomInt);
+
+        if (minInt >= maxInt) return BigDecimal.valueOf(minInt);
+        double rand = Math.random();
+        double biased = Math.pow(rand, 2);
+        int range = maxInt - minInt + 1;
+        int result = minInt + (int)(biased * range);
+
+        if (result > maxInt) result = maxInt;
+        return BigDecimal.valueOf(result);
     }
 
 
@@ -228,9 +244,8 @@ public class ItemAlchemyService {
             case UNCOMMON:
                 return 1;
             case RARE:
-                return 2;
             case EPIC:
-                return 3;
+                return 2;
             default:
                 return 1;
         }

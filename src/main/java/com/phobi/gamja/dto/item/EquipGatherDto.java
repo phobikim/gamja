@@ -4,25 +4,20 @@ import lombok.*;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class EquipItemDto {
+public class EquipGatherDto {
     private Long itemId;
     private String itemName;
     private String itemPath;
     private String description;
-    private Integer bonusPower;
-    private Integer bonusHp;
-    private Integer bonusSpeed;
     private int quantity;
-    private boolean equipped;
 
-    private Integer durationTurns;
+    // 생활 스킬 관련 보너스
     private Integer bonusSkillFish;
-    private Integer bonusSkillMining;
-    private Integer bonusSkillWoodCutting;
     private Integer bonusSkillGathering;
+    private Integer bonusSkillWoodCutting;
+    private Integer bonusSkillMining;
     private Integer bonusSkillMaking;
-    private Integer enhancementLevel;
 }

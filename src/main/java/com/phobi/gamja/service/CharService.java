@@ -2,8 +2,7 @@ package com.phobi.gamja.service;
 import com.phobi.gamja.dto.battle.BattleStatDto;
 import com.phobi.gamja.dto.dex.DexOwnedDto;
 import com.phobi.gamja.dto.dex.DexOwnedListResponseDto;
-import com.phobi.gamja.dto.item.EquipItemDto;
-import com.phobi.gamja.dto.item.EquipmentSlot;
+import com.phobi.gamja.dto.item.*;
 import com.phobi.gamja.dto.user.*;
 import com.phobi.gamja.entity.battle.StatBonus;
 import com.phobi.gamja.entity.contents.BackgroundImage;
@@ -11,10 +10,7 @@ import com.phobi.gamja.entity.contents.CorpsTier;
 import com.phobi.gamja.entity.dex.Dex;
 import com.phobi.gamja.entity.dex.DexAttribute;
 import com.phobi.gamja.entity.dex.DexRarityStat;
-import com.phobi.gamja.entity.item.Item;
-import com.phobi.gamja.entity.item.ItemPotionEffect;
-import com.phobi.gamja.entity.item.ItemSkillBonus;
-import com.phobi.gamja.entity.item.ItemStatBonus;
+import com.phobi.gamja.entity.item.*;
 import com.phobi.gamja.entity.title.UserTitle;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
@@ -22,10 +18,7 @@ import com.phobi.gamja.repository.contents.BackgroundImageRepository;
 import com.phobi.gamja.repository.contents.CorpsTierRepository;
 import com.phobi.gamja.repository.dex.DexRarityStatRepository;
 import com.phobi.gamja.repository.dex.DexRepository;
-import com.phobi.gamja.repository.item.ItemPotionEffectRepository;
-import com.phobi.gamja.repository.item.ItemRepository;
-import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
-import com.phobi.gamja.repository.item.ItemStatBonusRepository;
+import com.phobi.gamja.repository.item.*;
 import com.phobi.gamja.repository.title.UserTitleRepository;
 import com.phobi.gamja.repository.user.*;
 import com.phobi.gamja.util.CommonUtil;
@@ -71,6 +64,9 @@ public class CharService {
     private final CorpsTierRepository corpsTierRepository;
     private final UserCorpsRepository userCorpsRepository;
     private final UserEnhancementRepository userEnhancementRepository;
+    private final ItemAlchemyOptionRepository itemAlchemyOptionRepository;
+    private final UserItemAlchemyOptionRepository userItemAlchemyOptionRepository;
+
 
     @Transactional(readOnly = true)
     public GamJaResponse getUserInfo(HttpServletRequest request) {
@@ -194,7 +190,7 @@ public class CharService {
     @Transactional(readOnly = true)
     public GamJaResponse getEquipItems(HttpServletRequest request, Map<String, String> payload) {
         Long userId = (Long) request.getAttribute("userId");
-        // 1. 요청 파라미터 파싱
+
         String itemTypeStr = payload.get("itemType");
         String equipSlotStr = payload.get("equipSlot");
 
@@ -202,146 +198,154 @@ public class CharService {
             return GamJaResponse.fail("itemType 또는 equipSlot 누락");
         }
 
-        Item.ItemType itemType;
-        EquipmentSlot equipSlot;
-
         try {
-            itemType = Item.ItemType.valueOf(itemTypeStr);
+            Item.ItemType itemType = Item.ItemType.valueOf(itemTypeStr);
             if (equipSlotStr.startsWith("BADGE")) {
                 equipSlotStr = "BADGE";
             }
-            equipSlot = EquipmentSlot.valueOf(equipSlotStr);
+            EquipmentSlot equipSlot = EquipmentSlot.valueOf(equipSlotStr);
+
+            if (equipSlot == EquipmentSlot.POTION) {
+                return GamJaResponse.success("정상 조회", handlePotionItems(userId, equipSlot));
+            }
+
+            return switch (itemType) {
+                case EQUIP_BATTLE -> GamJaResponse.success("정상 조회", handleBattleEquipItems(userId, itemType, equipSlot));
+                case EQUIP_GATHER -> GamJaResponse.success("정상 조회", handleGatherEquipItems(userId, itemType, equipSlot));
+                default -> GamJaResponse.success("정상 조회", null);
+            };
+
         } catch (IllegalArgumentException e) {
             return GamJaResponse.fail("itemType 또는 equipSlot 값이 잘못되었습니다.");
         }
+    }
 
-        // 2. 유저 인벤토리 조회
+    private List<EquipPotionDto> handlePotionItems(Long userId, EquipmentSlot equipSlot) {
         List<UserInventory> inventoryList = userInventoryRepository.findByUserId(userId);
-        List<Long> itemIds = inventoryList.stream()
-                .map(UserInventory::getItemId)
-                .toList();
+        List<Long> itemIds = inventoryList.stream().map(UserInventory::getItemId).toList();
 
-        // 3. 해당 조건(itemType + equipSlot)에 맞는 아이템만 필터링
-        List<Item> filteredItems;
-        if (equipSlot == EquipmentSlot.POTION) {
-            filteredItems = itemRepository.findByIdInAndEquipSlot(itemIds, equipSlot);
-        } else {
-            filteredItems = itemRepository.findByIdInAndItemTypeAndEquipSlot(itemIds, itemType, equipSlot);
-        }
-        Map<Long, Item> itemMap = filteredItems.stream()
-                .collect(Collectors.toMap(Item::getId, item -> item));
+        List<Item> items = itemRepository.findByIdInAndEquipSlot(itemIds, equipSlot);
+        Map<Long, Item> itemMap = items.stream().collect(Collectors.toMap(Item::getId, i -> i));
 
+        List<ItemPotionEffect> potionEffects = itemPotionEffectRepository.findByItemIdIn(itemMap.keySet());
+        Map<Long, ItemPotionEffect> effectMap = potionEffects.stream()
+                .collect(Collectors.toMap(ItemPotionEffect::getItemId, e -> e));
 
-        List<ItemPotionEffect> potionEffectList;
-        List<ItemStatBonus> statBonusList;
-        List<ItemSkillBonus> skillBonuses;
-        List<EquipItemDto> result = null;
-        //5. 포션 보너스 정보 로딩
-        if (equipSlot == EquipmentSlot.POTION) {
-            potionEffectList = itemPotionEffectRepository.findByItemIdIn(itemMap.keySet());
-            Map<Long, ItemPotionEffect> statMap = potionEffectList.stream()
-                    .collect(Collectors.toMap(ItemPotionEffect::getItemId, b -> b));
-            // 5. 최종 DTO 조합
-            result = inventoryList.stream()
-                    .filter(inv -> itemMap.containsKey(inv.getItemId()) && inv.getQuantity() > 0)
-                    .map(inv -> {
-                        Item item = itemMap.get(inv.getItemId());
-                        ItemPotionEffect stat = statMap.getOrDefault(inv.getItemId(), new ItemPotionEffect());
+        return inventoryList.stream()
+                .filter(inv -> itemMap.containsKey(inv.getItemId()) && inv.getQuantity() > 0)
+                .map(inv -> {
+                    Item item = itemMap.get(inv.getItemId());
+                    ItemPotionEffect eff = effectMap.getOrDefault(item.getId(), new ItemPotionEffect());
 
-                        return EquipItemDto.builder()
-                                .itemId(item.getId())
-                                .itemName(item.getName())
-                                .itemPath(item.getIconPath())
-                                .description(item.getDescription())
-                                .bonusPower(stat.getBonusPower())
-                                .bonusHp(stat.getHealHp())
-                                .quantity(inv.getQuantity())
-                                .build();
-                    })
-                    .toList();
-            return GamJaResponse.success("정상 조회", result);
-        } else if(itemType == Item.ItemType.EQUIP_BATTLE){
+                    return EquipPotionDto.builder()
+                            .itemId(item.getId())
+                            .itemName(item.getName())
+                            .itemPath(item.getIconPath())
+                            .description(item.getDescription())
+                            .bonusPower(eff.getBonusPower())
+                            .bonusHp(eff.getHealHp())
+                            .quantity(inv.getQuantity())
+                            .build();
+                }).toList();
+    }
 
-            List<UserEnhancement> enhancementList = userEnhancementRepository.findByUserId(userId);
-            Map<Long, UserEnhancement> enhanceMap = enhancementList.stream()
-                    .collect(Collectors.toMap(UserEnhancement::getItemId, e -> e));
+    private List<EquipBattleDto> handleBattleEquipItems(Long userId, Item.ItemType itemType, EquipmentSlot equipSlot) {
+        List<UserInventory> inventoryList = userInventoryRepository.findByUserId(userId);
+        List<Long> itemIds = inventoryList.stream().map(UserInventory::getItemId).toList();
 
-            statBonusList = itemStatBonusRepository.findByItemIdIn(itemMap.keySet());
-            Map<Long, ItemStatBonus> baseStatMap = statBonusList.stream()
-                    .collect(Collectors.toMap(ItemStatBonus::getItemId, b -> b));
+        List<Item> items = itemRepository.findByIdInAndItemTypeAndEquipSlot(itemIds, itemType, equipSlot);
+        Map<Long, Item> itemMap = items.stream().collect(Collectors.toMap(Item::getId, i -> i));
 
+        List<UserEnhancement> enhancements = userEnhancementRepository.findByUserId(userId);
+        Map<Long, UserEnhancement> enhancementMap = enhancements.stream()
+                .collect(Collectors.toMap(UserEnhancement::getItemId, e -> e));
 
-            // 5. 최종 DTO 조합
-            result = inventoryList.stream()
-                    .filter(inv -> itemMap.containsKey(inv.getItemId()) && inv.getQuantity() > 0)
-                    .map(inv -> {
-                        Item item = itemMap.get(inv.getItemId());
-                        Long itemId = item.getId();
+        List<ItemStatBonus> baseStats = itemStatBonusRepository.findByItemIdIn(itemMap.keySet());
+        Map<Long, ItemStatBonus> baseStatMap = baseStats.stream()
+                .collect(Collectors.toMap(ItemStatBonus::getItemId, s -> s));
 
-                        boolean equipped = userEquipmentRepository.existsByUserIdAndItemId(userId, itemId);
+        List<UserItemAlchemyOption> alchemyOptions = userItemAlchemyOptionRepository.findByUserIdAndItemIdIn(userId, itemMap.keySet());
+        Map<Long, List<UserItemAlchemyOption>> alchemyMap = alchemyOptions.stream()
+                .collect(Collectors.groupingBy(UserItemAlchemyOption::getItemId));
 
-                        // 강화 정보가 있다면 우선 사용
-                        if (enhanceMap.containsKey(itemId)) {
-                            UserEnhancement enh = enhanceMap.get(itemId);
-                            return EquipItemDto.builder()
-                                    .itemId(itemId)
-                                    .itemName(item.getName())
-                                    .itemPath(item.getIconPath())
-                                    .description(item.getDescription())
-                                    .bonusPower(enh.getBonusPower())
-                                    .bonusHp(enh.getBonusHp())
-                                    .bonusSpeed(enh.getBonusSpeed())
-                                    .enhancementLevel(enh.getEnhancementLevel())
-                                    .equipped(equipped)
-                                    .build();
-                        }
+        return inventoryList.stream()
+                .filter(inv -> itemMap.containsKey(inv.getItemId()) && inv.getQuantity() > 0)
+                .map(inv -> {
+                    Item item = itemMap.get(inv.getItemId());
+                    Long itemId = item.getId();
+                    boolean equipped = userEquipmentRepository.existsByUserIdAndItemId(userId, itemId);
 
-                        // 없으면 기본 스탯 사용
-                        ItemStatBonus stat = baseStatMap.getOrDefault(itemId, new ItemStatBonus());
-                        return EquipItemDto.builder()
-                                .itemId(itemId)
-                                .itemName(item.getName())
-                                .itemPath(item.getIconPath())
-                                .description(item.getDescription())
-                                .bonusPower(stat.getBonusPower())
-                                .bonusHp(stat.getBonusHp())
-                                .bonusSpeed(stat.getBonusSpeed())
-                                .enhancementLevel(0)
-                                .equipped(equipped)
-                                .build();
-                    })
-                    .toList();
+                    int bonusPower = 0, bonusHp = 0, bonusSpeed = 0, level = 0;
+                    if (enhancementMap.containsKey(itemId)) {
+                        var enh = enhancementMap.get(itemId);
+                        bonusPower = enh.getBonusPower();
+                        bonusHp = enh.getBonusHp();
+                        bonusSpeed = enh.getBonusSpeed();
+                        level = enh.getEnhancementLevel();
+                    } else {
+                        var base = baseStatMap.getOrDefault(itemId, new ItemStatBonus());
+                        bonusPower = base.getBonusPower();
+                        bonusHp = base.getBonusHp();
+                        bonusSpeed = base.getBonusSpeed();
+                    }
 
-            return GamJaResponse.success("정상 조회", result);
-        }
-        else if(itemType == Item.ItemType.EQUIP_GATHER) {
-            // 4. 스탯 보너스 정보 로딩
-            skillBonuses = itemSkillBonusRepository.findByItemIdIn(itemMap.keySet());
-            Map<Long, ItemSkillBonus> statMap = skillBonuses.stream()
-                    .collect(Collectors.toMap(ItemSkillBonus::getItemId, b -> b));
-            // 5. 최종 DTO 조합
-            result = inventoryList.stream()
-                    .filter(inv -> itemMap.containsKey(inv.getItemId()) && inv.getQuantity() > 0)
-                    .map(inv -> {
-                        Item item = itemMap.get(inv.getItemId());
-                        ItemSkillBonus skill = statMap.getOrDefault(inv.getItemId(), new ItemSkillBonus());
+                    List<AlchemyOptionDto> alchemyOptionList = Optional.ofNullable(alchemyMap.get(itemId))
+                            .orElse(Collections.emptyList())
+                            .stream()
+                            .map(opt -> new AlchemyOptionDto(
+                                    opt.getOptionType(),
+                                    opt.getValueType(),
+                                    opt.getOptionValue(),
+                                    opt.getDescription()
+                            ))
+                            .toList();
 
-                        return EquipItemDto.builder()
-                                .itemId(item.getId())
-                                .itemName(item.getName())
-                                .itemPath(item.getIconPath())
-                                .description(item.getDescription())
-                                .bonusSkillFish(skill.getFishing())
-                                .bonusSkillGathering(skill.getGathering())
-                                .bonusSkillWoodCutting(skill.getWoodcutting())
-                                .bonusSkillMining(skill.getMining())
-                                .bonusSkillMaking(skill.getMaking())
-                                .build();
-                    })
-                    .toList();
-            return GamJaResponse.success("정상 조회", result);
-        }
-        return GamJaResponse.success("정상 조회", null);
+                    return EquipBattleDto.builder()
+                            .itemId(itemId)
+                            .itemName(item.getName())
+                            .itemPath(item.getIconPath())
+                            .description(item.getDescription())
+                            .bonusPower(bonusPower)
+                            .bonusHp(bonusHp)
+                            .bonusSpeed(bonusSpeed)
+                            .enhancementLevel(level)
+                            .equipped(equipped)
+                            .alchemyOptions(alchemyOptionList)
+                            .quantity(inv.getQuantity())
+                            .build();
+                }).toList();
+    }
+
+    private List<EquipGatherDto> handleGatherEquipItems(Long userId, Item.ItemType itemType, EquipmentSlot equipSlot) {
+        List<UserInventory> inventoryList = userInventoryRepository.findByUserId(userId);
+        List<Long> itemIds = inventoryList.stream().map(UserInventory::getItemId).toList();
+
+        List<Item> items = itemRepository.findByIdInAndItemTypeAndEquipSlot(itemIds, itemType, equipSlot);
+        Map<Long, Item> itemMap = items.stream().collect(Collectors.toMap(Item::getId, i -> i));
+
+        List<ItemSkillBonus> skillBonuses = itemSkillBonusRepository.findByItemIdIn(itemMap.keySet());
+        Map<Long, ItemSkillBonus> skillMap = skillBonuses.stream()
+                .collect(Collectors.toMap(ItemSkillBonus::getItemId, s -> s));
+
+        return inventoryList.stream()
+                .filter(inv -> itemMap.containsKey(inv.getItemId()) && inv.getQuantity() > 0)
+                .map(inv -> {
+                    Item item = itemMap.get(inv.getItemId());
+                    ItemSkillBonus skill = skillMap.getOrDefault(item.getId(), new ItemSkillBonus());
+
+                    return EquipGatherDto.builder()
+                            .itemId(item.getId())
+                            .itemName(item.getName())
+                            .itemPath(item.getIconPath())
+                            .description(item.getDescription())
+                            .bonusSkillFish(skill.getFishing())
+                            .bonusSkillGathering(skill.getGathering())
+                            .bonusSkillWoodCutting(skill.getWoodcutting())
+                            .bonusSkillMining(skill.getMining())
+                            .bonusSkillMaking(skill.getMaking())
+                            .quantity(inv.getQuantity())
+                            .build();
+                }).toList();
     }
 
 

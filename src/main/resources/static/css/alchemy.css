@@ -13,10 +13,12 @@
 }
 
 .alchemy-title {
-    text-align: center;
+    text-align : center;
+    color: var(--dark-1-font-color);
     font-size: 1rem;
     font-weight: bold;
-    color: var(--white-color);
+    cursor: pointer;
+    padding: 8px 16px;
 }
 .alchemy-info-row {
     display: flex;
@@ -97,7 +99,7 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    background: var(--dark-2-color);
+    background: var(--baige-color);
     padding: 12px;
     border-radius: 12px;
     box-shadow: inset 0 0 4px rgba(0,0,0,0.3); /* 시각적 분리 */
@@ -105,7 +107,7 @@
 
 .alchemy-info-sticker {
     position: absolute;
-    top: -10px;
+    top: -13px;
     left: 8px;
     font-size: 0.7rem;
     font-weight: bold;
@@ -128,17 +130,16 @@
 .alchemy-option-list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0px;
 }
 
 .alchemy-option {
     display: flex;
     justify-content: space-between;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: bold;
-    color: var(--white-color);
+    color: var(--dark-brown-font-color);
     padding: 4px 0;
-    border-bottom: 1px dashed rgba(255,255,255,0.1); /* 옵션 구분선 */
 }
 
 .alchemy-option:last-child {
@@ -262,7 +263,7 @@
 }
 .alchemy-option-sticker {
     position: absolute;
-    top: -10px;
+    top: -13px;
     left: 8px;
     font-size: 0.7rem;
     font-weight: bold;
@@ -289,7 +290,7 @@
 .available-option-row {
     display: flex;
     justify-content: space-between;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     color: var(--dark-1-font-color);
     font-weight: bold;
 }
@@ -323,4 +324,35 @@
     border: 2px solid #7caaff;
     color: #e0f0ff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes shimmerFlash {
+    0% { box-shadow: 0 0 6px #fff8, inset 0 0 10px #fff4; }
+    50% { box-shadow: 0 0 16px #ffe, inset 0 0 20px #ffff; }
+    100% { box-shadow: 0 0 6px #fff8, inset 0 0 10px #fff4; }
+}
+
+@keyframes pulseShake {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.03); }
+    50% { transform: scale(0.97); }
+    75% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+.alchemy-info.animate {
+    animation: shimmerFlash 0.4s ease-in-out 2, pulseShake 0.3s ease-in-out 1;
+}
+
+.alchemy-option.fade-in {
+    opacity: 0;
+    transform: translateY(-4px);
+    animation: optionFadeIn 0.3s ease-out forwards;
+}
+
+@keyframes optionFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
