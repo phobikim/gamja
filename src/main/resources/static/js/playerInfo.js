@@ -134,6 +134,7 @@ function setCharacterBattleInfo(data) {
             }
         }
     });
+    renderSpecialOptions({ equippedItems: data.equippedItems });
     applyRarityToEachSlot(slotMap, data.equippedItems);
 }
 
@@ -433,4 +434,85 @@ function createEnhanceLabel(level) {
     else if (level >= 5) label.classList.add('enhance-tier-5');
 
     return label;
+}
+
+function renderSpecialOptions({ totals, equippedItems }) {
+    // 1) 기본 구조
+    const sum = {
+        crit_rate: 0,
+        crit_dmg: 0,
+        exp_gain: 0,
+        gold_gain: 0,
+    };
+
+    // 3) equippedItems 기반으로 합산 (특수옵션 배열로 오거나 key-value로 올 수 있음)
+    if (equippedItems && equippedItems.length) {
+        for (const item of equippedItems) {
+            if (Array.isArray(item.specialOptions)) {
+                for (const opt of item.specialOptions) {
+                    addIfMatch(sum, opt.key, opt.value);
+                }
+            }
+            if (Array.isArray(item.alchemyOptions)) {
+                for (const opt of item.alchemyOptions) {
+                    const key = (opt.optionType || '').toLowerCase();
+                    const val = opt.optionValue;
+                    addIfMatch(sum, key, val);
+                }
+            }
+            addIfMatch(sum, 'crit_rate', item.crit_rate);
+            addIfMatch(sum, 'crit_dmg',  item.crit_dmg);
+            addIfMatch(sum, 'exp_gain',  item.exp_gain);
+            addIfMatch(sum, 'gold_gain', item.gold_gain);
+        }
+    }
+
+    // 4) 출력 (퍼센트 표기 규칙: 0~1이면 0~100%로, 1 이상이면 이미 %값으로 간주)
+    setStatText('optCritRate',  sum.crit_rate);
+    setStatText('optCritDmg',   sum.crit_dmg);
+    setStatText('optExpGain',   sum.exp_gain);
+    setStatText('optGoldGain',  sum.gold_gain);
+}
+
+// 유틸
+function addIfMatch(sum, key, val) {
+    if (val == null) return;
+    const k = (key || '').toString().toLowerCase();
+    if (k === 'crit_rate') sum.crit_rate += toNumber(val);
+    if (k === 'crit_dmg')  sum.crit_dmg  += toNumber(val);
+    if (k === 'exp_gain')  sum.exp_gain  += toNumber(val);
+    if (k === 'gold_gain') sum.gold_gain += toNumber(val);
+}
+
+function toNumber(v) {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+}
+
+function fmtPercent(v) {
+    // v가 0.12(=12%)처럼 오면 12, 12(=12%)처럼 오면 그대로
+    const pct = v <= 1 ? v * 100 : v;
+    // 소수점: 깔끔하게 0.1 단위, 정수면 소수 제거
+    const str = Number.isInteger(pct) ? pct.toString() : pct.toFixed(1);
+    return (pct === 0 ? '0%' : `+${str}%`);
+}
+
+function setStatText(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const numeric = toNumber(value);
+    const pct = numeric <= 1 ? numeric * 100 : numeric;
+    const text = (pct === 0 ? '0%' : `+${Number.isInteger(pct) ? pct : pct.toFixed(1)}%`);
+    el.textContent = text;
+
+    // 기존 클래스 제거
+    el.classList.remove('value-range-1', 'value-range-2', 'value-range-3', 'value-range-4', 'value-range-over');
+
+    // 색상 클래스 추가
+    if (pct <= 10) el.classList.add('value-range-1');
+    else if (pct <= 20) el.classList.add('value-range-2');
+    else if (pct <= 30) el.classList.add('value-range-3');
+    else if (pct <= 40) el.classList.add('value-range-4');
+    else el.classList.add('value-range-over');
 }

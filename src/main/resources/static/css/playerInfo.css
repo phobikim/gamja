@@ -328,3 +328,24 @@
     background-color: var(--dark-1-font-color);
     color: var(--brown-color);
 }
+
+#specialOptions .value {
+    /*color: var(--white-color);*/
+    margin-left: auto;
+}
+
+.value-range-1 {
+    color: #ffffff; /* 1~10 : 기본 흰색 */
+}
+.value-range-2 {
+    color: #79ff7c; /* 11~20 : 연녹색 */
+}
+.value-range-3 {
+    color: #73b9ff; /* 21~30 : 푸른빛 */
+}
+.value-range-4 {
+    color: #ffa76c; /* 31~40 : 주황빛 */
+}
+.value-range-over {
+    color: #ffd700; /* 40 초과: 황금색 */
+}

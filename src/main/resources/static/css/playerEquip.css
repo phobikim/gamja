@@ -16,6 +16,7 @@
     gap: 4px;
     max-height: 144px;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 4px;
     background-color: var(--baige-color);
     border-radius: 10px;
@@ -31,6 +32,8 @@
     border-radius: 10px;
     cursor: pointer;
     position: relative;
+    box-sizing: border-box;
+    min-width: 0;
 }
 
 .equip-item.selected {
@@ -159,7 +162,7 @@
 
 .equip-option-sticker {
     position: absolute;
-    top: -11px;
+    top: -12px;
     left: 6px;
     background-color: #4a3a2a;
     color: #fff8dc;
@@ -176,7 +179,8 @@
 }
 
 .equip-option-row {
-    font-size: 0.8rem;
+    display: flex;
+    font-size: 0.7rem;
     color: var(--dark-brown-font-color);
     font-weight: bold;
     padding: 4px 0;
