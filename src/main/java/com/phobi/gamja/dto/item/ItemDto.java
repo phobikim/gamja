@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -26,6 +28,7 @@ public class ItemDto {
     private int bonusPower;
     private int bonusSpeed;
     private List<AlchemyOptionDto> alchemyOptions;
+    private Map<String, BigDecimal> specialOptions;
 }
 
 

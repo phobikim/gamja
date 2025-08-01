@@ -349,3 +349,7 @@
 .value-range-over {
     color: #ffd700; /* 40 초과: 황금색 */
 }
+
+.stat-bar-wrapper.no-bar .stat-bar-bg {
+    display: none;
+}

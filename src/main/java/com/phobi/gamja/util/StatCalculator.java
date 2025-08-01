@@ -26,6 +26,8 @@ import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.repository.user.*;
 import com.phobi.gamja.repository.item.ItemStatBonusRepository;
 import com.phobi.gamja.repository.dex.DexRepository;
+
+import java.math.BigDecimal;
 import java.util.*;
 @Component
 @RequiredArgsConstructor
@@ -75,6 +77,13 @@ public class StatCalculator {
         List<UserEquipment> battleEquipments = userEquipmentRepository.findByUserIdAndType(userId, EquipmentType.EQUIP_BATTLE);
         int equipHp = 0, equipPower = 0, equipSpeed = 0;
         List<ItemDto> itemDtoList = new ArrayList<>();
+
+        double totalCritRate = 0.0;
+        double totalCritDmg = 0.0;
+        double totalExpGain = 0.0;
+        double totalGoldGain = 0.0;
+
+
         for (UserEquipment eq : battleEquipments) {
             Item item = eq.getItem();
             Long itemId = item.getId();
@@ -99,12 +108,21 @@ public class StatCalculator {
                 }
             }
 
+            //연금정보
             List<UserItemAlchemyOption> alchemyOptions = userItemAlchemyOptionRepository.findByUserIdAndItemId(userId, itemId);
             for (UserItemAlchemyOption opt : alchemyOptions) {
-                if (!Objects.equals(opt.getValueType(), ItemAlchemyOption.ValueType.FLAT)) continue; // 퍼센트 제외
-                switch (opt.getOptionType()) {
-                    case HP -> bonusHp += opt.getOptionValue().intValue();
-                    case ATTACK -> bonusPower += opt.getOptionValue().intValue();
+                if (opt.getValueType() == ItemAlchemyOption.ValueType.FLAT) {
+                    switch (opt.getOptionType()) {
+                        case HP -> bonusHp += opt.getOptionValue().intValue();
+                        case ATTACK -> bonusPower += opt.getOptionValue().intValue();
+                    }
+                } else if (opt.getValueType() == ItemAlchemyOption.ValueType.PERCENT) {
+                    switch (opt.getOptionType()) {
+                        case CRIT_RATE -> totalCritRate += opt.getOptionValue().doubleValue();
+                        case CRIT_DMG -> totalCritDmg += opt.getOptionValue().doubleValue();
+                        case EXP_GAIN -> totalExpGain += opt.getOptionValue().doubleValue();
+                        case GOLD_GAIN -> totalGoldGain += opt.getOptionValue().doubleValue();
+                    }
                 }
             }
 
@@ -156,7 +174,16 @@ public class StatCalculator {
         );
 
 
-        return new BattleStatDto(hp, power, speed, itemDtoList);
+        return BattleStatDto.builder()
+                .hp(hp)
+                .power(power)
+                .speed(speed)
+                .equippedItems(itemDtoList)
+                .critRate(totalCritRate)
+                .critDmg(totalCritDmg)
+                .expGain(totalExpGain)
+                .goldGain(totalGoldGain)
+                .build();
     }
 
 
@@ -230,15 +257,28 @@ public class StatCalculator {
             }
         }
 
-        List<AlchemyOptionDto> alchemyOptions = alchemyOptionList == null ? List.of() :
-                alchemyOptionList.stream()
-                        .map(opt -> new AlchemyOptionDto(
-                                opt.getOptionType(),
-                                opt.getValueType(),
-                                opt.getOptionValue(),
-                                opt.getDescription()
-                        ))
-                        .toList();
+        List<AlchemyOptionDto> alchemyOptions = new ArrayList<>();
+        Map<String, BigDecimal> specialOptions = new HashMap<>();
+
+        if (alchemyOptionList != null) {
+            for (UserItemAlchemyOption opt : alchemyOptionList) {
+                alchemyOptions.add(new AlchemyOptionDto(
+                        opt.getOptionType(),
+                        opt.getValueType(),
+                        opt.getOptionValue(),
+                        opt.getDescription()
+                ));
+
+                if (opt.getValueType() == ItemAlchemyOption.ValueType.PERCENT) {
+                    switch (opt.getOptionType()) {
+                        case CRIT_RATE -> specialOptions.put("CRIT_RATE", opt.getOptionValue());
+                        case CRIT_DMG -> specialOptions.put("CRIT_DMG", opt.getOptionValue());
+                        case EXP_GAIN -> specialOptions.put("EXP_GAIN", opt.getOptionValue());
+                        case GOLD_GAIN -> specialOptions.put("GOLD_GAIN", opt.getOptionValue());
+                    }
+                }
+            }
+        }
 
         return ItemDto.builder()
                 .id(item.getId())
@@ -255,6 +295,8 @@ public class StatCalculator {
                 .bonusPower(bonusPower)
                 .bonusSpeed(bonusSpeed)
                 .alchemyOptions(alchemyOptions)
+                .specialOptions(specialOptions)
                 .build();
     }
+
 }

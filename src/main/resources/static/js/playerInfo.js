@@ -33,7 +33,11 @@ function updateStatValue(statId, detail, max = 100) {
     } = detail;
 
     const total = fromUser + fromBase + fromEquip + fromTier;
-    valueSpan.textContent = total;
+    if (statId === 'combatSpeed') {
+        valueSpan.textContent = `${(total / 10).toFixed(1)}%`;
+    } else {
+        valueSpan.textContent = total;
+    }
 
     // 순환 구조 적용 (100 단위 순환)
     const levelIndex = Math.floor(total / 100) % 4; // 0 ~ 3

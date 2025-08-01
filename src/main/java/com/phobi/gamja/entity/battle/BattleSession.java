@@ -26,6 +26,13 @@ public class BattleSession {
     private int playerBasePower;  // 원래 공격력
     private boolean bonusApplied; // 포션 공격력 버프 중복 방지
 
+    // 유저 특수 옵션
+    private double playerSpeedCritRate;
+    private double critRate;
+    private double critDmg;
+    private double expGain;
+    private double goldGain;
+
     // 몬스터 상태
     private Long monsterId;
     private String monsterName;

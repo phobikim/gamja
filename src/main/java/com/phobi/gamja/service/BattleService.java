@@ -173,6 +173,14 @@ public class BattleService {
         userInfo.put("hp", userBattleDto.getHp().getTotal());
         userInfo.put("speed", userBattleDto.getSpeed().getTotal());
 
+        //  특수옵션 추가
+        Map<String, Double> specialOptions = new HashMap<>();
+        specialOptions.put("CRIT_RATE", userBattleDto.getCritRate());
+        specialOptions.put("CRIT_DMG", userBattleDto.getCritDmg());
+        specialOptions.put("EXP_GAIN", userBattleDto.getExpGain());
+        specialOptions.put("GOLD_GAIN", userBattleDto.getGoldGain());
+        userInfo.put("specialOptions", specialOptions);
+
         // 포션 아이템 정보
         ItemDto potionItem = null;
         int potionCount = 0;
@@ -340,18 +348,24 @@ public class BattleService {
                             .build();
                 }).collect(Collectors.toList());
 
+
         //
         BattleSession battleSession = new BattleSession();
         battleSession.setUserId(userId);
         battleSession.setPlayerHp((Integer) userInfo.get("hp"));
         battleSession.setPlayerMaxHp((Integer) userInfo.get("hp"));
-        battleSession.setPlayerSpeed((Integer) userInfo.get("speed"));
+//        battleSession.setPlayerSpeed((Integer) userInfo.get("speed"));
         battleSession.setPlayerXp((Integer) userInfo.get("xp"));
         battleSession.setPlayerLevel((Integer) userInfo.get("lv"));
         // 포션으로 인한 공격력 증가 조절 (1회만 가능하도록)
         battleSession.setPlayerPower((Integer) userInfo.get("power"));
         battleSession.setPlayerBasePower((Integer) userInfo.get("power"));
         battleSession.setBonusApplied(false);
+
+        // 유저의 민첨 스탯을 크리티컬 확률로 변경
+        int rawSpeed = (Integer) userInfo.get("speed");
+        double speedBasedCritRate = rawSpeed / 10.0;
+        battleSession.setPlayerSpeedCritRate(speedBasedCritRate);
 
         Map<String, Object> potion = (Map<String, Object>) userInfo.get("potion");
         battleSession.setPlayerPotionHp((Integer) potion.getOrDefault("bonusHp", 0));
@@ -365,6 +379,14 @@ public class BattleService {
         battleSession.setMonsterPower(monster.getMonsterPower());
         battleSession.setMonsterXp(monster.getMonsterXp());
         battleSession.setMonsterDrops(dropDtos);
+
+        //유저 특수 옵션
+        Map<String, Double> specialOptions = (Map<String, Double>) userInfo.getOrDefault("specialOptions", Map.of());
+
+        battleSession.setCritRate(specialOptions.getOrDefault("CRIT_RATE", 0.0));
+        battleSession.setCritDmg(specialOptions.getOrDefault("CRIT_DMG", 0.0));
+        battleSession.setExpGain(specialOptions.getOrDefault("EXP_GAIN", 0.0));
+        battleSession.setGoldGain(specialOptions.getOrDefault("GOLD_GAIN", 0.0));
 
         session.setAttribute("battleSession", battleSession);
 
@@ -404,9 +426,14 @@ public class BattleService {
             return GamJaResponse.fail("지금은 플레이어 턴이 아닙니다.");
         }
         // === 유저 공격 처리 ===
-        boolean isCritical = Math.random() < 0.3;
+        double critRate = bs.getCritRate() + bs.getPlayerSpeedCritRate();
+        double critDmg = bs.getCritDmg();
+
+        boolean isCritical = Math.random() < (critRate / 100.0);
         int playerRawPower = bs.getPlayerPower();
-        int playerDamage = isCritical ? (int) Math.round(playerRawPower * 1.5) : playerRawPower;
+        int playerDamage = isCritical
+                ? (int) Math.round(playerRawPower * (1 + critDmg / 100.0))
+                : playerRawPower;
 
         int monsterHp = Math.max(0, bs.getMonsterHp() - playerDamage);
         bs.setMonsterHp(monsterHp);
@@ -487,7 +514,12 @@ public class BattleService {
 
             int beforeXp = bs.getPlayerXp();
             int beforeLevel = bs.getPlayerLevel();
-            int gainedXp = bs.getMonsterXp();
+
+            // 경험치 획득량 추가
+            int baseXp = bs.getMonsterXp();
+            double bonusXpRatio = bs.getExpGain();
+            int bonusXp = (int) Math.floor(baseXp * bonusXpRatio / 100.0);
+            int gainedXp = baseXp + bonusXp;
 
             // XP 처리
             UserDexXpDto xpDto = levelService.updateCharacterExp(userId, dexId, gainedXp);
