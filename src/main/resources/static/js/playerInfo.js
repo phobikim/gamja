@@ -188,7 +188,7 @@ function setOtherUserBattleInfo(data) {
             slot.textContent = getSlotLabel(slotKey);
         }
     });
-
+    renderSpecialOptions({ equippedItems: data.equippedItems });
     applyRarityToEachSlot(slotMap, data.equippedItems || []);
 }
 

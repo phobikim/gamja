@@ -329,11 +329,7 @@ function renderCardsByType(type, list) {
         }
     });
 }
-document.getElementById("dexGrowthBtn").addEventListener("click", () => {
-    if (!selectedCharacterInDetail) return;
 
-    openGrowthModal(selectedCharacterInDetail);
-});
 
 function showDexDetail(type, item) {
     document.getElementById("dexDetailPanel").classList.remove("hidden");
@@ -405,7 +401,6 @@ function showDexDetail(type, item) {
         // 캐릭터 장착, 강화 버튼 표시
         detailEquip.style.display = "flex";
         const equipBtn = document.getElementById("dexEquipBtn");
-        const growthBtn = document.getElementById("dexGrowthBtn");
 
         if (item.owned === false) {
             // 미보유일 경우 버튼 숨김
@@ -424,9 +419,6 @@ function showDexDetail(type, item) {
                 equipBtn.disabled = false;
                 equipBtn.classList.remove("equipped");
             }
-
-            growthBtn.textContent = "성장";
-            growthBtn.disabled = false;
         }
 
         // 미보유 오버레이 설정 (캐릭터 탭에만 적용)
