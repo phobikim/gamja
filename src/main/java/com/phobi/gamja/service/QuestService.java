@@ -433,7 +433,7 @@ public class QuestService {
             userLogService.recordDailyQuest(userId, questId);
         }
 
-        corpsTierService.updateCorpsXp(userId, 5);
+        corpsTierService.updateCorpsXp(userId, 10);
 
         Map<String, Object> response = new HashMap<>();
         response.put("rewards", rewardResults); // 랜덤 보상만 포함됨
@@ -765,7 +765,7 @@ public class QuestService {
             userLogService.recordDailyQuest(userId, questId);
         }
 
-        corpsTierService.updateCorpsXp(userId, 10);
+        corpsTierService.updateCorpsXp(userId, 20);
 
         Map<String, Object> response = new HashMap<>();
         response.put("rewards", rewardResults); // 랜덤 보상만 포함됨

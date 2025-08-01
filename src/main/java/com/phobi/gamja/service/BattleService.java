@@ -511,7 +511,7 @@ public class BattleService {
             // 활동 로그 등록
             logService.recordCounter(userId, CounterType.MONSTER_KILL, bs.getMonsterId());
             userLogService.recordDailyMonster(userId, bs.getMonsterId());
-            corpsTierService.updateCorpsXp(userId, 1);
+            corpsTierService.updateCorpsXp(userId, 2);
         }
 
         // 세션 제거

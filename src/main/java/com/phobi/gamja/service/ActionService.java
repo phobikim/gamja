@@ -339,7 +339,7 @@ public class ActionService {
         }
 
         // stage 5 이상부터 보상 시작, 10단위로 1씩 증가
-        int corpsXp = (stage >= 5) ? ((stage - 1) / 10) + 1 : 0;
+        int corpsXp = (stage >= 5) ? (((stage - 1) / 10) * 10) + 10 : 0;
         if (corpsXp > 0) {
             corpsTierService.updateCorpsXp(userId, corpsXp);
         }

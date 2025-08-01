@@ -8,6 +8,7 @@ public enum CounterType {
     LIFE_ACTION,
     QUEST_COMPLETE,
     ITEM_ENHANCE,
+    ITEM_ALCHEMY,
 
     /*기록 안함, 퀘스트 용 */
     EQUIP_ITEM,
