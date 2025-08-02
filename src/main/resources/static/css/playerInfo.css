@@ -390,6 +390,14 @@
     display: none;
 }
 
+/* 기본 strong 스타일 (강조용 텍스트) */
 .special-tooltip-content strong {
+    color: var(--green-hignlight); /* 예시: 밝은 노란 강조 */
+    font-weight: bold;
+}
+
+/* 옵션명 전용 strong: 더 진하고 오렌지색 */
+.special-tooltip-content .special-option-name {
     color: var(--orange-color);
+    font-weight: bold;
 }

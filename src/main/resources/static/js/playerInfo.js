@@ -527,15 +527,23 @@ function setStatText(id, value) {
 
 // 특수옵션 설명 텍스트 정의
 const specialOptionDescription = `
-    <strong>방어력</strong> : 몬스터의 공격 피해를 먼저 막아주는 보호 수치입니다.<br>
+    <strong class="special-option-name">방어력</strong> : 몬스터의 공격 피해를 먼저 막아주는 보호 수치입니다.<br>
     &nbsp;&nbsp;- 포션 효과로 회복되지 않으며, 전투 중 피해를 받으면 먼저 차감됩니다.<br><br>
-    <strong>치명타 확률</strong> : 공격 시 치명타가 발생할 확률입니다.<br>
-    &nbsp;&nbsp;- 기본값은 <strong>10%</strong>이며, 감자의 <strong>스탯</strong>에 따라 증가합니다.<br><br>
-    <strong>치명타 피해량</strong> : 치명타 발생 시 추가로 들어가는 피해량입니다.<br>
-    &nbsp;&nbsp;- 기본값은 <strong>10%</strong>이며, 특수 옵션에 의해 증가할 수 있습니다.<br><br>
-    <strong>경험치 획득량</strong> : 몬스터 처치 시 얻는 <strong>경험치</strong>가 증가합니다.<br><br>
-    <strong>골드 획득량</strong> : 몬스터 처치 시 얻는 <strong>감자코인</strong>이 증가합니다.
-    `;
+    &nbsp;&nbsp;- 기본값은 <strong>0</strong>이며, <strong>특수 옵션</strong>에 의해 증가할 수 있습니다.<br><br>
+
+    <strong class="special-option-name">치명타 확률</strong> : 공격 시 치명타가 발생할 확률입니다.<br>
+    &nbsp;&nbsp;- 기본값은 <strong>10%</strong>이며, 감자의 <strong>스탯</strong>과 <strong>특수 옵션</strong>에 따라 증가할 수 있습니다.<br><br>
+
+    <strong class="special-option-name">치명타 피해량</strong> : 치명타 발생 시 추가로 들어가는 피해량입니다.<br>
+    &nbsp;&nbsp;- 기본값은 <strong>10%</strong>이며, <strong>특수 옵션</strong>에 의해 증가할 수 있습니다.<br><br>
+
+    <strong class="special-option-name">경험치 획득량</strong> : 몬스터 처치 시 얻는 <strong>경험치</strong>가 증가합니다.<br><br>
+    &nbsp;&nbsp;- 기본값은 <strong>0</strong>이며, <strong>특수 옵션</strong>에 의해 증가할 수 있습니다.<br><br>
+
+    <strong class="special-option-name">골드 획득량</strong> : 몬스터 처치 시 얻는 <strong>감자코인</strong>이 증가합니다.<br>
+    &nbsp;&nbsp;- 기본값은 <strong>0</strong>이며, <strong>특수 옵션</strong>에 의해 증가할 수 있습니다.<br><br>
+`;
+
 // 툴팁 표시 함수
 function showSpecialTooltip(htmlContent) {
     const tooltip = document.getElementById('specialOptionTooltip');

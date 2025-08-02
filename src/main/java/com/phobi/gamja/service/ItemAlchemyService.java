@@ -246,6 +246,7 @@ public class ItemAlchemyService {
         list.add(Map.of(
                 "itemId", itemId,
                 "name", item.getName(),
+                "condition", item.getCondition(),
                 "quantity", qty,
                 "owned", owned,
                 "iconPath", item.getIconPath()

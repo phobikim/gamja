@@ -103,7 +103,10 @@ async function loadAlchemyMaterials(itemId) {
             el.innerHTML = `
                 <img src="${basePath}${mat.iconPath}" class="material-img">
                 <div class="material-info">
-                    <div class="material-name">${mat.name}</div>
+                    <div class="material-name">
+                        ${mat.name}
+                        ${mat.condition ? `<span class="material-condition">(${mat.condition})</span>` : ""}
+                    </div>
                     <div class="material-count" style="color:${insufficient ? "#ff4d4d" : "#ccc"};">
                         보유: ${mat.owned} / 필요: ${mat.quantity}
                     </div>
