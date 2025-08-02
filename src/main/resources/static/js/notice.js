@@ -62,7 +62,19 @@ function renderNoticePanel() {
         notice.patchNotes.forEach(note => {
             const item = document.createElement('div');
             item.className = 'patch-note-card';
-            item.textContent = `${note}`;
+
+            // 라벨 추가 (우상단 고정)
+            const label = document.createElement('div');
+            label.className = `patch-note-label patch-${note.type.toLowerCase()}`;
+            label.textContent = note.type;
+            item.appendChild(label);
+
+            // 본문 내용
+            const text = document.createElement('div');
+            text.className = 'patch-note-content';
+            text.textContent = note.content;
+            item.appendChild(text);
+
             patchListEl.appendChild(item);
         });
     } else {

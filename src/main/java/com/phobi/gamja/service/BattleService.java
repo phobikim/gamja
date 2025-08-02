@@ -429,8 +429,9 @@ public class BattleService {
 
         boolean isCritical = Math.random() < (critRate / 100.0);
         int playerRawPower = bs.getPlayerPower();
+        double effectiveCritDmg = Math.max(0, critDmg) + 10; // 최소 보정 10%
         int playerDamage = isCritical
-                ? (int) Math.round(playerRawPower * (1 + critDmg / 100.0))
+                ? (int) Math.round(playerRawPower * (1 + effectiveCritDmg / 100.0))
                 : playerRawPower;
 
         int monsterHp = Math.max(0, bs.getMonsterHp() - playerDamage);

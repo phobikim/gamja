@@ -68,15 +68,18 @@ public class MaintenanceService {
             n.put("startTime", notice.getStartTime());
             n.put("endTime", notice.getEndTime());
 
-            // ✅ patch 리스트 조회
+            // patch 리스트 조회
             List<ServerNoticePatch> patchList = serverNoticePatchRepository.findByNoticeIdOrderBySortOrderAsc(notice.getId());
             if (!patchList.isEmpty()) {
-                List<String> patchContentList = patchList.stream()
-                        .map(ServerNoticePatch::getContent)
-                        .collect(Collectors.toList());
+                List<Map<String, Object>> patchContentList = patchList.stream().map(patch -> {
+                    Map<String, Object> patchMap = new HashMap<>();
+                    patchMap.put("type", patch.getType().name());
+                    patchMap.put("content", patch.getContent());
+                    return patchMap;
+                }).collect(Collectors.toList());
+
                 n.put("patchNotes", patchContentList);
             }
-
             return n;
         }).collect(Collectors.toList());
 

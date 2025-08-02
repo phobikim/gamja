@@ -146,10 +146,13 @@
     max-height: 160px;
     overflow-y: auto;
     padding-right: 4px;
+    padding-top: 12px;
 }
 
 /* 개별 패치 항목 (나무 판자 느낌) */
 .patch-note-card {
+    position: relative;
+    overflow: visible;
     background: #d2a679;
     border: 2px solid #5e340e;
     border-radius: 8px;
@@ -163,21 +166,34 @@
             0 2px 5px rgba(0,0,0,0.3);
     text-shadow: 1px 1px 0 rgba(255,255,255,0.2);
 }
+
+.patch-note-label {
+    position: absolute;
+    top: -12px;
+    right: -1px;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    font-weight: bold;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    color: #fff;
+    z-index: 2;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+}
+
+
 /* 타입별 색상 구분 */
 .patch-new {
-    background: #8b5a2b;
-    color: #fff8dc;
+    background-color: #4caf50d1;
 }
-
 .patch-change {
-    background: #3f7f5f;
-    color: #e7ffe7;
+    background-color: #2196f3cc;
+}
+.patch-fix {
+    background-color: #e53935e0;
 }
 
-.patch-fix {
-    background: #5f4f9f;
-    color: #eee8ff;
-}
+
 /* 스크롤바 스타일 */
 .notice-patch-list::-webkit-scrollbar {
     width: 8px;
