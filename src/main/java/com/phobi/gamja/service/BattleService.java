@@ -524,11 +524,14 @@ public class BattleService {
             // XP 처리
             UserDexXpDto xpDto = levelService.updateCharacterExp(userId, dexId, gainedXp);
 
+            // Gold 처리
+            double goldGainPercent = bs.getGoldGain();
             // 드랍 아이템
-            DropResult dropResult = getDropResult(bs.getMonsterId(), userId);
+            DropResult dropResult = getDropResult(bs.getMonsterId(), userId, goldGainPercent);
             List<Map<String, Object>> visibleDrops = dropResult.visibleRewards();
             List<ItemReward> internalRewards = dropResult.internalRewards();
-            processItemRewards(userId, internalRewards);
+
+            processItemRewards(userId, internalRewards, goldGainPercent);
 
             result.put("dexName", dex.getName());
             result.put("charImage", dex.getImage());
@@ -551,14 +554,16 @@ public class BattleService {
 
         return GamJaResponse.success("전투 종료", result);
     }
-    private void processItemRewards(Long userId, List<ItemReward> items) {
+    private void processItemRewards(Long userId, List<ItemReward> items, double goldGainPercent) {
         for (ItemReward reward : items) {
             Long itemId = reward.getItem().getId();
             int count = reward.getCount();
 
             if (itemId.equals(POTATO_COIN_ID)) {
                 // 감자코인은 골드로 전환
-                userDtlRepository.addGold(userId, (long) count);
+                double multiplier = 1.0 + (goldGainPercent / 100.0);
+                long bonusGold = Math.round(count * multiplier);
+                userDtlRepository.addGold(userId, bonusGold);
             } else {
                 // 일반 아이템은 인벤토리에 추가
                 UserInventory inv = userInventoryRepository.findByUserIdAndItemId(userId, itemId)
@@ -569,7 +574,7 @@ public class BattleService {
         }
     }
 
-    public DropResult getDropResult(Long monsterId, Long userId) {
+    public DropResult getDropResult(Long monsterId, Long userId, double goldGainPercent) {
         List<MonsterDrop> drops = monsterDropRepository.findByMonsterId(monsterId);
         Set<Long> ownedEquipItemIds =
                 userInventoryRepository.findOwnedItemIdsByItemType(userId, Item.ItemType.EQUIP_BATTLE);
@@ -590,18 +595,28 @@ public class BattleService {
             // 드롭 확률 계산
             if (Math.random() * 100 <= drop.getDropRate()) {
                 int count = drop.getMinCount() + new Random().nextInt(drop.getMaxCount() - drop.getMinCount() + 1);
+                // 감자코인일 경우, 골드 보너스 반영
+                if (item.getId().equals(POTATO_COIN_ID)) {
+                    int finalCount = (int) Math.round(count * (1 + goldGainPercent / 100.0));
 
-                // 클라이언트용
-                visible.add(Map.of(
-                        "name", item.getName(),
-                        "iconPath", item.getIconPath(),
-                        "rarity", item.getRarity().name(),
-                        "count", count,
-                        "chronicle", item.isChronicleFlag()
-                ));
-
-                // 내부 처리용
-                internal.add(new ItemReward(item, count));
+                    visible.add(Map.of(
+                            "name", item.getName(),
+                            "iconPath", item.getIconPath(),
+                            "rarity", item.getRarity().name(),
+                            "count", finalCount,
+                            "chronicle", item.isChronicleFlag()
+                    ));
+                    internal.add(new ItemReward(item, finalCount));
+                } else {
+                    visible.add(Map.of(
+                            "name", item.getName(),
+                            "iconPath", item.getIconPath(),
+                            "rarity", item.getRarity().name(),
+                            "count", count,
+                            "chronicle", item.isChronicleFlag()
+                    ));
+                    internal.add(new ItemReward(item, count));
+                }
             }
         }
 
