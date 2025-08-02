@@ -131,7 +131,7 @@ function initializeBattleScene(player, monster) {
 }
 
 function renderBattleState(player, monster) {
-    updateHpBar(player.hp, player.maxHp, "playerHpBar", "playerHpText");
+    updateHpBar(player.hp, player.maxHp, "playerHpBar", "playerHpText", player.defense);
     updateHpBar(monster.hp, monster.maxHp, "monsterHpBar", "monsterHpText");
 
     // 공격력 UI
@@ -224,7 +224,7 @@ async function doAttack() {
             applyHitEffect('.player-character');
             showDamageText('.player-container', monsterAttack.damage);
 
-            updateHpBar(player.hp, player.maxHp, "playerHpBar", "playerHpText");
+            updateHpBar(player.hp, player.maxHp, "playerHpBar", "playerHpText", player.defense);
 
             if (defeat) {
                 battleEnded = true;
@@ -263,7 +263,7 @@ async function doPotion() {
             return;
         }
 
-        const { playerHp, maxHp, bonusHp, bonusPower, quantity } = res.data;
+        const { playerHp, maxHp, bonusHp, bonusPower, quantity, defense } = res.data;
 
         // ✅ 수량 업데이트
         window.currentPotionQuantity = quantity;
@@ -276,7 +276,7 @@ async function doPotion() {
 
         // ✅ 회복 이펙트
         if (bonusHp > 0) {
-            updateHpBar(playerHp, maxHp, "playerHpBar", "playerHpText");
+            updateHpBar(playerHp, maxHp, "playerHpBar", "playerHpText", defense);
             showDamageText('.player-container', bonusHp, true);
         }
 
@@ -387,43 +387,46 @@ function resetBattleButtons() {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-function updateHpBar(current, max, barId, textId) {
+function updateHpBar(current, max, barId, textId, defense = 0) {
     const bar = document.getElementById(barId);
     const text = document.getElementById(textId);
 
-    const percent = Math.max(0, Math.min(100, (current / max) * 100));
-    bar.style.width = `${percent}%`;
+    const effectiveMax = max + defense;
+    const hpPercent = Math.max(0, Math.min(100, (current / effectiveMax) * 100));
+    const defensePercent = Math.max(0, Math.min(100, (defense / effectiveMax) * 100));
 
-    const displayCurrent = Math.max(0, current);
-    text.textContent = `${displayCurrent} / ${max}`;
+    // HP bar width 설정
+    bar.style.width = `${hpPercent}%`;
+    bar.style.backgroundColor = ''; // 기존 색 유지
 
-    // ✅ 초록색 회복 이펙트 (물약 사용 시만)
+    // HP 텍스트
+    text.textContent = `${Math.max(0, current)} / ${effectiveMax}`;
+
+    // 회복 이펙트
     if (barId === 'playerHpBar' && potionUsed) {
         bar.classList.remove('hp-heal-effect');
         void bar.offsetWidth;
         bar.classList.add('hp-heal-effect');
-
-        // 한 번만 적용되게 potionUsed 초기화 여기서!
         potionUsed = false;
-
         bar.addEventListener('animationend', function handleAnimEnd() {
             bar.classList.remove('hp-heal-effect');
             bar.removeEventListener('animationend', handleAnimEnd);
         });
     }
 
+    // 방어력 바 붙이기
+    if (barId === 'playerHpBar') {
+        let defenseBar = document.getElementById('playerHpBarDefense');
+        if (!defenseBar) return;
+
+        if (defense > 0) {
+            defenseBar.style.display = 'block';
+            defenseBar.style.width = `${defensePercent}%`;
+            defenseBar.style.left = `${hpPercent}%`; // hp 뒤에 이어지게!
+        } else {
+            defenseBar.style.display = 'none';
+        }
+    }
 }
 
 

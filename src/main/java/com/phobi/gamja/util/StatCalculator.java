@@ -78,6 +78,7 @@ public class StatCalculator {
         int equipHp = 0, equipPower = 0, equipSpeed = 0;
         List<ItemDto> itemDtoList = new ArrayList<>();
 
+        int defense = 0;
         double totalCritRate = 0.0;
         double totalCritDmg = 0.0;
         double totalExpGain = 0.0;
@@ -115,6 +116,7 @@ public class StatCalculator {
                     switch (opt.getOptionType()) {
                         case HP -> bonusHp += opt.getOptionValue().intValue();
                         case ATTACK -> bonusPower += opt.getOptionValue().intValue();
+                        case DEFENSE -> defense += opt.getOptionValue().intValue();
                     }
                 } else if (opt.getValueType() == ItemAlchemyOption.ValueType.PERCENT) {
                     switch (opt.getOptionType()) {
@@ -185,6 +187,7 @@ public class StatCalculator {
         return BattleStatDto.builder()
                 .hp(hp)
                 .power(power)
+                .defense(defense)
                 .speed(speed)
                 .equippedItems(itemDtoList)
                 .critRate(finalCritRate)
@@ -193,8 +196,6 @@ public class StatCalculator {
                 .goldGain(totalGoldGain)
                 .build();
     }
-
-
 
 
     public LifeStatDto calculateLifeSkill(Long userId) {

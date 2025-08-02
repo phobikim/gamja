@@ -27,6 +27,7 @@ public class BattleSession {
     private boolean bonusApplied; // 포션 공격력 버프 중복 방지
 
     // 유저 특수 옵션
+    private int defense;
     private double critRate;
     private double critDmg;
     private double expGain;

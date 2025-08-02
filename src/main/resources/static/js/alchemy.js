@@ -210,6 +210,7 @@ function getOptionLabel(type) {
     switch (type) {
         case "HP": return "체력";
         case "ATTACK": return "공격력";
+        case 'DEFENSE': return '방어력';
         case "CRIT_RATE": return "치명타 확률";
         case "CRIT_DMG": return "치명타 피해";
         case "EXP_GAIN": return "경험치 획득량";

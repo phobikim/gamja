@@ -116,19 +116,44 @@
 }
 
 .hp-bar-bg {
+    position: relative;
     background-color: #333;
     border: 1px solid #fff;
     border-radius: 4px;
     height: 10px;
-    width: 100%;
+    width: 101%;
     overflow: hidden;
 }
 
 .hp-bar-fill {
     background-color: #fa5e5e;
     height: 100%;
-    width: 100%; /* JS로 퍼센트 조절 */
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
     transition: width 0.3s ease;
+}
+
+.hp-bar-defense {
+    background-color: #4ca1ff;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    z-index: 1;
+    transition: width 0.3s ease;
+}
+
+.hp-bar-defense::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.3);
+    z-index: 3;
 }
 
 .hp-text {

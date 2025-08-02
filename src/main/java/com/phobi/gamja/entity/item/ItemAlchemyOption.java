@@ -45,7 +45,7 @@ public class ItemAlchemyOption {
     private String description;
 
     public enum OptionType {
-        ATTACK, HP, CRIT_RATE, CRIT_DMG, EXP_GAIN, GOLD_GAIN, JUNK
+        ATTACK, HP, DEFENSE, CRIT_RATE, CRIT_DMG, EXP_GAIN, GOLD_GAIN
     }
 
     public enum ValueType {

@@ -714,6 +714,7 @@
                 <div class="hp-bar-wrapper">
                     <div class="hp-bar-bg">
                         <div id="playerHpBar" class="hp-bar-fill"></div>
+                        <div id="playerHpBarDefense" class="hp-bar-defense"></div>
                     </div>
                     <div id="playerHpText" class="hp-text skeleton"></div>
                 </div>
@@ -898,7 +899,10 @@
                     <!-- 특수옵션 -->
                     <div id="specialOptions" class="equip-option-section">
                         <div class="equip-option-sticker special">특수옵션</div>
-
+                        <div class="equip-option-row">
+                            <span class="label">방어력</span>
+                            <span class="value" id="optDefense">-</span>
+                        </div>
                         <div class="equip-option-row">
                             <span class="label">치명타 확률</span>
                             <span class="value" id="optCritRate">-</span>

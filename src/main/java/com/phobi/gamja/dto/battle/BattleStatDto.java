@@ -18,6 +18,7 @@ public class BattleStatDto {
     private BattleStatDetailDto hp;
     private BattleStatDetailDto speed;
     private List<ItemDto> equippedItems;
+    private int    defense;
     private double critRate;
     private double critDmg;
     private double expGain;

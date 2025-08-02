@@ -172,6 +172,7 @@ public class BattleService {
         userInfo.put("power", userBattleDto.getPower().getTotal());
         userInfo.put("hp", userBattleDto.getHp().getTotal());
         userInfo.put("speed", userBattleDto.getSpeed().getTotal());
+        userInfo.put("defense", userBattleDto.getDefense());
 
         //  특수옵션 추가
         Map<String, Double> specialOptions = new HashMap<>();
@@ -382,24 +383,26 @@ public class BattleService {
         battleSession.setCritDmg(specialOptions.getOrDefault("CRIT_DMG", 0.0));
         battleSession.setExpGain(specialOptions.getOrDefault("EXP_GAIN", 0.0));
         battleSession.setGoldGain(specialOptions.getOrDefault("GOLD_GAIN", 0.0));
-
+        battleSession.setDefense((Integer) userInfo.getOrDefault("defense", 0));
         session.setAttribute("battleSession", battleSession);
 
 
         // 응답 데이터 구성
         Map<String, Object> result = new HashMap<>();
-        result.put("player", Map.of(
-                "dexName", userInfo.get("dexName"),
-                "attribute", attribute,
-                "hp", userInfo.get("hp"),
-                "maxHp", userInfo.get("hp"),
-                "power", userInfo.get("power"),
-                "lv", userInfo.get("lv"),
-                "xp", userInfo.get("xp"),
-                "charImage", userInfo.get("charImage"),
-                "potion", potion,
-                "skillImagePath", skillImagePath
-        ));
+        Map<String, Object> playerMap = new HashMap<>();
+        playerMap.put("dexName", userInfo.get("dexName"));
+        playerMap.put("attribute", attribute);
+        playerMap.put("hp", userInfo.get("hp"));
+        playerMap.put("maxHp", userInfo.get("hp"));
+        playerMap.put("power", userInfo.get("power"));
+        playerMap.put("lv", userInfo.get("lv"));
+        playerMap.put("xp", userInfo.get("xp"));
+        playerMap.put("charImage", userInfo.get("charImage"));
+        playerMap.put("potion", potion);
+        playerMap.put("skillImagePath", skillImagePath);
+        playerMap.put("defense", userInfo.get("defense"));
+        result.put("player", playerMap);
+
         result.put("monster", Map.of(
                 "name", monster.getName(),
                 "rank", monster.getRank(),
@@ -457,21 +460,29 @@ public class BattleService {
         if (bs == null) return GamJaResponse.fail("전투 중이 아닙니다.");
 
         int playerHp = bs.getPlayerHp();
+        int playerDefense = bs.getDefense();
+
         double ratio = 0.2 + Math.random() * 0.8;
         int monsterDamage = Math.max(1, (int) Math.round(bs.getMonsterPower() * ratio));
 
-        int newHp = Math.max(0, playerHp - monsterDamage);
-        bs.setPlayerHp(newHp);
+        // 방여력이 있다면 먼저 차감
+        int absorbed = Math.min(monsterDamage, playerDefense);
+        int remainingDamage = monsterDamage - absorbed;
+        playerDefense -= absorbed;
+        playerHp = Math.max(0, playerHp - remainingDamage);
 
+        bs.setDefense(playerDefense);
+        bs.setPlayerHp(playerHp);
         bs.setPlayerTurn(true);
         session.setAttribute("battleSession", bs);
 
-        boolean defeat = (newHp <= 0);
+        boolean defeat = (playerHp <= 0);
 
         Map<String, Object> result = new HashMap<>();
         result.put("player", Map.of(
                 "hp", bs.getPlayerHp(),
-                "maxHp", bs.getPlayerMaxHp()
+                "maxHp", bs.getPlayerMaxHp(),
+                "defense", bs.getDefense()
         ));
         result.put("monsterAttack", Map.of(
                 "damage", monsterDamage
@@ -671,7 +682,7 @@ public class BattleService {
         bs.setPlayerHp(healedHp);
         if (!bs.isBonusApplied() && bonusPower > 0) {
             bs.setPlayerPower(bs.getPlayerBasePower() + bonusPower);
-            bs.setBonusApplied(true); // ✅ 중복 방지
+            bs.setBonusApplied(true);
         }
         bs.setPlayerPotionQuantity(remaining);
 
@@ -680,6 +691,7 @@ public class BattleService {
         return GamJaResponse.success("물약 사용 완료", Map.of(
                 "playerHp", healedHp,
                 "maxHp", bs.getPlayerMaxHp(),
+                "defense", bs.getDefense(),
                 "bonusHp", bonusHp,
                 "bonusPower", bonusPower,
                 "quantity", remaining

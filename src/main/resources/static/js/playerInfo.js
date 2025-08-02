@@ -306,9 +306,9 @@ openEnhanceModalBtn.addEventListener('click', () => {
 
 // 연금 모달 클릭
 openAlchemyModalBtn.addEventListener('click', () => {
-    showMessageModal("Opening Soon!")
-    // characterModal.classList.add('hidden');
-    // openAlchemyModal();
+    // showMessageModal("Opening Soon!")
+    characterModal.classList.add('hidden');
+    openAlchemyModal();
 });
 
 
@@ -446,6 +446,7 @@ function createEnhanceLabel(level) {
 function renderSpecialOptions({ totals, equippedItems }) {
     // 1) 기본 구조
     const sum = {
+        defense: 0,
         crit_rate: 0,
         crit_dmg: 0,
         exp_gain: 0,
@@ -467,6 +468,7 @@ function renderSpecialOptions({ totals, equippedItems }) {
                     addIfMatch(sum, key, val);
                 }
             }
+            addIfMatch(sum, 'defense', item.defense);
             addIfMatch(sum, 'crit_rate', item.crit_rate);
             addIfMatch(sum, 'crit_dmg',  item.crit_dmg);
             addIfMatch(sum, 'exp_gain',  item.exp_gain);
@@ -475,6 +477,7 @@ function renderSpecialOptions({ totals, equippedItems }) {
     }
 
     // 4) 출력 (퍼센트 표기 규칙: 0~1이면 0~100%로, 1 이상이면 이미 %값으로 간주)
+    setStatText('optDefense', sum.defense);
     setStatText('optCritRate',  sum.crit_rate);
     setStatText('optCritDmg',   sum.crit_dmg);
     setStatText('optExpGain',   sum.exp_gain);
@@ -485,6 +488,7 @@ function renderSpecialOptions({ totals, equippedItems }) {
 function addIfMatch(sum, key, val) {
     if (val == null) return;
     const k = (key || '').toString().toLowerCase();
+    if (k === 'defense') sum.defense += toNumber(val);
     if (k === 'crit_rate') sum.crit_rate += toNumber(val);
     if (k === 'crit_dmg')  sum.crit_dmg  += toNumber(val);
     if (k === 'exp_gain')  sum.exp_gain  += toNumber(val);
@@ -501,10 +505,18 @@ function setStatText(id, value) {
     if (!el) return;
 
     const numeric = toNumber(value);
-    const text = (numeric === 0 ? '0%' : `+${Number.isInteger(numeric) ? numeric : numeric.toFixed(1)}%`);
+
+    // 퍼센트 출력 예외처리: 방어력은 flat 수치 그대로 출력
+    let text;
+    if (id === 'optDefense') {
+        text = (numeric === 0 ? '0' : `${numeric}`);
+    } else {
+        text = (numeric === 0 ? '0%' : `${Number.isInteger(numeric) ? numeric : numeric.toFixed(1)}%`);
+    }
+
     el.textContent = text;
 
-    // 색상 클래스 처리
+    // 색상 클래스 처리 (공통)
     el.classList.remove('value-range-1', 'value-range-2', 'value-range-3', 'value-range-4', 'value-range-over');
     if (numeric <= 10) el.classList.add('value-range-1');
     else if (numeric <= 20) el.classList.add('value-range-2');
@@ -515,6 +527,7 @@ function setStatText(id, value) {
 
 // 특수옵션 설명 텍스트 정의
 const specialOptionDescription = `
+<strong>방어력</strong> : 받는 피해량이 감소합니다.<br>
 <strong>치명타 확률</strong> : 공격 시 치명타가 터질 확률입니다.<br>
 <strong>치명타 피해량</strong> : 치명타 발생 시 추가로 들어가는 피해량입니다.<br>
 <strong>경험치 획득량</strong> : 몬스터 처치 시 얻는 경험치가 증가합니다.<br>
