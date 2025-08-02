@@ -27,6 +27,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemAlchemyService {
     private final CommonUtil commonUtil;
+    private final LogService logService;
+    private final CorpsTierService corpsTierService;
+
     private final UserInventoryRepository userInventoryRepository;
     private final ItemRepository itemRepository;
     private final UserDtlRepository userDtlRepository;
@@ -150,9 +153,7 @@ public class ItemAlchemyService {
             ItemAlchemyOption selected = pickRandomOption(availableOptions);
             usedTypes.add(selected.getOptionType());
 
-            BigDecimal value = selected.getOptionType() == ItemAlchemyOption.OptionType.JUNK
-                    ? null
-                    : randomInRange(selected.getMinValue(), selected.getMaxValue());
+            BigDecimal value = randomInRange(selected.getMinValue(), selected.getMaxValue());
 
             resultOptions.add(UserItemAlchemyOption.builder()
                     .userId(userId)
@@ -166,6 +167,19 @@ public class ItemAlchemyService {
         }
 
         userItemAlchemyOptionRepository.saveAll(resultOptions);
+        // 연금 로그 기록 (targetId: itemId, 또는 0)
+        logService.recordCounter(userId, CounterType.ITEM_ALCHEMY, 0L);
+        logService.recordCounter(userId, CounterType.ITEM_ALCHEMY, itemId);
+
+        int xp = switch (item.getRarity()) {
+            case COMMON     -> 3;
+            case UNCOMMON   -> 5;
+            case RARE       -> 7;
+            case EPIC       -> 10;
+            case LEGENDARY  -> 20;
+        };
+
+        corpsTierService.updateCorpsXp(userId, xp);
 
         List<Map<String, Object>> result = resultOptions.stream()
                 .map(opt -> {

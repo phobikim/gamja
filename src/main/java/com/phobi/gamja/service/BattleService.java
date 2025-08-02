@@ -362,11 +362,6 @@ public class BattleService {
         battleSession.setPlayerBasePower((Integer) userInfo.get("power"));
         battleSession.setBonusApplied(false);
 
-        // 유저의 민첨 스탯을 크리티컬 확률로 변경
-        int rawSpeed = (Integer) userInfo.get("speed");
-        double speedBasedCritRate = rawSpeed / 10.0;
-        battleSession.setPlayerSpeedCritRate(speedBasedCritRate);
-
         Map<String, Object> potion = (Map<String, Object>) userInfo.get("potion");
         battleSession.setPlayerPotionHp((Integer) potion.getOrDefault("bonusHp", 0));
         battleSession.setPlayerPotionPower((Integer) potion.getOrDefault("bonusPower", 0));
@@ -426,7 +421,7 @@ public class BattleService {
             return GamJaResponse.fail("지금은 플레이어 턴이 아닙니다.");
         }
         // === 유저 공격 처리 ===
-        double critRate = bs.getCritRate() + bs.getPlayerSpeedCritRate();
+        double critRate = bs.getCritRate();
         double critDmg = bs.getCritDmg();
 
         boolean isCritical = Math.random() < (critRate / 100.0);
@@ -560,10 +555,8 @@ public class BattleService {
             int count = reward.getCount();
 
             if (itemId.equals(POTATO_COIN_ID)) {
-                // 감자코인은 골드로 전환
-                double multiplier = 1.0 + (goldGainPercent / 100.0);
-                long bonusGold = Math.round(count * multiplier);
-                userDtlRepository.addGold(userId, bonusGold);
+                long gold = reward.getCount();
+                userDtlRepository.addGold(userId, gold);
             } else {
                 // 일반 아이템은 인벤토리에 추가
                 UserInventory inv = userInventoryRepository.findByUserIdAndItemId(userId, itemId)
@@ -597,15 +590,31 @@ public class BattleService {
                 int count = drop.getMinCount() + new Random().nextInt(drop.getMaxCount() - drop.getMinCount() + 1);
                 // 감자코인일 경우, 골드 보너스 반영
                 if (item.getId().equals(POTATO_COIN_ID)) {
-                    int finalCount = (int) Math.round(count * (1 + goldGainPercent / 100.0));
+                    int bonusCount = (int) Math.round(count * (goldGainPercent / 100.0));
+                    int finalCount = count + bonusCount;
 
+                    // 일반 골드 카드
                     visible.add(Map.of(
                             "name", item.getName(),
                             "iconPath", item.getIconPath(),
                             "rarity", item.getRarity().name(),
-                            "count", finalCount,
-                            "chronicle", item.isChronicleFlag()
+                            "count", count,
+                            "chronicle", item.isChronicleFlag(),
+                            "type", "BASE_GOLD"
                     ));
+
+                    // 보너스 골드 카드
+                    if (bonusCount > 0) {
+                        visible.add(Map.of(
+                                "name", item.getName(),
+                                "iconPath", item.getIconPath(),
+                                "rarity", item.getRarity().name(),
+                                "count", bonusCount,
+                                "chronicle", false,
+                                "type", "BONUS_GOLD"
+                        ));
+                    }
+
                     internal.add(new ItemReward(item, finalCount));
                 } else {
                     visible.add(Map.of(

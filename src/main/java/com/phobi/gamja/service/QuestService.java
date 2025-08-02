@@ -253,6 +253,13 @@ public class QuestService {
                             ? "아이템 강화"
                             : itemRepository.findById(cond.getTargetId()).map(Item::getName).orElse("???");
                 }
+                case ITEM_ALCHEMY -> {
+                    String key = "ITEM_ALCHEMY:" + cond.getTargetId();
+                    current = counterMap != null ? counterMap.getOrDefault(key, 0) : 0;
+                    targetName = (cond.getTargetId() == 0)
+                            ? "아이템 연금"
+                            : itemRepository.findById(cond.getTargetId()).map(Item::getName).orElse("???");
+                }
                 default -> {
                     current = 0;
                     targetName = null;
@@ -377,6 +384,15 @@ public class QuestService {
                             .orElse(0);
                     if (enhanceCount < required) {
                         return ResponseEntity.badRequest().body(GamJaResponse.fail("강화 횟수가 부족합니다."));
+                    }
+                }
+                case ITEM_ALCHEMY -> {
+                    int alchemyCount = userCounterDetailRepository
+                            .findByUserIdAndCounterTypeAndTargetId(userId, CounterType.ITEM_ALCHEMY, targetId)
+                            .map(UserCounterDetail::getCounterValue)
+                            .orElse(0);
+                    if (alchemyCount < required) {
+                        return ResponseEntity.badRequest().body(GamJaResponse.fail("연금 횟수가 부족합니다."));
                     }
                 }
                 default -> {

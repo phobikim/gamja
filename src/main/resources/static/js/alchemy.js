@@ -84,8 +84,14 @@ async function loadAlchemyMaterials(itemId) {
         const data = res.data;
 
         // 골드
-        alchemyNeedGold.textContent = `${data.gold.toLocaleString()} G`;
+        const needGoldText = data.gold.toLocaleString();
+        const ownedGoldText = data.goldOwned.toLocaleString();
+
+        const goldLine = `필요: ${needGoldText} G / 보유: ${ownedGoldText} G`;
+        alchemyNeedGold.textContent = goldLine;
+
         alchemyNeedGold.style.color = data.goldOwned < data.gold ? "#ff4d4d" : "gold";
+        alchemyNeedGold.style.opacity = data.goldOwned < data.gold ? 0.8 : 1;
 
         // 재료
         alchemyMaterialList.innerHTML = "";

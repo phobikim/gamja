@@ -238,10 +238,19 @@
     font-weight: bold;
     text-align: center;
 }
+
+.loot-item-count .bonus-count {
+    font-size: 12px;
+    color: #ffd700;
+    margin-left: 4px;
+    font-weight: bold;
+}
+
 /* 다음 전투 버튼 */
 #lootModal .next-battle-section {
     margin-top: 1.2vh;
 }
+
 
 #lootModal .next-battle-section .modal-btn {
     width: 100%;

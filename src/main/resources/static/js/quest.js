@@ -397,6 +397,8 @@ function getConditionLabel(cond) {
             return `[아이템 배달]<br>${nameSpan}`;
         case 'ITEM_ENHANCE':
             return `[아이템 강화]<br>${nameSpan}`;
+        case 'ITEM_ALCHEMY':
+            return `[아이템 연금]<br>${nameSpan}`;
         default:
             return '기타 조건';
     }

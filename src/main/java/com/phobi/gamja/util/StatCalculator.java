@@ -151,6 +151,14 @@ public class StatCalculator {
         //6. 감자단 레벨 스탯
         UserCorps userCorps = userCorpsRepository.findById(userId).orElse(null);
         StatBonus corpsBonus = corpsTierService.calculateTierStatBonus(userCorps);
+
+        int totalSpeed = userDexStatSpeed + baseDexSpeed + equipSpeed + corpsBonus.speed();
+        double baseCritRate = totalSpeed / 10.0;
+        double finalCritRate = totalCritRate + baseCritRate;
+        if (finalCritRate < 10.0) {
+            finalCritRate = 10.0;
+        }
+
         // 7. BattleStatDetailDto 구성
         BattleStatDetailDto power = new BattleStatDetailDto(
                 userDexStatPower,
@@ -179,7 +187,7 @@ public class StatCalculator {
                 .power(power)
                 .speed(speed)
                 .equippedItems(itemDtoList)
-                .critRate(totalCritRate)
+                .critRate(finalCritRate)
                 .critDmg(totalCritDmg)
                 .expGain(totalExpGain)
                 .goldGain(totalGoldGain)

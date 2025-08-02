@@ -359,6 +359,7 @@
     <div class="growth-modal-container">
         <div class="growth-header">
             <div class="growth-title">캐릭터 성장</div>
+            <div class="growth-desc">경험치 물약을 사용해 캐릭터의 레벨과 경험치를 성장시킬 수 있습니다.</div>
         </div>
         <div class="growthContent">
             <div class="growth-detail-top">
@@ -393,6 +394,7 @@
 <div id="enhanceModal" class="modal hidden">
     <div class="enhance-modal-container">
         <div class="enhance-title">아이템 강화</div>
+        <div class="alchemy-desc">재료를 사용해 장비의 기본옵션을 강화합니다.</div>
         <div id="enhanceContent" class="enhance-content-section" style="position: relative;">
             <div class="enhance-detail-top">
                 <div class="enhance-item-slot-wrap">
@@ -440,6 +442,7 @@
 <div id="alchemyModal" class="modal hidden">
     <div class="alchemy-modal-container">
         <div class="alchemy-title">아이템 연금</div>
+        <div class="alchemy-desc">재료를 사용해 장비에 새로운 특수 옵션을 부여합니다.</div>
         <div class="alchemy-body">
             <div class="alchemy-info-row">
                 <!-- 슬롯 -->
@@ -968,6 +971,7 @@
                 </div>
             </div>
         </div>
+
         <!-- 성장 / 강화 / 연금 버튼 -->
         <div class="character-actions hidden" id="characterActions">
             <button id="openGrowthModalBtn" class="action-btn" >성장</button>
@@ -996,6 +1000,12 @@
             <div class="inventoryCell" id="lifeSlotBADGE_3">뱃지</div>
             <div class="inventoryCell" id="lifeSlotBADGE_4">뱃지</div>
         </div>
+    </div>
+</div>
+
+<div id="specialOptionTooltip" class="special-tooltip hidden">
+    <div class="special-tooltip-content">
+        <div class="special-tooltip-text" id="specialTooltipText"></div>
     </div>
 </div>
 

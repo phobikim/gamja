@@ -352,6 +352,16 @@ public class DexService {
 
                                 yield targetName;
                             }
+                            case ITEM_ALCHEMY -> {
+                                key = title.getCounterType().name() + "_" + cond.getTargetId();
+                                current = counterMap.getOrDefault(key, 0);
+                                pass = current >= cond.getRequiredCount();
+
+                                targetName = (cond.getTargetId() == 0)
+                                        ? "연금 시도"
+                                        : itemRepository.findById(cond.getTargetId()).map(Item::getName).orElse("???");
+                                yield targetName;
+                            }
                             default -> {
                                 targetName = "???";
                                 pass = false;

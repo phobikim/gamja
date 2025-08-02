@@ -169,6 +169,12 @@
     color: var(--orange-color);
 }
 
+.stat-critical {
+    color: #ff4d4d;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
 
 
 #characterModal #combatEquipment .inventoryCell {
@@ -352,4 +358,38 @@
 
 .stat-bar-wrapper.no-bar .stat-bar-bg {
     display: none;
+}
+
+.special-tooltip {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4); /* 반투명 어둡게 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.special-tooltip-content {
+    font-weight : bold;
+    background-color: var(--dark-1-color);
+    padding: 15px 15px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    font-size: 0.80rem;
+    max-width: 80%;
+    text-align: center;
+    color: var(--dark-1-font-color);
+    line-height: 1.8;
+}
+
+.special-tooltip.hidden {
+    display: none;
+}
+
+.special-tooltip-content strong {
+    color: var(--orange-color);
 }

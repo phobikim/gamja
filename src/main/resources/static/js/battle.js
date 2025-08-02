@@ -343,9 +343,11 @@ function updateLootItemsDisplay(items) {
             ? basePath + item.iconPath
             : `placeholder_${item.iconPath || 'item.png'}`;
 
+        const displayName = item.type === 'BONUS_GOLD' ? '보너스코인' : item.name;
+
         itemCard.innerHTML = `
-            <img src="${imgSrc}" alt="${item.name}" class="loot-item-image">
-            <div class="loot-item-name">${item.name}</div>
+            <img src="${imgSrc}" alt="${displayName}" class="loot-item-image">
+            <div class="loot-item-name">${displayName}</div>
             <div class="loot-item-count">x${item.count}</div>
         `;
 

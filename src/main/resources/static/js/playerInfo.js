@@ -34,7 +34,9 @@ function updateStatValue(statId, detail, max = 100) {
 
     const total = fromUser + fromBase + fromEquip + fromTier;
     if (statId === 'combatSpeed') {
-        valueSpan.textContent = `${(total / 10).toFixed(1)}%`;
+        const percent = Math.max(10, total / 10);
+        valueSpan.textContent = `${percent.toFixed(1)}%`;
+        valueSpan.classList.add('stat-critical');
     } else {
         valueSpan.textContent = total;
     }
@@ -304,8 +306,9 @@ openEnhanceModalBtn.addEventListener('click', () => {
 
 // 연금 모달 클릭
 openAlchemyModalBtn.addEventListener('click', () => {
-    characterModal.classList.add('hidden');
-    openAlchemyModal();
+    showMessageModal("Opening Soon!")
+    // characterModal.classList.add('hidden');
+    // openAlchemyModal();
 });
 
 
@@ -493,30 +496,44 @@ function toNumber(v) {
     return Number.isFinite(n) ? n : 0;
 }
 
-function fmtPercent(v) {
-    // v가 0.12(=12%)처럼 오면 12, 12(=12%)처럼 오면 그대로
-    const pct = v <= 1 ? v * 100 : v;
-    // 소수점: 깔끔하게 0.1 단위, 정수면 소수 제거
-    const str = Number.isInteger(pct) ? pct.toString() : pct.toFixed(1);
-    return (pct === 0 ? '0%' : `+${str}%`);
-}
-
 function setStatText(id, value) {
     const el = document.getElementById(id);
     if (!el) return;
 
     const numeric = toNumber(value);
-    const pct = numeric <= 1 ? numeric * 100 : numeric;
-    const text = (pct === 0 ? '0%' : `+${Number.isInteger(pct) ? pct : pct.toFixed(1)}%`);
+    const text = (numeric === 0 ? '0%' : `+${Number.isInteger(numeric) ? numeric : numeric.toFixed(1)}%`);
     el.textContent = text;
 
-    // 기존 클래스 제거
+    // 색상 클래스 처리
     el.classList.remove('value-range-1', 'value-range-2', 'value-range-3', 'value-range-4', 'value-range-over');
-
-    // 색상 클래스 추가
-    if (pct <= 10) el.classList.add('value-range-1');
-    else if (pct <= 20) el.classList.add('value-range-2');
-    else if (pct <= 30) el.classList.add('value-range-3');
-    else if (pct <= 40) el.classList.add('value-range-4');
+    if (numeric <= 10) el.classList.add('value-range-1');
+    else if (numeric <= 20) el.classList.add('value-range-2');
+    else if (numeric <= 30) el.classList.add('value-range-3');
+    else if (numeric <= 40) el.classList.add('value-range-4');
     else el.classList.add('value-range-over');
 }
+
+// 특수옵션 설명 텍스트 정의
+const specialOptionDescription = `
+<strong>치명타 확률</strong> : 공격 시 치명타가 터질 확률입니다.<br>
+<strong>치명타 피해량</strong> : 치명타 발생 시 추가로 들어가는 피해량입니다.<br>
+<strong>경험치 획득량</strong> : 몬스터 처치 시 얻는 경험치가 증가합니다.<br>
+<strong>골드 획득량</strong> : 몬스터 처치 시 감자코인 보상이 증가합니다.
+`;
+
+// 툴팁 표시 함수
+function showSpecialTooltip(htmlContent) {
+    const tooltip = document.getElementById('specialOptionTooltip');
+    const text = document.getElementById('specialTooltipText');
+    text.innerHTML = htmlContent;
+    tooltip.classList.remove('hidden');
+
+    tooltip.addEventListener('click', () => {
+        tooltip.classList.add('hidden');
+    }, { once: true });
+}
+
+// 이벤트 바인딩
+document.getElementById('specialOptions')?.addEventListener('click', () => {
+    showSpecialTooltip(specialOptionDescription);
+});

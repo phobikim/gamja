@@ -234,3 +234,14 @@
     pointer-events: none;
 }
 
+.growth-desc {
+    font-weight: bold;
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--orange-color);
+    opacity: 0.85;
+    line-height: 1.4;
+    padding: 0 12px;
+    margin-top: -5px;
+    margin-bottom: -12px;
+}
