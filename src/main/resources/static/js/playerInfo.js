@@ -54,6 +54,35 @@ function updateStatValue(statId, detail, max = 100) {
     `;
 }
 
+function updateLifeStatValue(statId, detail, max = 10) {
+    const block = document.getElementById(`stat-${statId}`);
+    if (!block) return;
+
+    const barBg = block.querySelector('.stat-bar-bg');
+    const valueSpan = block.querySelector('.stat-bar-value');
+
+    const {
+        fromUser = 0,
+        fromBase = 0,
+        fromEquip = 0,
+        fromTier = 0
+    } = detail;
+
+    const total = fromBase;
+    valueSpan.textContent = total;
+
+    // 생활스탯은 10 단위로 순환 구조 적용
+    const levelIndex = Math.floor(total / 10) % 4;
+    const levelClass = `level-${levelIndex + 1}`;
+    const relativeValue = total % 10;
+
+    const percent = Math.min(100, (relativeValue / max) * 100);
+
+    barBg.innerHTML = `
+        <div class="stat-bar-fill ${levelClass}" style="width:${percent}%; border-radius: 10px;"></div>
+    `;
+}
+
 async function openInfoModal() {
     window.readOnlyMode = false;
     // 탭 초기화
@@ -211,11 +240,11 @@ function loadCharacterLifeInfo() {
 // ✅ 생활 정보 DOM 세팅
 function setCharacterLifeInfo(data) {
     // 스탯 설정
-    updateStatValue('lifeFishing', data.fishing);
-    updateStatValue('lifeWoodcutting', data.woodcutting);
-    updateStatValue('lifeGathering', data.gathering);
-    updateStatValue('lifeMining', data.mining);
-    // updateStatValue('lifeMaking', data.making);
+    updateLifeStatValue('lifeFishing', data.fishing);
+    updateLifeStatValue('lifeWoodcutting', data.woodcutting);
+    updateLifeStatValue('lifeGathering', data.gathering);
+    updateLifeStatValue('lifeMining', data.mining);
+    // updateLifeStatValue('lifeMaking', data.making);
 
     const badgeSlots = [
         document.getElementById('lifeSlotBADGE_1'),
@@ -263,6 +292,7 @@ function setCharacterLifeInfo(data) {
             }
         }
     });
+    applyRarityToEachSlot(slotMap, data.equippedItems);
 }
 
 

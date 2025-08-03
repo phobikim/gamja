@@ -1,6 +1,7 @@
 package com.phobi.gamja.service;
 
 
+import com.phobi.gamja.dto.item.EquipmentSlot;
 import com.phobi.gamja.entity.item.Item;
 import com.phobi.gamja.entity.item.ItemStatBonus;
 import com.phobi.gamja.entity.item.ItemEnhanceMaterial;
@@ -20,10 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -232,7 +230,53 @@ public class ItemEnhanceService {
         return ResponseEntity.ok(GamJaResponse.success("무료 강화 성공", result));
     }
 
+    @Transactional(readOnly = true)
+    public ResponseEntity<GamJaResponse> getTransferItemList(HttpSession session, Map<String, Long> payload) {
+        Long userId = commonUtil.getUserId(session);
+        Long targetItemId = payload.get("targetItemId");
 
+        // 대상 아이템 확인
+        Item targetItem = itemRepository.findById(targetItemId)
+                .orElseThrow(() -> new IllegalArgumentException("대상 아이템이 존재하지 않습니다."));
+
+        EquipmentSlot equipSlot = targetItem.getEquipSlot();
+        Item.Rarity rarity = targetItem.getRarity();
+
+        // 유저 인벤토리에서 동일한 슬롯+등급 아이템 필터링 (자기 자신 제외)
+        List<UserInventory> inventories = userInventoryRepository.findByUserId(userId).stream()
+                .filter(inv -> !inv.getItemId().equals(targetItemId))
+                .filter(inv -> {
+                    Item item = itemRepository.findById(inv.getItemId()).orElse(null);
+                    return item != null &&
+                            item.getEquipSlot() == equipSlot &&
+                            item.getRarity() == rarity;
+                })
+                .collect(Collectors.toList());
+
+        // 강화 정보 포함해서 반환
+        List<Map<String, Object>> items = inventories.stream().map(inv -> {
+            Item item = itemRepository.findById(inv.getItemId()).orElse(null);
+            if (item == null) return null;
+
+            UserEnhancement enhancement = userEnhancementRepository
+                    .findById(new UserEnhancementId(userId, item.getId()))
+                    .orElse(null);
+
+            int enhancementLevel = enhancement != null ? enhancement.getEnhancementLevel() : 0;
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", item.getId());
+            map.put("name", item.getName());
+            map.put("iconPath", item.getIconPath());
+            map.put("equipSlot", item.getEquipSlot().name()); // enum은 name()으로 넣는게 안전
+            map.put("rarity", item.getRarity().name());
+            map.put("enhancementLevel", enhancementLevel);
+
+            return map;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+
+        return ResponseEntity.ok(GamJaResponse.success("재료 아이템 목록 조회 성공", Map.of("items", items)));
+    }
 
 
 

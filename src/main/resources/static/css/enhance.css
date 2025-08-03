@@ -11,6 +11,32 @@
     gap: 20px;
 }
 
+.enhance-tab-header {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.enhance-tab-btn {
+    padding: 6px 16px;
+    font-weight: bold;
+    font-size: 0.95rem;
+    border: 2px solid var(--char-border-color);
+    border-radius: 12px;
+    background: var(--dark-2-color);
+    color: var(--white-color);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.enhance-tab-btn.active {
+    background: var(--orange-color);
+    color: white;
+    box-shadow: 0 0 6px rgba(255, 204, 0, 0.4);
+}
+
+
 .enhance-title{
     text-align : center;
     color: var(--dark-1-font-color);
@@ -388,3 +414,118 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
+/*강화이전*/
+
+.enhance-transfer-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px;
+}
+
+.enhance-transfer-slot-wrap {
+    flex-direction: column;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    flex: 1;
+}
+
+.enhance-transfer-arrow {
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.enhance-transfer-line {
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 100%);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.enhance-transfer-glow {
+    width: 20px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.6);
+    position: absolute;
+    top: 0;
+    left: -20px;
+    animation: glowMove 1.2s linear infinite;
+    border-radius: 2px;
+}
+
+@keyframes glowMove {
+    0%   { left: 100%; opacity: 0; }
+    40%  { opacity: 1; }
+    100% { left: -20px; opacity: 0; }
+}
+
+.enhance-transfer-warning {
+    margin: 12px 0;
+    padding: 8px;
+    background: rgba(255, 215, 0, 0.1);
+    color: #ffc107;
+    font-weight: bold;
+    font-size: 0.85rem;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 0 6px rgba(255, 200, 0, 0.2);
+}
+
+.enhance-slot-label {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #00ff7959;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    z-index: 2;
+    pointer-events: none;
+}
+.enhance-slot-preview-block {
+    margin-top: 6px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #ccc;
+    text-align: center;
+    line-height: 1.2;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    user-select: none;
+}
+
+.enhance-slot-preview-block span {
+    color: #ffce55;
+    font-weight: bold;
+}
+
+.enhance-item-empty-wrapper {
+    width: 100%;
+    text-align: center;
+    padding: 40px 0;
+}
+
+.enhance-item-empty-message {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #ccc;
+}
+
+.free-enhance-notice {
+    color: #9effb3;
+    font-weight: bold;
+    padding: 10px;
+    text-align: center;
+    font-size: 0.9rem;
+}

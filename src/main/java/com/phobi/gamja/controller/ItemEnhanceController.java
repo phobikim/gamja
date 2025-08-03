@@ -40,4 +40,12 @@ public class ItemEnhanceController {
     ) {
         return itemEnhanceService.executeFreeEnhance(session, payload);
     }
+
+    @PostMapping("/transfer-item")
+    public ResponseEntity<GamJaResponse> getTransferItemList(
+            HttpSession session,
+            @RequestBody Map<String, Long> payload
+    ) {
+        return itemEnhanceService.getTransferItemList(session, payload);
+    }
 }

@@ -393,8 +393,13 @@
 <!-- 2. 아이템 강화 모달 -->
 <div id="enhanceModal" class="modal hidden">
     <div class="enhance-modal-container">
-        <div class="enhance-title">아이템 강화</div>
+        <div class="enhance-tab-header">
+            <button class="enhance-tab-btn active">강화</button>
+<!--            <button class="enhance-tab-btn active" onclick="switchEnhanceTab('enhance')">강화</button>-->
+<!--            <button class="enhance-tab-btn" onclick="switchEnhanceTab('transfer')">강화이전</button>-->
+        </div>
         <div class="alchemy-desc">재료를 사용해 장비의 기본옵션을 강화합니다.</div>
+        <!--아이템 강화-->
         <div id="enhanceContent" class="enhance-content-section" style="position: relative;">
             <div class="enhance-detail-top">
                 <div class="enhance-item-slot-wrap">
@@ -431,6 +436,45 @@
                 <div id="enhanceMaterialList" class="materials-list"></div>
             </div>
         </div>
+        <!--강화 이전-->
+        <div id="transferContent" class="enhance-content-section hidden">
+            <div class="enhance-transfer-top">
+                <div class="enhance-transfer-slot-wrap">
+                    <div id="transferTargetSlot" class="enhance-slot empty-slot">
+                        <div class="enhance-slot-label">대상</div>
+                        <span class="plus-icon">+</span>
+                        <div class="enhance-effect-layer"></div>
+                    </div>
+                    <div class="enhance-slot-preview-block">
+                        <div class="before">Before: <span id="targetBeforeLevel">-</span></div>
+                        <div class="after">After: <span id="targetAfterLevel">-</span></div>
+                    </div>
+                </div>
+
+                <div class="enhance-transfer-arrow">
+                    <div class="enhance-transfer-line">
+                        <div class="enhance-transfer-glow"></div>
+                    </div>
+                </div>
+
+                <div class="enhance-transfer-slot-wrap">
+                    <div id="transferMaterialSlot" class="enhance-slot empty-slot">
+                        <div class="enhance-slot-label">재료</div>
+                        <span class="plus-icon">+</span>
+                        <div class="enhance-effect-layer"></div>
+                    </div>
+                    <div class="enhance-slot-preview-block">
+                        <div class="before">Before: <span id="materialBeforeLevel">-</span></div>
+                        <div class="after">After: <span id="materialAfterLevel">0</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="enhance-transfer-warning">강화이전 시 재료 장비의 강화 수치는 초기화됩니다.</div>
+            <div class="enhance-footer">
+                <button id="transferExecuteBtn" class="enhance-confirm-btn disabled" disabled>강화이전</button>
+            </div>
+        </div>
+
         <div class="enhance-footer">
             <button id="enhanceExecuteBtn" class="enhance-confirm-btn">강화</button>
             <button class="enhance-close-btn" onclick="closeEnhanceModal()">닫기</button>
@@ -489,6 +533,9 @@
     <div class="enhance-item-modal-container">
         <div class="enhance-modal-title">아이템을 선택하세요</div>
         <div class="enhance-item-grid" id="enhanceItemGrid"></div>
+        <div class="enhance-item-empty-wrapper hidden" id="enhanceItemEmptyWrapper">
+            <div class="enhance-item-empty-message">선택 가능한 아이템이 없습니다.</div>
+        </div>
         <div class="growth-footer">
             <button class="dex-close-btn" onclick="closeItemModal()">닫기</button>
         </div>
@@ -924,10 +971,10 @@
 
                 <!-- 생활 스탯 -->
                 <div id="lifeStats" class="char-stats hidden">
-                    <div class="stat-block" id="stat-lifeFishing">
-                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_fishing.png" class="stat-icon" />
+                    <div class="stat-block" id="stat-lifeWoodcutting">
+                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_woodcut.png" class="stat-icon" />
                         <div class="stat-info">
-                            <div class="stat-label">낚시</div>
+                            <div class="stat-label">벌목</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
                                     <div class="stat-bar-fill"></div>
@@ -936,10 +983,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="stat-block" id="stat-lifeWoodcutting">
-                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_woodcut.png" class="stat-icon" />
+                    <div class="stat-block" id="stat-lifeMining">
+                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_mining.png" class="stat-icon" />
                         <div class="stat-info">
-                            <div class="stat-label">벌목</div>
+                            <div class="stat-label">채광</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
                                     <div class="stat-bar-fill"></div>
@@ -960,10 +1007,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="stat-block" id="stat-lifeMining">
-                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_mining.png" class="stat-icon" />
+                    <div class="stat-block" id="stat-lifeFishing">
+                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_fishing.png" class="stat-icon" />
                         <div class="stat-info">
-                            <div class="stat-label">채광</div>
+                            <div class="stat-label">낚시</div>
                             <div class="stat-bar-wrapper">
                                 <div class="stat-bar-bg">
                                     <div class="stat-bar-fill"></div>

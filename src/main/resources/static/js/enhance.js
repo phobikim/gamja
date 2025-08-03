@@ -6,7 +6,43 @@ const enhanceItemSlot = document.getElementById("enhanceItemSlot");
 const enhanceItemModal = document.getElementById("enhanceItemModal");
 const enhanceItemGrid = document.getElementById("enhanceItemGrid");
 
+function switchEnhanceTab(tab) {
+    const enhanceTabBtn = document.querySelector('.enhance-tab-btn:nth-child(1)');
+    const transferTabBtn = document.querySelector('.enhance-tab-btn:nth-child(2)');
 
+    const enhanceContent = document.getElementById('enhanceContent');
+    const transferContent = document.getElementById('transferContent');
+
+    const enhanceBtn = document.getElementById('enhanceExecuteBtn');
+    const transferBtn = document.getElementById('transferExecuteBtn');
+
+    if (tab === 'enhance') {
+        // 탭 버튼 스타일
+        enhanceTabBtn.classList.add('active');
+        transferTabBtn.classList.remove('active');
+
+        // 콘텐츠 전환
+        enhanceContent.classList.remove('hidden');
+        transferContent.classList.add('hidden');
+
+        // 버튼 표시
+        enhanceBtn.style.display = 'inline-block';
+        transferBtn.style.display = 'none';
+
+    } else if (tab === 'transfer') {
+        // 탭 버튼 스타일
+        enhanceTabBtn.classList.remove('active');
+        transferTabBtn.classList.add('active');
+
+        // 콘텐츠 전환
+        enhanceContent.classList.add('hidden');
+        transferContent.classList.remove('hidden');
+
+        // 버튼 표시
+        enhanceBtn.style.display = 'none';
+        transferBtn.style.display = 'inline-block';
+    }
+}
 
 async function openEnhanceModal() {
     const valid = await checkSessionValid();
@@ -77,9 +113,22 @@ async function openEnhanceItemModal() {
 
 
 function renderEnhanceItemGrid(items) {
-    enhanceItemGrid.innerHTML = "";
+    const grid = document.getElementById("enhanceItemGrid");
+    const emptyWrapper = document.getElementById("enhanceItemEmptyWrapper");
+
+    grid.innerHTML = "";
 
     const filteredItems = items.filter(item => item.equipSlot !== 'POTION');
+
+    if (filteredItems.length === 0) {
+        grid.classList.add("hidden");
+        emptyWrapper.classList.remove("hidden");
+        return;
+    }
+
+    // ✅ 문구는 숨기고 grid 다시 보이게
+    grid.classList.remove("hidden");
+    emptyWrapper.classList.add("hidden");
 
     filteredItems.forEach(item => {
         const cell = document.createElement("div");
@@ -89,16 +138,13 @@ function renderEnhanceItemGrid(items) {
         img.src = `${basePath}${item.iconPath}`;
         img.alt = item.name;
 
-        // rarity 등급 클래스 부여
         const rarityClass = `rarity-background-${item.rarity?.toLowerCase()}`;
         img.classList.add(rarityClass);
         img.style.borderRadius = "12px";
 
-        // 장비 슬롯 라벨
-        const labelText = getEquipSlotLabel(item.equipSlot);
         const label = document.createElement("div");
         label.className = "enhance-item-sticker";
-        label.textContent = labelText;
+        label.textContent = getEquipSlotLabel(item.equipSlot);
 
         cell.appendChild(img);
         cell.appendChild(label);
@@ -113,13 +159,15 @@ function renderEnhanceItemGrid(items) {
             closeItemModal();
         });
 
-        enhanceItemGrid.appendChild(cell);
+        grid.appendChild(cell);
     });
+
     const addSlot = document.createElement("div");
     addSlot.className = "enhance-item-cell enhance-add-slot";
     addSlot.innerHTML = `<div class="enhance-item-plus">+</div>`;
-    enhanceItemGrid.appendChild(addSlot);
+    grid.appendChild(addSlot);
 }
+
 
 function selectEnhanceItem(item) {
     // 슬롯 아이콘 갱신
@@ -154,7 +202,7 @@ function selectEnhanceItem(item) {
     enhanceExecuteBtn.dataset.isFree = xp >= 100 ? "true" : "false";
     enhanceExecuteBtn.textContent = xp >= 100 ? "무료강화" : "강화";
 
-    loadEnhanceMaterials(item.id);
+    loadEnhanceMaterials(item.id, xp);
 }
 
 enhanceExecuteBtn.addEventListener("click", async () => {
@@ -188,7 +236,7 @@ async function handleEnhanceExecute() {
             playEnhanceEffect(false);
             showEnhanceMessage("강화 실패...", false);
         }
-        await loadEnhanceMaterials(itemId);
+        await loadEnhanceMaterials(itemId, result.xp);
         document.querySelector(".enhance-item-lv").textContent = `+${result.level}`;
         document.getElementById("enhanceItemAtk").textContent = result.bonusPower || 0;
         document.getElementById("enhanceItemHp").textContent = result.bonusHp || 0;
@@ -279,6 +327,13 @@ function resetEnhanceTab() {
 }
 
 function updateEnhanceButtonState(materials, ownedGold, needGold) {
+    const isFreeEnhance = enhanceExecuteBtn.dataset.isFree === "true";
+
+    if (isFreeEnhance) {
+        enhanceExecuteBtn.disabled = false;
+        enhanceExecuteBtn.classList.remove("disabled");
+        return;
+    }
 
     const hasAllMaterials = materials.every(mat => mat.owned >= mat.quantity);
     const hasEnoughGold = ownedGold >= needGold;
@@ -292,7 +347,7 @@ function updateEnhanceButtonState(materials, ownedGold, needGold) {
     }
 }
 
-async function loadEnhanceMaterials(itemId) {
+async function loadEnhanceMaterials(itemId, enhancementXp = 0) {
     const materialBox = document.getElementById("enhanceMaterialBox");
     const container = document.getElementById("enhanceMaterialList");
     const goldTextEl = document.getElementById("enhanceNeedGold");
@@ -383,6 +438,19 @@ async function loadEnhanceMaterials(itemId) {
         document.getElementById("enhanceSuccessRate").textContent = data.successRate + " %";
         container.innerHTML = "";
 
+        // 무료강화인 경우, 재료/골드/확률 숨기고 안내문만 표시
+        if (enhancementXp >= 100) {
+            container.innerHTML = `<div class="free-enhance-notice">무료 강화는 재료가 소모되지 않습니다.</div>`;
+            container.classList.remove("hidden");
+            goldTextEl.parentElement.classList.add("hidden");
+            rateEl.parentElement.classList.add("hidden");
+            maxMsgEl.classList.add("hidden");
+
+            // 버튼은 무조건 활성화
+            updateEnhanceButtonState([], 9999999, 0);
+            return;
+        }
+
         materials.forEach(mat => {
             const el = document.createElement("div");
             el.className = "material-card";
@@ -441,4 +509,236 @@ function getEquipSlotLabel(slot) {
 
 function closeItemModal() {
     enhanceItemModal.classList.add("hidden");
+}
+
+const transferTargetSlot = document.getElementById("transferTargetSlot");
+const transferMaterialSlot = document.getElementById("transferMaterialSlot");
+
+transferTargetSlot.addEventListener("click", () => {
+    playEffect("se_click2");
+    openTransferItemModal("target");
+});
+
+transferMaterialSlot.addEventListener("click", () => {
+    playEffect("se_click2");
+    openTransferItemModal("material");
+});
+
+async function openTransferItemModal(type) {
+    try {
+        let res;
+
+        if (type === "target") {
+            res = await apiRequest('/api/char/battle', 'GET'); // 기존 API: 장착 아이템
+        } else {
+            const targetImg = document.querySelector("#transferTargetSlot img");
+            if (!targetImg) {
+                showMessageModal("먼저 강화 대상 장비를 선택해주세요.");
+                return;
+            }
+            const targetItemId = parseInt(targetImg.getAttribute("data-item-id"));
+            if (!targetItemId || isNaN(targetItemId)) {
+                showMessageModal("대상 아이템 정보가 올바르지 않습니다.");
+                return;
+            }
+
+            res = await apiRequestJson('/api/enhance/transfer-item', 'POST', {
+                targetItemId: targetItemId
+            });
+        }
+
+        if (res.code !== 'SUCCESS') {
+            showMessageModal(res.message || "아이템 정보를 불러오지 못했습니다.");
+            return;
+        }
+
+        const itemList = res.data?.items || res.data?.equippedItems || [];
+        renderTransferItemGrid(itemList, type);
+
+        enhanceItemModal.classList.remove("hidden");
+
+    } catch (err) {
+        console.error("강화이전 아이템 불러오기 실패:", err);
+        showMessageModal("서버 오류로 아이템을 불러오지 못했습니다.");
+    }
+}
+
+function renderTransferItemGrid(items, type) {
+    const grid = document.getElementById("enhanceItemGrid");
+    const emptyWrapper = document.getElementById("enhanceItemEmptyWrapper");
+
+    grid.innerHTML = "";
+
+    const filteredItems = items.filter(item => item.equipSlot !== 'POTION');
+
+    if (filteredItems.length === 0) {
+        grid.classList.add("hidden");
+        emptyWrapper.classList.remove("hidden");
+        return;
+    }
+
+    grid.classList.remove("hidden");
+    emptyWrapper.classList.add("hidden");
+
+    filteredItems.forEach(item => {
+        const cell = document.createElement("div");
+        cell.className = "enhance-item-cell";
+
+        const img = document.createElement("img");
+        img.src = `${basePath}${item.iconPath}`;
+        img.alt = item.name;
+
+        const rarityClass = `rarity-background-${item.rarity?.toLowerCase()}`;
+        img.classList.add(rarityClass);
+        img.style.borderRadius = "12px";
+
+        const label = document.createElement("div");
+        label.className = "enhance-item-sticker";
+        label.textContent = getEquipSlotLabel(item.equipSlot);
+
+        cell.appendChild(img);
+        cell.appendChild(label);
+
+        if (item.enhancementLevel > 0) {
+            const enhanceLabel = createEnhanceLabel(item.enhancementLevel);
+            cell.appendChild(enhanceLabel);
+        }
+
+        cell.addEventListener("click", () => {
+            if (type === "target") {
+                selectTransferTargetItem(item);
+            } else {
+                selectTransferMaterialItem(item);
+            }
+            closeItemModal();
+        });
+
+        grid.appendChild(cell);
+    });
+}
+
+
+
+function selectTransferTargetItem(item) {
+    const slot = document.getElementById("transferTargetSlot");
+    slot.classList.remove("empty-slot");
+    slot.querySelector("img")?.remove();
+    slot.querySelector(".plus-icon")?.remove();
+
+    // 이미지 갱신
+    const img = document.createElement("img");
+    img.src = `${basePath}${item.iconPath}`;
+    img.alt = item.name;
+    img.setAttribute("data-item-id", item.id);
+    img.setAttribute("data-enhancement-level", item.enhancementLevel ?? 0);
+    slot.appendChild(img);
+
+    // 라벨 갱신
+    document.getElementById("targetBeforeLevel").textContent = `${item.enhancementLevel}`;
+    const materialLevel = getSelectedEnhancementLevel("material");
+    const targetAfter = (materialLevel >= 4 && item.enhancementLevel < materialLevel - 3)
+        ? `${materialLevel - 3}`
+        : "-";
+    document.getElementById("targetAfterLevel").textContent = targetAfter;
+
+    // ✅ 재료 슬롯 초기화
+    resetTransferMaterialSlot();
+
+    checkTransferEligibility();
+}
+
+function resetTransferMaterialSlot() {
+    const slot = document.getElementById("transferMaterialSlot");
+    slot.classList.add("empty-slot");
+
+    // 기존 요소 제거
+    slot.querySelector("img")?.remove();
+    slot.querySelector(".plus-icon")?.remove();
+
+    // 다시 + 아이콘 추가
+    const plus = document.createElement("span");
+    plus.className = "plus-icon";
+    plus.textContent = "+";
+    slot.appendChild(plus);
+
+    // 강화 수치 초기화
+    document.getElementById("materialBeforeLevel").textContent = "-";
+    document.getElementById("materialAfterLevel").textContent = "0";
+}
+
+function selectTransferMaterialItem(item) {
+    const slot = document.getElementById("transferMaterialSlot");
+    slot.classList.remove("empty-slot");
+    slot.querySelector("img")?.remove();
+    slot.querySelector(".plus-icon")?.remove();
+
+    // 새 이미지 추가
+    const img = document.createElement("img");
+    img.src = `${basePath}${item.iconPath}`;
+    img.alt = item.name;
+    img.setAttribute("data-item-id", item.id);
+    img.setAttribute("data-enhancement-level", item.enhancementLevel ?? 0);
+    slot.appendChild(img);
+
+    // 라벨 갱신
+    document.getElementById("materialBeforeLevel").textContent = `${item.enhancementLevel}`;
+    document.getElementById("materialAfterLevel").textContent = "0";
+
+    // 대상 아이템 강화 후 예상도 갱신
+    const targetLevel = getSelectedEnhancementLevel("target");
+    const targetAfter = (item.enhancementLevel >= 4 && targetLevel < item.enhancementLevel - 3)
+        ? `+${item.enhancementLevel - 3}`
+        : "-";
+    document.getElementById("targetAfterLevel").textContent = targetAfter;
+
+    checkTransferEligibility();
+}
+
+
+function getSelectedEnhancementLevel(type) {
+    const id = (type === "target") ? "transferTargetSlot" : "transferMaterialSlot";
+    const img = document.querySelector(`#${id} img`);
+    if (!img) return null;
+
+    const level = parseInt(img.dataset.enhancementLevel || "0");
+    return isNaN(level) ? null : level;
+}
+
+function checkTransferEligibility() {
+    const targetImg = document.querySelector("#transferTargetSlot img");
+    const materialImg = document.querySelector("#transferMaterialSlot img");
+    const btn = document.getElementById("transferExecuteBtn");
+
+    // 둘 중 하나라도 비어 있으면 비활성화
+    if (!targetImg || !materialImg) {
+        btn.disabled = true;
+        btn.classList.add("disabled");
+        return;
+    }
+
+    const targetLevel = getSelectedEnhancementLevel("target");
+    const materialLevel = getSelectedEnhancementLevel("material");
+
+    if (materialLevel < 4) {
+        btn.disabled = true;
+        btn.classList.add("disabled");
+        return;
+    }
+
+    // 강화이전 조건 위반
+    if (targetLevel >= materialLevel) {
+        btn.disabled = true;
+        btn.classList.add("disabled");
+        return;
+    }
+
+    if (targetLevel > materialLevel - 4) {
+        btn.disabled = true;
+        btn.classList.add("disabled");
+        return;
+    }
+
+    // 조건 만족 시 버튼 활성화
+    btn.disabled = false;
+    btn.classList.remove("disabled");
 }
