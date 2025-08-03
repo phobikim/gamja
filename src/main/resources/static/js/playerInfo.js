@@ -504,7 +504,12 @@ function setStatText(id, value) {
     const el = document.getElementById(id);
     if (!el) return;
 
-    const numeric = toNumber(value);
+    let numeric = toNumber(value);
+
+    //치명타 피해량은 기본값 10%를 추가해서 표시
+    if (id === 'optCritDmg') {
+        numeric += 10;
+    }
 
     // 퍼센트 출력 예외처리: 방어력은 flat 수치 그대로 출력
     let text;
