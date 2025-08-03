@@ -13,7 +13,7 @@ async function handleAttackClick() {
     document.body.style.overflow = 'hidden';
     battleMapSelectModal.classList.remove('hidden');
 
-
+    currentDifficulty = 'NORMAL';
 
     // 1. 전투 맵 리스트 조회
     const mapRes = await apiRequest('/api/battle/map-list', 'GET');
@@ -97,6 +97,8 @@ function renderMapList(mapList) {
 
 closeBattleBtn.onclick = () => {
     battleMapSelectModal.classList.add('hidden');
+    selectedMap = null;
+    currentDifficulty = 'NORMAL';
 };
 
 function updateMapDetail(map, triggeredByTabClick = false) {
