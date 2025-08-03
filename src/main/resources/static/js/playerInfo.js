@@ -258,7 +258,8 @@ function setCharacterLifeInfo(data) {
         FISHING_ROD: 'lifeSlotFISHING_ROD',
         AXE: 'lifeSlotAXE',
         PICKAXE: 'lifeSlotPICKAXE',
-        KNIFE: 'lifeSlotKNIFE'
+        KNIFE: 'lifeSlotKNIFE',
+        BADGE: ['lifeSlotBADGE_1', 'lifeSlotBADGE_2', 'lifeSlotBADGE_3', 'lifeSlotBADGE_4']
     };
     Object.values(slotMap).forEach(id => {
         const el = document.getElementById(id);
@@ -365,13 +366,28 @@ function applyRarityToEachSlot(slotMap, equippedItems) {
         }
     });
 
+    const badgeIndexMap = { index: 0 };
+
     // 장착된 아이템에 rarity 색상 적용
     equippedItems.forEach(item => {
-        const slotId = slotMap[item.equipSlot];
-        if (slotId && item.rarity && rarityColors[item.rarity]) {
+        const slotDef = slotMap[item.equipSlot];
+        const rarityColor = rarityColors[item.rarity];
+
+        if (!slotDef || !rarityColor) return;
+
+        if (Array.isArray(slotDef)) {
+            // BADGE의 경우
+            const i = badgeIndexMap.index++;
+            const slotId = slotDef[i];
             const slotEl = document.getElementById(slotId);
             if (slotEl) {
-                slotEl.style.backgroundColor = rarityColors[item.rarity];
+                slotEl.style.backgroundColor = rarityColor;
+            }
+        } else {
+            // 일반 슬롯
+            const slotEl = document.getElementById(slotDef);
+            if (slotEl) {
+                slotEl.style.backgroundColor = rarityColor;
             }
         }
     });
@@ -595,3 +611,4 @@ function showSpecialTooltip(htmlContent) {
 document.getElementById('specialOptions')?.addEventListener('click', () => {
     showSpecialTooltip(specialOptionDescription);
 });
+
