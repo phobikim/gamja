@@ -1,7 +1,4 @@
 fetch("/boss-run.html");
-fetch("/css/common.css");
-const img = new Image();
-img.src = "https://phobi.me/gamja.img/images/monster/boss_gg.png";
 
 const runAwayBtn = document.getElementById('runAwayBtn');
 if (runAwayBtn) {
@@ -9,3 +6,25 @@ if (runAwayBtn) {
         window.location.href = "/boss-run.html";
     });
 }
+
+// 보스 등장 애니메이션 적용
+window.addEventListener('DOMContentLoaded', () => {
+    const bossImg = document.querySelector('.boss-image');
+    const charImg = document.querySelector('.character-left');
+    if (bossImg) {
+        bossImg.classList.add('float-once');
+
+        // 애니메이션 끝나면 class 제거 (필요시)
+        bossImg.addEventListener('animationend', () => {
+            bossImg.classList.remove('float-once');
+        });
+        bossImg.addEventListener('animationend', () => {
+            bossImg.classList.remove('float-once');
+            bossImg.classList.add('glow-effect');
+        });
+    }
+
+    if (charImg) {
+        charImg.classList.add('animate-enter');
+    }
+});

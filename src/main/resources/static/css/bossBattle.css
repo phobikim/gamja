@@ -1,3 +1,6 @@
+.hidden {
+    display: none !important;
+}
 
 body.boss-battle-page {
     margin: 0;
@@ -75,7 +78,7 @@ body.boss-battle-page {
 
 .boss-image-wrapper {
     position: absolute;
-    top: 60%;
+    top: 53%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 3;
@@ -142,8 +145,18 @@ body.boss-battle-page {
 
 .character-left-wrapper {
     position: absolute;
-    bottom: 0px;
+    bottom: 10px;
     left: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 4;
+}
+
+.character-right-wrapper {
+    position: absolute;
+    bottom: 0px;
+    right: 5px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -196,7 +209,62 @@ body.boss-battle-page {
     font-weight: bold;
 }
 
-.char-role {
-    color: #ccc;
-    font-weight: normal;
+
+/*보스 등장 애니메이션*/
+
+@keyframes bossFloatOnce {
+    0% {
+        opacity: 0;
+        transform: translateY(80px);
+        filter: brightness(0.7);
+    }
+    40% {
+        opacity: 1;
+        transform: translateY(-8px);
+        filter: brightness(1.1);
+    }
+    60% {
+        transform: translateY(4px);
+    }
+    80% {
+        transform: translateY(-2px);
+    }
+    100% {
+        transform: translateY(0);
+        filter: brightness(1);
+    }
+}
+
+
+.boss-image.float-once {
+    animation: bossFloatOnce 0.9s ease-in-out 1;
+}
+
+.boss-image.glow-effect {
+    filter: drop-shadow(0 0 25px rgba(255, 30, 30, 0.6))
+    drop-shadow(0 0 40px rgba(255, 255, 100, 0.3));
+}
+
+
+@keyframes charEnter {
+    0% {
+        transform: translateX(-120%) translateY(0);
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    40% {
+        transform: translateX(-40%) translateY(-4px);
+    }
+    60% {
+        transform: translateX(-20%) translateY(4px);
+    }
+    100% {
+        transform: translateX(0) translateY(0);
+    }
+}
+
+.character-left.animate-enter {
+    animation: charEnter 0.6s ease-out forwards;
 }
