@@ -1,73 +1,8 @@
 @import url('modal.css');
 @import url('char.css');
 @import url('index.css');
-@font-face {
-    /*숫자 - 픽셀 */
-    font-family: 'neodgm';
-    src: url('https://phobi.me/gamja.img/fonts/neodgm.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
+@import url('common.css');
 
-@font-face {
-    /*한글 - 깔끔*/
-    font-family: 'jua';
-    src: url('https://phobi.me/gamja.img/fonts/Jua-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    /*한글 - 두껍고 귀엽 */
-    font-family: 'hansan';
-    src: url('https://phobi.me/gamja.img/fonts/BlackHanSans-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
-@font-face {
-    font-family: '2P';
-    src: url('https://fonts.gstatic.com/s/pressstart2p/v12/e3t4euO8T-267oIAQAu6jDQyK1n1AvKHlp8.woff2') format('woff2');
-    font-weight: normal;
-    font-style: normal;
-}
-:root {
-    --char-bg-color : #c97a16;
-    --char-border-color : #8b4513;
-    --brown-color: #5c3b1e;
-    --orange-color: #fa6719;
-    --dark-orange-color: #df5d00;
-    --white-color: #fff1cc;
-    --baige-color: #ffcf75;
-    --green-hignlight: #39ff14;
-    --dark-brown-font-color: #45200f;
-
-    /*dart ver*/
-    --dark-1-color: #222;
-    --dark-2-color : #2e3047;
-    --dark-3-color : #3c3f58;
-    --dark-1-font-color : #ffd54f;
-}
-
-* {
-    user-select: none; /* 텍스트 선택 완전 차단 */
-    cursor: default;    /* 커서도 기본 커서로 */
-    font-family: 'jua', cursive;
-}
-html, body {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-}
-
-body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    box-sizing: border-box;
-}
 .common-h2 {
     margin-bottom: 15px;
     font-size: 22px;

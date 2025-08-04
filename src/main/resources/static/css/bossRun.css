@@ -1,0 +1,39 @@
+body {
+    margin: 0;
+    background-color: black;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+    animation: fadeIn 1s ease-in;
+}
+
+.mock-text {
+    padding: 0 20px;
+    max-width: 90%;
+    box-sizing: border-box;
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--dark-1-font-color);
+    text-align: center;
+    line-height: 1.6;
+    animation: textFloat 2s ease-in-out infinite alternate;
+}
+
+.gg-image {
+    margin-top: 30px;
+    width: 160px;
+    image-rendering: pixelated;
+}
+
+@keyframes textFloat {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-5px); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

@@ -1,0 +1,39 @@
+<!-- boss-enter.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>보스 입장</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/bossEnter.css">
+</head>
+<body>
+<div class="enter-text" id="bossEnterText">
+    <!-- JS에서 문구 랜덤으로 삽입됨 -->
+</div>
+
+<script>
+    fetch("boss.html", { method: "GET" });
+    fetch("/css/common.css");
+    fetch("/css/bossBattle.css");
+
+    const lines = [
+        "감자 껍질이 쭈글해질 만큼 긴장된다...",
+        "감자단 작전 개시! 준비는 끝났어.",
+        "감자 스프보다 진한 전투의 냄새가 난다...",
+        "감자 한 입 먹고 올걸 그랬나?",
+        "감자단, 침입 개시! 안에 뭐가 있을까...?",
+        "감자단의 발소리가 울려 퍼진다..."
+    ];
+
+
+    const textEl = document.getElementById('bossEnterText');
+    textEl.innerHTML = lines[Math.floor(Math.random() * lines.length)];
+
+    setTimeout(() => {
+        window.location.replace("/boss.html");
+    }, 2000);
+    
+</script>
+</body>
+</html>

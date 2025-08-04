@@ -1,0 +1,33 @@
+
+body {
+    margin: 0;
+    background-color: black;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+    animation: fadeIn 1s ease-in;
+}
+
+.enter-text {
+    padding: 0 20px;
+    max-width: 90%;
+    box-sizing: border-box;
+    font-size: 3rem;
+    font-weight : bold;
+    text-align: center;
+    color: var(--dark-1-font-color);
+    animation: textBlink 1.5s infinite alternate;
+}
+
+@keyframes textBlink {
+    0% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

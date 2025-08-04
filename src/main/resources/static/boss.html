@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>보스 전투</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/bossBattle.css">
+</head>
+<body class="boss-battle-page">
+<div class="boss-battle-wrapper">
+
+    <!-- 배경 이미지 (2/3) -->
+    <div class="boss-background">
+        <img src="https://phobi.me/gamja.img/images/battle/boss_map2.png" alt="보스 전투 배경" class="boss-map-img">
+
+        <!-- 보스 체력바 -->
+        <div class="boss-hp-bar">
+            <div class="hp-bar-bg">
+                <div class="hp-bar-fill" style="width: 100%;"></div>
+            </div>
+            <div class="boss-name">보스 GG</div>
+        </div>
+
+        <!-- 보스 대사 -->
+        <div class="boss-dialogue-box" id="bossDialogue">
+            "이 감자굴은 내 것이다!"
+        </div>
+
+        <!-- 보스 이미지 -->
+        <div class="boss-image-wrapper">
+            <img src="https://phobi.me/gamja.img/images/battle/boss_gg2.png" alt="보스 GG" class="boss-image">
+        </div>
+
+
+        <div class="character-left-wrapper">
+            <div class="char-image-container">
+                <div class="char-status-box">
+                    <div class="char-hp-bar">
+                        <div class="char-hp-fill" style="width: 80%;"></div>
+                    </div>
+                    <div class="char-hp-text">100 / 100</div>
+                </div>
+                <img src="https://phobi.me/gamja.img/images/battle/감령.png" class="character-left" />
+            </div>
+            <div class="char-name-label">감령 <span class="char-role">[메인]</span></div>
+        </div>
+    </div>
+
+
+        <!-- 플레이어 캐릭터들 -->
+<!--        <img src="https://phobi.me/gamja.img/images/battle/감령.png" alt="캐릭터 왼쪽" class="character-left">-->
+<!--        <img src="https://phobi.me/gamja.img/images/battle/감잭.png" alt="캐릭터 오른쪽" class="character-right">-->
+
+    <!-- 하단 영역: 버튼들 -->
+    <div class="player-battle-area">
+        <!-- 버튼들 -->
+        <div class="battle-button-row">
+            <button class="battle-btn" id="runAwayBtn">도망</button>
+            <button class="battle-btn">공격</button>
+            <button class="battle-btn">포션</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/bossBattle.js"></script>
+
+</body>
+</html>

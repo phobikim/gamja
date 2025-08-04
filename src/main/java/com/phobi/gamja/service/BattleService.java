@@ -134,6 +134,16 @@ public class BattleService {
                 mapData.put("entryAllowed", hasMountainBadge);
             }
 
+            // 도둑쥐 소굴 심부 : GG의 감자 금고 입장 조건
+            if (map.getId() == 6 && map.getMapDifficulty().name().equals("HARD")) {
+                boolean hasMountainBadge = userEquipmentRepository.existsByUserIdAndItemId(
+                        userId, 160L
+                );
+                mapData.put("requiredItemName", "쥐소굴 탐험 뱃지");
+                mapData.put("requiredMessage", "쥐소굴 탐험뱃지 착용 시 입장 가능");
+                mapData.put("entryAllowed", hasMountainBadge);
+            }
+
             ((List<Map<String, Object>>) groupedMap.get(groupId).get("maps")).add(mapData);
         }
 

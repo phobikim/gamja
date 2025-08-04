@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>보스맵 퇴장</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/bossRun.css">
+</head>
+<body>
+<div class="mock-text">
+</div>
+<img class="gg-image" src="https://phobi.me/gamja.img/images/battle/boss_gg2.png" alt="GG">
+
+<script>
+    fetch("char.html", { method: "GET" });
+    fetch("/css/char.css");
+    const lines = [
+        "자~ 다음 감자 손님 들어오시죠~",
+        "감자는 놔두고 가라. 감자는 내 거니까.",
+        "감자단? 감자-단순한 놈들!",
+        "훗... 감자 하나 못 지키는 주제에 도망치다니!",
+    ];
+    const mockText = document.querySelector('.mock-text');
+    mockText.innerHTML = `"${lines[Math.floor(Math.random() * lines.length)]}"<br>- GG -`;
+
+    setTimeout(() => {
+        window.location.replace("/char.html");
+    }, 2000);
+
+</script>
+</body>
+</html>
