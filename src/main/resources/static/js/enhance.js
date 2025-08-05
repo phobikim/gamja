@@ -57,7 +57,6 @@ async function openEnhanceModal() {
         enhanceExecuteBtn.textContent = "강화 완료";
         enhanceExecuteBtn.classList.add("disabled");
         enhanceExecuteBtn.disabled = true;
-        return;
     }
     enhanceExecuteBtn.textContent = "강화";
     enhanceExecuteBtn.disabled = false;

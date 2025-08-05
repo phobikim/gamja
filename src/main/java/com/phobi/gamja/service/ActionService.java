@@ -338,8 +338,17 @@ public class ActionService {
             logService.recordCounter(userId, CounterType.LIFE_ACTION, actionId);
         }
 
-        // stage 5 이상부터 보상 시작, 10단위로 1씩 증가
-        int corpsXp = (stage >= 5) ? (((stage - 1) / 10) * 10) + 10 : 0;
+        int corpsXp = 0;
+        if (stage >= 10 && stage < 30) {
+            corpsXp = 10;
+        } else if (stage >= 30 && stage < 60) {
+            corpsXp = 20;
+        } else if (stage >= 60 && stage < 90) {
+            corpsXp = 30;
+        } else if (stage >= 90) {
+            corpsXp = 40;
+        }
+
         if (corpsXp > 0) {
             corpsTierService.updateCorpsXp(userId, corpsXp);
         }
