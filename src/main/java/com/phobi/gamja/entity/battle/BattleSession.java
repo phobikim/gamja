@@ -23,6 +23,7 @@ public class BattleSession {
     private int playerPotionHp;
     private int playerPotionPower;
     private int playerPotionQuantity;
+    private String playerPotionItemPath;
     private int playerBasePower;  // 원래 공격력
     private boolean bonusApplied; // 포션 공격력 버프 중복 방지
 

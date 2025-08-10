@@ -16,4 +16,8 @@ public interface DexRepository extends JpaRepository<Dex, Long> {
     /* 미공개 감자 미포함 - 가챠용 */
     @Query("SELECT d FROM Dex d WHERE d.rarity.rarity = :rarity AND d.useFlag = true AND d.hidden = false")
     List<Dex> getGachaCandidates(@Param("rarity") DexRarityStat.Rarity rarity);
+
+
+    @Query("SELECT d FROM Dex d WHERE d.id IN :ids AND d.useFlag = true AND d.hidden = false")
+    List<Dex> findUsableVisibleByIds(@Param("ids") List<Long> ids);
 }

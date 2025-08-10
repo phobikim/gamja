@@ -11,11 +11,12 @@
 <div class="enter-text" id="bossEnterText">
     <!-- JS에서 문구 랜덤으로 삽입됨 -->
 </div>
-
+<script src="js/sound.js"></script>
 <script>
     fetch("boss.html", { method: "GET" });
     fetch("/css/common.css");
     fetch("/css/bossBattle.css");
+    fetch("/js/bossBattle.js");
 
     const lines = [
         "감자 껍질이 쭈글해질 만큼 긴장된다...",
@@ -29,6 +30,7 @@
 
     const textEl = document.getElementById('bossEnterText');
     textEl.innerHTML = lines[Math.floor(Math.random() * lines.length)];
+
 
     setTimeout(() => {
         window.location.replace("/boss.html");

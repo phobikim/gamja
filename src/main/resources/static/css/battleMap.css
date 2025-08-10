@@ -78,7 +78,7 @@
 }
 
 .map-detail-box {
-    display: flex;
+    /*display: flex;*/
     flex-direction: column;
     justify-content: space-between;
     height: 375px;
@@ -288,4 +288,10 @@
     opacity: 0.4;
     pointer-events: none;
     cursor: not-allowed;
+}
+
+.difficulty-tab[data-type="BOSS"] {
+    background-color: #8b5cf6;
+    color: white;
+    font-weight: bold;
 }

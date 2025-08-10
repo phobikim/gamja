@@ -135,13 +135,30 @@ public class BattleService {
             }
 
             // 도둑쥐 소굴 심부 : GG의 감자 금고 입장 조건
-            if (map.getId() == 6 && map.getMapDifficulty().name().equals("HARD")) {
+            if (map.getId() == 6 && map.getMapDifficulty().name().equals("BOSS")) {
                 boolean hasMountainBadge = userEquipmentRepository.existsByUserIdAndItemId(
                         userId, 160L
                 );
                 mapData.put("requiredItemName", "쥐소굴 탐험 뱃지");
                 mapData.put("requiredMessage", "쥐소굴 탐험뱃지 착용 시 입장 가능");
                 mapData.put("entryAllowed", hasMountainBadge);
+            }
+
+            if ("BOSS".equals(map.getMapDifficulty().name())) {
+                List<Long> bossIds = monsters.stream()
+                        .map(Monster::getId)
+                        .toList();
+
+                boolean bossClearedToday = bossIds.stream()
+                        .anyMatch(mid -> logService.hasKilledBossToday(userId, mid));
+
+                mapData.put("bossClearedToday", bossClearedToday);
+
+                if (bossClearedToday) {
+                    mapData.put("requiredItemName", "일일 토벌 제한");
+                    mapData.put("requiredMessage", "오늘은 이미 보스를 토벌했습니다. 내일 00:00에 초기화됩니다.");
+                    mapData.put("entryAllowed", false);
+                }
             }
 
             ((List<Map<String, Object>>) groupedMap.get(groupId).get("maps")).add(mapData);
@@ -571,7 +588,7 @@ public class BattleService {
 
         return GamJaResponse.success("전투 종료", result);
     }
-    private void processItemRewards(Long userId, List<ItemReward> items, double goldGainPercent) {
+    public void processItemRewards(Long userId, List<ItemReward> items, double goldGainPercent) {
         for (ItemReward reward : items) {
             Long itemId = reward.getItem().getId();
             int count = reward.getCount();
@@ -697,6 +714,7 @@ public class BattleService {
         }
         bs.setPlayerPotionQuantity(remaining);
 
+
         request.getSession().setAttribute("battleSession", bs);
 
         return GamJaResponse.success("물약 사용 완료", Map.of(
@@ -708,5 +726,6 @@ public class BattleService {
                 "quantity", remaining
         ));
     }
+
 
 }

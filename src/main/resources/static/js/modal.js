@@ -12,13 +12,6 @@ function showMessageModal(message) {
 }
 
 
-function hideItemTooltip() {
-    const tooltip = document.getElementById('itemTooltip');
-    tooltip.classList.add('hidden');
-}
-
-document.getElementById('itemTooltipClose').addEventListener('click', hideItemTooltip);
-
 function showSessionExpiredModal() {
     const modal = document.getElementById('sessionExpiredModal');
     const confirmBtn = document.getElementById('sessionExpiredConfirm');

@@ -44,13 +44,50 @@ body.boss-battle-page {
     z-index: 5;
 }
 
-.boss-hp-bar .hp-bar-fill {
+
+.boss-hp-bar-bg {
+    height: 100%;
+    transition: width 0.5s ease;
+}
+
+.boss-hp-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.boss-hp-text {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.9rem;
+    color: #fff;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    z-index: 6;
+    pointer-events: none;
+}
+
+/* 색상 단계별 클래스 */
+.boss-hp-bar-fill.hp-phase-1 { background-color: #ff2f2f; }
+.boss-hp-bar-fill.hp-phase-2 { background-color: #ffa500; }
+.boss-hp-bar-fill.hp-phase-3 { background-color: #ffe400; }
+.boss-hp-bar-fill.hp-phase-4 { background-color: #00d57e; }
+.boss-hp-bar-fill.hp-phase-5 { background-color: #00bfff; }
+
+.boss-hp-bar-fill.hit {
+    box-shadow: 0 0 10px #fff;
+}
+
+.hp-bar-fill {
     height: 100%;
     background-color: #ff4444;
     transition: width 0.3s;
 }
 
-.boss-hp-bar .boss-name {
+.boss-name {
     position: absolute;
     top: -24px;
     left: 50%;
@@ -61,8 +98,9 @@ body.boss-battle-page {
 }
 
 .boss-dialogue-box {
+    display: none;
     position: absolute;
-    top: 80px;
+    top: 95px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.6);
@@ -72,8 +110,13 @@ body.boss-battle-page {
     color: #fff;
     font-size: 1rem;
     text-align: center;
-    max-width: 80%;
+    max-width: 90%;
+    width : 70%;
     z-index: 5;
+}
+
+.boss-dialogue-box.showing {
+    display: block;
 }
 
 .boss-image-wrapper {
@@ -92,7 +135,7 @@ body.boss-battle-page {
 .character-left,
 .character-right {
     bottom: 1px;
-    width: 110px;
+    width: 120px;
     height: auto;
     z-index: 4;
 }
@@ -107,6 +150,7 @@ body.boss-battle-page {
 }
 
 .player-battle-area {
+    position: relative;
     flex: 1;
     background-color: #141621;
     display: flex;
@@ -115,21 +159,43 @@ body.boss-battle-page {
     justify-content: center;
     padding: 12px 0;
 }
+.player-battle-area.is-locked {
+    filter: saturate(.9) brightness(.95);
+}
+.player-battle-area.is-locked::after {
+    font-weight: bold;
+    content: attr(data-overlay);
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    background: rgba(0,0,0,.55);
+    color: var(--baige-color);
+    font-size: 1rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,.6);
+    border-radius: 10px;
+    z-index: 20;
+    pointer-events: all;
+}
+.player-battle-area.is-locked * { pointer-events: none; }
+
 
 .battle-button-row {
     display: flex;
-    gap: 1rem;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 12px;
 }
 
 .battle-btn {
+    flex: 0 0 auto;
+    position: relative;
+    overflow: hidden;
     padding: 10px 20px;
     font-size: 0.95rem;
     font-weight: bold;
     border: none;
     border-radius: 10px;
-    background-color: #ffcc00;
-    color: #000;
+    background-color: var(--dark-1-font-color);
+    color: var(--dark-brown-font-color);
     box-shadow: 0 3px 6px rgba(0,0,0,0.3);
     cursor: pointer;
     transition: transform 0.1s, background-color 0.2s;
@@ -141,6 +207,39 @@ body.boss-battle-page {
 
 .battle-btn:active {
     transform: scale(0.95);
+}
+
+.btn-attack {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding : 10px 80px;
+}
+
+.btn-attack .attack-label {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.btn-attack .power-chip {
+    position: absolute;
+    top: 3px;
+    right: 5px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: var(--baige-color);
+    color: var(--dark-orange-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    pointer-events: none;
+    transform: translateZ(0);
 }
 
 .character-left-wrapper {
@@ -170,7 +269,7 @@ body.boss-battle-page {
 
 .char-status-box {
     position: absolute;
-    bottom: 85%;
+    bottom: 95%;
     left: 50%;
     transform: translateX(-50%) translateY(-6px);
     display: flex;
@@ -179,6 +278,7 @@ body.boss-battle-page {
 }
 
 .char-hp-bar {
+    position: relative;
     width: 80px;
     height: 10px;
     background-color: #222;
@@ -187,10 +287,24 @@ body.boss-battle-page {
     border: 1px solid #444;
 }
 
-.char-hp-fill {
-    height: 100%;
+.char-hp-fill{
+    position: relative;
+    z-index: 2;
     background: #fa5e5e;
     width: 100%;
+    height: 100%;
+    transition: width .35s cubic-bezier(.2,.8,.2,1);
+}
+
+.char-hp-chip{
+    position: absolute;
+    left: 0; top: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    background: #c94b4b;
+    opacity: .55;
+    transition: width .95s cubic-bezier(.22,.74,.27,.99);
 }
 
 .char-hp-text {
@@ -209,7 +323,68 @@ body.boss-battle-page {
     font-weight: bold;
 }
 
+/* 데미지 반짝 */
+@keyframes hpHitFlash {
+    0% { filter: brightness(1); }
+    40%{ filter: brightness(1.25); }
+    100%{ filter: brightness(1); }
+}
 
+/* 회복 펄스(초록) */
+@keyframes hpHealPulse {
+    0%{ filter: saturate(1) brightness(1); box-shadow:0 0 0 rgba(50,255,120,0) }
+    30%{ filter: saturate(1.2) brightness(1.2); box-shadow:0 0 16px rgba(50,255,120,.5) }
+    100%{ filter: saturate(1) brightness(1); box-shadow:0 0 0 rgba(50,255,120,0) }
+}
+.char-hp-fill.heal { animation: hpHealPulse .6s ease-out 1; }
+
+/* 힐 이펙트(플레이어용) */
+.skill-effect.heal-player {
+    width: 150px;
+    animation:
+            effectHealPlayer 1.4s ease-out 1,
+            effectHealGlow   1.7s ease-out 1;
+    will-change: transform, opacity, filter;
+}
+
+@keyframes effectHealPlayer {
+    0%{ transform:translate(-50%,-50%) scale(.85); opacity:0 }
+    18%{ opacity:1 }
+    55%{ transform:translate(-50%,-50%) scale(1.06); opacity:1 }
+    100%{ transform:translate(-50%,-50%) scale(1.0); opacity:0 }
+}
+@keyframes effectHealGlow {
+    0%  { filter: drop-shadow(0 0 0 rgba(50,255,120,0)) }
+    40% { filter: drop-shadow(0 0 18px rgba(50,255,120,.7)) }
+    100%{ filter: drop-shadow(0 0 0 rgba(50,255,120,0)) }
+}
+
+.btn-potion[disabled],
+#potionBtn[disabled],
+.battle-btn.disabled {
+    filter: grayscale(.5) brightness(.85);
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+
+/* +POWER 플로팅 텍스트 */
+.buff-effect {
+    position: absolute;
+    left: 50%; top: 0;
+    transform: translate(-50%,-120%);
+    color: #56b9ff;
+    font-weight: 700; font-size: 1.05rem;
+    text-shadow: 0 0 6px rgba(0,0,0,.55);
+    z-index: 12;
+    animation: buffFloat 1s ease-out 1;
+}
+@keyframes buffFloat {
+    0%   { opacity: 0; transform: translate(-50%,-10%); }
+    20%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%,-80%); }
+}
+.char-hp-fill.hit { animation: hpHitFlash .35s ease-out 1; }
 /*보스 등장 애니메이션*/
 
 @keyframes bossFloatOnce {
@@ -267,4 +442,188 @@ body.boss-battle-page {
 
 .character-left.animate-enter {
     animation: charEnter 0.6s ease-out forwards;
+}
+
+.damage-effect {
+    animation: floatUp 1s ease-out;
+}
+
+@keyframes floatUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    20% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-40px); }
+}
+
+@keyframes shakeX {
+    0% { transform: translateX(0); }
+    15% { transform: translateX(-8px); }
+    30% { transform: translateX(6px); }
+    45% { transform: translateX(-5px); }
+    60% { transform: translateX(4px); }
+    75% { transform: translateX(-3px); }
+    100% { transform: translateX(0); }
+}
+
+
+.shake {
+    animation: shakeX 0.28s ease-in-out 1;
+}
+
+.shake-weak {
+    animation: shakeX 0.22s ease-in-out 1;
+}
+
+/* 캐릭터/보스에 동일 클래스 사용 가능 */
+.boss-image.shake,
+.character-left.shake-weak {
+    will-change: transform;
+}
+
+.skill-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120px;
+    height: auto;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 11;
+    opacity: 0;
+}
+
+.boss-image-wrapper .skill-effect {
+    width: 180px;
+}
+
+.skill-effect.boss-impact {
+    width: 200px;
+    animation: bossImpact 1.35s both;
+    will-change: transform, opacity;
+}
+
+@keyframes bossImpact {
+    /* 첫 구간은 back/ease-out 느낌으로 팡 하고 커지게 */
+    0% {
+        transform: translate(-50%, -50%) scale(0.7);
+        opacity: 0;
+        animation-timing-function: cubic-bezier(.18,.89,.32,1.28);
+    }
+    40% {
+        transform: translate(-50%, -50%) scale(1.16);
+        opacity: 1;
+        animation-timing-function: cubic-bezier(.2,.8,.2,1);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.0);
+        opacity: 0;
+    }
+}
+
+/* 임팩트(공격) */
+@keyframes effectImpact {
+    0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+    20% { opacity: 1; }
+    60% { transform: translate(-50%, -50%) scale(1.15); }
+    100% { transform: translate(-50%, -50%) scale(1.0); opacity: 0; }
+}
+.skill-effect.impact { animation: effectImpact 0.7s ease-out 1; }
+
+/* 힐 */
+@keyframes effectHeal {
+    0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; filter: drop-shadow(0 0 0 rgba(50,255,120,0)); }
+    25% { opacity: 1; }
+    60% { transform: translate(-50%, -50%) scale(1.1); filter: drop-shadow(0 0 16px rgba(50,255,120,0.6)); }
+    100% { transform: translate(-50%, -50%) scale(1.0); opacity: 0; }
+}
+.skill-effect.heal { animation: effectHeal 0.9s ease-out 1; }
+
+.skill-effect.heal-boss {
+    width: 180px;
+    animation:
+            effectHealBoss 1.5s ease-out 1,
+            effectHealGlow 2.0s ease-out 1;   /* 잔상은 더 길게 */
+    will-change: transform, opacity, filter;
+}
+
+@keyframes effectHealBoss {
+    0%   { transform: translate(-50%, -50%) scale(0.85); opacity: 0; }
+    18%  { opacity: 1; }
+    52%  { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.0);  opacity: 0; }
+}
+
+@keyframes effectHealGlow {
+    0%   { filter: drop-shadow(0 0 0 rgba(50,255,120,0)); }
+    30%  { filter: drop-shadow(0 0 20px rgba(50,255,120,.75)); }
+    70%  { filter: drop-shadow(0 0 14px rgba(50,255,120,.50)); }
+    100% { filter: drop-shadow(0 0 0 rgba(50,255,120,0)); }
+}
+
+/* 디버프 */
+@keyframes effectDebuff {
+    0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0; filter: hue-rotate(250deg); }
+    25% { opacity: 1; }
+    60% { transform: translate(-50%, -50%) scale(1.05); }
+    100% { transform: translate(-50%, -50%) scale(1.0); opacity: 0; }
+}
+.skill-effect.debuff { animation: effectDebuff 0.8s ease-out 1; }
+
+@keyframes healBarGlow {
+    0%   { filter: brightness(1.1); box-shadow: 0 0 0 rgba(0,255,140,0); }
+    30%  { filter: brightness(1.25); box-shadow: 0 0 14px rgba(0,255,140,0.7); }
+    60%  { filter: brightness(1.15); box-shadow: 0 0 10px rgba(0,255,140,0.5); }
+    100% { filter: brightness(1.0); box-shadow: 0 0 0 rgba(0,255,140,0); }
+}
+.boss-hp-bar-fill.healed {
+    animation: healBarGlow 0.8s ease-out 1;
+}
+
+.potion-slot{
+    width: 64px;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    cursor:pointer; user-select:none;
+}
+
+.potion-img-wrap{
+    position: relative;              /* 배지 위치 기준 */
+    width: 64px; height: 64px;
+    border-radius: 10px; overflow:hidden;
+    border: 2px solid rgba(255,255,255,.15);
+    background: rgba(0,0,0,.25);
+    display:grid; place-items:center;
+    transition: transform .08s ease, filter .2s ease, border-color .2s ease;
+}
+
+.potion-img-wrap::after{
+    content: attr(data-qty);
+    position:absolute; right:.25rem; bottom:.25rem;
+    padding:.05rem .35rem;
+    font-size:.7rem;
+    line-height:1.2;
+    color:var(--white-color);
+    font-weight: bold;
+    background: var(--dark-2-color);
+    border:1px solid rgba(0,0,0,.2);
+    border-radius:.5rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,.35);
+    pointer-events:none;             /* 클릭 방해 X */
+}
+
+.potion-slot:hover .potion-img-wrap{ filter: brightness(1.08); border-color: rgba(255,255,255,.25); }
+.potion-slot:active .potion-img-wrap{ transform: scale(.96); }
+
+.potion-img{ width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+
+.potion-qty{
+    font-size: .85rem;
+    color: #fff;
+    opacity: .9;
+}
+
+/* 수량 0 → 비활성 */
+.potion-slot.disabled .potion-img-wrap{ filter: grayscale(.5) brightness(.85); border-color: rgba(255,255,255,.08); }
+.potion-slot.disabled .potion-img-wrap::after{
+    background: rgba(0,0,0,.55);
+    color: #ccc;
+    border-color: rgba(255,255,255,.08);
 }

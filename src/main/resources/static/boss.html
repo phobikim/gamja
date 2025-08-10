@@ -16,16 +16,15 @@
 
         <!-- 보스 체력바 -->
         <div class="boss-hp-bar">
-            <div class="hp-bar-bg">
-                <div class="hp-bar-fill" style="width: 100%;"></div>
+            <div class="boss-hp-bar-bg">
+                <div class="boss-hp-bar-fill" style="width: 100%;"></div>
             </div>
             <div class="boss-name">보스 GG</div>
         </div>
 
+        <div class="boss-hp-text" id="bossHpText">5000 / 5000</div>
         <!-- 보스 대사 -->
-        <div class="boss-dialogue-box" id="bossDialogue">
-            "이 감자굴은 내 것이다!"
-        </div>
+        <div class="boss-dialogue-box" id="bossDialogue"></div>
 
         <!-- 보스 이미지 -->
         <div class="boss-image-wrapper">
@@ -61,12 +60,19 @@
         <!-- 버튼들 -->
         <div class="battle-button-row">
             <button class="battle-btn" id="runAwayBtn">도망</button>
-            <button class="battle-btn">공격</button>
-            <button class="battle-btn">포션</button>
+            <button class="battle-btn btn-attack" id="attackBtn">공격</button>
+            <div class="potion-slot btn-potion" role="button" aria-label="포션 사용">
+                <div class="potion-img-wrap">
+                    <img class="potion-img" src="" alt="포션">
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+<script src="js/util.js"></script>
+<script src="js/sound.js"></script>
+<script src="js/modal.js"></script>
 <script src="js/bossBattle.js"></script>
 
 </body>

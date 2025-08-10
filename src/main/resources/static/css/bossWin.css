@@ -1,0 +1,114 @@
+:root{
+    /* 타이포 기본값 */
+    --fs-base: 1rem;
+    --fw-bold: bold;
+}
+
+/* 모든 텍스트 요소 기본: bold + 1rem */
+.boss-win-body,
+.boss-win-body button,
+.boss-win-body input,
+.boss-win-body select,
+.boss-win-body textarea {
+    font-size: var(--fs-base);
+    font-weight: var(--fw-bold);
+}
+
+.boss-win-body{
+    margin:0; background:#0a0c14; color:#fff;
+    font-family:system-ui,AppleSDGothicNeo,'Noto Sans KR',sans-serif;
+}
+
+.win-page{
+    min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:5px;
+    background: radial-gradient(1000px 600px at 50% -10%, rgba(255,215,90,.08), transparent 60%) #0a0c14;
+}
+
+.loot-modal-content{
+    background:var(--dark-3-color); border-radius:20px; padding:15px; width:min(720px,92vw);
+    box-shadow:0 10px 30px rgba(0,0,0,.5); position:relative;
+    border:1px solid rgba(255,255,255,.06);
+}
+
+.victory-badge{
+    display:block; margin:0 auto 1px; width:130px; height:auto; image-rendering:pixelated;
+    filter: drop-shadow(0 6px 18px rgba(255,215,90,.25));
+}
+
+.win-title{ text-align:center; margin:6px 0 14px; }
+
+.reward-stage{ }
+
+.character-reward-section{
+    display:flex; gap:24px; padding:18px; background:var(--dark-1-color); border-radius:16px;
+    align-items:flex-start; box-shadow:0 5px 15px rgba(0,0,0,.3);
+}
+
+.character-avatar{ }
+.reward-char-img{ width:128px; height:128px; object-fit:cover; image-rendering:pixelated; border-radius:12px; }
+
+.character-level-info{ flex:1; display:flex; flex-direction:column; gap:12px; }
+
+/* 크기만 rem로 유지, 두께는 전역 상속 */
+.level-display{ text-align:center; font-size:1.6rem; color:var(--dark-1-font-color); }
+
+.xp-bar-container{ }
+
+.xp-bar{
+    width:100%; height:24px; background:rgba(0,0,0,.5); border:2px solid #555; border-radius:14px;
+    overflow:hidden; position:relative;
+}
+
+.xp-bar-fill{
+    height:100%; background:linear-gradient(90deg, var(--green-hignlight), #2ecc40);
+    width:0%; transition:width .8s ease-out; position:relative;
+}
+.xp-bar-fill::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent);
+    animation:shimmer 1s infinite;
+}
+
+.xp-gain-text{
+    position:absolute; inset:0; display:grid; place-items:center;
+    text-shadow:1px 1px 2px rgba(0,0,0,.8);
+}
+.xp-text{
+    text-align:center;
+    color:var(--dark-1-font-color);
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+.reward-char-level.level-up-highlight{ color:var(--green-hignlight); animation:levelUpPop .4s ease; }
+@keyframes levelUpPop{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+
+.loot-items-section{ margin:12px 0 6px; display:flex; justify-content:center; }
+.loot-items-list{ display:flex; flex-wrap:wrap; gap:12px; justify-content:center; }
+
+/* 반복 렌더링 카드 */
+.loot-item-card{
+    background:var(--dark-1-color); border-radius:10px; padding:10px; min-width:74px;
+    display:flex; flex-direction:column; align-items:center;
+    opacity:0; transform:translateY(12px); transition:all .4s ease;
+}
+.loot-item-card.animate-in{ opacity:1; transform:translateY(0); }
+.loot-item-image{ width:48px; height:48px; image-rendering:pixelated; margin-bottom:6px; }
+.loot-item-name{ font-size:0.8rem; text-align:center; line-height:1.1; }
+.loot-item-count{ font-size:0.75rem; color:var(--green-hignlight); }
+
+.footer-actions{ margin-top:18px; display:flex; flex-direction:column; gap:10px; }
+
+.primary-btn{
+    width:100%; padding:14px 16px; font-size:1rem; border:none; border-radius:12px; cursor:pointer;
+    background:linear-gradient(180deg,#ffd85a,#f6d27a); color:#161616; box-shadow:0 6px 18px rgba(255,204,0,.2);
+    transition:transform .06s ease, filter .2s ease;
+}
+.primary-btn:active{ transform:translateY(1px) scale(.98); }
+
+/* small */
+@media (max-width:520px){
+    .reward-char-img{width:100px;height:100px}
+}

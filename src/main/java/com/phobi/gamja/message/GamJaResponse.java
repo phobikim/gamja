@@ -14,7 +14,9 @@ public class GamJaResponse {
     public static GamJaResponse success(String message, Object data) {
         return new GamJaResponse("SUCCESS", message, data);
     }
-
+    public boolean isSuccess() {
+        return "SUCCESS".equals(this.code);
+    }
     public static GamJaResponse ok(String message) {
         return new GamJaResponse("OK", message, null);
     }

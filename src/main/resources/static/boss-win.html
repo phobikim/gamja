@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko" class="html-root">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>보스 승리</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/bossWin.css">
+</head>
+<body class="boss-win-body">
+<div class="win-page">
+    <div class="loot-modal-content" role="dialog" aria-label="보스 전투 승리">
+        <img class="victory-badge" src="https://phobi.me/gamja.img/images/icons/icon_victory1.png" alt="승리 배지" />
+        <div class="reward-stage">
+            <div class="character-reward-section">
+                <div class="character-avatar">
+                    <img class="reward-char-img" src="" alt="캐릭터">
+                </div>
+
+                <div class="character-level-info">
+                    <div class="level-display">Lv.<span class="reward-char-level">1</span></div>
+
+                    <div class="xp-bar-container">
+                        <div class="xp-bar">
+                            <div class="xp-bar-fill"></div>
+                            <div class="xp-gain-text">+0 XP</div>
+                        </div>
+                        <div class="xp-text">
+                            <span class="current-xp">0</span> / <span class="max-xp">0</span> XP
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="loot-items-section">
+                <div class="loot-items-list"></div>
+            </div>
+
+            <div class="footer-actions">
+                <button class="primary-btn to-main btn-main">메인화면 가기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 전역 유틸/사운드 먼저 로드 -->
+<script src="js/util.js"></script>
+<script src="js/sound.js"></script>
+<!-- 페이지 스크립트 -->
+<script src="js/bossWin.js"></script>
+</body>
+</html>

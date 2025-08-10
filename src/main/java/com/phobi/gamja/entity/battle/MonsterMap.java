@@ -36,7 +36,6 @@ public class MonsterMap {
     private MapDifficulty mapDifficulty;
 
     public enum MapDifficulty {
-        NORMAL,
-        HARD
+        NORMAL, HARD, BOSS
     }
 }

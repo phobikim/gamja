@@ -98,7 +98,7 @@ function renderMapList(mapList) {
             window.selectedMap = selectedMap;
 
             // 보스맵
-            if (selectedMap.id === 6 && selectedMap.difficulty === 'HARD') {
+            if (selectedMap.id === 6 && selectedMap.difficulty === 'BOSS') {
                 window.location.replace("/boss-enter.html");
                 return;
             }
@@ -117,39 +117,44 @@ closeBattleBtn.onclick = () => {
 
 function updateMapDetail(map, triggeredByTabClick = false) {
     const group = window.cachedMapList.find(g => g.groupId === map.groupId);
-    const normalMap = group.maps.find(m => m.difficulty === 'NORMAL');
-    const hardMap = group.maps.find(m => m.difficulty === 'HARD');
-
 
     // 탭 렌더링
     const tabBox = document.getElementById('difficultyTabBox');
-    if (hardMap) {
-        tabBox.innerHTML = `
-            <button class="difficulty-tab" data-type="NORMAL">일반</button>
-            <button class="difficulty-tab" data-type="HARD">시험</button>
-        `;
+    tabBox.innerHTML = '';
 
-        const tabButtons = tabBox.querySelectorAll('button');
-        tabButtons.forEach(btn => {
-            const type = btn.dataset.type;
+    const difficultyNames = {
+        'NORMAL': '일반',
+        'HARD': '시험',
+        'BOSS': '보스'
+    };
 
-            if (type === currentDifficulty) {
+    const difficulties = group.maps.map(m => m.difficulty); // ["NORMAL", "HARD", "BOSS"] 등
+
+    if (difficulties.length > 1) {
+        difficulties.forEach(diff => {
+            const btn = document.createElement('button');
+            btn.className = 'difficulty-tab';
+            btn.dataset.type = diff;
+            btn.textContent = difficultyNames[diff] || diff;
+
+            if (diff === currentDifficulty) {
                 btn.classList.add('active');
             }
 
             btn.addEventListener('click', () => {
-                const selected = group.maps.find(m => m.difficulty === type);
+                const selected = group.maps.find(m => m.difficulty === diff);
                 if (selected) {
                     playEffect("se_click2");
                     selectedMap = selected;
-                    currentDifficulty = type;
+                    currentDifficulty = diff;
                     updateMapDetail(selected, true);
                 }
             });
+
+            tabBox.appendChild(btn);
         });
-    } else {
-        tabBox.innerHTML = '';
     }
+
     applyMapEntryRequirement(map);
 
     document.getElementById('battleSelectMapName').textContent = map.name;
@@ -233,7 +238,7 @@ function applyMapEntryRequirement(map) {
     if (oldOverlay) oldOverlay.remove();
 
     // 조건 처리
-    if (map.difficulty === 'HARD' && map.entryAllowed === false) {
+    if ((map.difficulty === 'HARD' || map.difficulty === 'BOSS') && map.entryAllowed === false) {
         mapDetailPanel.classList.add('locked');
         startBtn.classList.add('disabled');
         startBtn.disabled = true;

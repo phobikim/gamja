@@ -44,5 +44,13 @@ public class LogService {
         }
     }
 
+    @Transactional
+    public boolean hasKilledBossToday(Long userId, Long monsterId) {
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        Integer sum = userDailyActionLogRepository
+                .sumMonsterKillToday(userId, monsterId, today);
+        return sum != null && sum > 0;
+    }
+
 
 }

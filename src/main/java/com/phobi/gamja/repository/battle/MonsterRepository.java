@@ -11,4 +11,6 @@ public interface MonsterRepository extends JpaRepository<Monster, Long> {
     List<Monster> findByMapAndEnabledIsTrue(MonsterMap map);
     List<Monster> findByMapId(Long mapId);
     Optional<Monster> findFirstByMapId(Long mapId);
+
+    List<Monster> findByMapIdAndEnabledIsTrue(Long mapId);
 }
