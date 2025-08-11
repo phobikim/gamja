@@ -17,9 +17,9 @@ let usingPotion = false;
 
 const ALLY_TIMING = {
     minDuration: 1500,   // 대사 최소 표시 시간
-    lingerAfter: 200,    // 효과 끝난 뒤 화면에 더 남아있게
+    lingerAfter: 500,    // 효과 끝난 뒤 화면에 더 남아있게
     fadeOutMs:  250,     // 페이드아웃 애니메이션 시간
-    betweenEvents: 400   // (여러 이벤트일 때) 각 이벤트 사이 간격
+    betweenEvents: 500   // (여러 이벤트일 때) 각 이벤트 사이 간격
 };
 
 
@@ -81,6 +81,13 @@ function spawnEffect(targetEl, src, variant = 'impact') {
     setTimeout(() => img.remove(), Math.max(300, maxMs + 50));
 }
 
+function getPlayerImgContainer() {
+    return (
+        document.querySelector('#characterLeftWrapper .char-image-container') ||
+        document.querySelector('.character-left-wrapper .char-image-container')
+    );
+}
+
 fetch("/boss-run.html");
 // 보스 등장 애니메이션 적용
 window.addEventListener('DOMContentLoaded', () => {
@@ -138,7 +145,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     localStorage.setItem('bossWinData', JSON.stringify(stored));
                 }
                 await delay(1500);
-                window.location.replace('/boss-win.html');
+                window.location.replace(apiPath('/boss-win.html'));
             } else {
                 if (Array.isArray(allyEvents) && allyEvents.length) {
                     await handleAllyEvents(allyEvents);
@@ -323,18 +330,13 @@ function renderBossBattleInit(data) {
     if (charName) {
         charName.textContent = player.dexName;
     }
-
-    playerMaxHp = Number(player.maxHp ?? player.hp ?? 0);
-    const hpNow = Number(player.hp ?? playerMaxHp);
-
+    playerMaxHp = player.maxHp ?? player.hp ?? 0;
     if (charHpText) {
-        charHpText.textContent = `${hpNow} / ${playerMaxHp}`;
+        charHpText.textContent = `${player.hp} / ${playerMaxHp}`;
     }
     if (charHpFill) {
-        const hpPct = Math.max(0, Math.min(100, (hpNow / Math.max(1, playerMaxHp)) * 100));
-        charHpFill.style.width = `${hpPct}%`;
+        charHpFill.style.width = `100%`;
     }
-
     if (player?.skillImagePath) {
         playerSkillImgSrc = `${window.basePath_image}${player.skillImagePath}`;
     }
@@ -362,11 +364,9 @@ function renderBossBattleInit(data) {
     if (bgImg && map?.background) {
         bgImg.src = `${window.basePath}${map.background}`;
     }
-
-    // 4. 포션 슬롯
     renderPotionSlot(player?.potion);
-}
 
+}
 
 // === [수정] 보스 턴: 서버 스펙(bossTurn) 응답에 맞춤 ===
 async function triggerBossTurn() {
@@ -388,15 +388,12 @@ async function triggerBossTurn() {
     const type =
     skill?.type ||(dmg > 0 ? 'DAMAGE_TO_PLAYER' : healBoss > 0 ? 'HEAL_SELF' : debuff > 0 ? 'DEBUFF_PLAYER' : null);
 
-    const playerImgContainer =
-        document.querySelector('#characterLeftWrapper .char-image-container') ||
-        document.querySelector('.character-left-wrapper .char-image-container') ||
-        document.querySelector('.char-image-container');
+    const playerImgContainer = getPlayerImgContainer();
     const bossImgWrapper = document.querySelector('.boss-image-wrapper');
 
     // 1) 보스 데미지 → 플레이어 이미지 위치
     if (type === 'DAMAGE_TO_PLAYER' && dmg > 0) {
-        spawnEffect(playerImgContainer, EFFECT_IMG.DAMAGE_TO_PLAYER, 'boss-impact');
+        spawnEffect(getPlayerImgContainer(), EFFECT_IMG.DAMAGE_TO_PLAYER, 'boss-impact');
         shakeElement(document.querySelector('.character-left'), 'shake-weak');
         showBossAttackEffect(dmg);
     }
@@ -542,12 +539,7 @@ function updatePlayerHp(hp, maxHp) {
 
     // 회복 이펙트 & +숫자
     if (isHeal) {
-        const container =
-            document.querySelector('.character-left-wrapper .char-image-container') ||
-            document.querySelector('#characterLeftWrapper .char-image-container') || // 혹시 id 사용 중이면
-            document.querySelector('.char-image-container');
-
-
+        const container = getPlayerImgContainer();
         spawnEffect(container, EFFECT_IMG.PLAYER_HEAL_SELF, 'heal-player');
 
         // +숫자
@@ -722,7 +714,7 @@ async function handleAllyEvents(events = []) {
 function playAllyEvent(ev = {}) {
     return new Promise(async (resolve) => {
         const name = ev.name || '조력 감자';
-        const img  = basePath_image + /character/ + ev.image || '';
+        const img  = `${basePath_image}/character/${ev.image || ''}`;
         const dur  = Number(ev.duration ?? 1000);
         const beforeMs = Number(450);
 
@@ -738,13 +730,6 @@ function playAllyEvent(ev = {}) {
             const nextHp  = ev.playerHp ?? Math.min(playerMaxHp, (Number(document.querySelector('.char-hp-bar')?.dataset.hpValue) || 0) + ev.heal);
             const nextMax = ev.playerMaxHp ?? playerMaxHp;
             updatePlayerHp(nextHp, nextMax);
-
-            // 힐 이펙트
-            const container =
-                document.querySelector('.character-left-wrapper .char-image-container') ||
-                document.querySelector('#characterLeftWrapper .char-image-container') ||
-                document.querySelector('.char-image-container');
-            spawnEffect(container, EFFECT_IMG.PLAYER_HEAL_SELF, 'heal-player');
         }
 
         // (b) 공격력 복구
@@ -774,53 +759,5 @@ function playAllyEvent(ev = {}) {
         resolve();
     });
 
-    // 방어력 표시용 스케일 (시각화 전용)
-    const DEF_VISUAL_CAP = 100; // 기대 상한치(게임 밸런스에 맞춰 50~150 사이로 튜닝)
-    const DEF_MIN_PX = 10;      // 방어력이 1이라도 있으면 최소 시각폭 보장
-
-    function ensureShieldTrack() {
-        const statusBox = document.querySelector('.char-status-box');
-        if (!statusBox) return null;
-
-        let track = statusBox.querySelector('.char-shield-track');
-        if (!track) {
-            track = document.createElement('div');
-            track.className = 'char-shield-track';
-
-            const fill = document.createElement('div');
-            fill.className = 'char-shield-fill';
-            track.appendChild(fill);
-
-            const label = document.createElement('div');
-            label.className = 'char-shield-label';
-            label.textContent = 'DEF 0';
-            track.appendChild(label);
-
-            // HP 바 바로 밑에 붙이기
-            const hpBar = statusBox.querySelector('.char-hp-bar');
-            if (hpBar?.nextSibling) {
-                statusBox.insertBefore(track, hpBar.nextSibling);
-            } else {
-                statusBox.appendChild(track);
-            }
-        }
-        return track;
-    }
-
-    function setShieldVisual(def) {
-        const track = ensureShieldTrack();
-        if (!track) return;
-
-        const fill = track.querySelector('.char-shield-fill');
-        const label = track.querySelector('.char-shield-label');
-
-        const defVal = Math.max(0, Number(def) || 0);
-        const pct = Math.min(100, (defVal / DEF_VISUAL_CAP) * 100);
-
-        fill.style.width = `${pct}%`;
-        fill.style.minWidth = defVal > 0 ? `${DEF_MIN_PX}px` : '0';
-        label.textContent = `DEF ${defVal}${defVal > DEF_VISUAL_CAP ? '+' : ''}`;
-        label.classList.toggle('hidden', defVal <= 0);
-    }
 
 }

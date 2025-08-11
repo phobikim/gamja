@@ -222,7 +222,7 @@ public class BossBattleService {
         BattleSession bs = new BattleSession();
         bs.setUserId(userId);
         bs.setPlayerHp((Integer) userInfo.get("hp"));
-        bs.setPlayerMaxHp((Integer) userInfo.get("hp"));
+        bs.setPlayerMaxHp((Integer) userInfo.get("hp") + (Integer) userInfo.getOrDefault("defense",0));
         bs.setPlayerXp((Integer) userInfo.get("xp"));
         bs.setPlayerLevel((Integer) userInfo.get("lv"));
         bs.setPlayerPower((Integer) userInfo.get("power"));
@@ -452,10 +452,16 @@ public class BossBattleService {
 
         switch (type) {
             case "DAMAGE_TO_PLAYER" -> {
-                int raw = value;
-                int reduced = Math.max(1, raw - bs.getDefense()); // 방어력 적용
-                dealtDamage = Math.min(reduced, bs.getPlayerHp());
-                bs.setPlayerHp(Math.max(0, bs.getPlayerHp() - dealtDamage));
+                int monsterDamage = value;
+                int playerDefense = bs.getDefense();
+                int playerHp = bs.getPlayerHp();
+                int absorbed = Math.min(monsterDamage, playerDefense);
+                int remainingDamage = monsterDamage - absorbed;
+                playerDefense -= absorbed;
+                playerHp = Math.max(0, playerHp - remainingDamage);
+                bs.setDefense(playerDefense);
+                bs.setPlayerHp(playerHp);
+                dealtDamage = monsterDamage;
             }
             case "HEAL_SELF" -> {
                 int before = bs.getMonsterHp();
@@ -560,6 +566,7 @@ public class BossBattleService {
         payload.put("player", Map.of(
                 "hp", bs.getPlayerHp(),
                 "power", bs.getPlayerPower(),
+                "defense", bs.getDefense(),
                 "defeat", defeat
         ));
         payload.put("monster", Map.of(

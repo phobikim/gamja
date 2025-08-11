@@ -296,12 +296,12 @@ body.boss-battle-page {
     transition: width .35s cubic-bezier(.2,.8,.2,1);
 }
 
-/* 아래 쉴드 전용 트랙 */
+/* 방어력(쉴드) 전용 트랙 — HP바 바로 아래 얇게 */
 .char-shield-track {
     position: relative;
     width: 100%;
-    height: 8px;                 /* HP바보다 얇게 */
-    margin-top: 4px;             /* HP바와 간격 */
+    height: 8px;                /* HP바보다 얇게 */
+    margin-top: 4px;
     background: rgba(0,0,0,0.35);
     border: 1px solid rgba(130,170,255,0.25);
     border-radius: 6px;
@@ -330,7 +330,6 @@ body.boss-battle-page {
     pointer-events: none;
 }
 .char-shield-label.hidden { display: none; }
-
 .char-hp-chip{
     position: absolute;
     left: 0; top: 0;
