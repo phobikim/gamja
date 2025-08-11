@@ -12,6 +12,7 @@
     <!-- JS에서 문구 랜덤으로 삽입됨 -->
 </div>
 <script src="js/sound.js"></script>
+<script src="js/util.js"></script>
 <script>
     fetch("boss.html", { method: "GET" });
     fetch("/css/common.css");
@@ -33,7 +34,7 @@
 
 
     setTimeout(() => {
-        window.location.replace("/boss.html");
+        window.location.replace(apiPath('/boss.html'));
     }, 1500);
 
 </script>

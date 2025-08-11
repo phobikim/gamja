@@ -18,6 +18,7 @@ import com.phobi.gamja.repository.dex.DexRepository;
 import com.phobi.gamja.repository.dex.DexSkillImageRepository;
 import com.phobi.gamja.repository.dex.DexSkillRepository;
 import com.phobi.gamja.repository.user.UserDexRepository;
+import com.phobi.gamja.repository.user.UserDexStatRepository;
 import com.phobi.gamja.repository.user.UserDtlRepository;
 import com.phobi.gamja.util.CommonUtil;
 import com.phobi.gamja.util.StatCalculator;
@@ -33,16 +34,14 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class BossBattleService {
+    private static final String ATTR_ALLY_INFO = "allyInfo";
+    private static final String ATTR_ALLY_FLAGS   = "allyFlags";
+    private static final String KEY_HELP_HEAL     = "healHelpUsed";
+    private static final String KEY_HELP_RESTORE  = "restoreHelpUsed";
+    private static final String KEY_HELP_ATTACK   = "attackHelpUsed";
+    private static final String KEY_HELP_AFFINITY = "affinityHelpUsed";
 
-    private static final String ATTR_ALLY_FLAGS  = "bossAllyFlags";   // Map<String,Boolean>
-    private static final String ATTR_ALLY_IMAGES = "bossAllyImages";  // Map<String,String> (1회용이긴 하지만 유지해도 무방)
-
-    // 역할 키(한 번씩만 발동)
-    private static final String KEY_HELP_HEAL    = "ALLY_HEAL_USED";     // 플레이어 HP<30% → 전부 회복
-    private static final String KEY_HELP_RESTORE = "ALLY_RESTORE_USED";  // 디버프로 떨어진 공격력 정상화
-    private static final String KEY_HELP_ATTACK  = "ALLY_ATTACK_USED";   // 보스 HP<20% → 1회 대리공격
-
-
+    private record AllyInfo(String name, String image) {}
     private static final String KEY_RAW   = "RAW_HELPED";    // 생감자: 체력 전부 회복(플레이어 HP<30%)
     private static final String KEY_BAKED = "BAKED_HELPED";  // 구운감자: 디버프로 낮아진 공격력을 정상화
     private static final String KEY_FRIED = "FRIED_HELPED";  // 튀김감자: 보스 HP<20%일 때 1회 공격(플레이어 공격력의 절반)
@@ -70,6 +69,8 @@ public class BossBattleService {
     private final DexSkillRepository dexSkillRepository;
     private final DexSkillImageRepository dexSkillImageRepository;
     private final UserDexRepository userDexRepository;
+    private final UserDexStatRepository userDexStatRepository;
+
     private final CommonUtil commonUtil;
     private final LogService logService;
     private final UserLogService userLogService;
@@ -174,6 +175,9 @@ public class BossBattleService {
             cachedPotion.put("quantity",   cached.getPlayerPotionQuantity());
             cachedPotion.put("itemPath",   cached.getPlayerPotionItemPath());
 
+            getAllyFlags(session);
+            getAllyInfoMap(session);
+
             return GamJaResponse.success("보스 전투 상태 유지",
                     buildStartPayload(session, cached, cachedPatterns, cachedPotion, cachedPhase));
         }
@@ -267,9 +271,14 @@ public class BossBattleService {
         } else {
             session.removeAttribute(ATTR_BOSS_CURR_SKILL);
         }
-        //조력 플래그 초기화
-        getAllyFlags(session);
-        getAllyImages(session);
+
+        Map<String, Boolean> flags = new HashMap<>();
+        flags.put(KEY_HELP_HEAL, false);
+        flags.put(KEY_HELP_RESTORE, false);
+        flags.put(KEY_HELP_ATTACK, false);
+        session.setAttribute(ATTR_ALLY_FLAGS, flags);
+        session.setAttribute(ATTR_ALLY_INFO, new HashMap<String, String>());
+
         return GamJaResponse.success("보스 전투 시작",
                 buildStartPayload(session, bs, patterns, potion, phase));
     }
@@ -335,21 +344,45 @@ public class BossBattleService {
 
         int newHp = Math.max(0, bs.getMonsterHp() - damage);
         bs.setMonsterHp(newHp);
-        bs.setPlayerTurn(false); // 턴 전환
+
+        Map<String, Boolean> flags = getAllyFlags(session);
+        List<Map<String, Object>> allyEvents = new ArrayList<>();
+
+        if (!flags.getOrDefault(KEY_HELP_ATTACK, false)
+                && belowPercent(newHp, bs.getMonsterMaxHp(), 20)) {
+
+            // 조력자 정보
+            Optional<AllyInfo> allyOpt = ensureAllyInfo(session, bs.getUserId(), KEY_HELP_ATTACK);
+
+            // 플레이어 유효 공격력의 1/2로 추가 공격
+            int allyAtk = Math.max(1, calcEffectivePlayerPower(bs) / 2);
+            int after = Math.max(0, newHp - allyAtk);
+            bs.setMonsterHp(after);
+
+            flags.put(KEY_HELP_ATTACK, true);
+            Map<String, Object> evt = new LinkedHashMap<>();
+            evt.put("type", "ALLY_ATTACK");
+            evt.put("image", allyOpt.map(AllyInfo::image).orElse(null));
+            evt.put("name",  allyOpt.map(AllyInfo::name).orElse(null));
+            evt.put("damage", allyAtk);
+            evt.put("dialogue", "튀튀! 내가 한 번 대신 때려줄게!");
+            allyEvents.add(evt);
+
+            newHp = after; // 승리 판정 위해 동기화
+        }
+
+        bs.setPlayerTurn(false);
         bs.setPlayerPower(bs.getPlayerBasePower());
         session.setAttribute("battleSession", bs);
 
         boolean victory = newHp <= 0;
 
-        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> data = new LinkedHashMap<>();
         data.put("monster", Map.of("hp", newHp, "maxHp", bs.getMonsterMaxHp()));
         data.put("playerAttack", Map.of("damage", damage, "isCritical", isCritical));
         data.put("victory", victory);
+        if (!allyEvents.isEmpty()) data.put("allyEvents", allyEvents);
 
-        // === 조력: 보스 HP 20% 미만이면 1회 대리공격 ===
-        Map<String, Boolean> flags = getAllyFlags(session);
-        List<Map<String, Object>> allyAssists = new ArrayList<>();
-        
         return GamJaResponse.success("보스에게 공격 완료", data);
     }
 
@@ -446,24 +479,69 @@ public class BossBattleService {
             cooldowns.put(skill.getId(), cd);
         }
 
-        // 5) 보스 HP 기준 새 페이즈 계산 → 다음 스킬 픽
+        Map<String, Boolean> flags = getAllyFlags(session);
+        List<Map<String, Object>> allyEvents = new ArrayList<>();
+
+        if (!flags.getOrDefault(KEY_HELP_AFFINITY, false)
+                && betweenPercent(bs.getPlayerHp(), bs.getPlayerMaxHp(), 30, 60)) {
+
+            bs.setPlayerHp(bs.getPlayerMaxHp()); // 풀 회복
+            flags.put(KEY_HELP_AFFINITY, true);
+
+            Optional<AllyInfo> allyOpt = ensureAffinityAllyInfo(session, bs.getUserId());
+            Map<String, Object> evt = new LinkedHashMap<>();
+            evt.put("type", "ALLY_AFFINITY");
+            evt.put("image", allyOpt.map(AllyInfo::image).orElse(null));
+            evt.put("name",  allyOpt.map(AllyInfo::name).orElse(null));
+            evt.put("heal", bs.getPlayerMaxHp());
+            evt.put("dialogue", "너를 위해서라면 뭐든지 할게!");
+            allyEvents.add(evt);
+        }
+
+        if (!flags.getOrDefault(KEY_HELP_HEAL, false)
+                && belowPercent(bs.getPlayerHp(), bs.getPlayerMaxHp(), 30)) {
+
+            int healedAmount = Math.max(0, bs.getPlayerMaxHp() - bs.getPlayerHp());
+            bs.setPlayerHp(bs.getPlayerMaxHp());
+            flags.put(KEY_HELP_HEAL, true);
+
+            Optional<AllyInfo> allyHeal = ensureAllyInfo(session, bs.getUserId(), KEY_HELP_HEAL);
+            Map<String, Object> evt = new LinkedHashMap<>();
+            evt.put("type", "ALLY_HEAL");
+            evt.put("image", allyHeal.map(AllyInfo::image).orElse(null));
+            evt.put("name",  allyHeal.map(AllyInfo::name).orElse(null));
+            evt.put("heal", healedAmount);
+            evt.put("dialogue", "우와앗! 다 나았어! 힘내!");
+            allyEvents.add(evt);
+        }
+
+        int normalPower = calcEffectivePlayerPower(bs);
+        if (!flags.getOrDefault(KEY_HELP_RESTORE, false)
+                && bs.getPlayerPower() < normalPower) {
+
+            int restored = normalPower - bs.getPlayerPower();
+            bs.setPlayerPower(normalPower);
+            flags.put(KEY_HELP_RESTORE, true);
+
+            Optional<AllyInfo> allyRestore = ensureAllyInfo(session, bs.getUserId(), KEY_HELP_RESTORE);
+            Map<String, Object> evt2 = new LinkedHashMap<>();
+            evt2.put("type", "ALLY_RESTORE");
+            evt2.put("image", allyRestore.map(AllyInfo::image).orElse(null));
+            evt2.put("name",  allyRestore.map(AllyInfo::name).orElse(null));
+            evt2.put("restore", restored);
+            evt2.put("dialogue", "에잇! 저주 같은 건 훅~");
+            allyEvents.add(evt2);
+        }
+
+        // 새 페이즈 계산 & 다음 스킬 선픽
         int newPhase = calcPhaseByHp(bs.getMonsterHp(), bs.getMonsterMaxHp());
-
-        // boss 엔티티 필요: 레포에서 다시 조회 (권장)
-        Monster bossEntity = monsterRepository.findById(bs.getMonsterId())
-                .orElse(null);
-
+        Monster bossEntity = monsterRepository.findById(bs.getMonsterId()).orElse(null);
         PatternDTO nextSkill = null;
-        if (bossEntity != null) {
-            nextSkill = pickRandomPatternForPhase(bossEntity, newPhase, cooldowns).orElse(null);
-        }
-        if (nextSkill != null) {
-            session.setAttribute(ATTR_BOSS_CURR_SKILL, nextSkill);
-        } else {
-            session.removeAttribute(ATTR_BOSS_CURR_SKILL);
-        }
+        if (bossEntity != null) nextSkill = pickRandomPatternForPhase(bossEntity, newPhase, cooldowns).orElse(null);
+        if (nextSkill != null) session.setAttribute(ATTR_BOSS_CURR_SKILL, nextSkill);
+        else session.removeAttribute(ATTR_BOSS_CURR_SKILL);
 
-        // 6) 턴 종료: 플레이어 턴으로 전환
+        // 턴 종료 → 플레이어 턴
         bs.setPlayerTurn(true);
         session.setAttribute(ATTR_BATTLE_SESSION, bs);
         session.setAttribute(ATTR_BOSS_PHASE, newPhase);
@@ -471,10 +549,9 @@ public class BossBattleService {
 
         boolean defeat = bs.getPlayerHp() <= 0;
 
-        // 7) 응답 페이로드
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("dialogue", skill.getDialogue());
-        payload.put("skill", skill); // PatternDTO 그대로 내려줌
+        payload.put("skill", skill);
         payload.put("effects", Map.of(
                 "damageToPlayer", dealtDamage,
                 "healToBoss", healed,
@@ -490,9 +567,8 @@ public class BossBattleService {
                 "maxHp", bs.getMonsterMaxHp()
         ));
         payload.put("phase", newPhase);
-        if (nextSkill != null) {
-            payload.put("nextBossSkill", nextSkill); // 다음 턴에 쓸 예정 스킬 미리 제공
-        }
+        if (nextSkill != null) payload.put("nextBossSkill", nextSkill);
+        if (!allyEvents.isEmpty()) payload.put("allyEvents", allyEvents);
 
         return GamJaResponse.success("보스 턴 처리 완료", payload);
     }
@@ -599,6 +675,8 @@ public class BossBattleService {
         session.removeAttribute(ATTR_BOSS_CURR_SKILL);
         session.removeAttribute(ATTR_PLAYER_META);
         session.removeAttribute(ATTR_BOSS_META);
+        session.removeAttribute(ATTR_ALLY_FLAGS);
+        session.removeAttribute(ATTR_ALLY_INFO);
     }
 
 
@@ -611,7 +689,7 @@ public class BossBattleService {
     private Optional<Dex> pickRandomOwnedDex(Long userId) {
         List<Long> dexIds = userDexRepository.findByUserId(userId)
                 .stream()
-                .map(UserDex::getId)
+                .map(ud -> ud.getDex().getId())
                 .toList();
 
         if (dexIds.isEmpty()) return Optional.empty();
@@ -622,6 +700,14 @@ public class BossBattleService {
         return Optional.of(dexList.get(ThreadLocalRandom.current().nextInt(dexList.size())));
     }
     @SuppressWarnings("unchecked")
+    private Map<String, AllyInfo> getAllyInfoMap(HttpSession session) {
+        Map<String, AllyInfo> map = (Map<String, AllyInfo>) session.getAttribute(ATTR_ALLY_INFO);
+        if (map == null) {
+            map = new HashMap<>();
+            session.setAttribute(ATTR_ALLY_INFO, map);
+        }
+        return map;
+    }
     private Map<String, Boolean> getAllyFlags(HttpSession session) {
         Map<String, Boolean> flags = (Map<String, Boolean>) session.getAttribute(ATTR_ALLY_FLAGS);
         if (flags == null) {
@@ -629,18 +715,45 @@ public class BossBattleService {
             flags.put(KEY_HELP_HEAL, false);
             flags.put(KEY_HELP_RESTORE, false);
             flags.put(KEY_HELP_ATTACK, false);
+            flags.put(KEY_HELP_AFFINITY, false);
             session.setAttribute(ATTR_ALLY_FLAGS, flags);
         }
         return flags;
     }
-    @SuppressWarnings("unchecked")
-    private Map<String, String> getAllyImages(HttpSession session) {
-        Map<String, String> imgs = (Map<String, String>) session.getAttribute(ATTR_ALLY_IMAGES);
-        if (imgs == null) {
-            imgs = new HashMap<>();
-            session.setAttribute(ATTR_ALLY_IMAGES, imgs);
-        }
-        return imgs;
+
+    private Optional<AllyInfo> ensureAllyInfo(HttpSession session, Long userId, String key) {
+        Map<String, AllyInfo> map = getAllyInfoMap(session);
+        AllyInfo cached = map.get(key);
+        if (cached != null) return Optional.of(cached);
+
+        Optional<Dex> dexOpt = pickRandomOwnedDex(userId);
+        dexOpt.ifPresent(dex -> map.put(key, new AllyInfo(dex.getName(), dex.getImage())));
+        return dexOpt.map(dex -> new AllyInfo(dex.getName(), dex.getImage()));
+    }
+    private boolean belowPercent(int value, int max, int pct) {
+        if (max <= 0) return false;
+        return (value * 100) < (max * pct);
+    }
+
+    private boolean betweenPercent(int value, int max, int lowPct, int highPct) {
+        if (max <= 0) return false;
+        int pct = (value * 100) / max;
+        return pct >= lowPct && pct <= highPct;
+    }
+
+    private Optional<AllyInfo> ensureAffinityAllyInfo(HttpSession session, Long userId) {
+        Map<String, AllyInfo> map = getAllyInfoMap(session);
+        AllyInfo cached = map.get(KEY_HELP_AFFINITY);
+        if (cached != null) return Optional.of(cached);
+
+        // 친밀도 50 이상인 감자 목록
+        List<Long> dexIds = userDexStatRepository.findDexIdsByUserIdAndAffinityAtLeast(userId, 50);
+        if (dexIds == null || dexIds.isEmpty()) return Optional.empty();
+        List<Dex> usable = dexRepository.findUsableVisibleByIds(dexIds);
+        if (usable == null || usable.isEmpty()) return Optional.empty();
+
+        Dex picked = usable.get(ThreadLocalRandom.current().nextInt(usable.size()));
+        return Optional.of(new AllyInfo(picked.getName(), picked.getImage()));
     }
 
 }

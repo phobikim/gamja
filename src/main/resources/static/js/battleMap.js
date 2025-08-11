@@ -99,7 +99,7 @@ function renderMapList(mapList) {
 
             // 보스맵
             if (selectedMap.id === 6 && selectedMap.difficulty === 'BOSS') {
-                window.location.replace("/boss-enter.html");
+                window.location.replace(apiPath('/boss-enter.html'));
                 return;
             }
 

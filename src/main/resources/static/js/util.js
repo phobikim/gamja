@@ -102,6 +102,10 @@ function redirectToIndex() {
     }
 }
 
+const CTX = window.location.pathname.startsWith('/gamja') ? '/gamja' : '';
+function apiPath(path) {
+    return `${CTX}${path}`;
+}
 
 
 

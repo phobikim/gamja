@@ -88,7 +88,7 @@ function initWinPage() {
     // 메인화면 가기
     $('.btn-main')?.addEventListener('click', () => {
         try { playEffect?.('se_click2'); } catch (_) {}
-        window.location.replace('/char.html');
+        window.location.replace(apiPath('/char.html'));
     });
 }
 

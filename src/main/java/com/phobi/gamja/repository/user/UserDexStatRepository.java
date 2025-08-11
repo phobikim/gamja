@@ -18,18 +18,7 @@ public interface UserDexStatRepository extends JpaRepository<UserDexStat, UserDe
 
     List<UserDexStat> findByUser_Id(Long userId);
 
-    @Modifying
-    @Query("UPDATE UserDexStat uds SET uds.xp = uds.xp + :amount WHERE uds.id.userId = :userId AND uds.id.dexId = :dexId")
-    void addXp(@Param("userId") Long userId, @Param("dexId") Long dexId, @Param("amount") int amount);
-
-    @Modifying
-    @Transactional
-    @Query(value = """
-    INSERT INTO user_dex_stat (user_id, dex_id, level, xp, max_exp, power, hp, speed)
-    VALUES (:userId, :dexId, 1, 0, 100, 0, 0, 0)
-    ON DUPLICATE KEY UPDATE user_id = user_id
-    """, nativeQuery = true)
-    void insertIfNotExists(@Param("userId") Long userId, @Param("dexId") Long dexId);
-
-
+    @Query("select uds.dex.id from UserDexStat uds " +
+            "where uds.user.id = :userId and uds.affinity >= :minAffinity")
+    List<Long> findDexIdsByUserIdAndAffinityAtLeast(Long userId, int minAffinity);
 }

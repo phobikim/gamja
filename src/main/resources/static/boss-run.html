@@ -11,8 +11,9 @@
 </div>
 <img class="gg-image" src="https://phobi.me/gamja.img/images/monster/boss_gg.png" alt="GG">
 
+<script src="js/util.js"></script>
 <script>
-    fetch("char.html", { method: "GET" });
+    fetch(apiPath('/char.html'), { credentials: 'include' });
     fetch("/css/char.css");
     const lines = [
         "자~ 다음 감자 손님 들어오시죠~",
@@ -24,7 +25,7 @@
     mockText.innerHTML = `"${lines[Math.floor(Math.random() * lines.length)]}"<br>- GG -`;
 
     setTimeout(() => {
-        window.location.replace("/char.html");
+        window.location.replace(apiPath('/char.html'));
     }, 1500);
 
 </script>

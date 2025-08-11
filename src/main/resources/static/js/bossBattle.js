@@ -15,6 +15,13 @@ const EFFECT_IMG = {
 let bgmStarted = false;
 let usingPotion = false;
 
+const ALLY_TIMING = {
+    minDuration: 1500,   // 대사 최소 표시 시간
+    lingerAfter: 200,    // 효과 끝난 뒤 화면에 더 남아있게
+    fadeOutMs:  250,     // 페이드아웃 애니메이션 시간
+    betweenEvents: 400   // (여러 이벤트일 때) 각 이벤트 사이 간격
+};
+
 
 const attackBtn = document.querySelector('#attackBtn');
 const potionBtn = document.querySelector('#potionBtn');
@@ -93,7 +100,7 @@ window.addEventListener('DOMContentLoaded', () => {
             }
             playEffect("se_attack");
 
-            const { monster, playerAttack, victory, player } = res.data;
+            const { monster, playerAttack, victory, player, allyEvents } = res.data;
 
             if (player?.skillImagePath) {
                 playerSkillImgSrc = `${window.basePath_image}${player.skillImagePath}`;
@@ -133,6 +140,9 @@ window.addEventListener('DOMContentLoaded', () => {
                 await delay(1500);
                 window.location.replace('/boss-win.html');
             } else {
+                if (Array.isArray(allyEvents) && allyEvents.length) {
+                    await handleAllyEvents(allyEvents);
+                }
                 await delay(500);
                 await triggerBossTurn();
             }
@@ -199,6 +209,7 @@ async function onUsePotion() {
     if (usingPotion) return;
     if (getPlayerArea()?.classList.contains('is-locked')) return;
 
+    const slot = document.querySelector('.potion-slot');
     usingPotion = true;
     document.querySelector('.potion-slot')?.classList.add('disabled');
 
@@ -237,19 +248,16 @@ async function onUsePotion() {
         if (slot && (!Number.isFinite(qty) || qty > 0)) slot.classList.remove('disabled');
 
         if (bonusPower > 0) {
-            showPowerBuff(`+${bonusPower} POWER`);
-            adjustAttackPower(+bonusPower); // 버튼 뱃지 갱신
+            // showPowerBuff(`+${bonusPower} POWER`);
+            // adjustAttackPower(+bonusPower); // 버튼 뱃지 갱신
         }
         playEffect("se_click2");
-        lockPlayerArea();
-
     } catch (err) {
         console.error('[use-potion] error:', err);
         (typeof showMessageModal === 'function' ? showMessageModal : alert)
         ('연결 오류로 포션 사용에 실패했습니다.');
     } finally {
         usingPotion = false;
-        const slot = document.querySelector('.potion-slot');
         if (slot && (currentPotionInfo?.quantity ?? 0) > 0) {
             slot.classList.remove('disabled');
         }
@@ -278,7 +286,8 @@ const runAwayBtn = document.getElementById('runAwayBtn');
 if (runAwayBtn) {
     runAwayBtn.addEventListener('click', async () => {
         await apiRequest('/api/battle/boss/end-boss-battle?outcome=escape', 'POST');
-        window.location.replace('/boss-run.html');
+        window.location.replace(apiPath('/boss-run.html'));
+
     });
 }
 
@@ -314,13 +323,18 @@ function renderBossBattleInit(data) {
     if (charName) {
         charName.textContent = player.dexName;
     }
-    playerMaxHp = player.maxHp ?? player.hp ?? 0;
+
+    playerMaxHp = Number(player.maxHp ?? player.hp ?? 0);
+    const hpNow = Number(player.hp ?? playerMaxHp);
+
     if (charHpText) {
-        charHpText.textContent = `${playerMaxHp} / ${playerMaxHp}`;
+        charHpText.textContent = `${hpNow} / ${playerMaxHp}`;
     }
     if (charHpFill) {
-        charHpFill.style.width = `100%`;
+        const hpPct = Math.max(0, Math.min(100, (hpNow / Math.max(1, playerMaxHp)) * 100));
+        charHpFill.style.width = `${hpPct}%`;
     }
+
     if (player?.skillImagePath) {
         playerSkillImgSrc = `${window.basePath_image}${player.skillImagePath}`;
     }
@@ -348,16 +362,18 @@ function renderBossBattleInit(data) {
     if (bgImg && map?.background) {
         bgImg.src = `${window.basePath}${map.background}`;
     }
-    renderPotionSlot(player?.potion);
 
+    // 4. 포션 슬롯
+    renderPotionSlot(player?.potion);
 }
+
 
 // === [수정] 보스 턴: 서버 스펙(bossTurn) 응답에 맞춤 ===
 async function triggerBossTurn() {
     const res = await apiRequest('/api/battle/boss/monster-attack', 'POST'); // bossTurn 엔드포인트
     if (res.code !== 'SUCCESS') return;
 
-    const { dialogue, skill = {}, effects = {}, player = {}, monster = {} } = res.data || {};
+    const { dialogue, skill = {}, effects = {}, player = {}, monster = {}, allyEvents = [] } = res.data || {};
 
     // 1) 대사 출력
     if (dialogue) {
@@ -417,9 +433,12 @@ async function triggerBossTurn() {
     if (player.defeat) {
         await apiRequest('/api/battle/boss/end-boss-battle', 'POST');
         await delay(1500);
-        window.location.replace('/boss-run.html');
-    }
+        window.location.replace(apiPath('/boss-run.html'));
 
+    }
+    if (Array.isArray(allyEvents) && allyEvents.length) {
+        await handleAllyEvents(allyEvents);
+    }
     if (!player.defeat) {
         unlockPlayerArea();
     }
@@ -630,7 +649,6 @@ function setAttackPower(power, { flash = true } = {}) {
     chip.textContent = `ATK ${currentPlayerPower}`;
     if (flash) {
         chip.classList.remove('flash'); // 재적용
-        // eslint-disable-next-line no-unused-expressions
         chip.offsetWidth;
         chip.classList.add('flash');
     }
@@ -638,4 +656,171 @@ function setAttackPower(power, { flash = true } = {}) {
 
 function adjustAttackPower(delta, opts) {
     setAttackPower((currentPlayerPower || 0) + (Number(delta) || 0), opts);
+}
+
+function showAllyDialogue(text, { name, duration = 1500 } = {}) {
+    const box = document.getElementById('allyDialogue');
+    const nameEl = document.getElementById('allyName');
+    if (!box) return;
+
+    if (nameEl && name) nameEl.textContent = name;
+
+    box.textContent = text;
+    box.classList.add('showing');
+    const showMs = Math.max(duration, ALLY_TIMING.minDuration);
+    // 재설정용 타이머 보관
+    clearTimeout(box._hideTimer);
+    box._hideTimer = setTimeout(() => {
+        box.classList.remove('showing');
+    }, showMs);
+}
+
+/* 조력자 등장/퇴장 간단 제어 */
+function showAllyImage(src, name) {
+    const wrap = document.getElementById('characterRightWrapper');
+    const img  = wrap?.querySelector('.character-right');
+    const nameEl = document.getElementById('allyName');
+    if (!wrap || !img) return;
+
+    if (src) img.src = src;
+    if (nameEl && name) nameEl.textContent = name;
+
+    wrap.classList.remove('hidden', 'ally-exit');
+    wrap.classList.remove('ally-enter'); void wrap.offsetWidth; wrap.classList.add('ally-enter');
+}
+
+function hideAlly() {
+    const wrap = document.getElementById('characterRightWrapper');
+    if (!wrap) return;
+    wrap.classList.remove('ally-enter');
+    wrap.classList.add('ally-exit');
+    setTimeout(() => {
+        wrap.classList.add('hidden');
+        const box = document.getElementById('allyDialogue');
+        if (box) {
+            box.classList.remove('showing');
+            clearTimeout(box._hideTimer);
+        }
+    }, ALLY_TIMING.fadeOutMs);
+}
+
+async function handleAllyEvents(events = []) {
+    if (!Array.isArray(events) || events.length === 0) return;
+    lockPlayerArea('감자 조력자가 나타났다!!');
+
+    for (let i = 0; i < events.length; i++) {
+        await playAllyEvent(events[i]);
+        if (i < events.length - 1) {
+            await delay(ALLY_TIMING.betweenEvents);
+        }
+    }
+    await delay(ALLY_TIMING.lingerAfter);
+    hideAlly();
+    unlockPlayerArea();
+}
+
+function playAllyEvent(ev = {}) {
+    return new Promise(async (resolve) => {
+        const name = ev.name || '조력 감자';
+        const img  = basePath_image + /character/ + ev.image || '';
+        const dur  = Number(ev.duration ?? 1000);
+        const beforeMs = Number(450);
+
+        // 1) 등장 + 대사
+        showAllyImage(img, name);
+        if (ev.dialogue) showAllyDialogue(ev.dialogue, { name, duration: dur });
+
+        // 2) 효과 적용 타이밍
+        await delay(beforeMs);
+
+        // (a) 힐
+        if (typeof ev.heal === 'number' && ev.heal > 0) {
+            const nextHp  = ev.playerHp ?? Math.min(playerMaxHp, (Number(document.querySelector('.char-hp-bar')?.dataset.hpValue) || 0) + ev.heal);
+            const nextMax = ev.playerMaxHp ?? playerMaxHp;
+            updatePlayerHp(nextHp, nextMax);
+
+            // 힐 이펙트
+            const container =
+                document.querySelector('.character-left-wrapper .char-image-container') ||
+                document.querySelector('#characterLeftWrapper .char-image-container') ||
+                document.querySelector('.char-image-container');
+            spawnEffect(container, EFFECT_IMG.PLAYER_HEAL_SELF, 'heal-player');
+        }
+
+        // (b) 공격력 복구
+        if (ev.type === 'HELP_RESTORE' || ev.restore === 'FULL') {
+            setAttackPower(basePlayerPower, { flash: true });
+            showPowerBuff('공격력 복구!');
+        } else if (typeof ev.restore === 'number' && ev.restore !== 0) {
+            adjustAttackPower(ev.restore, { flash: true });
+            showPowerBuff(`${ev.restore > 0 ? '+' : ''}${ev.restore} POWER`);
+        }
+
+        // (c) 대신 공격 (보스 피해)
+        if (typeof ev.damage === 'number' && ev.damage > 0) {
+            const bossWrap = document.querySelector('.boss-image-wrapper');
+            // 조력자 전용 이펙트 (없으면 플레이어 임팩트 재사용)
+            spawnEffect(bossWrap, (window.playerSkillImgSrc || EFFECT_IMG.DAMAGE_TO_PLAYER), 'impact');
+
+            if (typeof ev.monsterHp === 'number' && typeof ev.monsterMaxHp === 'number') {
+                setBossHpBar(ev.monsterHp, ev.monsterMaxHp);
+                bossMaxHp = ev.monsterMaxHp;
+            }
+            // 데미지 텍스트
+            showDamageEffect(ev.damage, false);
+        }
+
+        await delay(Math.max(600, dur) + ALLY_TIMING.lingerAfter);
+        resolve();
+    });
+
+    // 방어력 표시용 스케일 (시각화 전용)
+    const DEF_VISUAL_CAP = 100; // 기대 상한치(게임 밸런스에 맞춰 50~150 사이로 튜닝)
+    const DEF_MIN_PX = 10;      // 방어력이 1이라도 있으면 최소 시각폭 보장
+
+    function ensureShieldTrack() {
+        const statusBox = document.querySelector('.char-status-box');
+        if (!statusBox) return null;
+
+        let track = statusBox.querySelector('.char-shield-track');
+        if (!track) {
+            track = document.createElement('div');
+            track.className = 'char-shield-track';
+
+            const fill = document.createElement('div');
+            fill.className = 'char-shield-fill';
+            track.appendChild(fill);
+
+            const label = document.createElement('div');
+            label.className = 'char-shield-label';
+            label.textContent = 'DEF 0';
+            track.appendChild(label);
+
+            // HP 바 바로 밑에 붙이기
+            const hpBar = statusBox.querySelector('.char-hp-bar');
+            if (hpBar?.nextSibling) {
+                statusBox.insertBefore(track, hpBar.nextSibling);
+            } else {
+                statusBox.appendChild(track);
+            }
+        }
+        return track;
+    }
+
+    function setShieldVisual(def) {
+        const track = ensureShieldTrack();
+        if (!track) return;
+
+        const fill = track.querySelector('.char-shield-fill');
+        const label = track.querySelector('.char-shield-label');
+
+        const defVal = Math.max(0, Number(def) || 0);
+        const pct = Math.min(100, (defVal / DEF_VISUAL_CAP) * 100);
+
+        fill.style.width = `${pct}%`;
+        fill.style.minWidth = defVal > 0 ? `${DEF_MIN_PX}px` : '0';
+        label.textContent = `DEF ${defVal}${defVal > DEF_VISUAL_CAP ? '+' : ''}`;
+        label.classList.toggle('hidden', defVal <= 0);
+    }
+
 }
