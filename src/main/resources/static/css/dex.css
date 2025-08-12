@@ -86,11 +86,19 @@
 }
 
 /* ✅ 등급별 배경색 */
-.rarity-background-common { background: #9E9E9E; }
-.rarity-background-uncommon { background: #4CAF50; }
-.rarity-background-rare { background: #2196F3; }
-.rarity-background-epic { background: #9C27B0; }
-.rarity-background-legendary { background: #FF9800; }
+/*.rarity-background-common { background: #9E9E9E; }*/
+/*.rarity-background-uncommon { background: #4CAF50; }*/
+/*.rarity-background-rare { background: #2196F3; }*/
+/*.rarity-background-epic { background: #9C27B0; }*/
+/*.rarity-background-legendary {*/
+/*    position: relative;*/
+/*    box-shadow:*/
+/*            0 0 8px rgba(255, 242, 184, 0.75),*/
+/*            0 0 18px rgba(255, 242, 184, 0.45),*/
+/*            inset 0 0 6px rgba(255, 255, 255, 0.25);*/
+/*    border: 2px solid #fff2b8;*/
+/*    border-radius: 10px;*/
+/*}*/
 
 .detail-basic-info {
     flex: 1;

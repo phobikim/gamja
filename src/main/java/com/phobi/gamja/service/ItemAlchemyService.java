@@ -172,11 +172,11 @@ public class ItemAlchemyService {
         logService.recordCounter(userId, CounterType.ITEM_ALCHEMY, itemId);
 
         int xp = switch (item.getRarity()) {
-            case COMMON     -> 3;
-            case UNCOMMON   -> 5;
-            case RARE       -> 7;
-            case EPIC       -> 10;
-            case LEGENDARY  -> 20;
+            case COMMON     -> 1;
+            case UNCOMMON   -> 3;
+            case RARE       -> 5;
+            case EPIC       -> 7;
+            case LEGENDARY  -> 10;
         };
 
         corpsTierService.updateCorpsXp(userId, xp);
@@ -261,6 +261,8 @@ public class ItemAlchemyService {
             case RARE:
             case EPIC:
                 return 2;
+            case LEGENDARY:
+                return 3;
             default:
                 return 1;
         }

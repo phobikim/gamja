@@ -461,7 +461,7 @@ public class BossBattleService {
                 playerHp = Math.max(0, playerHp - remainingDamage);
                 bs.setDefense(playerDefense);
                 bs.setPlayerHp(playerHp);
-                dealtDamage = monsterDamage;
+                dealtDamage = remainingDamage;
             }
             case "HEAL_SELF" -> {
                 int before = bs.getMonsterHp();
@@ -488,21 +488,21 @@ public class BossBattleService {
         Map<String, Boolean> flags = getAllyFlags(session);
         List<Map<String, Object>> allyEvents = new ArrayList<>();
 
-        if (!flags.getOrDefault(KEY_HELP_AFFINITY, false)
-                && betweenPercent(bs.getPlayerHp(), bs.getPlayerMaxHp(), 30, 60)) {
-
-            bs.setPlayerHp(bs.getPlayerMaxHp()); // 풀 회복
-            flags.put(KEY_HELP_AFFINITY, true);
-
-            Optional<AllyInfo> allyOpt = ensureAffinityAllyInfo(session, bs.getUserId());
-            Map<String, Object> evt = new LinkedHashMap<>();
-            evt.put("type", "ALLY_AFFINITY");
-            evt.put("image", allyOpt.map(AllyInfo::image).orElse(null));
-            evt.put("name",  allyOpt.map(AllyInfo::name).orElse(null));
-            evt.put("heal", bs.getPlayerMaxHp());
-            evt.put("dialogue", "너를 위해서라면 뭐든지 할게!");
-            allyEvents.add(evt);
-        }
+//        if (!flags.getOrDefault(KEY_HELP_AFFINITY, false)
+//                && betweenPercent(bs.getPlayerHp(), bs.getPlayerMaxHp(), 30, 60)) {
+//
+//            bs.setPlayerHp(bs.getPlayerHp()+200);
+//            flags.put(KEY_HELP_AFFINITY, true);
+//
+//            Optional<AllyInfo> allyOpt = ensureAffinityAllyInfo(session, bs.getUserId());
+//            Map<String, Object> evt = new LinkedHashMap<>();
+//            evt.put("type", "ALLY_AFFINITY");
+//            evt.put("image", allyOpt.map(AllyInfo::image).orElse(null));
+//            evt.put("name",  allyOpt.map(AllyInfo::name).orElse(null));
+//            evt.put("heal", 200);
+//            evt.put("dialogue", "너를 위해서라면 뭐든지 할게!");
+//            allyEvents.add(evt);
+//        }
 
         if (!flags.getOrDefault(KEY_HELP_HEAL, false)
                 && belowPercent(bs.getPlayerHp(), bs.getPlayerMaxHp(), 30)) {
@@ -722,7 +722,7 @@ public class BossBattleService {
             flags.put(KEY_HELP_HEAL, false);
             flags.put(KEY_HELP_RESTORE, false);
             flags.put(KEY_HELP_ATTACK, false);
-            flags.put(KEY_HELP_AFFINITY, false);
+//            flags.put(KEY_HELP_AFFINITY, false);
             session.setAttribute(ATTR_ALLY_FLAGS, flags);
         }
         return flags;

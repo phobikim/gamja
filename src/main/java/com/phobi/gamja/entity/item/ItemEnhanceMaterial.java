@@ -61,4 +61,10 @@ public class ItemEnhanceMaterial {
 
     @Column(name = "material_quantity_3")
     private int materialQuantity3;
+
+    @Column(name = "material_item_id_4")
+    private Long materialItemId4;
+
+    @Column(name = "material_quantity_4")
+    private int materialQuantity4;
 }

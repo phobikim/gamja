@@ -94,6 +94,7 @@ public class ItemEnhanceService {
             addMaterialInfo(materials, material.getMaterialItemId1(), material.getMaterialQuantity1(), userId);
             addMaterialInfo(materials, material.getMaterialItemId2(), material.getMaterialQuantity2(), userId);
             addMaterialInfo(materials, material.getMaterialItemId3(), material.getMaterialQuantity3(), userId);
+            addMaterialInfo(materials, material.getMaterialItemId4(), material.getMaterialQuantity4(), userId);
 
             result = Map.of(
                     "materials", materials,
@@ -142,6 +143,7 @@ public class ItemEnhanceService {
         checkAndConsumeMaterial(userId, requirement.getMaterialItemId1(), requirement.getMaterialQuantity1());
         checkAndConsumeMaterial(userId, requirement.getMaterialItemId2(), requirement.getMaterialQuantity2());
         checkAndConsumeMaterial(userId, requirement.getMaterialItemId3(), requirement.getMaterialQuantity3());
+        checkAndConsumeMaterial(userId, requirement.getMaterialItemId4(), requirement.getMaterialQuantity4());
 
         // 골드 확인 및 차감
         UserDtl userDtl = userDtlRepository.findById(userId)

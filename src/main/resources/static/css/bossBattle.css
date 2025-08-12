@@ -734,3 +734,53 @@ body.boss-battle-page {
 .ally-exit  { animation: allyOut .25s ease-in; }
 @keyframes allyIn { from{opacity:0; transform:translateX(12px)} to{opacity:1; transform:none} }
 @keyframes allyOut{ from{opacity:1} to{opacity:0} }
+
+.battle-btn.btn-attack.atk-down {
+    position: relative;
+    box-shadow: 0 0 0.9rem rgba(255, 0, 0, 0.6), inset 0 0 0.35rem rgba(255, 0, 0, 0.55);
+    outline: 2px solid rgba(255, 0, 0, 0.7);
+    animation: atkPulse 0.9s ease;
+}
+@keyframes atkPulse {
+    0%   { transform: scale(1); }
+    25%  { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+.atk-debuff-badge {
+    position: fixed;
+    left: 0; top: 0;
+    transform: translate(-50%, 0);
+    padding: 4px 10px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #fff;
+    background: rgba(220, 50, 50, 0.95);
+    border-radius: 999px;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 9999;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
+}
+
+.atk-debuff-badge.show {
+    animation: atkDebuffFloat 0.9s ease-out forwards;
+}
+@keyframes atkDebuffFloat {
+    0%   { opacity: 0; transform: translate(-50%, 6px); }
+    15%  { opacity: 1; transform: translate(-50%, -2px); }
+    100% { opacity: 0; transform: translate(-50%, -24px); }
+}
+.shake-strong {
+    animation: shakeStrong 400ms cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes shakeStrong {
+    10% { transform: translateX(-4px) rotate(-0.5deg); }
+    20% { transform: translateX( 4px) rotate( 0.4deg); }
+    30% { transform: translateX(-6px) rotate(-0.6deg); }
+    40% { transform: translateX( 6px) rotate( 0.5deg); }
+    50% { transform: translateX(-5px) rotate(-0.4deg); }
+    60% { transform: translateX( 5px) rotate( 0.3deg); }
+    70% { transform: translateX(-3px) rotate(-0.2deg); }
+    80% { transform: translateX( 3px) rotate( 0.1deg); }
+    90% { transform: translateX(-1px) rotate(-0.05deg); }
+}

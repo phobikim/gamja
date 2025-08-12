@@ -412,13 +412,17 @@ async function triggerBossTurn() {
     // 3) 보스 디버프 → 플레이어 이미지 위치
     if (type === 'DEBUFF_PLAYER' && debuff > 0) {
         spawnEffect(playerImgContainer, EFFECT_IMG.DEBUFF_PLAYER, 'boss-impact');
-        adjustAttackPower(-debuff);
+        adjustAttackPower(-debuff, { flash: true });
+        showAtkDebuff(debuff);
     }
 
     // HP 반영
+    const healed = effects.healToPlayer || 0;
+    const hasAllyHeal = Array.isArray(allyEvents) && allyEvents.some(ev => typeof ev.heal === 'number' && ev.heal > 0);
+
     const pMax = player.maxHp ?? playerMaxHp;
     if (typeof player.hp === 'number') {
-        updatePlayerHp(player.hp, pMax);
+        updatePlayerHp(player.hp, pMax, { showFx: !(healed > 0 || hasAllyHeal) });
         playerMaxHp = pMax;
     }
     if (typeof monster.hp === 'number') {
@@ -445,7 +449,37 @@ async function triggerBossTurn() {
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+function showAtkDebuff(amount) {
+    const btn = document.getElementById('attackBtn') || document.querySelector('.battle-btn.btn-attack');
+    if (!btn) return;
 
+    // 더 눈에 띄는 쉐이크
+    shakeElement(btn, 'shake-strong');
+    btn.classList.add('atk-down');
+    clearTimeout(btn._atkDownTimer);
+    btn._atkDownTimer = setTimeout(() => btn.classList.remove('atk-down'), 900);
+
+    spawnBadgeOver(btn, `-${amount} ATK`);
+}
+function spawnBadgeOver(el, text) {
+    const rect = el.getBoundingClientRect();
+
+    const badge = document.createElement('div');
+    badge.className = 'atk-debuff-badge';
+    badge.textContent = text;
+    document.body.appendChild(badge);
+
+    const x = rect.left + rect.width / 2;
+    const y = rect.top; // 버튼 위
+
+    badge.style.left = `${Math.round(x)}px`;
+    badge.style.top  = `${Math.round(y)}px`;
+
+    // 다음 프레임에 애니메이션 시작
+    requestAnimationFrame(() => badge.classList.add('show'));
+
+    setTimeout(() => badge.remove(), 900);
+}
 function showDamageEffect(damage, isCritical) {
     const bossImg = document.querySelector('.boss-image');
     const damageText = document.createElement('div');
@@ -486,7 +520,7 @@ function ensurePlayerHpChip() {
 }
 
 
-function updatePlayerHp(hp, maxHp) {
+function updatePlayerHp(hp, maxHp, { showFx = true } = {}) {
     const hpText = document.querySelector('.char-hp-text');
     const bar    = document.querySelector('.char-hp-bar');
     const fill   = document.querySelector('.char-hp-fill');
@@ -521,7 +555,7 @@ function updatePlayerHp(hp, maxHp) {
     }
 
     // 회복 이펙트 & +숫자
-    if (isHeal) {
+    if (isHeal && showFx) {
         const container = getPlayerImgContainer();
         spawnEffect(container, EFFECT_IMG.PLAYER_HEAL_SELF, 'heal-player');
 
@@ -573,7 +607,7 @@ function showBossDialogue(text) {
     const dialogueBox = document.getElementById('bossDialogue');
     if (!dialogueBox) return;
 
-    dialogueBox.textContent = `GG : ${text}"`;
+    dialogueBox.textContent = `GG : ${text}`;
     dialogueBox.classList.add('showing');
 
 }
@@ -630,7 +664,8 @@ function setAttackPower(power, { flash = true } = {}) {
 }
 
 function adjustAttackPower(delta, opts) {
-    setAttackPower((currentPlayerPower || 0) + (Number(delta) || 0), opts);
+    const next = (currentPlayerPower || 0) + (Number(delta) || 0);
+    setAttackPower(Math.max(1, next), opts);
 }
 
 function showAllyDialogue(text, { name, duration = 1500 } = {}) {
@@ -710,9 +745,8 @@ function playAllyEvent(ev = {}) {
 
         // (a) 힐
         if (typeof ev.heal === 'number' && ev.heal > 0) {
-            const nextHp  = ev.playerHp ?? Math.min(playerMaxHp, (Number(document.querySelector('.char-hp-bar')?.dataset.hpValue) || 0) + ev.heal);
-            const nextMax = ev.playerMaxHp ?? playerMaxHp;
-            updatePlayerHp(nextHp, nextMax);
+            const container = getPlayerImgContainer();
+            spawnEffect(container, EFFECT_IMG.PLAYER_HEAL_SELF, 'heal-player');
         }
 
         // (b) 공격력 복구
