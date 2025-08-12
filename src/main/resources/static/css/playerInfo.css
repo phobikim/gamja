@@ -197,6 +197,54 @@
     cursor: pointer;
 }
 
+.rarity-legendary {
+    position: relative;
+    box-shadow:
+            0 0 8px rgba(255, 242, 184, 0.75),
+            0 0 18px rgba(255, 242, 184, 0.45),
+            inset 0 0 6px rgba(255, 255, 255, 0.25);
+    border: 2px solid #fff2b8;
+    border-radius: 10px;
+}
+
+@keyframes legendary-pulse {
+    0% {
+        box-shadow:
+                0 0 8px rgba(255, 242, 184, 0.6),
+                0 0 16px rgba(255, 242, 184, 0.35),
+                inset 0 0 5px rgba(255, 255, 255, 0.2);
+    }
+    20% {
+        box-shadow:
+                0 0 10px rgba(255, 242, 184, 0.75),
+                0 0 20px rgba(255, 242, 184, 0.45),
+                inset 0 0 6px rgba(255, 255, 255, 0.25);
+    }
+    50% {
+        box-shadow:
+                0 0 14px rgba(255, 242, 184, 0.95),
+                0 0 28px rgba(255, 242, 184, 0.6),
+                inset 0 0 9px rgba(255, 255, 255, 0.35);
+    }
+    80% {
+        box-shadow:
+                0 0 10px rgba(255, 242, 184, 0.75),
+                0 0 20px rgba(255, 242, 184, 0.45),
+                inset 0 0 6px rgba(255, 255, 255, 0.25);
+    }
+    100% {
+        box-shadow:
+                0 0 8px rgba(255, 242, 184, 0.6),
+                0 0 16px rgba(255, 242, 184, 0.35),
+                inset 0 0 5px rgba(255, 255, 255, 0.2);
+    }
+}
+
+.rarity-legendary.pulse {
+    animation: legendary-pulse 4s ease-in-out infinite;
+}
+
+
 #characterModal .item-count-label {
     position: absolute;
     bottom: 2px;

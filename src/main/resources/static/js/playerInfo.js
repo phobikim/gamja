@@ -360,10 +360,14 @@ function applyRarityToEachSlot(slotMap, equippedItems) {
 
     // 모든 슬롯 초기화 (기본 배경색으로)
     Object.values(slotMap).forEach(slotId => {
-        const slotEl = document.getElementById(slotId);
-        if (slotEl) {
-            slotEl.style.backgroundColor = 'var(--baige-color)'; // 기본값
-        }
+        const slotEls = Array.isArray(slotId) ? slotId : [slotId];
+        slotEls.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.style.backgroundColor = 'var(--baige-color)';
+                el.classList.remove('rarity-legendary', 'pulse'); // 기존 후광 제거
+            }
+        });
     });
 
     const badgeIndexMap = { index: 0 };
@@ -386,8 +390,11 @@ function applyRarityToEachSlot(slotMap, equippedItems) {
         } else {
             // 일반 슬롯
             const slotEl = document.getElementById(slotDef);
-            if (slotEl) {
-                slotEl.style.backgroundColor = rarityColor;
+            if (!slotEl) return;
+
+            slotEl.style.backgroundColor = rarityColor;
+            if (item.rarity === 'LEGENDARY') {
+                slotEl.classList.add('rarity-legendary', 'pulse');
             }
         }
     });

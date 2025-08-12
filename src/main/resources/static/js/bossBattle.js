@@ -449,17 +449,8 @@ function delay(ms) {
 function showDamageEffect(damage, isCritical) {
     const bossImg = document.querySelector('.boss-image');
     const damageText = document.createElement('div');
-    damageText.className = 'damage-effect';
+    damageText.className = `damage-effect ${isCritical ? 'critical' : 'normal'}`;
     damageText.textContent = `${damage}${isCritical ? ' ⚡' : ''}`;
-    damageText.style.position = 'absolute';
-    damageText.style.top = '40%';
-    damageText.style.left = '50%';
-    damageText.style.transform = 'translate(-50%, -50%)';
-    damageText.style.color = isCritical ? '#ff4444' : '#ffffff';
-    damageText.style.fontWeight = 'bold';
-    damageText.style.fontSize = '1.4rem';
-    damageText.style.textShadow = '0 0 8px rgba(0,0,0,0.7)';
-    damageText.style.zIndex = 10;
 
     bossImg.parentElement.appendChild(damageText);
 
@@ -471,17 +462,8 @@ function showDamageEffect(damage, isCritical) {
 function showBossAttackEffect(damage) {
     const charWrapper = document.getElementById('characterLeftWrapper');
     const damageText = document.createElement('div');
-    damageText.className = 'damage-effect';
+    damageText.className = 'damage-effect boss-attack';
     damageText.textContent = `-${damage}`;
-    damageText.style.position = 'absolute';
-    damageText.style.top = '0';
-    damageText.style.left = '50%';
-    damageText.style.transform = 'translate(-50%, -100%)';
-    damageText.style.color = '#ff6666';
-    damageText.style.fontWeight = 'bold';
-    damageText.style.fontSize = '1.2rem';
-    damageText.style.textShadow = '0 0 6px rgba(0,0,0,0.5)';
-    damageText.style.zIndex = 10;
 
     charWrapper.appendChild(damageText);
 
@@ -489,6 +471,7 @@ function showBossAttackEffect(damage) {
         damageText.remove();
     }, 900);
 }
+
 function ensurePlayerHpChip() {
     const bar = document.querySelector('.char-hp-bar');
     if (!bar) return null;

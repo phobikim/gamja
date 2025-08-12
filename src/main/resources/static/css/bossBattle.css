@@ -479,7 +479,37 @@ body.boss-battle-page {
 }
 
 .damage-effect {
+    position: absolute;
+    font-weight: bold;
+    z-index: 10;
+    text-shadow: 0 0 8px rgba(0,0,0,0.7);
+    pointer-events: none;
     animation: floatUp 1s ease-out;
+}
+
+.damage-effect.normal {
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.4rem;
+    color: #ffffff;
+}
+
+.damage-effect.critical {
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.4rem;
+    color: #ff4444;
+}
+
+.damage-effect.boss-attack {
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    font-size: 1.2rem;
+    color: #ff6666;
+    text-shadow: 0 0 6px rgba(0,0,0,0.5);
 }
 
 @keyframes floatUp {
