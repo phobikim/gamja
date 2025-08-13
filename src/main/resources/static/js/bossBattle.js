@@ -575,32 +575,48 @@ function updatePlayerHp(hp, maxHp, { showFx = true } = {}) {
     }
 }
 
+function ensureBossHpFill() {
+    const bg = document.querySelector('.boss-hp-bar-bg');
+    if (!bg) return null;
+    let fill = bg.querySelector('.boss-hp-bar-fill');
+    if (!fill) {
+        fill = document.createElement('div');
+        fill.className = 'boss-hp-bar-fill';
+        bg.appendChild(fill);
+    }
+    return fill;
+}
+
+// 퍼센트 → 색상 클래스
+function classByPercent(p) {
+    if (p >= 80) return 'hp-80';
+    if (p >= 60) return 'hp-60';
+    if (p >= 40) return 'hp-40';
+    if (p >= 20) return 'hp-20';
+    return 'hp-0';
+}
+
 function setBossHpBar(currentHp, maxHp) {
     const bossHpText = document.getElementById('bossHpText');
-    const bossHpFill = document.querySelector('.boss-hp-bar-fill');
+    if (bossHpText) bossHpText.textContent = `${currentHp} / ${maxHp}`;
 
-    if (bossHpText) {
-        bossHpText.textContent = `${currentHp} / ${maxHp}`;
-    }
+    const fill = ensureBossHpFill();
+    if (!fill) return;
 
-    // 페이즈 색 유지(1000단위 분할), 없으면 그냥 전체 퍼센트
-    const total = maxHp || 1;
-    const overallPercent = Math.max(0, Math.min(100, (currentHp / total) * 100));
+    const total = Math.max(1, Number(maxHp) || 1);
+    const hp    = Math.max(0, Number(currentHp) || 0);
+    const pct   = Math.max(0, Math.min(100, (hp / total) * 100));
 
+    // 폭 업데이트 (다시 차는 효과 없음)
+    fill.style.width = `${pct}%`;
 
-    const rawPhase = Math.floor(currentHp / 1000);
-    const mappedPhase = ((rawPhase - 1) % 5 + 5) % 5 + 1;
-    const phaseHp = currentHp % 1000 || (currentHp === 0 ? 0 : 1000);
-    const fillPercent = maxHp > 1000 ? Math.min(100, (phaseHp / 1000) * 100) : overallPercent;
+    // 색상 클래스 교체
+    fill.className = 'boss-hp-bar-fill';
+    fill.classList.add(classByPercent(pct));
 
-    if (bossHpFill) {
-        bossHpFill.style.width = `${fillPercent}%`;
-        bossHpFill.className = 'boss-hp-bar-fill';
-        bossHpFill.classList.add(`hp-phase-${mappedPhase}`);
-        bossHpFill.classList.add('hit');
-
-        setTimeout(() => bossHpFill.classList.remove('hit'), 200);
-    }
+    // 타격 반짝 (옵션)
+    fill.classList.add('hit');
+    setTimeout(() => fill.classList.remove('hit'), 200);
 }
 
 function showBossDialogue(text) {

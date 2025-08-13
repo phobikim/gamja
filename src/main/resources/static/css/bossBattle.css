@@ -58,11 +58,15 @@ body.boss-battle-page {
 
 
 .boss-hp-bar-bg {
+    position: relative;
     height: 100%;
-    transition: width 0.5s ease;
+    overflow: hidden;
 }
 
 .boss-hp-bar-fill {
+    position: absolute;
+    left: 0; top: 0;
+    width: 0;
     height: 100%;
     border-radius: 4px;
     transition: width 0.5s ease;
@@ -83,16 +87,16 @@ body.boss-battle-page {
 }
 
 /* 색상 단계별 클래스 */
-.boss-hp-bar-fill.hp-phase-1 { background-color: #ff2f2f; }
-.boss-hp-bar-fill.hp-phase-2 { background-color: #ffa500; }
-.boss-hp-bar-fill.hp-phase-3 { background-color: #ffe400; }
-.boss-hp-bar-fill.hp-phase-4 { background-color: #00d57e; }
-.boss-hp-bar-fill.hp-phase-5 { background-color: #00bfff; }
+.boss-hp-bar-fill.hp-80 { background: #00bfff; }  /* 80~100% 파랑 */
+.boss-hp-bar-fill.hp-60 { background: #00d57e; }  /* 60~79%  초록 */
+.boss-hp-bar-fill.hp-40 { background: #ffe400; }  /* 40~59%  노랑 */
+.boss-hp-bar-fill.hp-20 { background: #ffa500; }  /* 20~39%  주황 */
+.boss-hp-bar-fill.hp-0  { background: #ff2f2f; }  /* 0~19%   빨강 */
 
-.boss-hp-bar-fill.hit {
-    box-shadow: 0 0 10px #fff;
+.boss-hp-bar-fill.hit   { box-shadow: 0 0 10px #fff; }
+.boss-hp-bar-fill.healed{
+    animation: healBarGlow 0.8s ease-out 1;
 }
-
 .hp-bar-fill {
     height: 100%;
     background-color: #ff4444;
@@ -651,9 +655,7 @@ body.boss-battle-page {
     60%  { filter: brightness(1.15); box-shadow: 0 0 10px rgba(0,255,140,0.5); }
     100% { filter: brightness(1.0); box-shadow: 0 0 0 rgba(0,255,140,0); }
 }
-.boss-hp-bar-fill.healed {
-    animation: healBarGlow 0.8s ease-out 1;
-}
+
 
 .potion-slot{
     width: 64px;
