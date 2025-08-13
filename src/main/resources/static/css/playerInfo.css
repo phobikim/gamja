@@ -97,21 +97,29 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
-    background: var(--dark-1-color);
+    background: var(--dark-brown-font-color);
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     padding: 0.6rem 0.8rem;
     width: 100%;
     box-sizing: border-box;
+    min-height : 110px;
+    max-height : 110px;
+    overflow : auto;
 }
 
 .char-info-box .char-name,
-.char-info-box .char-level,
-.char-info-box .char-description{
+.char-info-box .char-level{
     font-size: 0.75rem;
     font-weight: bold;
     color: var(--white-color);
 }
+.char-info-box .char-description{
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--baige-color);
+}
+
 
 .char-image-area img {
     width: 100px;
