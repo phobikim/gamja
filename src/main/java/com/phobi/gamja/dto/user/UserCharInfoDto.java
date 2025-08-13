@@ -20,6 +20,7 @@ public class UserCharInfoDto {
 
     private int maxExp;
     private String dexName;
+    private String description;
 
     private String attribute;
     private String attributeIconPath;
@@ -57,6 +58,7 @@ public class UserCharInfoDto {
         this.xp = stat.getXp();
         this.maxExp = stat.getMaxExp();
         this.dexName = stat.getDex().getName();
+        this.description = stat.getDex().getDescription();
         this.title = equippedTitleName;
         this.titleIconPath = equippedTitleIcon;
         this.affinity = stat.getAffinity();

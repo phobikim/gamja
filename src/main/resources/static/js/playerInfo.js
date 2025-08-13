@@ -105,7 +105,6 @@ async function openInfoModal() {
     document.getElementById('characterActions').classList.remove('hidden');
     // ✅ 유저네임 헤더 숨기기
     document.getElementById('charUsernameHeader').classList.add('hidden');
-    document.getElementById('dexNameLabel').classList.add('hidden');
 
     loadCharacterBasicInfo();
     loadCharacterBattleInfo();
@@ -121,7 +120,8 @@ function setCharacterBasicInfo(data) {
             `https://phobi.me/gamja.img/images/character/${data.characterImage}`;
     }
     document.getElementById('combatLevelValue').textContent = data.level;
-    document.getElementById('characterName').textContent = data.name;
+    document.getElementById('characterName').textContent = data.dexName;
+    document.getElementById('characterDescription').textContent = data.description || '';
     currentCharacter = data;
 }
 
@@ -430,13 +430,7 @@ function openCharacterModal(data, readOnly = false) {
     } else {
         titleIconEl.style.display = 'none';
     }
-    const dexNameEl = document.getElementById('dexNameLabel');
-    if (data.dexName) {
-        dexNameEl.textContent = data.dexName;
-        dexNameEl.classList.remove('hidden');
-    } else {
-        dexNameEl.classList.add('hidden');
-    }
+
     // 기본 정보 및 스탯
     setCharacterBasicInfo(data);
     if (data.battleStat) {

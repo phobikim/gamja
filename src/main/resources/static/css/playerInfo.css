@@ -14,7 +14,7 @@
 .character-modal-content {
     position: relative;
     background: var(--char-border-color);
-    padding: 1.5rem;
+    padding: 1rem;
     border-radius: 16px;
     width: 90%;
     max-width: 600px;
@@ -62,20 +62,55 @@
 /* 본문: 이미지 + 스탯 */
 .char-body-row {
     display: flex;
-    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .char-image-area {
     flex: 1;
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    grid-auto-rows: min-content;
+    align-items: center;
+    gap: 8px;
     position: relative;
     border: 2px #d2a679;
     border-radius: 10px;
     padding: 0.5rem;
     background: var(--dark-orange-color);
+    flex-direction: column;
+    justify-content: center;
+}
+
+#charImage {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px #4f3300);
+    background-color: var(--baige-color); /* 배경색 */
+    border: 2px solid var(--dark-orange-color); /* 테두리 */
+    border-radius: 12px;
+    padding: 4px; /* 안쪽 여백 */
+}
+
+.char-info-box {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    gap: 5px;
+    background: var(--dark-1-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    padding: 0.6rem 0.8rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.char-info-box .char-name,
+.char-info-box .char-level,
+.char-info-box .char-description{
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--white-color);
 }
 
 .char-image-area img {
@@ -85,20 +120,6 @@
     filter: drop-shadow(0 4px 8px #4f3300);
 }
 
-.char-card-info {
-    margin-top: 0.5rem;
-    background: linear-gradient(#fff7cf, #ffe2a4);
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    padding: 0.3rem 0.8rem;
-    text-align: center;
-    font-weight: bold;
-    font-size: 0.95rem;
-    color: #5e340e;
-    width: 100%;
-    max-width: 120px;
-    box-sizing: border-box;
-}
 
 .char-stats-area {
     flex: 1;
@@ -107,6 +128,65 @@
     background: var(--baige-color);
     box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.15);
     box-sizing: border-box;
+}
+
+/* 왼쪽 열 고정 */
+#stat-combatAtk,
+#stat-combatHp,
+#stat-combatSpeed {
+    grid-column: 1;           /* 좌측 열 */
+}
+
+/* 오른쪽 열에 특수옵션 전체를 배치 */
+#specialOptions {
+    grid-column: 2;           /* 우측 열 */
+    grid-row: 1 / span 3;     /* 좌측 3개 스탯 높이와 비슷하게 차지(필요시 조절) */
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* 특수옵션 박스도 그리드 레이아웃과 어울리게 패딩/배경 유지 */
+#specialOptions.equip-option-section {
+    background: var(--orange-color);
+    border-radius: 10px;
+    padding: 8px 10px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.12);
+}
+
+/* 특수옵션 라벨(스티커) 살짝 여백 */
+#specialOptions .equip-option-sticker.special {
+    margin-bottom: 6px;
+}
+
+#combatStats.char-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 12px;
+    row-gap: 8px;
+    align-items: start;
+}
+
+#combatStats .stat-block {
+    margin-bottom: 0.3rem; /* 기존 0.6rem → 절반 */
+}
+#specialOptions {
+    gap: 4px;
+}
+#specialOptions .equip-option-row {
+    margin-bottom: -3px;
+}
+#lifeStats.char-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2열 */
+    gap: 10px 12px; /* 세로, 가로 간격 */
+}
+
+/* 각 stat-block의 높이와 내부 정렬 보정 */
+#lifeStats .stat-block {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .stat-block {
