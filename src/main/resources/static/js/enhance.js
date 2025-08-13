@@ -242,10 +242,12 @@ async function handleEnhanceExecute() {
         document.getElementById("enhanceXpText").textContent = `${result.xp} / 100`;
         document.getElementById("enhanceXpFill").style.width = `${(result.xp / 100) * 100}%`;
 
-        const enhanceBtn = document.getElementById("growthExecuteBtn");
-        enhanceBtn.textContent = result.xp >= 100 ? "무료강화" : "강화";
-        enhanceBtn.dataset.isFree = result.xp >= 100 ? "true" : "false";
-
+        const enhanceBtn = document.getElementById("enhanceExecuteBtn");
+        const isFreeNow = result.xp >= 100;
+        enhanceExecuteBtn.textContent        = isFreeNow ? "무료강화" : "강화";
+        enhanceExecuteBtn.dataset.isFree     = isFreeNow ? "true" : "false";
+        enhanceExecuteBtn.classList.toggle("disabled", false);
+        enhanceExecuteBtn.disabled = false;
     } else {
         showMessageModal(res.message || "강화에 실패했습니다.");
     }
@@ -445,10 +447,18 @@ async function loadEnhanceMaterials(itemId, enhancementXp = 0) {
             rateEl.parentElement.classList.add("hidden");
             maxMsgEl.classList.add("hidden");
 
+            enhanceExecuteBtn.dataset.isFree = "true";
+            enhanceExecuteBtn.textContent = "무료강화";
+            enhanceExecuteBtn.disabled = false;
+            enhanceExecuteBtn.classList.remove("disabled");
+
             // 버튼은 무조건 활성화
             updateEnhanceButtonState([], 9999999, 0);
             return;
         }
+        
+        enhanceExecuteBtn.dataset.isFree = "false";
+        enhanceExecuteBtn.textContent = "강화";
 
         materials.forEach(mat => {
             const el = document.createElement("div");
