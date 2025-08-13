@@ -120,6 +120,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
             // 1) 보스 HP 반영 + 보스 흔들림 + 데미지 텍스트
             setBossHpBar(monster.hp, monster.maxHp);
+            glowBossHpBg('damage');
             bossMaxHp = monster.maxHp ?? bossMaxHp;
             shakeElement(document.querySelector('.boss-image'), 'shake');
             showDamageEffect(playerAttack.damage, playerAttack.isCritical);
@@ -400,12 +401,7 @@ async function triggerBossTurn() {
 
     // 2) 보스 회복 → 보스 이미지 위
     if (type === 'HEAL_SELF' && healBoss > 0) {
-        const bossHpFill = document.querySelector('.boss-hp-bar-fill');
-        if (bossHpFill) {
-            bossHpFill.classList.remove('healed');
-            bossHpFill.offsetWidth;
-            bossHpFill.classList.add('healed');
-        }
+        glowBossHpBg('heal');
         spawnEffect(bossImgWrapper, EFFECT_IMG.HEAL_SELF, 'heal-boss');
     }
 
@@ -494,16 +490,15 @@ function showDamageEffect(damage, isCritical) {
 }
 
 function showBossAttackEffect(damage) {
-    const charWrapper = document.getElementById('characterLeftWrapper');
+    const container = getPlayerImgContainer();
+    if (!container) return;
     const damageText = document.createElement('div');
     damageText.className = 'damage-effect boss-attack';
     damageText.textContent = `-${damage}`;
 
-    charWrapper.appendChild(damageText);
+    container.appendChild(damageText);
 
-    setTimeout(() => {
-        damageText.remove();
-    }, 900);
+    setTimeout(() => damageText.remove(), 900);
 }
 
 function ensurePlayerHpChip() {
@@ -598,26 +593,29 @@ function classByPercent(p) {
 
 function setBossHpBar(currentHp, maxHp) {
     const bossHpText = document.getElementById('bossHpText');
-    if (bossHpText) bossHpText.textContent = `${currentHp} / ${maxHp}`;
-
-    const fill = ensureBossHpFill();
+    const fill = document.querySelector('.boss-hp-bar-fill');
     if (!fill) return;
 
-    const total = Math.max(1, Number(maxHp) || 1);
-    const hp    = Math.max(0, Number(currentHp) || 0);
-    const pct   = Math.max(0, Math.min(100, (hp / total) * 100));
+    if (bossHpText) bossHpText.textContent = `${currentHp} / ${maxHp}`;
 
-    // 폭 업데이트 (다시 차는 효과 없음)
-    fill.style.width = `${pct}%`;
+    const total = Math.max(1, maxHp || 1);
+    const percent = Math.max(0, Math.min(100, (currentHp / total) * 100));
+    fill.style.width = `${percent}%`;
 
-    // 색상 클래스 교체
-    fill.className = 'boss-hp-bar-fill';
-    fill.classList.add(classByPercent(pct));
+    // 남은 HP 밴드 클래스만 갱신 (glow-* 등은 보존)
+    const bands = ['hp-80','hp-60','hp-40','hp-20','hp-0'];
+    fill.classList.remove(...bands);
+    const band =
+        percent >= 80 ? 'hp-80' :
+            percent >= 60 ? 'hp-60' :
+                percent >= 40 ? 'hp-40' :
+                    percent >= 20 ? 'hp-20' : 'hp-0';
+    fill.classList.add(band);
 
-    // 타격 반짝 (옵션)
-    fill.classList.add('hit');
-    setTimeout(() => fill.classList.remove('hit'), 200);
+    // 데미지 스파크(있다면 유지)
+    fill.classList.remove('hit'); void fill.offsetWidth; fill.classList.add('hit');
 }
+
 
 function showBossDialogue(text) {
     const dialogueBox = document.getElementById('bossDialogue');
@@ -779,7 +777,7 @@ function playAllyEvent(ev = {}) {
             const bossWrap = document.querySelector('.boss-image-wrapper');
             // 조력자 전용 이펙트 (없으면 플레이어 임팩트 재사용)
             spawnEffect(bossWrap, (window.playerSkillImgSrc || EFFECT_IMG.DAMAGE_TO_PLAYER), 'impact');
-
+            glowBossHpBg('damage');
             if (typeof ev.monsterHp === 'number' && typeof ev.monsterMaxHp === 'number') {
                 setBossHpBar(ev.monsterHp, ev.monsterMaxHp);
                 bossMaxHp = ev.monsterMaxHp;
@@ -791,6 +789,22 @@ function playAllyEvent(ev = {}) {
         await delay(Math.max(600, dur) + ALLY_TIMING.lingerAfter);
         resolve();
     });
+}
 
+function glowBossHpBg(kind = 'damage') {
+    const bg   = document.querySelector('.boss-hp-bar-bg');
+    const bar  = document.querySelector('.boss-hp-bar');
+    const fill = document.querySelector('.boss-hp-bar-fill');
+    if (!bg || !bar || !fill) return;
 
+    [bg, bar, fill].forEach(el => el.classList.remove('glow-heal','glow-damage'));
+    void bg.offsetWidth; void bar.offsetWidth; void fill.offsetWidth; // reflow로 재생 보장
+
+    const cls = (kind === 'heal') ? 'glow-heal' : 'glow-damage';
+    [bg, bar, fill].forEach(el => el.classList.add(cls));
+
+    // 애니 끝난 뒤 정리(타이밍은 CSS와 맞춤)
+    setTimeout(() => [bg, bar, fill].forEach(el => el.classList.remove(cls)),
+        kind === 'heal' ? 550 : 450
+    );
 }
