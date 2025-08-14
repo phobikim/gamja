@@ -1,4 +1,4 @@
-package com.phobi.gamja.entity.contents;
+package com.phobi.gamja.entity.skin;
 
 
 import lombok.*;

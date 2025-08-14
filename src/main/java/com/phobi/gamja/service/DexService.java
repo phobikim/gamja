@@ -20,7 +20,7 @@ import com.phobi.gamja.repository.quest.QuestRepository;
 import com.phobi.gamja.repository.quest.UserQuestRepository;
 import com.phobi.gamja.repository.title.TitleEffectRepository;
 import com.phobi.gamja.repository.title.TitleRepository;
-import com.phobi.gamja.repository.title.UserTitleRepository;
+import com.phobi.gamja.repository.user.UserTitleRepository;
 import com.phobi.gamja.repository.user.*;
 import com.phobi.gamja.util.StatCalculator;
 import lombok.RequiredArgsConstructor;

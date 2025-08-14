@@ -58,6 +58,7 @@ async function getRankData() {
             const rankNumEl = clone.querySelector('.rank-number');
             const charImagePath = `${basePath_image}`+ /character/;
             const iconImagePath = `${basePath_image}` + /icons/;
+            const skinImagePath = `${basePath}`;
 
             const titleGroupEl = clone.querySelector('.rank-title-group');
             const tierIconEl = clone.querySelector('.rank-tier-icon');
@@ -100,7 +101,13 @@ async function getRankData() {
             }
 
            // 각 요소 채우기
-            clone.querySelector('.rank-avatar').src = charImagePath + `${entry.characterImage}`;
+            applyRankAvatarSkin(
+                clone,
+                charImagePath + `${entry.characterImage}`,
+                entry.borderSkinImageUrl ?
+                    (entry.borderSkinImageUrl.startsWith('http') ? entry.borderSkinImageUrl : `${basePath}${entry.borderSkinImageUrl}`)
+                    : null
+            );
             clone.querySelector('.rank-username').textContent = entry.username;
             clone.querySelector('.rank-total').textContent = `${entry.total} 점`;
 
@@ -115,7 +122,13 @@ async function getRankData() {
                     myFixedItem.classList.add('my-rank');
 
                     myFixedClone.querySelector('.rank-number').textContent = `${index + 1} 위`;
-                    myFixedClone.querySelector('.rank-avatar').src = charImagePath + `${entry.characterImage}`;
+                    applyRankAvatarSkin(
+                        myFixedClone,
+                        charImagePath + `${entry.characterImage}`,
+                        entry.borderSkinImageUrl ?
+                            (entry.borderSkinImageUrl.startsWith('http') ? entry.borderSkinImageUrl : `${basePath}${entry.borderSkinImageUrl}`)
+                            : null
+                    );
                     myFixedClone.querySelector('.rank-username').textContent = entry.username;
                     myFixedClone.querySelector('.rank-total').textContent = `${entry.total} 점`;
 
@@ -174,3 +187,26 @@ rankModal.addEventListener('click', (e) => {
     if (!inside) rankModal.classList.add('hidden');
 });
 
+function applyRankAvatarSkin(containerEl, imagePath, skinPath) {
+    // containerEl: '.rank-item' 클론 루트
+    const wrapper = containerEl.querySelector('.rank-avatar-wrapper');
+    const avatar  = containerEl.querySelector('.rank-avatar');
+    const border  = containerEl.querySelector('.rank-border-skin');
+
+    if (avatar) {
+        avatar.src = imagePath || '';
+
+        if (skinPath) {
+            // ✅ skin 있을 때
+            border.style.backgroundImage = `url('${skinPath}')`;
+            avatar.classList.remove('no-skin');
+            avatar.classList.add('with-skin');
+        } else {
+            // ✅ skin 없을 때
+            border.style.removeProperty('background-image');
+            avatar.classList.remove('with-skin');
+            avatar.classList.remove('rank-avatar-wrapper');
+            avatar.classList.add('no-skin');
+        }
+    }
+}

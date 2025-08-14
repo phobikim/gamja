@@ -1,18 +1,12 @@
 package com.phobi.gamja.service;
 
-import com.phobi.gamja.dto.user.UserCharInfoDto;
 import com.phobi.gamja.dto.user.UserRankDto;
-import com.phobi.gamja.entity.title.Title;
-import com.phobi.gamja.entity.title.UserTitle;
-import com.phobi.gamja.entity.user.UserCorps;
-import com.phobi.gamja.entity.user.UserDtl;
 import com.phobi.gamja.message.GamJaResponse;
-import com.phobi.gamja.repository.title.UserTitleRepository;
+import com.phobi.gamja.repository.user.UserTitleRepository;
 import com.phobi.gamja.repository.user.UserCorpsRepository;
 import com.phobi.gamja.repository.user.UserDtlRepository;
 import com.phobi.gamja.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;

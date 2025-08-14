@@ -32,6 +32,9 @@ public class UserCharInfoDto {
     /* 배경 */
     private String backgroundImageName;
     private String backgroundImageUrl;
+    // 보더 스킨
+    private String borderSkinName;
+    private String borderSkinImageUrl;
 
     /* 감자단 랭크 */
     private String corpsTierName;
@@ -48,6 +51,7 @@ public class UserCharInfoDto {
     public UserCharInfoDto(String username, UserDtl userDtl, UserDexStat stat, int maxCombo,
                            String equippedTitleName, String equippedTitleIcon,
                            String backgroundImageUrl, String backgroundImageName,
+                           String borderSkinImageUrl, String borderSkinName,
                            UserCorps userCorps, StatBonus statBonus) {
 
         // 기존 데이터 세팅
@@ -72,7 +76,9 @@ public class UserCharInfoDto {
         // 배경 정보
         this.backgroundImageUrl = backgroundImageUrl;
         this.backgroundImageName = backgroundImageName;
-
+        // 스킨 정보
+        this.borderSkinImageUrl = borderSkinImageUrl;
+        this.borderSkinName = borderSkinName;
 
         // 감자단 정보 from UserCorps
         this.corpsTierName = userCorps.getTier().getName();

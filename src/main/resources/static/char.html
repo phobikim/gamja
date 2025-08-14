@@ -567,7 +567,10 @@
 <template id="rankItemTemplate">
     <div class="rank-item">
         <div class="rank-number"></div>
-        <img class="rank-avatar" src="" alt="캐릭터 이미지">
+        <div class="rank-avatar-wrapper">
+            <img class="rank-avatar" src="" alt="캐릭터 이미지">
+            <div class="rank-border-skin"></div>
+        </div>
         <div class="rank-info">
             <div class="rank-username-line">
                 <span class="rank-title-group">
@@ -895,7 +898,10 @@
         <div class="char-body-row">
             <!-- 이미지 -->
             <div class="char-image-area">
-                <img id="charImage" src="" alt="감자">
+                <div class="char-image-wrapper">
+                    <img id="charImage" src="" alt="감자">
+                    <div id="charBorderSkin" class="char-border-skin"></div>
+                </div>
                 <!-- 캐릭터 카드 정보 -->
                 <div class="char-info-box">
                     <div class="char-name">이름 : <span id="characterName">감자</span></div>

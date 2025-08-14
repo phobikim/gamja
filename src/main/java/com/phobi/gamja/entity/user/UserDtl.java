@@ -1,12 +1,12 @@
 package com.phobi.gamja.entity.user;
 
-import com.phobi.gamja.entity.contents.CorpsTier;
+import com.phobi.gamja.entity.skin.SkinBorder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import com.phobi.gamja.entity.contents.BackgroundImage;
+import com.phobi.gamja.entity.skin.BackgroundImage;
 @Data
 @Entity
 @NoArgsConstructor
@@ -27,6 +27,11 @@ public class UserDtl {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "background_id")
     private BackgroundImage backgroundImage;
+
+    /* 현재 적용 테두리 스킨 */
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "border_skin_id")
+    private SkinBorder borderSkin;
 
     /* 대표 감자 */
     @Column(name = "character_dex_id")

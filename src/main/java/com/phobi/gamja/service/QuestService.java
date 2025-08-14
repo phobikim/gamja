@@ -15,7 +15,7 @@ import com.phobi.gamja.repository.battle.MonsterRepository;
 import com.phobi.gamja.repository.item.ItemRepository;
 import com.phobi.gamja.repository.quest.*;
 import com.phobi.gamja.repository.title.TitleRepository;
-import com.phobi.gamja.repository.title.UserTitleRepository;
+import com.phobi.gamja.repository.user.UserTitleRepository;
 import com.phobi.gamja.repository.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,14 +1,15 @@
 package com.phobi.gamja.service;
 
-import com.phobi.gamja.entity.contents.BackgroundImage;
+import com.phobi.gamja.entity.skin.BackgroundImage;
 import com.phobi.gamja.entity.contents.CorpsTier;
 import com.phobi.gamja.entity.dex.Dex;
 import com.phobi.gamja.entity.contents.SkillType;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
-import com.phobi.gamja.repository.contents.BackgroundImageRepository;
+import com.phobi.gamja.repository.skin.BackgroundImageRepository;
 import com.phobi.gamja.repository.contents.CorpsTierRepository;
 import com.phobi.gamja.repository.dex.DexRepository;
+import com.phobi.gamja.repository.skin.SkinBorderRepository;
 import com.phobi.gamja.repository.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,9 +27,10 @@ public class AuthService {
     private final UserSkillRepository userSkillRepository;
     private final UserDexRepository userDexRepository;
     private final UserDexStatRepository userDexStatRepository;
+    private final UserSkinRepository userSkinRepository;
     private final DexRepository dexRepository;
     private final BackgroundImageRepository backgroundImageRepository;
-    private final UserBackgroundRepository userBackgroundRepository;
+    private final SkinBorderRepository skinBorderRepository;
     private final CorpsTierRepository corpsTierRepository;
     private final UserCorpsRepository userCorpsRepository;
 
@@ -128,11 +130,11 @@ public class AuthService {
         userDexStatRepository.saveAll(dexStats);
 
         // 배경 보유 등록
-        UserBackground userBackground = UserBackground.builder()
+        UserSkin ownedBg = UserSkin.builder()
                 .userId(savedUser.getId())
-                .backgroundImage(defaultBg)
+                .skinBackground(defaultBg)  // 보유 배경
                 .build();
-        userBackgroundRepository.save(userBackground);
+        userSkinRepository.save(ownedBg);
 
         UserCorps userCorps = UserCorps.builder()
                 .userId(savedUser.getId())

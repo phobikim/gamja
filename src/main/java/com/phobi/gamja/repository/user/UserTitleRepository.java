@@ -1,4 +1,4 @@
-package com.phobi.gamja.repository.title;
+package com.phobi.gamja.repository.user;
 
 import com.phobi.gamja.entity.title.UserTitle;
 import com.phobi.gamja.entity.title.UserTitleId;

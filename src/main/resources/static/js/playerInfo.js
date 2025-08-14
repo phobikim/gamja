@@ -115,10 +115,32 @@ async function openInfoModal() {
 
 // ✅ 기본 정보 DOM 세팅
 function setCharacterBasicInfo(data) {
+    const imgEl = document.getElementById('charImage');
     if (data.characterImage) {
-        document.getElementById('charImage').src =
-            `https://phobi.me/gamja.img/images/character/${data.characterImage}`;
+        imgEl.src = `https://phobi.me/gamja.img/images/character/${data.characterImage}`;
     }
+
+    const skinEl = document.getElementById('charBorderSkin');
+    if (skinEl) {
+        const raw = data.borderSkinImageUrl;
+        if (raw) {
+            const url = raw.startsWith('http') ? raw : `${basePath}${raw}`;
+            skinEl.style.backgroundImage = `url("${url}")`;
+
+            // ✅ skin 있을 때
+            imgEl.classList.remove('no-skin');
+            imgEl.classList.add('with-skin');
+        } else {
+            skinEl.style.removeProperty('background-image');
+
+            // ✅ skin 없을 때
+            imgEl.classList.remove('with-skin');
+            imgEl.classList.add('no-skin');
+        }
+    }
+
+
+
     document.getElementById('combatLevelValue').textContent = data.level;
     document.getElementById('characterName').textContent = data.dexName;
     document.getElementById('characterDescription').textContent = data.description || '';

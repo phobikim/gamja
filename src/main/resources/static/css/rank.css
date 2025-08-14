@@ -137,8 +137,30 @@
             inset 0 -1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.rank-avatar {
-    width: 20%;
+.rank-avatar-wrapper {
+    position: relative;
+    width: 60px;    /* 래퍼 사이즈 */
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* skin 있을 때 */
+.rank-avatar.with-skin {
+    width: 52px;    /* 아바타 실제 크기 */
+    height: 52px;
+    object-fit: contain;
+    /*background: #c98c4c;*/
+    /*border-radius: 50%;*/
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35));
+    z-index: 1;
+    padding: 2px;  /* 내부 여백(선택) */
+}
+
+/* skin 없을 때 */
+.rank-avatar.no-skin {
     max-width: 55px;
     height: 55px;
     border-radius: 6px;
@@ -147,6 +169,18 @@
     padding: 2px;
     box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4);
     flex-shrink: 0;
+}
+
+.rank-border-skin {
+    position: absolute;
+    top: 0; left: 0;
+    width: 60px;    /* 래퍼와 동일 */
+    height: 60px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    pointer-events: none;         /* 클릭 방해 금지 */
+    z-index: 2;
 }
 
 .rank-info {

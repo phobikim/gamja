@@ -12,7 +12,7 @@ import com.phobi.gamja.entity.title.TitleEffect;
 import com.phobi.gamja.entity.title.UserTitle;
 import com.phobi.gamja.repository.item.ItemSkillBonusRepository;
 import com.phobi.gamja.repository.title.TitleEffectRepository;
-import com.phobi.gamja.repository.title.UserTitleRepository;
+import com.phobi.gamja.repository.user.UserTitleRepository;
 import com.phobi.gamja.service.CorpsTierService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

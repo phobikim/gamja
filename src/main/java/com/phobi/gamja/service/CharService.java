@@ -5,21 +5,23 @@ import com.phobi.gamja.dto.dex.DexOwnedListResponseDto;
 import com.phobi.gamja.dto.item.*;
 import com.phobi.gamja.dto.user.*;
 import com.phobi.gamja.entity.battle.StatBonus;
-import com.phobi.gamja.entity.contents.BackgroundImage;
+import com.phobi.gamja.entity.skin.BackgroundImage;
 import com.phobi.gamja.entity.contents.CorpsTier;
 import com.phobi.gamja.entity.dex.Dex;
 import com.phobi.gamja.entity.dex.DexAttribute;
 import com.phobi.gamja.entity.dex.DexRarityStat;
 import com.phobi.gamja.entity.item.*;
+import com.phobi.gamja.entity.skin.SkinBorder;
 import com.phobi.gamja.entity.title.UserTitle;
 import com.phobi.gamja.entity.user.*;
 import com.phobi.gamja.message.GamJaResponse;
-import com.phobi.gamja.repository.contents.BackgroundImageRepository;
+import com.phobi.gamja.repository.skin.BackgroundImageRepository;
 import com.phobi.gamja.repository.contents.CorpsTierRepository;
 import com.phobi.gamja.repository.dex.DexRarityStatRepository;
 import com.phobi.gamja.repository.dex.DexRepository;
 import com.phobi.gamja.repository.item.*;
-import com.phobi.gamja.repository.title.UserTitleRepository;
+import com.phobi.gamja.repository.skin.SkinBorderRepository;
+import com.phobi.gamja.repository.user.UserTitleRepository;
 import com.phobi.gamja.repository.user.*;
 import com.phobi.gamja.util.CommonUtil;
 import com.phobi.gamja.util.StatCalculator;
@@ -49,6 +51,7 @@ public class CharService {
     private final UserRepository userRepository;
     private final UserSkillRepository userSkillRepository;
     private final UserInventoryRepository userInventoryRepository;
+    private final UserSkinRepository userSkinRepository;
     private final DexRepository dexRepository;
     private final DexRarityStatRepository dexRarityStatRepository;
     private final UserDexRepository userDexRepository;
@@ -60,7 +63,7 @@ public class CharService {
     private final ItemRepository itemRepository;
     private final UserTitleRepository userTitleRepository;
     private final BackgroundImageRepository backgroundImageRepository;
-    private final UserBackgroundRepository userBackgroundRepository;
+    private final SkinBorderRepository skinBorderRepository;
     private final CorpsTierRepository corpsTierRepository;
     private final UserCorpsRepository userCorpsRepository;
     private final UserEnhancementRepository userEnhancementRepository;
@@ -100,6 +103,10 @@ public class CharService {
         String backgroundImageUrl = (bg != null) ? bg.getImageUrl() : null;
         String backgroundImageName = (bg != null) ? bg.getName() : null;
 
+        // 보더 스킨 조회
+        SkinBorder border = userDtl.getBorderSkin();
+        String borderSkinImageUrl = (border != null) ? border.getImageUrl() : null;
+        String borderSkinName     = (border != null) ? border.getName()      : null;
         // 감자단 정보
         UserCorps userCorps = userCorpsRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("감자단 정보가 없습니다."));
@@ -110,6 +117,7 @@ public class CharService {
                 userDtl, stat, 0, // 기존 필드
                 equippedTitleName, equippedTitleIcon, // 칭호
                 backgroundImageUrl, backgroundImageName, // 배경
+                borderSkinImageUrl, borderSkinName, // 보더 스킨
                 userCorps// 감자단 정보
                 ,statBonus
         );
@@ -147,6 +155,10 @@ public class CharService {
         BackgroundImage bg = userDtl.getBackgroundImage();
         String backgroundImageUrl = (bg != null) ? bg.getImageUrl() : null;
         String backgroundImageName = (bg != null) ? bg.getName() : null;
+        // 보더 스킨 조회
+        SkinBorder border = userDtl.getBorderSkin();
+        String borderSkinImageUrl = (border != null) ? border.getImageUrl() : null;
+        String borderSkinName     = (border != null) ? border.getName()      : null;
 
         UserCorps userCorps = userCorpsRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("감자단 정보가 없습니다."));
@@ -157,6 +169,7 @@ public class CharService {
                 userDtl, stat, 0,
                 equippedTitleName, equippedTitleIcon,
                 backgroundImageUrl, backgroundImageName,
+                borderSkinImageUrl, borderSkinName,
                 userCorps,
                 statBonus
         );
@@ -664,11 +677,12 @@ public class CharService {
     @Transactional(readOnly = true)
     public GamJaResponse getBackgroundList(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
-
+        // 1) 전체 사용 가능 배경
         List<BackgroundImage> all = backgroundImageRepository.findByEnabledTrue();
-        List<UserBackground> ownedList = userBackgroundRepository.findByUserId(userId);
+        // 2) 유저가 보유한 배경 (user_skin에서 skin_background_id가 있는 행만)
+        List<UserSkin> ownedList = userSkinRepository.findByUserIdAndSkinBackgroundIsNotNull(userId);
         Set<Long> ownedIds = ownedList.stream()
-                .map(bg -> bg.getBackgroundImage().getId())
+                .map(us -> us.getSkinBackground().getId())
                 .collect(Collectors.toSet());
 
         List<Map<String, Object>> result = all.stream()
@@ -688,27 +702,41 @@ public class CharService {
     @Transactional
     public GamJaResponse setBackgroundList(Map<String, Long> payload, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
-        Long backgroundId = payload.get("backgroundId");
+        Long backgroundId = payload.get("backgroundId"); // 프론트에서 보내는 키 확인
 
-        // 유효한 배경인지 확인
-        BackgroundImage bg = backgroundImageRepository.findById(backgroundId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배경입니다."));
-
-        // 보유한 배경인지 확인
-        boolean owned = userBackgroundRepository.findByUserId(userId).stream()
-                .anyMatch(ub -> ub.getBackgroundImage().getId().equals(backgroundId));
-        if (!owned) {
-            return GamJaResponse.fail("해당 배경을 보유하고 있지 않습니다.");
+        if (backgroundId == null) {
+            return GamJaResponse.fail("backgroundId가 필요합니다.");
         }
 
-        // 적용
-        UserDtl userDtl = userDtlRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저 정보를 찾을 수 없습니다."));
-        userDtl.setBackgroundImage(bg);
-        userDtlRepository.save(userDtl);
+        // 1) 배경 존재/활성 확인
+        BackgroundImage bg = backgroundImageRepository.findById(backgroundId)
+                .filter(BackgroundImage::isEnabled)
+                .orElse(null);
+        if (bg == null) {
+            return GamJaResponse.fail("해당 배경이 존재하지 않거나 비활성화 상태입니다.");
+        }
 
-        return GamJaResponse.success("배경이 변경되었습니다.", null);
+        // 2) 소유 여부 확인 (user_skin)
+        boolean owned = userSkinRepository.findByUserIdAndSkinBackgroundIsNotNull(userId).stream()
+                .anyMatch(us -> us.getSkinBackground().getId().equals(backgroundId));
+        if (!owned) {
+            return GamJaResponse.fail("해당 배경을 보유하지 않았습니다.");
+        }
+
+        // 3) user_dtl 업데이트
+        UserDtl userDtl = userDtlRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("USER_DTL을 찾을 수 없습니다."));
+        userDtl.setBackgroundImage(bg);
+        // JPA dirty checking으로 저장
+
+        Map<String, Object> result = Map.of(
+                "userId", userId,
+                "backgroundId", bg.getId(),
+                "imageUrl", bg.getImageUrl()
+        );
+        return GamJaResponse.success("배경이 적용되었습니다.", result);
     }
+
     public GamJaResponse tierList(HttpServletRequest request) {
         List<CorpsTier> tiers = corpsTierRepository.findAllByOrderByTierIdAsc();
         return GamJaResponse.success("감자단 랭크 정보 .",tiers);
