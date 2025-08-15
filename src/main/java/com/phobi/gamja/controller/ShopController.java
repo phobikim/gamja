@@ -33,7 +33,7 @@ public class ShopController {
 
     @PostMapping("/buy")
     public ResponseEntity<GamJaResponse> buyItem(HttpServletRequest request,
-                                                 @RequestBody Map<String, Long> payload) {
+                                                 @RequestBody Map<String, Object> payload) {
         return shopService.buyItem(request, payload);
     }
 

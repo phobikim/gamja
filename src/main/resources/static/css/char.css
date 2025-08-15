@@ -154,7 +154,7 @@ html, body {
     align-items: flex-start;
 }
 .player-title-main {
-    background-color: var(--dark-1-color);
+    /*background-color: var(--dark-1-color);*/
     display: inline-flex;
     align-items: center;
     gap: 4px;

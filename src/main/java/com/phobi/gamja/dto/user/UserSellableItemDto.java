@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class UserSellableItemDto {
-    private Long itemId;
+    private Long targetId;
     private String name;
     private String description;
     private String iconPath;
@@ -19,7 +19,7 @@ public class UserSellableItemDto {
     public static UserSellableItemDto from(UserInventory inv) {
         Item item = inv.getItem();
         return UserSellableItemDto.builder()
-                .itemId(item.getId())
+                .targetId(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .iconPath(item.getIconPath())

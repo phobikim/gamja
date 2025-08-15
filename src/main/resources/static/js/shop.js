@@ -1,4 +1,6 @@
 let currentUserGold = 0;
+let currentBuyCategory = 'ADVENTURE';
+let cachedBuyItems = [];
 
 function openShopModal() {
     document.getElementById('shopModal').classList.remove('hidden');
@@ -6,31 +8,61 @@ function openShopModal() {
     const buyTab = document.querySelector('.shop-tab[data-tab="buy"]');
     if (buyTab) {
         buyTab.classList.add('active');
-        buyTab.click();
+        // 소탭 초기화
+        currentBuyCategory = 'ADVENTURE';
+        setBuySubtabsVisibility(true);
+        setActiveBuySubtab(currentBuyCategory);
+        loadShopItems('buy');
     }
 }
 
 document.querySelectorAll('.shop-tab').forEach(tab => {
     tab.addEventListener('click', () => {
+        document.getElementById('shopSliderArea').classList.add('hidden');
         document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-
         const tabType = tab.dataset.tab;
+
+        // 구매 탭일 때만 소탭 노출
+        if (tabType === 'buy') {
+            setBuySubtabsVisibility(true);
+            setActiveBuySubtab(currentBuyCategory);
+        } else {
+            setBuySubtabsVisibility(false);
+        }
         loadShopItems(tabType);
     });
 });
+function setBuySubtabsVisibility(show) {
+    const subtabs = document.getElementById('shopBuySubtabs');
+    if (!subtabs) return;
+    subtabs.classList.toggle('hidden', !show);
+}
 
+function setActiveBuySubtab(category) {
+    const subtabs = document.querySelectorAll('#shopBuySubtabs .shop-subtab');
+    subtabs.forEach(btn => btn.classList.toggle('active', btn.dataset.category === category));
+}
+document.getElementById('shopBuySubtabs')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('.shop-subtab');
+    if (!btn) return;
+    document.getElementById('shopSliderArea').classList.add('hidden');
 
+    currentBuyCategory = btn.dataset.category;
+    setActiveBuySubtab(currentBuyCategory);
+
+    // 캐시된 구매 목록에서 필터만 다시 렌더
+    renderShopList(filterBuyItemsByCategory(cachedBuyItems, currentBuyCategory), 'buy');
+});
 
 async function loadShopItems(type) {
     const sliderArea = document.getElementById('shopSliderArea');
     sliderArea.classList.add('hidden');
 
     // 선택된 카드 초기화
-    document.querySelectorAll('.shop-item-card').forEach(c => c.classList.remove('selected'));
-
     const listEl = document.getElementById('shopItemList');
     listEl.innerHTML = '';
+    document.querySelectorAll('.shop-item-card').forEach(c => c.classList.remove('selected'));
 
     const url = type === 'buy' ? '/api/shop/sell-list' : '/api/shop/inventory';
 
@@ -41,14 +73,21 @@ async function loadShopItems(type) {
             currentUserGold = gold;
             updateGoldDisplay(gold);
 
-            items.forEach(item => {
-                const card = renderShopItemCard(item, type);
-                listEl.appendChild(card);
-            });
+            if (type === 'buy') {
+                cachedBuyItems = Array.isArray(items) ? items : [];
+                const filtered = filterBuyItemsByCategory(cachedBuyItems, currentBuyCategory);
+                renderShopList(filtered, 'buy');
+            } else {
+                renderShopList(items || [], 'sell');
+            }
         }
     } catch (err) {
         console.error(`${type} 아이템 불러오기 실패`, err);
     }
+}
+function filterBuyItemsByCategory(items, category) {
+    const want = String(category || '').toUpperCase();
+    return (items || []).filter(it => String(it.category || '').toUpperCase() === want);
 }
 
 function renderShopItemCard(item, type) {
@@ -57,34 +96,50 @@ function renderShopItemCard(item, type) {
 
     const card = document.createElement('div');
     card.className = 'shop-item-card';
-    card.dataset.itemId = item.itemId;
+    card.dataset.targetId = item.targetId;
+    card.dataset.category = item.category;
 
-    if (type === 'sell' && (!item.quantity || item.quantity === 0)) {
+    const isSellDisabled = (type === 'sell' && (!item.quantity || item.quantity === 0));
+    const isBuyOutOfStock = (type === 'buy' && ((item.availableQuantity ?? 0) === 0));
+    const isOwnedSkin = (type === 'buy' && item.category === 'SKIN' && item.owned === true);
+
+    if (isSellDisabled || isBuyOutOfStock || isOwnedSkin) {
         card.classList.add('disabled');
     }
-    if (type === 'buy' && (!item.availableQuantity || item.availableQuantity === 0)) {
-        card.classList.add('disabled');
-    }
+
+    const ownedBadge = (isOwnedSkin)
+        ? `<span class="shop-owned-label">보유중</span>`
+        : '';
+
 
     card.innerHTML = `
+        ${ownedBadge}
         <img class="shop-item-thumb" src="${basePath}${item.iconPath}" alt="${item.name}" />
         <div class="shop-item-info">
-            <div class="shop-item-name">
-                ${item.name}
-                ${
+          <div class="shop-item-name">
+            ${item.name}
+            ${
             type === 'sell' && item.quantity !== undefined
                 ? `<span class="shop-item-qty">(x${item.quantity})</span>`
-                : type === 'buy' && item.stock !== undefined
-                    ? `<span class="shop-item-qty">( 남은 ${item.availableQuantity}개 / 하루 ${item.stock}개 )</span>`
+                : type === 'buy'
+                    ? `<span class="shop-item-qty">${
+                        item.category === 'SKIN'
+                            ? `( 남은 ${item.availableQuantity ?? 0}개 / 1개만 구매 가능 )`
+                            : `( 남은 ${item.availableQuantity ?? 0}개 / 하루 ${item.stock ?? 0}개 )`
+                    }</span>`
                     : ''
         }
-            </div>
-            <div class="shop-item-desc">${item.description}</div>
+          </div>
+          <div class="shop-item-desc">${item.description}</div>
         </div>
         <div class="shop-item-price">
-            ${(type === 'buy' ? item.price : item.sellPrice).toLocaleString()} G
+          ${(type === 'buy' ? item.price : item.sellPrice).toLocaleString()} G
         </div>
-    `;
+      `;
+
+    if (card.classList.contains('disabled')) {
+        return card;
+    }
 
     card.addEventListener('click', () => {
         document.querySelectorAll('.shop-item-card').forEach(c => c.classList.remove('selected'));
@@ -94,10 +149,16 @@ function renderShopItemCard(item, type) {
         const slider = document.getElementById('shopQuantitySlider');
         const sliderArea = document.getElementById('shopSliderArea');
 
-        slider.value = 1;
-        slider.max = type === 'buy'
-            ? item.availableQuantity ?? 99
-            : item.quantity ?? 99;
+        if (type === 'buy') {
+            if (item.category === 'SKIN') {
+                slider.max = Math.min(1, item.availableQuantity ?? 0);
+            } else {
+                slider.max = item.availableQuantity ?? 99;
+            }
+        } else {
+            slider.max = item.quantity ?? 99;
+        }
+        slider.value = Math.min(1, parseInt(slider.max) || 0);
 
         document.getElementById('shopSelectedItemName').textContent = item.name;
         document.getElementById('shopSelectedQuantity').textContent = `x1`;
@@ -112,21 +173,8 @@ function renderShopItemCard(item, type) {
         bottomRow.classList.remove('hidden');
         confirmBtn.disabled = false;
 
-        if (currentTab === 'buy' && currentUserGold < total) {
-            confirmBtn.disabled = true;
-            warningEl.textContent = '골드가 부족합니다!';
-            warningEl.classList.remove('hidden');
-            bottomRow.classList.add('hidden');
-        } else if (currentTab === 'sell' && 1 > (item.quantity ?? 0)) {
-            confirmBtn.disabled = true;
-            warningEl.textContent = '보유 수량이 부족합니다!';
-            warningEl.classList.remove('hidden');
-            bottomRow.classList.add('hidden');
-        } else {
-            confirmBtn.disabled = false;
-            warningEl.classList.add('hidden');
-        }
-        // 실시간 변경
+        validateShopState(currentTab, item, total, confirmBtn, warningEl, bottomRow);
+
         slider.oninput = () => {
             const count = parseInt(slider.value);
             total = unitPrice * count;
@@ -136,26 +184,42 @@ function renderShopItemCard(item, type) {
             bottomRow.classList.remove('hidden');
             confirmBtn.disabled = false;
 
-            if (currentTab === 'buy' && currentUserGold < total) {
-                confirmBtn.disabled = true;
-                warningEl.textContent = '골드가 부족합니다!';
-                warningEl.classList.remove('hidden');
-                bottomRow.classList.add('hidden');
-            } else if (currentTab === 'sell' && 1 > (item.quantity ?? 0)) {
-                confirmBtn.disabled = true;
-                warningEl.textContent = '보유 수량이 부족합니다!';
-                warningEl.classList.remove('hidden');
-                bottomRow.classList.add('hidden');
-            } else {
-                confirmBtn.disabled = false;
-                warningEl.classList.add('hidden');
-            }
+            validateShopState(currentTab, item, total, confirmBtn, warningEl, bottomRow);
         };
-
         sliderArea.classList.remove('hidden');
     });
 
     return card;
+}
+
+function validateShopState(currentTab, item, total, confirmBtn, warningEl, bottomRow) {
+    if (currentTab === 'buy') {
+        if (currentUserGold < total) {
+            confirmBtn.disabled = true;
+            warningEl.textContent = '골드가 부족합니다!';
+            warningEl.classList.remove('hidden');
+            bottomRow.classList.add('hidden');
+            return;
+        }
+        // 재고 0 체크
+        if ((item.availableQuantity ?? 0) <= 0) {
+            confirmBtn.disabled = true;
+            warningEl.textContent = '재고가 없습니다!';
+            warningEl.classList.remove('hidden');
+            bottomRow.classList.add('hidden');
+            return;
+        }
+    } else {
+        if ((item.quantity ?? 0) <= 0) {
+            confirmBtn.disabled = true;
+            warningEl.textContent = '보유 수량이 부족합니다!';
+            warningEl.classList.remove('hidden');
+            bottomRow.classList.add('hidden');
+            return;
+        }
+    }
+    confirmBtn.disabled = false;
+    warningEl.classList.add('hidden');
 }
 
 document.getElementById('shopConfirmButton').addEventListener('click', async () => {
@@ -165,15 +229,16 @@ document.getElementById('shopConfirmButton').addEventListener('click', async () 
     const selectedCard = document.querySelector('.shop-item-card.selected');
     if (!selectedCard || isNaN(quantity)) return;
 
-    const itemId = selectedCard.dataset.itemId;
+    const targetId = selectedCard.dataset.targetId;
+    const category = (selectedCard.dataset.category || currentBuyCategory || 'ADVENTURE').toUpperCase();
     const currentTab = document.querySelector('.shop-tab.active')?.dataset.tab ?? 'buy';
     const endpoint = currentTab === 'buy' ? '/api/shop/buy' : '/api/shop/sell';
 
     try {
-        const res = await apiRequestJson(endpoint, 'POST', {
-            itemId: itemId,
-            quantity: quantity
-        });
+        const payload = currentTab === 'buy'
+            ? { targetId, quantity, category }
+            : { targetId, quantity };
+        const res = await apiRequestJson(endpoint, 'POST', payload);
 
         if (res.code === 'SUCCESS') {
             showMessageModal(`${itemName} ${currentTab === 'buy' ? '구매' : '판매'} 완료!`);
@@ -198,3 +263,12 @@ document.getElementById('closeShopModal').addEventListener('click', () => {
     document.getElementById('shopModal').classList.add('hidden');
     document.getElementById('workshopSelectModal').classList.remove('hidden');
 });
+
+function renderShopList(items = [], type) {
+    const listEl = document.getElementById('shopItemList');
+    listEl.innerHTML = '';
+    items.forEach(item => {
+        const card = renderShopItemCard(item, type);
+        listEl.appendChild(card);
+    });
+}

@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ItemShopRepository extends JpaRepository<ItemShop, Long> {
+    Optional<ItemShop> findByIdAndOnSaleTrue(Long id);
     List<ItemShop> findByOnSaleTrueOrderByDisplayOrderAsc();
+    List<ItemShop> findByCategoryAndOnSaleTrueOrderByDisplayOrderAsc(ItemShop.ItemCategory category);
 
-    List<ItemShop> findByShopTypeAndOnSaleTrueOrderByDisplayOrderAsc(ItemShop.ShopType shopType);
-    Optional<ItemShop> findByItemIdAndOnSaleTrue(Long itemId);
+    Optional<Object> findByCategoryAndTargetIdAndOnSaleTrue(ItemShop.ItemCategory category, Long targetId);
 }

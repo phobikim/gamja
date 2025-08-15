@@ -97,22 +97,6 @@ public class CharController {
     }
 
     /*
-    * 배경 화면 list
-    * */
-    @GetMapping("/background/list")
-    public ResponseEntity<GamJaResponse> backgroundList(HttpServletRequest request) {
-        return ResponseEntity.ok(charService.getBackgroundList(request));
-    }
-
-    /*
-     * 배경 화면 적용
-     * */
-    @PostMapping("/background/select")
-    public ResponseEntity<GamJaResponse> setBackground(@RequestBody Map<String, Long> payload, HttpServletRequest request) {
-        return ResponseEntity.ok(charService.setBackgroundList(payload, request));
-    }
-
-    /*
     * 티어 정보 list
     * */
     @GetMapping("/tier/list")

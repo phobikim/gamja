@@ -674,69 +674,6 @@ public class CharService {
             "LEGENDARY", 5
     );
 
-    @Transactional(readOnly = true)
-    public GamJaResponse getBackgroundList(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        // 1) 전체 사용 가능 배경
-        List<BackgroundImage> all = backgroundImageRepository.findByEnabledTrue();
-        // 2) 유저가 보유한 배경 (user_skin에서 skin_background_id가 있는 행만)
-        List<UserSkin> ownedList = userSkinRepository.findByUserIdAndSkinBackgroundIsNotNull(userId);
-        Set<Long> ownedIds = ownedList.stream()
-                .map(us -> us.getSkinBackground().getId())
-                .collect(Collectors.toSet());
-
-        List<Map<String, Object>> result = all.stream()
-                .map(bg -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("id", bg.getId());
-                    map.put("name", bg.getName());
-                    map.put("imageUrl", bg.getImageUrl());
-                    map.put("owned", ownedIds.contains(bg.getId()));
-                    return map;
-                })
-                .toList();
-
-        return GamJaResponse.success("배경 이미지 목록", result);
-    }
-
-    @Transactional
-    public GamJaResponse setBackgroundList(Map<String, Long> payload, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        Long backgroundId = payload.get("backgroundId"); // 프론트에서 보내는 키 확인
-
-        if (backgroundId == null) {
-            return GamJaResponse.fail("backgroundId가 필요합니다.");
-        }
-
-        // 1) 배경 존재/활성 확인
-        BackgroundImage bg = backgroundImageRepository.findById(backgroundId)
-                .filter(BackgroundImage::isEnabled)
-                .orElse(null);
-        if (bg == null) {
-            return GamJaResponse.fail("해당 배경이 존재하지 않거나 비활성화 상태입니다.");
-        }
-
-        // 2) 소유 여부 확인 (user_skin)
-        boolean owned = userSkinRepository.findByUserIdAndSkinBackgroundIsNotNull(userId).stream()
-                .anyMatch(us -> us.getSkinBackground().getId().equals(backgroundId));
-        if (!owned) {
-            return GamJaResponse.fail("해당 배경을 보유하지 않았습니다.");
-        }
-
-        // 3) user_dtl 업데이트
-        UserDtl userDtl = userDtlRepository.findById(userId)
-                .orElseThrow(() -> new IllegalStateException("USER_DTL을 찾을 수 없습니다."));
-        userDtl.setBackgroundImage(bg);
-        // JPA dirty checking으로 저장
-
-        Map<String, Object> result = Map.of(
-                "userId", userId,
-                "backgroundId", bg.getId(),
-                "imageUrl", bg.getImageUrl()
-        );
-        return GamJaResponse.success("배경이 적용되었습니다.", result);
-    }
-
     public GamJaResponse tierList(HttpServletRequest request) {
         List<CorpsTier> tiers = corpsTierRepository.findAllByOrderByTierIdAsc();
         return GamJaResponse.success("감자단 랭크 정보 .",tiers);

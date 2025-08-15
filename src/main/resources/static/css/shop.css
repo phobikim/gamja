@@ -70,6 +70,7 @@
 
 /* 카드 스타일 */
 .shop-item-card {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -82,6 +83,21 @@
             inset 0 -2px 4px rgba(0, 0, 0, 0.3),
             inset 0 1px 2px rgba(255, 255, 255, 0.2),
             2px 3px 6px rgba(0, 0, 0, 0.25);
+}
+
+.shop-owned-label {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    background: #555;
+    color: #ffd700;
+    font-weight: bold;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 6px;
+    opacity: 1;
+    z-index: 3;
+    pointer-events: none;
 }
 
 .shop-item-card.selected {
@@ -270,7 +286,40 @@
 }
 .shop-item-card.disabled {
     pointer-events: none;
-    opacity: 0.5;
-    filter: grayscale(80%);
     cursor: not-allowed;
 }
+.shop-item-card.disabled .shop-item-thumb,
+.shop-item-card.disabled .shop-item-info,
+.shop-item-card.disabled .shop-item-price {
+    filter: grayscale(85%) brightness(0.8);
+    opacity: 0.55;
+}
+
+/* 구매 소탭 (모험/스킨) */
+.shop-subtab-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 0;
+    position: relative;
+    top: 10px;
+    left: 10px;
+}
+
+.shop-subtab {
+    padding: 4px 10px;
+    font-weight: bold;
+    background: #a86c3a;
+    border: 2px solid #3b240c;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    color: #fff8dc;
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.25);
+}
+
+.shop-subtab.active {
+    background: var(--orange-color);
+    color: var(--white-color);
+    box-shadow: 0 0 6px rgba(255, 200, 0, 0.5);
+}
+

@@ -30,7 +30,7 @@ public class UserSkin {
 
     // 배경 스킨 (필수)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "skin_background_id", nullable = false)
+    @JoinColumn(name = "skin_background_id")
     private BackgroundImage skinBackground;
 
     // 보더 스킨 (선택)

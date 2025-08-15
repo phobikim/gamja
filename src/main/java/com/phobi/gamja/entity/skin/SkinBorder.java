@@ -29,6 +29,11 @@ public class SkinBorder {
     @Column(name = "image_url", nullable = false, length = 255)
     private String imageUrl;
 
+    /** 사용 가능 여부 */
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean enabled = true;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
