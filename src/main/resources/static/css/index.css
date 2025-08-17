@@ -7,21 +7,6 @@
 }
 
 
-#mainBtn {
-    background-image: url('https://phobi.me/gamja.img/images//icons/btn_main.png');
-    position: absolute;
-    top: 2vh;
-    left: 3vw;
-    width: 45px;
-    height: 45px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    border: none;
-    background-color: transparent;
-    z-index: 10;
-    cursor: pointer;
-}
 
 .bgm-control {
     position: absolute;
@@ -31,17 +16,6 @@
     flex-direction: column;
     align-items: center;
     z-index: 10;
-}
-
-#bgmToggleBtn {
-    width: 45px;
-    height: 45px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
 }
 
 /* 🎵 작고 귀여운 슬라이더 */

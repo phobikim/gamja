@@ -1,4 +1,8 @@
 window.addEventListener('DOMContentLoaded', async () => {
+    const savedId = localStorage.getItem('gamjadan_login_id');
+    if (savedId) {
+        document.getElementById('LoginUsernameInput').value = savedId;
+    }
     try {
         const res = await fetch('/api/session-check', {
             credentials: 'include',
@@ -24,11 +28,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+
+
 // 로그인/회원가입 초기화 코드
 (function initLoginPage() {
     // 요소 셀렉터
     const logo = document.getElementById('gamjadanLogo');
-    const toggleBtn = document.getElementById("bgmToggleBtn");
 
     const adminModal = document.getElementById('adminModal');
     const adminLoginUserName = document.getElementById('LoginUsernameInput');
@@ -78,17 +83,21 @@ window.addEventListener('DOMContentLoaded', async () => {
     pinEvent(loginPinInputs, adminEnterBtn);
     pinEvent(signupPinInputs);
 
-    // BGM Toggle
-    // toggleBtn.addEventListener("click", () => toggleBGM("bgm_main"));
-
     // 로그인 모달 열기
     logo.addEventListener('click', () => {
         tryResumeAudioContext();
         playEffect("se_click");
         adminModal.classList.remove('hidden');
-        adminLoginUserName.value = '';
+
+        const savedId = adminLoginUserName.value;
         loginPinInputs.forEach(input => input.value = '');
-        adminLoginUserName.focus();
+
+        if (savedId) {
+            loginPinInputs[0].focus();
+        } else {
+            adminLoginUserName.focus();
+        }
+
         adminErrorText.classList.add('hidden');
     });
 
@@ -116,6 +125,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         try {
             const response = await apiRequest('/api/login', 'POST', { username, pin });
             if (response.code === 'SUCCESS') {
+                localStorage.setItem('gamjadan_login_id', username);
                 location.href = './char.html';
             } else {
                 showLoginError(response.message);
@@ -165,6 +175,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         try {
             const response = await apiRequest('/api/signup', 'POST', { username, pin });
             if (response.code === 'SUCCESS') {
+                localStorage.setItem('gamjadan_login_id', username);
                 location.href = './char.html';
             } else {
                 signupErrorText.textContent = response.message || '회원 가입 실패';
