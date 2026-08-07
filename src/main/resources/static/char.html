@@ -34,6 +34,7 @@
     <link rel="stylesheet" href="css/enhance.css">
     <link rel="stylesheet" href="css/alchemy.css">
     <link rel="stylesheet" href="css/shop.css">
+    <link rel="stylesheet" href="css/achieve.css">
     <!--    <link rel="stylesheet" href="css/playerDexSelect.css">-->
 <!--    <link rel="stylesheet" href="css/dexParty.css">-->
 </head>
@@ -73,7 +74,7 @@
                     감설 <span class="inline-level" id="inlineLevel">(Lv.1)</span>
                 </div>
                 <div class="player-gold" id="playerGold">
-                    <img id="goldIcon" src="https://phobi.me/gamja.img/images/items/money.png" alt="골드" class="gold-icon">
+                    <img id="goldIcon" src="https://phobi.my/gamja.img/images/items/money.png" alt="골드" class="gold-icon">
                     <span id="playerGoldValue">0</span>
                 </div>
             </div>
@@ -83,7 +84,7 @@
 
 <!-- 공지 아이콘 (top-ui 바로 아래 왼쪽 고정) -->
 <img id="noticeIconBtn"
-     src="https://phobi.me/gamja.img/images/icons/icon_notice.png"
+     src="https://phobi.my/gamja.img/images/icons/icon_notice.png"
      alt="공지사항"
      title="공지사항"
      class="notice-icon-btn"
@@ -91,43 +92,43 @@
 
 <!-- 캐릭터 영역 -->
 <div class="game-content" onclick="openInfoModal()">
-    <img id="mainCharacter" src="https://phobi.me/gamja.img/images/character/default.png" alt="캐릭터" class="character-img">
+    <img id="mainCharacter" src="https://phobi.my/gamja.img/images/character/default.png" alt="캐릭터" class="character-img">
 </div>
 
 <!-- 하단 인벤토리 그리드 (4x2) -->
 <div class="main-menu-grid">
     <div class="main-menu-cell" onclick="handleQuestClick()">
-        <img src="https://phobi.me/gamja.img/images/icons/icon_quest.png" alt="퀘스트">
+        <img src="https://phobi.my/gamja.img/images/icons/icon_quest.png" alt="퀘스트">
         <span class="itemLabel">감자단임무</span>
     </div>
 
     <div class="main-menu-cell" onclick="handleAttackClick()">
-        <img src="https://phobi.me/gamja.img/images/icons/icon_skill_attack.png" alt="전투">
+        <img src="https://phobi.my/gamja.img/images/icons/icon_skill_attack.png" alt="전투">
         <span class="itemLabel">전투</span>
     </div>
     <div class="main-menu-cell" onclick="openMapModal()">
-        <img src="https://phobi.me/gamja.img/images/icons/icon_map.png" alt="지도">
+        <img src="https://phobi.my/gamja.img/images/icons/icon_map.png" alt="지도">
         <span class="itemLabel">생활</span>
     </div>
     <div class="main-menu-cell" onclick="handleStationClick()">
-        <img src="https://phobi.me/gamja.img/images/icons/icon_station.png" alt="공방">
+        <img src="https://phobi.my/gamja.img/images/icons/icon_station.png" alt="공방">
         <span class="itemLabel">감자공방</span>
     </div>
 
     <div class="main-menu-cell" onclick="handleLaboratoryClick()">
-        <img src="https://phobi.me/gamja.img/images/icons/icon_laboratory.png" alt="감자감정소">
+        <img src="https://phobi.my/gamja.img/images/icons/icon_laboratory.png" alt="감자감정소">
         <span class="itemLabel">감자감정소</span>
     </div>
     <div class="main-menu-cell" onclick="handleDexClick()">
-        <img src="https://phobi.me/gamja.img/images/icons/icon_book.png" alt="도감">
+        <img src="https://phobi.my/gamja.img/images/icons/icon_book.png" alt="도감">
         <span class="itemLabel">감자도감</span>
     </div>
     <div class="main-menu-cell" onclick="handleBagClick()">
-        <img src="https://phobi.me/gamja.img/images/icons/icon_bag.png" alt="인벤토리">
+        <img src="https://phobi.my/gamja.img/images/icons/icon_bag.png" alt="인벤토리">
         <span class="itemLabel">가방</span>
     </div>
     <div class="main-menu-cell" onclick="handleRankClick()">
-        <img src="https://phobi.me/gamja.img/images/icons/icon_rank.png" alt="랭킹">
+        <img src="https://phobi.my/gamja.img/images/icons/icon_rank.png" alt="랭킹">
         <span class="itemLabel">랭킹</span>
     </div>
 
@@ -139,19 +140,19 @@
         <h2 class="common-h2-brown">이동할 장소 선택</h2>
         <div class="spot-list map-select-list">
             <div class="inventoryCell" onclick="actionGather('WOODCUTTING');">
-                <img src="https://phobi.me/gamja.img/images/icons/icon_wood.png" alt="벌목">
+                <img src="https://phobi.my/gamja.img/images/icons/icon_wood.png" alt="벌목">
                 <span class="itemLabel">벌목</span>
             </div>
             <div class="inventoryCell" onclick="actionGather('MINING');">
-                <img src="https://phobi.me/gamja.img/images/icons/icon_mining.png" alt="광산">
+                <img src="https://phobi.my/gamja.img/images/icons/icon_mining.png" alt="광산">
                 <span class="itemLabel">광산</span>
             </div>
             <div class="inventoryCell" onclick="actionGather('GATHERING');">
-                <img src="https://phobi.me/gamja.img/images/icons/icon_field.png" alt="감자밭">
+                <img src="https://phobi.my/gamja.img/images/icons/icon_field.png" alt="감자밭">
                 <span class="itemLabel">감자밭</span>
             </div>
             <div class="inventoryCell" onclick="actionGather('FISHING');">
-                <img src="https://phobi.me/gamja.img/images/icons/icon_fish.png" alt="낚시">
+                <img src="https://phobi.my/gamja.img/images/icons/icon_fish.png" alt="낚시">
                 <span class="itemLabel">낚시</span>
             </div>
         </div>
@@ -589,7 +590,7 @@
 <div id="questModal" class="modal hidden">
     <div class="quest-modal-container">
         <div class="quest-banner">
-            <img src="https://phobi.me/gamja.img/images/backgrounds/bg_quest_banner.png" alt="퀘스트 일러스트" class="quest-banner-image" />
+            <img src="https://phobi.my/gamja.img/images/backgrounds/bg_quest_banner.png" alt="퀘스트 일러스트" class="quest-banner-image" />
         </div>
 
         <!-- 탭 버튼 -->
@@ -817,7 +818,7 @@
 <!-- ========== 전리품 상자 모달 (독립적으로 분리) ========== -->
 <div id="lootModal" class="modal hidden">
     <div class="loot-modal-content">
-        <img src="https://phobi.me/gamja.img/images/icons/icon_victory1.png" alt="승리">
+        <img src="https://phobi.my/gamja.img/images/icons/icon_victory1.png" alt="승리">
         <!-- 보상 결과 단계 -->
         <div id="rewardStage" class="reward-stage" style="display: none;">
             <!-- 캐릭터 정보 섹션 -->
@@ -863,7 +864,7 @@
 <div id="defeatModal" class="modal hidden">
     <div class="defeat-modal-content">
         <div class="defeat-image-wrapper">
-            <img src="https://phobi.me/gamja.img/images/icons/icon_defeat.png" alt="Defeat Image" class="defeat-image">
+            <img src="https://phobi.my/gamja.img/images/icons/icon_defeat.png" alt="Defeat Image" class="defeat-image">
             <div class="sign-text" id="defeatSignText">여기에 다시 묻히다...</div>
         </div>
         <div class="defeat-button-row inline-buttons">
@@ -914,7 +915,7 @@
                 <!-- 전투 스탯 -->
                 <div id="combatStats" class="char-stats">
                     <div class="stat-block" id="stat-combatAtk">
-                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_power.png" class="stat-icon" />
+                        <img src="https://phobi.my/gamja.img/images/icons/icon_stat_power.png" class="stat-icon" />
                         <div class="stat-info">
                             <div class="stat-label">공격력</div>
                             <div class="stat-bar-wrapper">
@@ -926,7 +927,7 @@
                         </div>
                     </div>
                     <div class="stat-block" id="stat-combatHp">
-                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_hp.png" class="stat-icon" />
+                        <img src="https://phobi.my/gamja.img/images/icons/icon_stat_hp.png" class="stat-icon" />
                         <div class="stat-info">
                             <div class="stat-label">체력</div>
                             <div class="stat-bar-wrapper">
@@ -938,7 +939,7 @@
                         </div>
                     </div>
                     <div class="stat-block" id="stat-combatSpeed">
-                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_speed.png" class="stat-icon" />
+                        <img src="https://phobi.my/gamja.img/images/icons/icon_stat_speed.png" class="stat-icon" />
                         <div class="stat-info">
                             <div class="stat-label">치명타 확률</div>
                             <div class="stat-bar-wrapper no-bar">
@@ -978,7 +979,7 @@
                 <!-- 생활 스탯 -->
                 <div id="lifeStats" class="char-stats hidden">
                     <div class="stat-block" id="stat-lifeWoodcutting">
-                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_woodcut.png" class="stat-icon" />
+                        <img src="https://phobi.my/gamja.img/images/icons/icon_stat_woodcut.png" class="stat-icon" />
                         <div class="stat-info">
                             <div class="stat-label">벌목</div>
                             <div class="stat-bar-wrapper">
@@ -990,7 +991,7 @@
                         </div>
                     </div>
                     <div class="stat-block" id="stat-lifeMining">
-                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_mining.png" class="stat-icon" />
+                        <img src="https://phobi.my/gamja.img/images/icons/icon_stat_mining.png" class="stat-icon" />
                         <div class="stat-info">
                             <div class="stat-label">채광</div>
                             <div class="stat-bar-wrapper">
@@ -1002,7 +1003,7 @@
                         </div>
                     </div>
                     <div class="stat-block" id="stat-lifeGathering">
-                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_gather.png" class="stat-icon" />
+                        <img src="https://phobi.my/gamja.img/images/icons/icon_stat_gather.png" class="stat-icon" />
                         <div class="stat-info">
                             <div class="stat-label">채집</div>
                             <div class="stat-bar-wrapper">
@@ -1014,7 +1015,7 @@
                         </div>
                     </div>
                     <div class="stat-block" id="stat-lifeFishing">
-                        <img src="https://phobi.me/gamja.img/images/icons/icon_stat_fishing.png" class="stat-icon" />
+                        <img src="https://phobi.my/gamja.img/images/icons/icon_stat_fishing.png" class="stat-icon" />
                         <div class="stat-info">
                             <div class="stat-label">낚시</div>
                             <div class="stat-bar-wrapper">
@@ -1034,6 +1035,7 @@
             <button id="openGrowthModalBtn" class="action-btn" >성장</button>
             <button id="openEnhanceModalBtn" class="action-btn">강화</button>
             <button id="openAlchemyModalBtn" class="action-btn">연금</button>
+            <button id="openAchieveModalBtn" class="action-btn">업적</button>
         </div>
         <!-- 장비 슬롯 -->
         <div class="inventory-grid " id="combatEquipment">
@@ -1080,7 +1082,7 @@
 <div id="gachaModal" class="modal hidden">
     <div class="gacha-modal-content">
         <div class="gacha-counter">
-            <img src="https://phobi.me/gamja.img/images/items/unidentified_potato.png" style="width:20px;">
+            <img src="https://phobi.my/gamja.img/images/items/unidentified_potato.png" style="width:20px;">
             <span id="unappraisedCountLabel">x 0</span>
         </div>
         <div id="peelingLabel" class="gacha-peeling-label hidden"></div>
@@ -1348,7 +1350,7 @@
 
         <!-- 🔸 골드 표시 -->
         <div class="shop-gold-display">
-            <img class="shop-gold-icon" src="https://phobi.me/gamja.img/images/items/money.png" alt="gold" />
+            <img class="shop-gold-icon" src="https://phobi.my/gamja.img/images/items/money.png" alt="gold" />
             <span id="goldDisplay">0 G</span>
         </div>
         <div id="shopBuySubtabs" class="shop-subtab-container hidden">
@@ -1388,6 +1390,119 @@
     </div>
 </div>
 
+<!-- 업적 모달 -->
+<div id="achieveModal" class="modal hidden">
+    <div class="achieve-modal-container">
+        <!-- 상단: 유저 명성(HUD) -->
+        <div class="fame-header">
+            <div class="fame-left">
+                <div class="fame-title-row">
+                    <span id="fameName" class="fame-name">명성 이름</span>
+                    <span id="fameLevel" class="fame-level-badge">Lv.1</span>
+                </div>
+                <div id="fameDesc" class="fame-desc">명성 설명</div>
+            </div>
+            <div class="fame-right">
+                <div class="fame-point-box">
+                    <span class="fame-point-label">명성 포인트:</span>
+                    <span id="famePoint" class="fame-point-value">0</span>
+                </div>
+                <div class="fame-xp-bar">
+                    <div id="fameXpFill" class="fame-xp-fill" style="width:0%"></div>
+                </div>
+                <div id="fameXpText" class="fame-xp-text">0 / 0</div>
+            </div>
+        </div>
+
+        <!-- 탭 -->
+        <div class="achieve-tab-header">
+            <button class="achieve-tab-btn active" data-category="GROWTH">성장</button>
+            <button class="achieve-tab-btn" data-category="ADVENTURE">모험</button>
+            <button class="achieve-tab-btn" data-category="CRAFT">제작</button>
+            <button class="achieve-tab-btn" data-category="COLLECTION">수집</button>
+            <button class="achieve-tab-btn" data-category="EVENT">이벤트</button>
+        </div>
+
+        <!-- 본문 -->
+        <div class="achieve-content">
+            <!-- 좌: 시리즈 리스트 -->
+            <div class="achieve-list-panel">
+                <div id="achieveSeriesList" class="achieve-series-scroll">
+                    <!-- JS 렌더링 -->
+                </div>
+                <div id="achieveEmptyState" class="achieve-empty hidden">등록된 업적이 없습니다.</div>
+            </div>
+
+            <!-- 우: 시리즈 상세 -->
+            <div class="achieve-detail-panel">
+                <div id="achieveDetailHeader" class="achieve-detail-header hidden">
+                    <div class="detail-title-row">
+                        <div id="seriesName" class="series-name">시리즈 이름</div>
+                        <div class="series-progress">
+                            <div class="series-progress-bar">
+                                <div id="seriesProgressFill" class="series-progress-fill" style="width:0%"></div>
+                            </div>
+                            <div id="seriesProgressText" class="series-progress-text">0 / 0</div>
+                        </div>
+                    </div>
+                    <div id="seriesDesc" class="series-desc">시리즈 설명</div>
+                </div>
+                <div id="achieveEntryList" class="achieve-entry-list">
+                    <!-- JS 렌더링 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 하단 버튼 -->
+        <div class="achieve-footer">
+            <button class="achieve-close-btn" onclick="closeAchieveModal()">닫기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 템플릿: 시리즈 카드 -->
+<template id="achieveSeriesItemTemplate">
+    <div class="achieve-series-card" data-series-id="">
+        <!-- 카드 헤더 (클릭 영역) -->
+        <div class="series-card-head">
+            <div class="series-card-title"></div>
+            <div class="series-card-right">
+                <div class="mini-progress">
+                    <div class="mini-progress-bar">
+                        <div class="mini-progress-fill" style="width:0%"></div>
+                    </div>
+                    <span class="mini-progress-text">0/0</span>
+                </div>
+                <div class="series-arrow" aria-hidden="true"></div>
+            </div>
+        </div>
+
+        <div class="series-card-desc"></div>
+        <div class="series-card-category"></div>
+
+        <!-- 펼침 바디(상세 엔트리) -->
+        <div class="series-card-body">
+            <div class="series-entry-list"><!-- JS 렌더링 --></div>
+        </div>
+    </div>
+</template>
+
+<!-- 템플릿: 엔트리 행 -->
+<template id="achieveEntryRowTemplate">
+    <div class="entry-row" data-entry-id="">
+        <div class="entry-left">
+            <div class="entry-desc"></div>
+            <div class="entry-meta">
+                <span class="entry-require"></span>
+            </div>
+        </div>
+        <div class="entry-right">
+            <span class="entry-sticker status-default">미진행</span>
+            <div class="entry-rewards"></div>
+            <button class="entry-claim-btn" disabled>수령</button>
+        </div>
+    </div>
+</template>
 
 <div id="sessionExpiredModal" class="modal hidden">
     <div class="session-modal-content">
@@ -1426,6 +1541,7 @@
 <script src="js/enhance.js"></script>
 <script src="js/alchemy.js"></script>
 <script src="js/shop.js"></script>
+<script src="js/achieve.js"></script>
 <!--<script src="js/playerDexSelect.js"></script>-->
 <!--<script src="js/dexParty.js"></script>-->
 

@@ -41,8 +41,8 @@
             0 0 8px rgba(255, 242, 184, 0.75),
             0 0 18px rgba(255, 242, 184, 0.45),
             inset 0 0 6px rgba(255, 255, 255, 0.25);
-    border: 2px solid #fff2b8;
-    border-radius: 10px;
+    /*border: 2px solid #fff2b8;*/
+    /*border-radius: 10px;*/
 }
 
 /* 반짝이는 효과 애니메이션 */

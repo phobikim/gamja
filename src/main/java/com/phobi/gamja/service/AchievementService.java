@@ -139,4 +139,94 @@ public class AchievementService {
 
         return GamJaResponse.success("업적 시리즈", seriesDto);
     }
+
+    @Transactional(readOnly = true)
+    public GamJaResponse listByCategory(String category, HttpSession session) {
+        Long userId = commonUtil.getUserId(session);
+
+        AchievementCategory cat;
+        try {
+            cat = AchievementCategory.valueOf(category.toUpperCase());
+        } catch (Exception e) {
+            return GamJaResponse.fail("잘못된 카테고리: " + category);
+        }
+
+        // 해당 카테고리 업적 시리즈 조회
+        List<Achievement> metas = achievementRepository
+                .findByCategoryAndEnabledTrueOrderByCreatedAtDesc(cat);
+
+        if (metas.isEmpty()) {
+            return GamJaResponse.success("해당 카테고리 업적 없음", Collections.emptyList());
+        }
+
+        // 시리즈별 엔트리/리워드/유저 진행 포함해서 조립
+        List<AchievementSeriesDto> seriesDtos = new ArrayList<>();
+
+        for (Achievement meta : metas) {
+            List<EntryFlatRow> rows = achievementEntryRepository.findEntryFlatRows(meta.getId(), userId);
+
+            Map<Long, List<EntryFlatRow>> byEntry = rows.stream()
+                    .collect(Collectors.groupingBy(r -> r.entryId));
+
+            List<AchievementEntryDto> entryDtos = new ArrayList<>();
+            for (Map.Entry<Long, List<EntryFlatRow>> e : byEntry.entrySet()) {
+                List<EntryFlatRow> group = e.getValue();
+                EntryFlatRow head = group.get(0);
+
+                AchievementEntryDto entryDto = new AchievementEntryDto();
+                entryDto.id = head.entryId;
+                entryDto.description = head.description;
+                entryDto.requirementType = head.requirementType;
+                entryDto.requirementValue = head.requirementValue;
+                entryDto.characterId = head.characterId;
+                entryDto.monsterId = head.monsterId;
+                entryDto.itemId = head.itemId;
+                entryDto.orderInSeries = head.orderInSeries;
+                entryDto.enabled = Boolean.TRUE.equals(head.entryEnabled);
+
+                // rewards
+                List<AchievementRewardDto> rewards = group.stream()
+                        .filter(r -> r.rewardId != null)
+                        .map(r -> {
+                            AchievementRewardDto rd = new AchievementRewardDto();
+                            rd.id = r.rewardId;
+                            rd.rewardType = r.rewardType;
+                            rd.amount = r.rewardAmount;
+                            rd.rewardKey = r.rewardKey;
+                            rd.rewardRefId = r.rewardRefId;
+                            return rd;
+                        })
+                        .collect(Collectors.toList());
+                entryDto.rewards = rewards;
+
+                // user progress
+                if (head.userStatus != null) {
+                    UserAchievementDto ua = new UserAchievementDto();
+                    ua.status = head.userStatus;
+                    ua.progressCount = head.userProgressCount;
+                    ua.completedAt = head.userCompletedAt;
+                    ua.rewardedAt = head.userRewardedAt;
+                    entryDto.user = ua;
+                }
+
+                entryDtos.add(entryDto);
+            }
+
+            entryDtos.sort(Comparator.comparingInt(d ->
+                    Optional.ofNullable(d.orderInSeries).orElse(0)));
+
+            AchievementSeriesDto seriesDto = new AchievementSeriesDto();
+            seriesDto.id = meta.getId();
+            seriesDto.name = meta.getName();
+            seriesDto.description = meta.getDescription();
+            seriesDto.seriesKey = meta.getSeriesKey();
+            seriesDto.category = meta.getCategory();
+            seriesDto.enabled = meta.isEnabled();
+            seriesDto.entries = entryDtos;
+
+            seriesDtos.add(seriesDto);
+        }
+
+        return GamJaResponse.success(category + " 업적 시리즈 목록", seriesDtos);
+    }
 }

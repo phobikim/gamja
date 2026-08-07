@@ -1,5 +1,5 @@
 .gacha-modal-content {
-    background-image: url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_enter.png');
+    background-image: url('https://phobi.my/gamja.img/images/backgrounds/bg_gacha_enter.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -22,19 +22,19 @@
 
 /* rarity별 모달 콘텐츠 배경 이미지 */
 .gacha-modal-content.common {
-    background-image: url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_common.png');
+    background-image: url('https://phobi.my/gamja.img/images/backgrounds/bg_gacha_common.png');
 }
 
 .gacha-modal-content.uncommon {
-    background-image: url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_uncommon.png');
+    background-image: url('https://phobi.my/gamja.img/images/backgrounds/bg_gacha_uncommon.png');
 }
 
 .gacha-modal-content.rare {
-    background-image: url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_rare.png');
+    background-image: url('https://phobi.my/gamja.img/images/backgrounds/bg_gacha_rare.png');
 }
 
 .gacha-modal-content.epic {
-    background-image: url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_epic.png');
+    background-image: url('https://phobi.my/gamja.img/images/backgrounds/bg_gacha_epic.png');
 }
 
 

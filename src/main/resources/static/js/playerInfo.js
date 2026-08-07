@@ -117,7 +117,7 @@ async function openInfoModal() {
 function setCharacterBasicInfo(data) {
     const imgEl = document.getElementById('charImage');
     if (data.characterImage) {
-        imgEl.src = `https://phobi.me/gamja.img/images/character/${data.characterImage}`;
+        imgEl.src = `https://phobi.my/gamja.img/images/character/${data.characterImage}`;
     }
 
     const skinEl = document.getElementById('charBorderSkin');
@@ -364,6 +364,12 @@ openAlchemyModalBtn.addEventListener('click', () => {
     openAlchemyModal();
 });
 
+// 업적 모달 클릭
+openAlchemyModalBtn.addEventListener('click', () => {
+    // showMessageModal("Opening Soon!")
+    characterModal.classList.add('hidden');
+    openAchieveModal();
+});
 
 
 document.getElementById('characterModalClose').addEventListener('click', () => {

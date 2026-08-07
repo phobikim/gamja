@@ -7,10 +7,10 @@ let basePlayerPower = 0;
 let currentPlayerPower = 0;
 
 const EFFECT_IMG = {
-    DAMAGE_TO_PLAYER: 'https://phobi.me/gamja.img/images/effect/boss_attack.png',
-    HEAL_SELF:        'https://phobi.me/gamja.img/images/effect/boss_heal2.png',
-    DEBUFF_PLAYER:    'https://phobi.me/gamja.img/images/effect/boss_debuff.png',
-    PLAYER_HEAL_SELF: 'https://phobi.me/gamja.img/images/effect/healing_sprout.png',
+    DAMAGE_TO_PLAYER: 'https://phobi.my/gamja.img/images/effect/boss_attack.png',
+    HEAL_SELF:        'https://phobi.my/gamja.img/images/effect/boss_heal2.png',
+    DEBUFF_PLAYER:    'https://phobi.my/gamja.img/images/effect/boss_debuff.png',
+    PLAYER_HEAL_SELF: 'https://phobi.my/gamja.img/images/effect/healing_sprout.png',
 };
 let bgmStarted = false;
 let usingPotion = false;

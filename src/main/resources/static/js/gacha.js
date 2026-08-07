@@ -10,7 +10,7 @@ async function handleLaboratoryClick() {
     // 초기화
     overlay.classList.remove("show");
     modalContent.className = "gacha-modal-content";
-    modalContent.style.backgroundImage = "url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_enter.png')";
+    modalContent.style.backgroundImage = "url('https://phobi.my/gamja.img/images/backgrounds/bg_gacha_enter.png')";
 
     const modal = document.getElementById("gachaModal");
     modal.classList.remove("hidden");
@@ -112,11 +112,11 @@ function decreasePotatoCount() {
 
 function getBackgroundImageByRarity(rarity) {
     const map = {
-        COMMON: "url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_common.png')",
-        UNCOMMON: "url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_uncommon.png')",
-        RARE: "url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_rare.png')",
-        EPIC: "url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_epic.png')",
-        LEGENDARY: "url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_legendary.png')"
+        COMMON: "url('https://phobi.my/gamja.img/images/backgrounds/bg_gacha_common.png')",
+        UNCOMMON: "url('https://phobi.my/gamja.img/images/backgrounds/bg_gacha_uncommon.png')",
+        RARE: "url('https://phobi.my/gamja.img/images/backgrounds/bg_gacha_rare.png')",
+        EPIC: "url('https://phobi.my/gamja.img/images/backgrounds/bg_gacha_epic.png')",
+        LEGENDARY: "url('https://phobi.my/gamja.img/images/backgrounds/bg_gacha_legendary.png')"
     };
     return map[rarity?.toUpperCase()] || map.COMMON;
 }
@@ -491,7 +491,7 @@ function resetGachaButton() {
     }
 
     const modalContent = document.querySelector('.gacha-modal-content');
-    modalContent.style.backgroundImage = "url('https://phobi.me/gamja.img/images/backgrounds/bg_gacha_enter.png')";
+    modalContent.style.backgroundImage = "url('https://phobi.my/gamja.img/images/backgrounds/bg_gacha_enter.png')";
     modalContent.classList.remove("multi-gacha-mode");
     isGachaInProgress = false;
 }

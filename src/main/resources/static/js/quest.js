@@ -515,7 +515,7 @@ async function renderChronicleSummary(mapId) {
     label.className = 'quest-chronicle-summary-text';
 
     const icon = document.createElement('img');
-    icon.src = 'https://phobi.me/gamja.img/images/icons/chronicle_book.png';
+    icon.src = 'https://phobi.my/gamja.img/images/icons/chronicle_book.png';
     icon.alt = 'progress';
     icon.className = 'quest-chronicle-summary-icon';
 

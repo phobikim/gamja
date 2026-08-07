@@ -2,7 +2,7 @@ window.onload = async function () {
     await loadItems();
     await loadRecipes();
 };
-const basePath = 'https://phobi.me/gamja.img';
+const basePath = 'https://phobi.my/gamja.img';
 // 📦 아이템 목록 불러오기
 async function loadItems() {
     const res = await fetch("/api/admin/items");

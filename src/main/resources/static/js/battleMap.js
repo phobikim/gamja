@@ -12,8 +12,8 @@ async function handleAttackClick() {
     fetch("/boss-enter.html");
     fetch("/css/common.css");
     const img = new Image();
-    img.src = "https://phobi.me/gamja.img/images/monster/boss_gg.png";
-    img.src = "https://phobi.me/gamja.img/images/backgrounds/bg_boss_gg_map.png";
+    img.src = "https://phobi.my/gamja.img/images/monster/boss_gg.png";
+    img.src = "https://phobi.my/gamja.img/images/backgrounds/bg_boss_gg_map.png";
 
     playEffect("se_click2")
     document.body.style.overflow = 'hidden';

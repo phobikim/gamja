@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SERVER_USER=gamja
-SERVER_IP=211.208.163.16
+SERVER_IP=192.168.45.212
 SERVER_PATH=/home/gamja/gamjadan/app
 JAR_NAME=gamja-1.0.0.jar
 DEPLOY_SCRIPT=deploy.sh

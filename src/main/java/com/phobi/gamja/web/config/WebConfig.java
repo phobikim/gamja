@@ -13,7 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("*") // 또는 .allowedOrigins("https://phobi.me") 식으로 제한 가능
+                .allowedOriginPatterns("*") // 또는 .allowedOrigins("https://phobi.my") 식으로 제한 가능
                 .allowedHeaders("Authorization", "X-Requested-With", "Content-Type")
                 .allowedMethods("GET", "POST", "OPTIONS")
                 .allowCredentials(true); // 세션 쿠키 같이 보내려면 이거 꼭 필요!

@@ -1,17 +1,17 @@
 // 🔊 사운드 저장소
 const audioMap = {
-    se_click: "https://phobi.me/gamja.img/audio/se_click.mp3",
-    se_click2: "https://phobi.me/gamja.img/audio/se_click2.mp3",
-    se_input: "https://phobi.me/gamja.img/audio/se_input.mp3",
-    se_ok: "https://phobi.me/gamja.img/audio/se_ok.mp3",
-    se_coin: "https://phobi.me/gamja.img/audio/se_coin.mp3",
-    se_craft: "https://phobi.me/gamja.img/audio/se_craft.mp3",
-    se_attack: "https://phobi.me/gamja.img/audio/se_attack.mp3",
-    bgm_main: "https://phobi.me/gamja.img/audio/bgm_main.mp3",
-    bgm_gotcha: "https://phobi.me/gamja.img/audio/bgm_gotcha.mp3",
-    bgm_base: "https://phobi.me/gamja.img/audio/bgm_base.mp3",
-    bgm_char: "https://phobi.me/gamja.img/audio/bgm_char.mp3",
-    bgm_shop: "https://phobi.me/gamja.img/audio/bgm_shop.mp3",
+    se_click: "https://phobi.my/gamja.img/audio/se_click.mp3",
+    se_click2: "https://phobi.my/gamja.img/audio/se_click2.mp3",
+    se_input: "https://phobi.my/gamja.img/audio/se_input.mp3",
+    se_ok: "https://phobi.my/gamja.img/audio/se_ok.mp3",
+    se_coin: "https://phobi.my/gamja.img/audio/se_coin.mp3",
+    se_craft: "https://phobi.my/gamja.img/audio/se_craft.mp3",
+    se_attack: "https://phobi.my/gamja.img/audio/se_attack.mp3",
+    bgm_main: "https://phobi.my/gamja.img/audio/bgm_main.mp3",
+    bgm_gotcha: "https://phobi.my/gamja.img/audio/bgm_gotcha.mp3",
+    bgm_base: "https://phobi.my/gamja.img/audio/bgm_base.mp3",
+    bgm_char: "https://phobi.my/gamja.img/audio/bgm_char.mp3",
+    bgm_shop: "https://phobi.my/gamja.img/audio/bgm_shop.mp3",
 };
 
 
